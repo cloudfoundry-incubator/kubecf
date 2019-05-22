@@ -1,0 +1,3 @@
+[submodule "third-party/cf-operator"]
+	path = third-party/cf-operator
+	url = https://github.com/cloudfoundry-incubator/cf-operator.git
