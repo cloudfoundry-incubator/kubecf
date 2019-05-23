@@ -1,0 +1,21 @@
+{{- $root := . -}}
+apiVersion: fissile.cloudfoundry.org/v1alpha1
+kind: BOSHDeployment
+metadata:
+  name: scf
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "scf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "scf.chart" . }}
+spec:
+  manifest:
+    ref: cf-deployment
+    type: configmap
+  ops:
+# Reference all the ConfigMaps created for each ops file under assets/operations.
+{{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
+  - ref: {{ include "scf.ops-name" $path }}
+    type: configmap
+{{- end }}

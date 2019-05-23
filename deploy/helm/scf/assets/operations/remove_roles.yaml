@@ -1,0 +1,35 @@
+# This is a temporary file used for selectively removing instance_groups during the initial
+# development. It should go away once all instance_groups work properly with cf-operator.
+
+- type: remove
+  path: /instance_groups/name=smoke-tests
+- type: remove
+  path: /instance_groups/name=adapter
+- type: remove
+  path: /instance_groups/name=database
+- type: remove
+  path: /instance_groups/name=diego-api
+- type: remove
+  path: /instance_groups/name=uaa
+- type: remove
+  path: /instance_groups/name=singleton-blobstore
+- type: remove
+  path: /instance_groups/name=api
+- type: remove
+  path: /instance_groups/name=cc-worker
+- type: remove
+  path: /instance_groups/name=scheduler
+- type: remove
+  path: /instance_groups/name=router
+- type: remove
+  path: /instance_groups/name=tcp-router
+- type: remove
+  path: /instance_groups/name=doppler
+- type: remove
+  path: /instance_groups/name=diego-cell
+- type: remove
+  path: /instance_groups/name=log-api
+- type: remove
+  path: /instance_groups/name=credhub
+- type: remove
+  path: /instance_groups/name=rotate-cc-database-key

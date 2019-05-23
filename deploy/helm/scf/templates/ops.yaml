@@ -1,0 +1,20 @@
+# This template creates a ConfigMap for each ops file under assets/operations.
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "scf.ops-name" $path }}
+  labels:
+    app.kubernetes.io/component: operations
+    app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "scf.fullname" $root }}
+    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "scf.chart" $root }}
+data:
+  ops: |-
+    {{- $root.Files.Get $path | nindent 4 -}}
+{{- end }}
