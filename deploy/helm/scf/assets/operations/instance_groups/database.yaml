@@ -1,7 +1,101 @@
+# Remove the PXC release and related variables.
 - type: remove
-  path: /instance_groups/name=database
+  path: /releases/name=pxc
+- type: remove
+  path: /variables/name=pxc_galera_ca
+- type: remove
+  path: /variables/name=pxc_server_ca
+- type: remove
+  path: /variables/name=galera_server_certificate
+- type: remove
+  path: /variables/name=mysql_server_certificate
+
+# Add the cf-mysql-release.
 - type: replace
-  path: /releases/name=pxc/url
-  value: docker.io/cfcontainerization
-- type: remove
-  path: /releases/name=pxc/sha1
+  path: /releases/name=cf-mysql?
+  value:
+    name: cf-mysql
+    url: docker.io/cfcontainerization
+    version: 36.19.0
+    sha1: ~
+
+# Configure the persistent disk in the way that cf-operator can provision.
+- type: replace
+  path: /instance_groups/name=database/persistent_disk_type
+  value: standard
+- type: replace
+  path: /instance_groups/name=database/persistent_disk?
+  value: 20480
+
+# Replace the jobs using the cf-mysql-release.
+- type: replace
+  path: /instance_groups/name=database/jobs
+  value:
+    - name: mysql
+      release: cf-mysql
+      properties:
+        cf_mysql:
+          mysql:
+            enable_galera: false
+            admin_password: "((cf_mysql_mysql_admin_password))"
+            port: 3306
+            binlog_enabled: false
+            cluster_health:
+              password: "((cf_mysql_mysql_cluster_health_password))"
+            galera_healthcheck:
+              db_password: "((cf_mysql_mysql_galera_healthcheck_password))"
+              endpoint_username: galera_healthcheck
+              endpoint_password: "((cf_mysql_mysql_galera_healthcheck_endpoint_password))"
+            seeded_databases:
+            - name: cloud_controller
+              username: cloud_controller
+              password: "((cc_database_password))"
+            - name: credhub
+              password: ((credhub_database_password))
+              username: credhub
+            - name: diego
+              username: diego
+              password: "((diego_database_password))"
+            - name: network_connectivity
+              username: network_connectivity
+              password: "((network_connectivity_database_password))"
+            - name: network_policy
+              username: network_policy
+              password: "((network_policy_database_password))"
+            - name: routing-api
+              username: routing-api
+              password: "((routing_api_database_password))"
+            - name: uaa
+              username: uaa
+              password: "((uaa_database_password))"
+            - name: locket
+              username: locket
+              password: "((locket_database_password))"
+
+# Add bosh_containerization properties. It adds the BPM configuration as cf-mysql-release lacks
+# support for it upstream.
+- type: replace
+  path: /instance_groups/name=database/jobs/name=mysql/properties/bosh_containerization?
+  value:
+    ports:
+    - name: mysql
+      protocol: TCP
+      internal: 3306
+    run:
+      memory: 2500
+      virtual-cpus: 2
+      healthcheck:
+        readiness:
+          command:
+          - "/var/vcap/packages/mariadb/bin/mysqladmin --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf ping"
+    bpm:
+      processes:
+      - name: mariadb_ctrl
+        executable: /bin/sh
+        args:
+          - -c
+          - "/var/vcap/jobs/mysql/bin/mariadb_ctl start; while true; do sleep 60; done"
+        limits:
+          open_files: 1048576
+        ephemeral_disk: true
+        persistent_disk: true

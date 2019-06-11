@@ -14,30 +14,6 @@
 - type: remove
   path: /variables/name=cc_staging_upload_password
 - type: remove
-  path: /variables/name=cf_mysql_mysql_admin_password
-- type: remove
-  path: /variables/name=cf_mysql_mysql_cluster_health_password
-- type: remove
-  path: /variables/name=cf_mysql_mysql_galera_healthcheck_endpoint_password
-- type: remove
-  path: /variables/name=cf_mysql_mysql_galera_healthcheck_password
-- type: remove
-  path: /variables/name=cf_mysql_proxy_api_password
-- type: remove
-  path: /variables/name=cc_database_password
-- type: remove
-  path: /variables/name=credhub_database_password
-- type: remove
-  path: /variables/name=diego_database_password
-- type: remove
-  path: /variables/name=uaa_database_password
-- type: remove
-  path: /variables/name=routing_api_database_password
-- type: remove
-  path: /variables/name=network_policy_database_password
-- type: remove
-  path: /variables/name=network_connectivity_database_password
-- type: remove
   path: /variables/name=uaa_default_encryption_passphrase
 - type: remove
   path: /variables/name=silk_ca
@@ -183,14 +159,6 @@
   path: /variables/name=credhub_tls
 - type: remove
   path: /variables/name=ssh_proxy_backends_tls
-- type: remove
-  path: /variables/name=pxc_galera_ca
-- type: remove
-  path: /variables/name=pxc_server_ca
-- type: remove
-  path: /variables/name=galera_server_certificate
-- type: remove
-  path: /variables/name=mysql_server_certificate
 - type: remove
   path: /variables/name=loggregator_rlp_gateway_tls
 - type: remove
