@@ -6,8 +6,6 @@
 - type: remove
   path: /instance_groups/name=adapter
 - type: remove
-  path: /instance_groups/name=database
-- type: remove
   path: /instance_groups/name=diego-api
 - type: remove
   path: /instance_groups/name=uaa

@@ -15,6 +15,14 @@ spec:
     type: configmap
   ops:
 # Reference all the ConfigMaps created for each ops file under assets/operations.
+{{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
+  - ref: {{ include "scf.ops-name" $path }}
+    type: configmap
+{{- end }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
+  - ref: {{ include "scf.ops-name" $path }}
+    type: configmap
+{{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
   - ref: {{ include "scf.ops-name" $path }}
     type: configmap

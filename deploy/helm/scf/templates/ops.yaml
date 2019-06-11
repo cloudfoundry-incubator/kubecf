@@ -1,20 +1,30 @@
 # This template creates a ConfigMap for each ops file under assets/operations.
 
-{{- $root := . -}}
-{{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
+{{- define "scf.ops" -}}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "scf.ops-name" $path }}
+  name: {{ include "scf.ops-name" .Path }}
   labels:
     app.kubernetes.io/component: operations
-    app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
-    app.kubernetes.io/managed-by: {{ $root.Release.Service | quote }}
-    app.kubernetes.io/name: {{ include "scf.fullname" $root }}
-    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
-    helm.sh/chart: {{ include "scf.chart" $root }}
+    app.kubernetes.io/instance: {{ .Root.Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Root.Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "scf.fullname" .Root }}
+    app.kubernetes.io/version: {{ default .Root.Chart.Version .Root.Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "scf.chart" .Root }}
 data:
   ops: |-
-    {{- $root.Files.Get $path | nindent 4 -}}
+    {{- .Root.Files.Get .Path | nindent 4 -}}
+{{- end -}}
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
+{{ include "scf.ops" (dict "Root" $root "Path" $path) }}
+{{- end }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
+{{ include "scf.ops" (dict "Root" $root "Path" $path) }}
+{{- end }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
+{{ include "scf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}

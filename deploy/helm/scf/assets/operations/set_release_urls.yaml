@@ -121,12 +121,6 @@
   path: /releases/name=php-buildpack/sha1
 
 - type: replace
-  path: /releases/name=pxc/url
-  value: docker.io/cfcontainerization
-- type: remove
-  path: /releases/name=pxc/sha1
-
-- type: replace
   path: /releases/name=python-buildpack/url
   value: docker.io/cfcontainerization
 - type: remove

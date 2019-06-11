@@ -1,0 +1,7 @@
+- type: remove
+  path: /instance_groups/name=database
+- type: replace
+  path: /releases/name=pxc/url
+  value: docker.io/cfcontainerization
+- type: remove
+  path: /releases/name=pxc/sha1
