@@ -85,9 +85,21 @@
       memory: 2500
       virtual-cpus: 2
       healthcheck:
-        readiness:
-          command:
-          - "/var/vcap/packages/mariadb/bin/mysqladmin --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf ping"
+        mariadb_ctrl:
+          readiness:
+            handler:
+              exec:
+                command:
+                - /var/vcap/packages/mariadb/bin/mysqladmin
+                - --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf
+                - ping
+          liveness:
+            handler:
+              exec:
+                command:
+                - /var/vcap/packages/mariadb/bin/mysqladmin
+                - --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf
+                - ping
     bpm:
       processes:
       - name: mariadb_ctrl
