@@ -1,0 +1,24 @@
+# Add bosh_containerization properties.
+- type: replace
+  path: /instance_groups/name=nats/jobs/name=nats/properties/bosh_containerization?
+  value:
+    ports:
+    - name: nats
+      protocol: TCP
+      internal: 4222
+    - name: nats-routes
+      protocol: TCP
+      internal: 4223
+    run:
+      memory: 128
+      virtual-cpus: 2
+      healthcheck:
+        nats:
+          readiness:
+            handler:
+              exec:
+                command: ['sh', '-c', 'ss -nltp | grep "LISTEN.*:4222" && ss -nltp | grep "LISTEN.*:4223"']
+          liveness:
+            handler:
+              exec:
+                command: ['sh', '-c', 'ss -nltp | grep "LISTEN.*:4222" && ss -nltp | grep "LISTEN.*:4223"']
