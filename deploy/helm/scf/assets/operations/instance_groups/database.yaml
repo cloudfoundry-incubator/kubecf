@@ -97,5 +97,4 @@
           - "/var/vcap/jobs/mysql/bin/mariadb_ctl start; while true; do sleep 60; done"
         limits:
           open_files: 1048576
-        ephemeral_disk: true
         persistent_disk: true
