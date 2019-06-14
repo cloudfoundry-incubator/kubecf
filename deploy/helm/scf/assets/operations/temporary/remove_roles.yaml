@@ -24,8 +24,6 @@
 - type: remove
   path: /instance_groups/name=doppler
 - type: remove
-  path: /instance_groups/name=diego-cell
-- type: remove
   path: /instance_groups/name=log-api
 - type: remove
   path: /instance_groups/name=credhub
