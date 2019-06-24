@@ -4,11 +4,12 @@
 - type: remove
   path: /variables/name=pxc_galera_ca
 - type: remove
-  path: /variables/name=pxc_server_ca
-- type: remove
   path: /variables/name=galera_server_certificate
-- type: remove
-  path: /variables/name=mysql_server_certificate
+
+# Set the common name for the mysql_server_certificate.
+- type: replace
+  path: /variables/name=mysql_server_certificate/options/common_name?
+  value: scf-database
 
 # Add the cf-mysql-release.
 - type: replace
@@ -71,6 +72,10 @@
             - name: locket
               username: locket
               password: "((locket_database_password))"
+            tls:
+              ca_certificate: "((pxc_server_ca.certificate))"
+              server_certificate: "((mysql_server_certificate.certificate))"
+              server_key: "((mysql_server_certificate.private_key))"
 
 # Add bosh_containerization properties. It adds the BPM configuration as cf-mysql-release lacks
 # support for it upstream.
