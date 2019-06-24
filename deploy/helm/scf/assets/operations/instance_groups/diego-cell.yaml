@@ -13,14 +13,11 @@
       virtual-cpus: 2
       healthcheck:
         garden:
-          readiness:
+          readiness: &probe
             handler:
               exec:
-                command: ['sh', '-c', 'ss -nltp | grep "LISTEN.*:17019"']
-          liveness:
-            handler:
-              exec:
-                command: ['sh', '-c', 'ss -nltp | grep "LISTEN.*:17019"']
+                command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:17019"']
+          liveness: *probe
 
 
 # Temporarily remove garden network_plugin.

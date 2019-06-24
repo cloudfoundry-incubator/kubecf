@@ -91,20 +91,14 @@
       virtual-cpus: 2
       healthcheck:
         mariadb_ctrl:
-          readiness:
+          readiness: &probe
             handler:
               exec:
                 command:
                 - /var/vcap/packages/mariadb/bin/mysqladmin
                 - --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf
                 - ping
-          liveness:
-            handler:
-              exec:
-                command:
-                - /var/vcap/packages/mariadb/bin/mysqladmin
-                - --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf
-                - ping
+          liveness: *probe
     bpm:
       processes:
       - name: mariadb_ctrl
