@@ -1,6 +1,21 @@
 workspace(name = "scf")
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//rules/helm:binary.bzl", "helm_binary")
+
+http_archive(
+    name = "cf_deployment",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+filegroup(
+    name = "cf_deployment",
+    srcs = ["cf-deployment.yml"],
+)
+""",
+    sha256 = "3539012bba59787fdc41a68315ebea991ce842404ef029cf1281fc03a1081c2b",
+    strip_prefix = "cf-deployment-7.11.0",
+    url = "https://github.com/cloudfoundry/cf-deployment/archive/v7.11.0.tar.gz",
+)
 
 helm_binary(
     name = "helm",

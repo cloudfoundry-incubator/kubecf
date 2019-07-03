@@ -1,5 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("//rules/helm:def.bzl", helm_package = "package")
 
 filegroup(
@@ -7,10 +8,21 @@ filegroup(
     srcs = glob(["**/*"], exclude = ["**/BUILD.bazel"]),
 )
 
+pkg_tar(
+    name = "cf_deployment",
+    package_dir = "assets",
+    srcs = [
+        "@cf_deployment//:cf_deployment",
+    ],
+)
+
 helm_package(
     name = "chart",
     srcs = [
         ":chart_files_static",
+    ],
+    tars = [
+        ":cf_deployment",
     ],
     chart_name = "scf",
     chart_version = "3.0.0",

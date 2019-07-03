@@ -3,17 +3,30 @@ def _package_impl(ctx):
     output_tgz = ctx.actions.declare_file(output_filename)
     outputs = [output_tgz]
     ctx.actions.run_shell(
-        inputs = [] + ctx.files.srcs,
+        inputs = [] + ctx.files.srcs + ctx.files.tars,
         outputs = outputs,
         tools = [ctx.executable._helm],
         progress_message = "Generating Helm package archive {}".format(output_filename),
         command = """
+            build_dir="tmp/build/{package_dir}"
+            mkdir -p "${{build_dir}}"
+            cp --dereference --recursive "{package_dir}"/* "${{build_dir}}"
+
+            for t in {tars}; do
+                tar xf "${{t}}" -C "${{build_dir}}"
+            done
+
             {helm} init --client-only > /dev/null
-            {helm} package "{package_dir}" \
+            {helm} package "${{build_dir}}" \
                 --version="{chart_version}" \
                 --app-version="{app_version}" > /dev/null
             mv "{output_filename}" "{output_tgz}"
+
+            echo "Files added to Helm package archive:\n"
+            tar tf "{output_tgz}"
+            echo ""
         """.format(
+            tars = " ".join([f.path for f in ctx.files.tars]),
             helm = ctx.executable._helm.path,
             package_dir = ctx.attr.package_dir,
             chart_version = ctx.attr.chart_version,
@@ -30,6 +43,7 @@ _package = rule(
         "srcs": attr.label_list(
             mandatory = True,
         ),
+        "tars": attr.label_list(),
         "package_dir": attr.string(
             mandatory = True,
         ),
