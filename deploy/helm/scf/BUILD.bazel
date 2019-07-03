@@ -1,0 +1,18 @@
+package(default_visibility = ["//visibility:public"])
+
+load("//rules/helm:def.bzl", helm_package = "package")
+
+filegroup(
+    name = "chart_files_static",
+    srcs = glob(["**/*"], exclude = ["**/BUILD.bazel"]),
+)
+
+helm_package(
+    name = "chart",
+    srcs = [
+        ":chart_files_static",
+    ],
+    chart_name = "scf",
+    chart_version = "3.0.0",
+    app_version = "2.0",
+)
