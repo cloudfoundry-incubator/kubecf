@@ -14,8 +14,6 @@
 - type: remove
   path: /variables/name=cc_staging_upload_password
 - type: remove
-  path: /variables/name=uaa_default_encryption_passphrase
-- type: remove
   path: /variables/name=silk_ca
 - type: remove
   path: /variables/name=silk_controller
@@ -28,49 +26,17 @@
 - type: remove
   path: /variables/name=network_policy_client
 - type: remove
-  path: /variables/name=uaa_clients_routing_api_client_secret
-- type: remove
-  path: /variables/name=uaa_clients_tcp_emitter_secret
-- type: remove
   path: /variables/name=router_status_password
-- type: remove
-  path: /variables/name=cf_admin_password
 - type: remove
   path: /variables/name=cf_bosh_password
 - type: remove
   path: /variables/name=router_route_services_secret
 - type: remove
-  path: /variables/name=uaa_admin_client_secret
-- type: remove
-  path: /variables/name=uaa_clients_cc-routing_secret
-- type: remove
-  path: /variables/name=uaa_clients_cc-service-dashboards_secret
-- type: remove
-  path: /variables/name=uaa_clients_cc_service_key_client_secret
-- type: remove
-  path: /variables/name=uaa_clients_cf_smoke_tests_secret
-- type: remove
-  path: /variables/name=uaa_clients_cloud_controller_username_lookup_secret
-- type: remove
-  path: /variables/name=uaa_clients_doppler_secret
-- type: remove
-  path: /variables/name=uaa_clients_gorouter_secret
-- type: remove
-  path: /variables/name=uaa_clients_network_policy_secret
-- type: remove
-  path: /variables/name=uaa_clients_ssh-proxy_secret
-- type: remove
-  path: /variables/name=uaa_clients_tcp_router_secret
-- type: remove
   path: /variables/name=diego_bbs_encryption_keys_passphrase
 - type: remove
   path: /variables/name=credhub_encryption_password
 - type: remove
-  path: /variables/name=credhub_admin_client_secret
-- type: remove
   path: /variables/name=diego_ssh_proxy_host_key
-- type: remove
-  path: /variables/name=uaa_jwt_signing_key
 - type: remove
   path: /variables/name=service_cf_internal_ca
 - type: remove
@@ -125,12 +91,6 @@
   path: /variables/name=router_ca
 - type: remove
   path: /variables/name=router_ssl
-- type: remove
-  path: /variables/name=uaa_ca
-- type: remove
-  path: /variables/name=uaa_ssl
-- type: remove
-  path: /variables/name=uaa_login_saml
 - type: remove
   path: /variables/name=cc_tls
 - type: remove

@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
 sh_binary(
-  name = "start",
-  srcs = ["start.sh"],
+    name = "start",
+    srcs = ["start.sh"],
 )

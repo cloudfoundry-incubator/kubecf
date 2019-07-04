@@ -1,0 +1,68 @@
+# Override the database address.
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/address?
+  value: scf-database
+
+# Add bosh_containerization properties.
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/bosh_containerization?
+  value:
+    pre_render_scripts:
+    # Patch bin/pre-start.erb for the certificates to work with SUSE.
+    - |
+      set -o errexit
+
+      patch /var/vcap/all-releases/jobs-src/uaa/uaa/templates/bin/pre-start.erb << EOT
+      24c24
+      < rm -f /usr/local/share/ca-certificates/uaa_*
+      ---
+      > rm -f /etc/pki/trust/anchors/uaa_*
+      26,27c26,27
+      <     echo "Adding certificate from manifest to OS certs /usr/local/share/ca-certificates/uaa_<%= i %>.crt"
+      <     echo -n '<%= cert %>' >> "/usr/local/share/ca-certificates/uaa_<%= i %>.crt"
+      ---
+      >     echo "Adding certificate from manifest to OS certs /etc/pki/trust/anchors/uaa_<%= i %>.crt"
+      >     echo -n '<%= cert %>' >> "/etc/pki/trust/anchors/uaa_<%= i %>.crt"
+      EOT
+    # Patch bin/uaa.erb for the certificates to work with SUSE.
+    - |
+      set -o errexit
+
+      patch /var/vcap/all-releases/jobs-src/uaa/uaa/templates/bin/uaa.erb << EOT
+      49c49
+      < cp /etc/ssl/certs/ca-certificates.crt "\$CERT_FILE"
+      ---
+      > cp /var/lib/ca-certificates/ca-bundle.pem "\$CERT_FILE"
+      EOT
+    # Patch config/bpm.yml.erb to set the correct tomcat path.
+    - |
+      set -o errexit
+
+      patch /var/vcap/all-releases/jobs-src/uaa/uaa/templates/config/bpm.yml.erb << EOT
+      5,6c5,6
+      <     CATALINA_BASE: /var/vcap/data/uaa/tomcat
+      <     CATALINA_HOME: /var/vcap/data/uaa/tomcat
+      ---
+      >     CATALINA_BASE: /var/vcap/packages/uaa/tomcat
+      >     CATALINA_HOME: /var/vcap/packages/uaa/tomcat
+      EOT
+    ports:
+    - name: uaa
+      protocol: TCP
+      internal: 8080
+    run:
+      memory: 1532
+      virtual-cpus: 2
+      healthcheck:
+        uaa:
+          readiness: &probe
+            handler:
+              exec:
+                command: ['sh', '-c', '/var/vcap/jobs/uaa/bin/health_check']
+          liveness: *probe
+
+# Selectively remove jobs temporarily.
+- type: remove
+  path: /instance_groups/name=uaa/jobs/name=route_registrar
+- type: remove
+  path: /instance_groups/name=uaa/jobs/name=statsd_injector

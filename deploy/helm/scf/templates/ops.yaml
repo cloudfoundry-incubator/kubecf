@@ -1,5 +1,4 @@
 # This template creates a ConfigMap for each ops file under assets/operations.
-
 {{- define "scf.ops" -}}
 ---
 apiVersion: v1
