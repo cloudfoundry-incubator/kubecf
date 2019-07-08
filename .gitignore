@@ -9,3 +9,10 @@ password
 *.box
 *.vmdk
 personal-setup
+
+bazel-bin
+bazel-genfiles
+bazel-out
+bazel-scf
+bazel-testlogs
+/bazel-*

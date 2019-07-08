@@ -1,6 +1,6 @@
 # Bump
 
-The scripts under this directory are used during a `cf-deployment` bump. 
+The scripts under this directory are used during a `cf-deployment` bump.
 
 ## Requirements
 

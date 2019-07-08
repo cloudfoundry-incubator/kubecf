@@ -21,9 +21,8 @@
     sha1: ~
 
 # Configure the persistent disk in the way that cf-operator can provision.
-- type: replace
+- type: remove
   path: /instance_groups/name=database/persistent_disk_type
-  value: standard
 - type: replace
   path: /instance_groups/name=database/persistent_disk?
   value: 20480
@@ -121,6 +120,9 @@
     bpm:
       processes:
       - name: mariadb_ctrl
+        limits:
+          open_files: 1048576
+        persistent_disk: true
         executable: /bin/bash
         args:
           - -c
@@ -151,6 +153,3 @@
             tail \
               --pid $(cat "${pid_file}") \
               --follow "${log_file}"
-        limits:
-          open_files: 1048576
-        persistent_disk: true
