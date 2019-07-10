@@ -2,17 +2,7 @@
 # It should go away once all instance_groups work properly with cf-operator.
 
 - type: remove
-  path: /variables/name=blobstore_admin_users_password
-- type: remove
   path: /variables/name=blobstore_secure_link_secret
-- type: remove
-  path: /variables/name=cc_bulk_api_password
-- type: remove
-  path: /variables/name=cc_db_encryption_key
-- type: remove
-  path: /variables/name=cc_internal_api_password
-- type: remove
-  path: /variables/name=cc_staging_upload_password
 - type: remove
   path: /variables/name=silk_ca
 - type: remove
@@ -30,15 +20,9 @@
 - type: remove
   path: /variables/name=cf_bosh_password
 - type: remove
-  path: /variables/name=router_route_services_secret
-- type: remove
   path: /variables/name=diego_bbs_encryption_keys_passphrase
 - type: remove
   path: /variables/name=credhub_encryption_password
-- type: remove
-  path: /variables/name=diego_ssh_proxy_host_key
-- type: remove
-  path: /variables/name=service_cf_internal_ca
 - type: remove
   path: /variables/name=blobstore_tls
 - type: remove
@@ -78,23 +62,15 @@
 - type: remove
   path: /variables/name=logs_provider
 - type: remove
-  path: /variables/name=log_cache_ca
-- type: remove
   path: /variables/name=log_cache
 - type: remove
   path: /variables/name=log_cache_to_loggregator_agent
-- type: remove
-  path: /variables/name=cc_logcache_tls
 - type: remove
   path: /variables/name=logcache_ssl
 - type: remove
   path: /variables/name=router_ca
 - type: remove
   path: /variables/name=router_ssl
-- type: remove
-  path: /variables/name=cc_tls
-- type: remove
-  path: /variables/name=cc_public_tls
 - type: remove
   path: /variables/name=cc_bridge_tps
 - type: remove
@@ -113,8 +89,6 @@
   path: /variables/name=diego_instance_identity_ca
 - type: remove
   path: /variables/name=gorouter_backend_tls
-- type: remove
-  path: /variables/name=credhub_ca
 - type: remove
   path: /variables/name=credhub_tls
 - type: remove
