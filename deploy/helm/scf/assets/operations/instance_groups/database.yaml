@@ -25,7 +25,7 @@
   path: /instance_groups/name=database/persistent_disk_type
 - type: replace
   path: /instance_groups/name=database/persistent_disk?
-  value: 20480
+  value: 20480 # 20GB
 
 # Replace the jobs using the cf-mysql-release.
 - type: replace
