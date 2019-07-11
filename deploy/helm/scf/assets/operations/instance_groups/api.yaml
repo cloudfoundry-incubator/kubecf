@@ -50,6 +50,19 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/core_file_pattern?
   value: false
 
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config?/private_endpoint?
+  value: &blobstore_url https://scf-singleton-blobstore:4443
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/droplets?/webdav_config?/private_endpoint?
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/webdav_config?/private_endpoint?
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/resource_pool?/webdav_config?/private_endpoint?
+  value: *blobstore_url
+
 # TODO: remove the following properties being set explicitly once the bug of "links not resolving
 # default properties" is fixed.
 - type: replace
