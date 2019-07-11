@@ -10,6 +10,7 @@ def _package_impl(ctx):
         executable = ctx.executable._script,
         env = {
             "PACKAGE_DIR": ctx.attr.package_dir,
+            # TODO(f0rmiga): Figure out a way of working with paths that contain spaces.
             "TARS": " ".join([f.path for f in ctx.files.tars]),
             "HELM": ctx.executable._helm.path,
             "CHART_VERSION": ctx.attr.chart_version,
