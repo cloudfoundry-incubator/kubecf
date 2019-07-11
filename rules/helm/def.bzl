@@ -2,38 +2,21 @@ def _package_impl(ctx):
     output_filename = "{}-{}.tgz".format(ctx.attr.chart_name, ctx.attr.chart_version)
     output_tgz = ctx.actions.declare_file(output_filename)
     outputs = [output_tgz]
-    ctx.actions.run_shell(
+    ctx.actions.run(
         inputs = [] + ctx.files.srcs + ctx.files.tars,
         outputs = outputs,
         tools = [ctx.executable._helm],
         progress_message = "Generating Helm package archive {}".format(output_filename),
-        command = """
-            build_dir="tmp/build/{package_dir}"
-            mkdir -p "${{build_dir}}"
-            cp --dereference --recursive "{package_dir}"/* "${{build_dir}}"
-
-            for t in {tars}; do
-                tar xf "${{t}}" -C "${{build_dir}}"
-            done
-
-            {helm} init --client-only > /dev/null
-            {helm} package "${{build_dir}}" \
-                --version="{chart_version}" \
-                --app-version="{app_version}" > /dev/null
-            mv "{output_filename}" "{output_tgz}"
-
-            echo "Files added to Helm package archive:\n"
-            tar tf "{output_tgz}"
-            echo ""
-        """.format(
-            tars = " ".join([f.path for f in ctx.files.tars]),
-            helm = ctx.executable._helm.path,
-            package_dir = ctx.attr.package_dir,
-            chart_version = ctx.attr.chart_version,
-            app_version = ctx.attr.app_version,
-            output_filename = output_filename,
-            output_tgz = output_tgz.path,
-        ),
+        executable = ctx.executable._script,
+        env = {
+            "PACKAGE_DIR": ctx.attr.package_dir,
+            "TARS": " ".join([f.path for f in ctx.files.tars]),
+            "HELM": ctx.executable._helm.path,
+            "CHART_VERSION": ctx.attr.chart_version,
+            "APP_VERSION": ctx.attr.app_version,
+            "OUTPUT_FILENAME": output_filename,
+            "OUTPUT_TGZ": output_tgz.path,
+        },
     )
     return [DefaultInfo(files = depset(outputs))]
 
@@ -60,6 +43,12 @@ _package = rule(
             allow_single_file = True,
             cfg = "host",
             default = "@helm//:helm",
+            executable = True,
+        ),
+        "_script": attr.label(
+            allow_single_file = True,
+            cfg = "host",
+            default = "//rules/helm:package.sh",
             executable = True,
         ),
     },
