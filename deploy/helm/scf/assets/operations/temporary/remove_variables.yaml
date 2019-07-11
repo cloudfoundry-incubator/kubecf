@@ -2,8 +2,6 @@
 # It should go away once all instance_groups work properly with cf-operator.
 
 - type: remove
-  path: /variables/name=blobstore_secure_link_secret
-- type: remove
   path: /variables/name=silk_ca
 - type: remove
   path: /variables/name=silk_controller
@@ -23,8 +21,6 @@
   path: /variables/name=diego_bbs_encryption_keys_passphrase
 - type: remove
   path: /variables/name=credhub_encryption_password
-- type: remove
-  path: /variables/name=blobstore_tls
 - type: remove
   path: /variables/name=diego_auctioneer_client
 - type: remove
