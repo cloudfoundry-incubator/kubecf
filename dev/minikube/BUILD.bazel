@@ -19,3 +19,15 @@ helm_template(
     namespace = "scf",
     chart_package = "//deploy/helm/scf:chart",
 )
+
+kubectl_apply(
+    name = "apply_scf",
+    resource = ":rendered_scf",
+    namespace = "scf",
+)
+
+kubectl_delete(
+    name = "delete_scf",
+    resource = ":rendered_scf",
+    namespace = "scf",
+)
