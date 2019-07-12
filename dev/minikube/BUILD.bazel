@@ -1,6 +1,11 @@
 package(default_visibility = ["//visibility:public"])
 
-sh_binary(
+load("//rules/helm:def.bzl", helm_template = "template")
+load("//rules/kubectl:def.bzl", kubectl_apply = "apply", kubectl_delete = "delete")
+load(":def.bzl", "minikube_start")
+
+exports_files(["start.sh"])
+
+minikube_start(
     name = "start",
-    srcs = ["start.sh"],
 )

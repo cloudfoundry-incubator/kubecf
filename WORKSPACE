@@ -3,6 +3,7 @@ workspace(name = "scf")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//rules/helm:binary.bzl", "helm_binary")
 load("//rules/kubectl:binary.bzl", "kubectl_binary")
+load("//dev/minikube:binary.bzl", "minikube_binary")
 load(":def.bzl", "project")
 
 http_archive(
@@ -31,9 +32,8 @@ kubectl_binary(
     platforms = project.kubernetes.platforms,
 )
 
-skylib_version = "0.8.0"
-http_archive(
-    name = "bazel_skylib",
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format(skylib_version, skylib_version),
-    sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+minikube_binary(
+    name = "minikube",
+    version = project.minikube.version,
+    platforms = project.minikube.platforms,
 )
