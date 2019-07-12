@@ -68,6 +68,11 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/database_encryption?/skip_validation?
   value: true
 
+# Override the database address.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/address?
+  value: scf-database
+
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/bosh_containerization?
   value:
