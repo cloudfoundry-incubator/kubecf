@@ -2,6 +2,8 @@ workspace(name = "scf")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//rules/helm:binary.bzl", "helm_binary")
+load("//rules/kubectl:binary.bzl", "kubectl_binary")
+load(":def.bzl", "project")
 
 http_archive(
     name = "cf_deployment",
@@ -12,28 +14,21 @@ filegroup(
     srcs = ["cf-deployment.yml"],
 )
 """,
-    sha256 = "289f6c5a116eef4b16b228d07d55517dc20f76199c1476036fc0ade5a08a3e1b",
-    strip_prefix = "cf-deployment-8.0.0",
-    url = "https://github.com/cloudfoundry/cf-deployment/archive/v8.0.0.tar.gz",
+    sha256 = project.cf_deployment.sha256,
+    strip_prefix = "cf-deployment-{}".format(project.cf_deployment.version),
+    url = "https://github.com/cloudfoundry/cf-deployment/archive/v{}.tar.gz".format(project.cf_deployment.version),
 )
 
 helm_binary(
     name = "helm",
-    version = "v2.14.1",
-    platforms = [
-        {
-            "platform": "linux",
-            "sha256": "804f745e6884435ef1343f4de8940f9db64f935cd9a55ad3d9153d064b7f5896",
-        },
-        {
-            "platform": "darwin",
-            "sha256": "392ec847ecc5870a48a39cb0b8d13c8aa72aaf4365e0315c4d7a2553019a451c",
-        },
-        {
-            "platform": "windows",
-            "sha256": "604780d3fabeb27e7ab7a30c6e29ce64bcd2203501ea35e5231c97965b0255a0",
-        },
-    ],
+    version = project.helm.version,
+    platforms = project.helm.platforms,
+)
+
+kubectl_binary(
+    name = "kubectl",
+    version = project.kubernetes.version,
+    platforms = project.kubernetes.platforms,
 )
 
 skylib_version = "0.8.0"
