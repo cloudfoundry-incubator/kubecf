@@ -2,12 +2,16 @@ package(default_visibility = ["//visibility:public"])
 
 load("//rules/helm:def.bzl", helm_template = "template")
 load("//rules/kubectl:def.bzl", kubectl_apply = "apply", kubectl_delete = "delete")
-load(":def.bzl", "minikube_start")
+load(":def.bzl", "minikube_start", "minikube_delete")
 
 NAMESPACE = "scf"
 
 minikube_start(
     name = "start",
+)
+
+minikube_delete(
+    name = "delete",
 )
 
 helm_template(
