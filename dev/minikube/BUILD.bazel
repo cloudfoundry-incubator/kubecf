@@ -4,7 +4,7 @@ load("//rules/helm:def.bzl", helm_template = "template")
 load("//rules/kubectl:def.bzl", kubectl_apply = "apply", kubectl_delete = "delete")
 load(":def.bzl", "minikube_start")
 
-exports_files(["start.sh"])
+NAMESPACE = "scf"
 
 minikube_start(
     name = "start",
@@ -16,18 +16,18 @@ helm_template(
         "system_domain": "192.168.99.100.xip.io",
     },
     install_name = "scf",
-    namespace = "scf",
+    namespace = NAMESPACE,
     chart_package = "//deploy/helm/scf:chart",
 )
 
 kubectl_apply(
     name = "apply_scf",
     resource = ":rendered_scf",
-    namespace = "scf",
+    namespace = NAMESPACE,
 )
 
 kubectl_delete(
     name = "delete_scf",
     resource = ":rendered_scf",
-    namespace = "scf",
+    namespace = NAMESPACE,
 )
