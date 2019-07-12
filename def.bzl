@@ -54,4 +54,21 @@ project = struct(
             },
         ],
     ),
+    kind = struct(
+        version = "0.4.0",
+        platforms = [
+            {
+                "platform": "linux",
+                "sha256": "a97f7d6d97bc0e261ea85433ca564269f117baf0fae051f16b296d2d7541f8dd",
+            },
+            {
+                "platform": "darwin",
+                "sha256": "023f1886207132dcfc62139a86f09488a79210732b00c9ec6431d6f6b7e9d2d3",
+            },
+            {
+                "platform": "windows",
+                "sha256": "58add85c8c1a2d5df7564f814076db5f334b6164098e899bba0c6176d11c9940",
+            },
+        ],
+    ),
 )

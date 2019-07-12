@@ -4,6 +4,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//rules/helm:binary.bzl", "helm_binary")
 load("//rules/kubectl:binary.bzl", "kubectl_binary")
 load("//dev/minikube:binary.bzl", "minikube_binary")
+load("//dev/kind:binary.bzl", "kind_binary")
 load(":def.bzl", "project")
 
 http_archive(
@@ -36,4 +37,10 @@ minikube_binary(
     name = "minikube",
     version = project.minikube.version,
     platforms = project.minikube.platforms,
+)
+
+kind_binary(
+    name = "kind",
+    version = project.kind.version,
+    platforms = project.kind.platforms,
 )
