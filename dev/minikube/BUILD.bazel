@@ -9,3 +9,13 @@ exports_files(["start.sh"])
 minikube_start(
     name = "start",
 )
+
+helm_template(
+    name = "rendered_scf",
+    set_values = {
+        "system_domain": "192.168.99.100.xip.io",
+    },
+    install_name = "scf",
+    namespace = "scf",
+    chart_package = "//deploy/helm/scf:chart",
+)
