@@ -42,7 +42,7 @@ def helm_binary(name, version, platforms):
     for p in platforms:
         http_archive(
             name =  "helm_{}_amd64".format(p["platform"]),
-            url = "{base_url}/helm-{version}-{platform}-amd64.tar.gz".format(
+            url = "{base_url}/helm-v{version}-{platform}-amd64.tar.gz".format(
                 base_url = "https://get.helm.sh",
                 version = version,
                 platform = p["platform"],
