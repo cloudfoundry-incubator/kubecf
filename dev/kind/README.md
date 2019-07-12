@@ -18,3 +18,11 @@ export KUBECONFIG="$(bazel run @kind//:kind -- get kubeconfig-path --name="scf")
 ```shell
 bazel run //dev/kind:delete
 ```
+
+## Deploying SCF to Kind
+
+With Kind started and the cf-operator running for the namespace `scf`, run the target:
+
+```txt
+bazel run //dev/kind:apply_scf
+```

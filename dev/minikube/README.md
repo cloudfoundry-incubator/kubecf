@@ -3,13 +3,7 @@
 For developing with Minikube, start a local cluster by running the `start` target:
 
 ```txt
-bazel run //dev/minikube:start -- --profile scf
-```
-
-If you want to use a specific hypervisor, pass it like the example below:
-
-```txt
-bazel run //dev/minikube:start -- --profile scf --vm-driver kvm2
+bazel run //dev/minikube:start
 ```
 
 ## Managing system resources
@@ -24,9 +18,17 @@ Minikube:
 E.g.:
 
 ```txt
-VM_CPUS=6 VM_MEMORY=$((1024 * 24)) VM_DISK_SIZE=180g bazel run //dev/minikube:start -- --profile scf
+VM_CPUS=6 VM_MEMORY=$((1024 * 24)) VM_DISK_SIZE=180g bazel run //dev/minikube:start
 ```
 
 ## Specifying a different Kubernetes version
 
 Set the `K8S_VERSION` environment variable to override the default version.
+
+## Deploying SCF to Minikube
+
+With Minikube started and the cf-operator running for the namespace `scf`, run the target:
+
+```txt
+bazel run //dev/minikube:apply_scf
+```
