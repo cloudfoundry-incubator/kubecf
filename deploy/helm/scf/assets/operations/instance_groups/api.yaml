@@ -63,18 +63,6 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/resource_pool?/webdav_config?/private_endpoint?
   value: *blobstore_url
 
-# TODO: remove the following properties being set explicitly once the bug of "links not resolving
-# default properties" is fixed.
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/buildpack_directory_key?
-  value: cc-buildpacks
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/droplets?/droplet_directory_key?
-  value: cc-droplets
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/app_package_directory_key?
-  value: cc-packages
-
 # TODO: Figure out the DB encryption validation.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/database_encryption?/skip_validation?
