@@ -1,3 +1,17 @@
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["package.sh"])
+load("@bazel_gazelle//:def.bzl", "gazelle")
+
+PREFIX = "github.com/SUSE/scf"
+
+gazelle(
+    name = "gazelle",
+    mode = "fix",
+    prefix = PREFIX,
+)
+
+gazelle(
+    name = "gazelle_diff",
+    mode = "diff",
+    prefix = PREFIX,
+)

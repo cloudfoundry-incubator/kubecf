@@ -5,7 +5,10 @@ load("//rules/helm:def.bzl", helm_package = "package")
 
 filegroup(
     name = "chart_files_static",
-    srcs = glob(["**/*"], exclude = ["**/BUILD.bazel"]),
+    srcs = glob(
+        ["**/*"],
+        exclude = ["**/BUILD.bazel"],
+    ),
 )
 
 pkg_tar(
