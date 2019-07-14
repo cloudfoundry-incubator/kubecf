@@ -12,8 +12,6 @@
 - type: remove
   path: /instance_groups/name=scheduler
 - type: remove
-  path: /instance_groups/name=router
-- type: remove
   path: /instance_groups/name=tcp-router
 - type: remove
   path: /instance_groups/name=doppler

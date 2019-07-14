@@ -1,0 +1,13 @@
+# Selectively remove jobs temporarily.
+- type: remove
+  path: /instance_groups/name=router/jobs/name=loggr-udp-forwarder
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/bosh_containerization?
+  value:
+    debug: true
+
+# Set release version
+- type: replace
+  path: /releases/name=routing/version
+  value: "0.188.0"
