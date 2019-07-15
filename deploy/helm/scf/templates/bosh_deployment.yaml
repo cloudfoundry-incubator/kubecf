@@ -24,7 +24,7 @@ spec:
   - ref: {{ include "scf.ops-name" $path }}
     type: configmap
 {{- end }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/patches/*" }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/*" }}
   - ref: {{ include "scf.ops-name" $path }}
     type: configmap
 {{- end }}

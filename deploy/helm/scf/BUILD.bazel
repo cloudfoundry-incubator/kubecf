@@ -26,7 +26,7 @@ helm_package(
     ],
     tars = [
         ":cf_deployment",
-        "//bosh/releases/patches",
+        "//bosh/releases:pre_render_scripts",
     ],
     chart_name = "scf",
     chart_version = "3.0.0",

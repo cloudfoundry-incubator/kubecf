@@ -24,7 +24,7 @@ data:
 {{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
 {{ include "scf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/patches/*" }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/*" }}
 {{ include "scf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
