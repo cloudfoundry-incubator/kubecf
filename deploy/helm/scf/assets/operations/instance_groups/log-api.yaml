@@ -2,8 +2,6 @@
 # Initial: remove all the jobs
 
 - type: remove
-  path: /instance_groups/name=log-api/jobs/name=loggregator_trafficcontroller
-- type: remove
   path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy
 - type: remove
   path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy_gateway
@@ -12,3 +10,12 @@
 
 # Attention: scf/fissile does not use the reverse_log_proxy_gateway
 # We may be able to go without this job
+
+# Set loggegrator stemcell to get around issues with the CI not building the general one.
+# See buildpacks in api.yaml as well.
+# (ak) TODO: Remove when we have a proper CI pipeline for stemcells and images.
+- type: replace
+  path: /releases/name=loggregator/stemcell?
+  value:
+    os: opensuse-42.3
+    version: 36.g03b4653-30.80-7.0.0_340.g2b599a90
