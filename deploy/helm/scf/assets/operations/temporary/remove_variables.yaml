@@ -38,16 +38,6 @@
 - type: remove
   path: /variables/name=loggregator_tls_doppler
 - type: remove
-  path: /variables/name=loggregator_tls_tc
-- type: remove
-  path: /variables/name=loggregator_tls_cc_tc
-- type: remove
-  path: /variables/name=loggregator_rlp_gateway_tls_cc
-- type: remove
-  path: /variables/name=loggregator_tls_rlp
-- type: remove
-  path: /variables/name=loggregator_rlp_gateway
-- type: remove
   path: /variables/name=adapter_rlp_tls
 - type: remove
   path: /variables/name=scheduler_api_tls
@@ -89,7 +79,3 @@
   path: /variables/name=credhub_tls
 - type: remove
   path: /variables/name=ssh_proxy_backends_tls
-- type: remove
-  path: /variables/name=loggregator_rlp_gateway_tls
-- type: remove
-  path: /variables/name=loggregator_trafficcontroller_tls
