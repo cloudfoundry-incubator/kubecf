@@ -52,7 +52,7 @@
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config?/private_endpoint?
-  value: &blobstore_url https://scf-singleton-blobstore:4443
+  value: &blobstore_url https://((deployment-name))-singleton-blobstore:4443
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/droplets?/webdav_config?/private_endpoint?
   value: *blobstore_url
@@ -71,7 +71,7 @@
 # Override the database address.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/address?
-  value: scf-database
+  value: ((deployment-name))-database
 
 # Set buildpacks stemcells.
 - type: replace

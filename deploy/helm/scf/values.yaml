@@ -1,1 +1,2 @@
-system_domain: ~
+system_domain: cf-dev.io
+deployment_name: scf

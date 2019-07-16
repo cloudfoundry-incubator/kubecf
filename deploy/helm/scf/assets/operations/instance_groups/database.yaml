@@ -9,7 +9,7 @@
 # Set the common name for the mysql_server_certificate.
 - type: replace
   path: /variables/name=mysql_server_certificate/options/common_name?
-  value: scf-database
+  value: ((deployment-name))-database
 
 # Add the cf-mysql-release.
 - type: replace
@@ -111,7 +111,7 @@
             wait_for_file() {
               local file_path="$1"
               local timeout="${2:-30}"
-              until [[ -f "${file_path}" ]] || [[ $((timeout--)) == 0 ]]; do sleep 1; done
+              until [[ -f "${file_path}" ]] || [[ "$timeout" == "0" ]]; do sleep 1; timeout=$(expr $timeout - 1); done
               if [[ "${timeout}" == 0 ]]; then return 1; fi
               return 0
             }

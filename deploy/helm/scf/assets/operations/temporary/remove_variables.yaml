@@ -14,8 +14,6 @@
 - type: remove
   path: /variables/name=network_policy_client
 - type: remove
-  path: /variables/name=router_status_password
-- type: remove
   path: /variables/name=cf_bosh_password
 - type: remove
   path: /variables/name=diego_bbs_encryption_keys_passphrase
@@ -54,10 +52,6 @@
 - type: remove
   path: /variables/name=logcache_ssl
 - type: remove
-  path: /variables/name=router_ca
-- type: remove
-  path: /variables/name=router_ssl
-- type: remove
   path: /variables/name=cc_bridge_tps
 - type: remove
   path: /variables/name=cc_bridge_cc_uploader
@@ -68,13 +62,7 @@
 - type: remove
   path: /variables/name=diego_locket_client
 - type: remove
-  path: /variables/name=locket_database_password
-- type: remove
-  path: /variables/name=application_ca
-- type: remove
   path: /variables/name=diego_instance_identity_ca
-- type: remove
-  path: /variables/name=gorouter_backend_tls
 - type: remove
   path: /variables/name=credhub_tls
 - type: remove
