@@ -19,3 +19,14 @@
   value:
     os: opensuse-42.3
     version: 36.g03b4653-30.80-7.0.0_340.g2b599a90
+
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=loggregator_trafficcontroller/properties/bosh_containerization?
+  value:
+    run:
+      memory: 128
+      virtual-cpus: 2
+    ports:
+    - name: dropsonde
+      protocol: TCP
+      internal: 8081
