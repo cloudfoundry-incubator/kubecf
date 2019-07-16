@@ -3,7 +3,7 @@
 apiVersion: fissile.cloudfoundry.org/v1alpha1
 kind: BOSHDeployment
 metadata:
-  name: scf
+  name: {{ .Values.deployment_name }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}

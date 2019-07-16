@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: scf.var-system-domain
+  name: {{ .Values.deployment_name }}.var-system-domain
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
@@ -16,7 +16,7 @@ stringData:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: scf.var-deployment-name
+  name: {{ .Values.deployment_name }}.var-deployment-name
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
