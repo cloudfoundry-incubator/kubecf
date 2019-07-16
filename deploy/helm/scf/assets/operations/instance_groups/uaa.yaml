@@ -13,9 +13,12 @@
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/bosh_containerization?
   value:
     ports:
-    - name: uaa
+    - name: http
       protocol: TCP
       internal: 8080
+    - name: https
+      protocol: TCP
+      internal: 8443
     run:
       memory: 1532
       virtual-cpus: 2
