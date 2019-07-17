@@ -4,7 +4,7 @@ set -o errexit -o nounset
 
 build_dir="tmp/build/${PACKAGE_DIR}"
 mkdir -p "${build_dir}"
-cp --dereference --recursive "${PACKAGE_DIR}"/* "${build_dir}"
+cp -L --recursive "${PACKAGE_DIR}"/* "${build_dir}"
 
 for t in ${TARS}; do
   tar xf "${t}" -C "${build_dir}"
