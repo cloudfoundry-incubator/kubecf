@@ -51,7 +51,7 @@ attrs = {
     ),
 }
 
-kind_start = rule(
+kind_start_binary = rule(
     implementation = _kind_impl,
     attrs = dict({
         "_script": attr.label(
@@ -64,7 +64,7 @@ kind_start = rule(
     executable = True,
 )
 
-kind_delete = rule(
+kind_delete_binary = rule(
     implementation = _kind_impl,
     attrs = dict({
         "_script": attr.label(

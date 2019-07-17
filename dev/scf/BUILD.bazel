@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("//rules/helm:def.bzl", helm_template = "template")
-load("//rules/kubectl:def.bzl", kubectl_apply = "apply", kubectl_delete = "delete")
+load("//rules/kubectl:def.bzl", kubectl_apply_binary = "apply", kubectl_delete_binary = "delete")
 
 NAMESPACE = "scf"
 
@@ -16,13 +16,13 @@ helm_template(
     chart_package = "//deploy/helm/scf:chart",
 )
 
-kubectl_apply(
+kubectl_apply_binary(
     name = "apply",
     resource = ":rendered_template",
     namespace = NAMESPACE,
 )
 
-kubectl_delete(
+kubectl_delete_binary(
     name = "delete",
     resource = ":rendered_template",
     namespace = NAMESPACE,

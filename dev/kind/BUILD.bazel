@@ -1,15 +1,15 @@
 package(default_visibility = ["//visibility:public"])
 
-load(":def.bzl", "kind_start", "kind_delete")
+load(":def.bzl", "kind_start_binary", "kind_delete_binary")
 
 CLUSTER_NAME = "scf"
 
-kind_start(
+kind_start_binary(
     name = "start",
     cluster_name = CLUSTER_NAME,
 )
 
-kind_delete(
+kind_delete_binary(
     name = "delete",
     cluster_name = CLUSTER_NAME,
 )

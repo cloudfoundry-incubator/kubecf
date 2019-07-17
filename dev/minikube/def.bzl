@@ -64,7 +64,7 @@ attrs = {
     ),
 }
 
-minikube_start = rule(
+minikube_start_binary = rule(
     implementation = _minikube_start_impl,
     attrs = dict({
         "_script": attr.label(
@@ -77,7 +77,7 @@ minikube_start = rule(
     executable = True,
 )
 
-minikube_delete = rule(
+minikube_delete_binary = rule(
     implementation = _minikube_start_impl,
     attrs = dict({
         "_script": attr.label(
