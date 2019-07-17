@@ -25,19 +25,14 @@ Load the cf-operator, depending on if you're using `kind` or `minikube`:
 
 #### When using `kind`
 
-Load the cf-operator image in `kind`:
-
 ```sh
 kind load image-archive --name scf binaries/cf-operator-image.tgz
 ```
 
 #### When using `minikube`
 
-Load the cf-operator image in `minikube`:
-
 ```sh
-eval $(minikube docker-env)
-docker load --input binaries/cf-operator-image.tgz
+(eval $(minikube docker-env) ; docker load --input binaries/cf-operator-image.tgz)
 ```
 
 #### Installing cf-operator after loading
@@ -51,10 +46,10 @@ kubectl create namespace scf
 # Get the default network device, being the word after "dev".
 DEFAULT_NET_DEVICE="$(ip route list 0/0 | perl -n -e '/\bdev\s+(\S+)/ && print $1')"
 
-# Get the IP address of that device
+# Get the IP address of that device.
 DEFAULT_NET_ADDR="$(ip -4 -o addr show dev eth0 | perl -n -e '/\binet\s+([^\/]+)/ && print $1')"
 
-# Deploy cf-operator
+# Deploy cf-operator.
 CF_OPERATOR_WEBHOOK_SERVICE_HOST="${DEFAULT_NET_ADDR}" CF_OPERATOR_NAMESPACE=scf SKIP_IMAGE=true make up
 ```
 
