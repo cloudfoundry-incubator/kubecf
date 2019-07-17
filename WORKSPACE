@@ -44,3 +44,10 @@ kind_binary(
     version = project.kind.version,
     platforms = project.kind.platforms,
 )
+
+skylib_version = "0.8.0"
+http_archive(
+    name = "bazel_skylib",
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format(skylib_version, skylib_version),
+    sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+)
