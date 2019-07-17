@@ -1,11 +1,8 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//rules/helm:def.bzl", helm_template = "template")
-load("//rules/kubectl:def.bzl", kubectl_apply = "apply", kubectl_delete = "delete")
 load(":def.bzl", "kind_start", "kind_delete")
 
 CLUSTER_NAME = "scf"
-NAMESPACE = "scf"
 
 kind_start(
     name = "start",
@@ -15,26 +12,4 @@ kind_start(
 kind_delete(
     name = "delete",
     cluster_name = CLUSTER_NAME,
-)
-
-helm_template(
-    name = "rendered_scf",
-    set_values = {
-        "system_domain": "cf-dev.io",
-    },
-    install_name = "scf",
-    namespace = NAMESPACE,
-    chart_package = "//deploy/helm/scf:chart",
-)
-
-kubectl_apply(
-    name = "apply_scf",
-    resource = ":rendered_scf",
-    namespace = NAMESPACE,
-)
-
-kubectl_delete(
-    name = "delete_scf",
-    resource = ":rendered_scf",
-    namespace = NAMESPACE,
 )

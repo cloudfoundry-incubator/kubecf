@@ -93,10 +93,13 @@ def _template_impl(ctx):
     )
     output_yaml = ctx.actions.declare_file(output_filename)
     outputs = [output_yaml]
-    arguments = ["--set={}={}".format(key, value)
-                    for (key, value) in ctx.attr.set_values.items()]
+    arguments = ctx.actions.args()
+    for (key, value) in ctx.attr.set_values.items():
+        arguments.add("--set", "{}={}".format(key, value))
+    for f in ctx.files.values:
+        arguments.add("--values", f.path)
     ctx.actions.run(
-        inputs = [ctx.file.chart_package],
+        inputs = [ctx.file.chart_package] + ctx.files.values,
         outputs = outputs,
         tools = [ctx.executable._helm],
         progress_message = "Rendering Helm package archive {chart_package} to {output}".format(
@@ -111,7 +114,7 @@ def _template_impl(ctx):
             "CHART_PACKAGE": ctx.file.chart_package.path,
             "OUTPUT_YAML": output_yaml.path,
         },
-        arguments = arguments,
+        arguments = [arguments],
     )
     return [DefaultInfo(files = depset(outputs))]
 
@@ -120,6 +123,10 @@ template = rule(
     attrs = {
         "set_values": attr.string_dict(
             default = {},
+        ),
+        "values": attr.label_list(
+            default = [],
+            allow_files = True,
         ),
         "install_name": attr.string(
             mandatory = True,

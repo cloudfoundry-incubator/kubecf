@@ -1,10 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//rules/helm:def.bzl", helm_template = "template")
-load("//rules/kubectl:def.bzl", kubectl_apply = "apply", kubectl_delete = "delete")
 load(":def.bzl", "minikube_start", "minikube_delete")
-
-NAMESPACE = "scf"
 
 minikube_start(
     name = "start",
@@ -12,26 +8,4 @@ minikube_start(
 
 minikube_delete(
     name = "delete",
-)
-
-helm_template(
-    name = "rendered_scf",
-    set_values = {
-        "system_domain": "192.168.99.100.xip.io",
-    },
-    install_name = "scf",
-    namespace = NAMESPACE,
-    chart_package = "//deploy/helm/scf:chart",
-)
-
-kubectl_apply(
-    name = "apply_scf",
-    resource = ":rendered_scf",
-    namespace = NAMESPACE,
-)
-
-kubectl_delete(
-    name = "delete_scf",
-    resource = ":rendered_scf",
-    namespace = NAMESPACE,
 )

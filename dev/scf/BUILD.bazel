@@ -1,0 +1,29 @@
+package(default_visibility = ["//visibility:public"])
+
+load("//rules/helm:def.bzl", helm_template = "template")
+load("//rules/kubectl:def.bzl", kubectl_apply = "apply", kubectl_delete = "delete")
+
+NAMESPACE = "scf"
+
+helm_template(
+    name = "rendered_template",
+    set_values = {
+        "deployment_name": "scf-dev",
+    },
+    values = glob(["**/*values.yaml"]),
+    install_name = "scf",
+    namespace = NAMESPACE,
+    chart_package = "//deploy/helm/scf:chart",
+)
+
+kubectl_apply(
+    name = "apply",
+    resource = ":rendered_template",
+    namespace = NAMESPACE,
+)
+
+kubectl_delete(
+    name = "delete",
+    resource = ":rendered_template",
+    namespace = NAMESPACE,
+)
