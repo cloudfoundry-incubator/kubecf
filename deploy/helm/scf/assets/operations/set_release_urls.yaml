@@ -37,12 +37,6 @@
   path: /releases/name=cf-syslog-drain/sha1
 
 - type: replace
-  path: /releases/name=cflinuxfs2/url
-  value: docker.io/cfcontainerization
-- type: remove
-  path: /releases/name=cflinuxfs2/sha1
-
-- type: replace
   path: /releases/name=cflinuxfs3/url
   value: docker.io/cfcontainerization
 - type: remove

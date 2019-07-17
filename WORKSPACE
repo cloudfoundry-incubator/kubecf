@@ -12,9 +12,9 @@ filegroup(
     srcs = ["cf-deployment.yml"],
 )
 """,
-    sha256 = "3539012bba59787fdc41a68315ebea991ce842404ef029cf1281fc03a1081c2b",
-    strip_prefix = "cf-deployment-7.11.0",
-    url = "https://github.com/cloudfoundry/cf-deployment/archive/v7.11.0.tar.gz",
+    sha256 = "289f6c5a116eef4b16b228d07d55517dc20f76199c1476036fc0ade5a08a3e1b",
+    strip_prefix = "cf-deployment-8.0.0",
+    url = "https://github.com/cloudfoundry/cf-deployment/archive/v8.0.0.tar.gz",
 )
 
 helm_binary(

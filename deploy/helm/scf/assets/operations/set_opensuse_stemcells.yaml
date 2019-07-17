@@ -6,7 +6,7 @@
 
 - type: replace
   path: /stemcells/alias=default/version
-  value: 32.g37e6301-30.80-7.0.0_297.g2485f273
+  value: 36.g03b4653-30.80-7.0.0_340.g2b599a90
 
 - type: replace
   path: /addons/name=loggregator_agent/include/stemcell/os=ubuntu-xenial/os

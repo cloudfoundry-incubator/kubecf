@@ -28,8 +28,6 @@
 
 # Selectively remove jobs temporarily.
 - type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs2-rootfs-setup
-- type: remove
   path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=rep
