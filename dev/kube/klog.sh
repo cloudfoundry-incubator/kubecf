@@ -53,6 +53,10 @@ function get_containers_of_pod() {
   kubectl get pods "${POD}" --namespace "${NS}" --output=jsonpath='{.spec.containers[*].name}'
 }
 
+function get_init_containers_of_pod() {
+  kubectl get pods "${POD}" --namespace "${NS}" --output=jsonpath='{.spec.initContainers[*].name}'
+}
+
 # Get the CF logs inside the pod.
 function retrieve_container_cf_logs() {
   printf " CF"
@@ -69,6 +73,28 @@ function retrieve_container_kube_logs() {
   printf " Kube"
   kubectl logs "${POD}" --namespace "${NS}" --container "${CONTAINER}"            > "${CONTAINER_DIR}/kube.log"
   kubectl logs "${POD}" --namespace "${NS}" --container "${CONTAINER}" --previous > "${CONTAINER_DIR}/kube-previous.log"
+}
+
+function handle_container() {
+    prefix="${1}"
+    kind="${2}"
+
+    printf "  - ${prefix}\e[0;32m${CONTAINER}\e[0m logs:"
+
+    CONTAINER_DIR="${POD_DIR}/${kind}/${CONTAINER}"
+    mkdir -p ${CONTAINER_DIR}
+
+    # Get the CF logs only if there are any.
+    if [ "${PHASE}" != 'Succeeded' ] && check_for_log_dir; then
+	# `logs` is a special container which does not support copying
+	# of logs (It has no `tar` executable (in the path).
+	if [ "${CONTAINER}" != "logs" ] ; then
+	    retrieve_container_cf_logs
+	fi
+    fi
+
+    retrieve_container_kube_logs 2> /dev/null || true
+    printf "\n"
 }
 
 function get_pod_description() {
@@ -99,20 +125,14 @@ for POD in "${PODS[@]}"; do
   printf "Pod \e[0;32m$POD\e[0m = $PHASE\n"
 
   # Iterate over containers and dump logs.
+  CONTAINERS=($(get_init_containers_of_pod))
+  for CONTAINER in "${CONTAINERS[@]}"; do
+    handle_container 'init ' init
+  done
+
   CONTAINERS=($(get_containers_of_pod))
   for CONTAINER in "${CONTAINERS[@]}"; do
-    printf "  - \e[0;32m${CONTAINER}\e[0m logs:"
-
-    CONTAINER_DIR="${POD_DIR}/${CONTAINER}"
-    mkdir -p ${CONTAINER_DIR}
-
-    # Get the CF logs only if there are any.
-    if [ "${PHASE}" != 'Succeeded' ] && check_for_log_dir; then
-      retrieve_container_cf_logs
-    fi
-
-    retrieve_container_kube_logs 2> /dev/null || true
-    printf "\n"
+    handle_container 'job  ' job
   done
 
   get_pod_description
