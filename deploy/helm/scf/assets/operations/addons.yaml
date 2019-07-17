@@ -1,0 +1,4 @@
+- type: remove
+  path: /addons/name=bpm
+- type: remove
+  path: /addons/name=bosh-dns-aliases

@@ -1,0 +1,7 @@
+# Selectively remove jobs temporarily.
+- type: remove
+  path: /instance_groups/name=doppler/jobs/name=route_registrar
+- type: remove
+  path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder
+- type: remove
+  path: /instance_groups/name=doppler/jobs/name=log-cache-cf-auth-proxy

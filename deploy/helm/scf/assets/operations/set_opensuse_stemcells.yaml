@@ -7,3 +7,11 @@
 - type: replace
   path: /stemcells/alias=default/version
   value: 36.g03b4653-30.80-7.0.0_340.g2b599a90
+
+- type: replace
+  path: /addons/name=loggregator_agent/include/stemcell/os=ubuntu-xenial/os
+  value: opensuse-42.3
+
+- type: replace
+  path: /addons/name=forwarder_agent/include/stemcell/os=ubuntu-xenial/os
+  value: opensuse-42.3

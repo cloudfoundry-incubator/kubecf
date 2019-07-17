@@ -32,10 +32,6 @@
 - type: remove
   path: /variables/name=diego_rep_agent_v2
 - type: remove
-  path: /variables/name=loggregator_tls_statsdinjector
-- type: remove
-  path: /variables/name=loggregator_tls_doppler
-- type: remove
   path: /variables/name=adapter_rlp_tls
 - type: remove
   path: /variables/name=scheduler_api_tls
@@ -43,24 +39,11 @@
   path: /variables/name=adapter_tls
 - type: remove
   path: /variables/name=scheduler_client_tls
-- type: remove
-  path: /variables/name=logs_provider
-- type: remove
-  path: /variables/name=log_cache
-- type: remove
-  path: /variables/name=log_cache_to_loggregator_agent
-- type: remove
-  path: /variables/name=logcache_ssl
-- type: remove
   path: /variables/name=cc_bridge_tps
 - type: remove
   path: /variables/name=cc_bridge_cc_uploader
 - type: remove
   path: /variables/name=cc_bridge_cc_uploader_server
-- type: remove
-  path: /variables/name=diego_locket_server
-- type: remove
-  path: /variables/name=diego_locket_client
 - type: remove
   path: /variables/name=diego_instance_identity_ca
 - type: remove

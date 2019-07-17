@@ -1,0 +1,29 @@
+# Selectively remove jobs temporarily.
+- type: remove
+  path: /instance_groups/name=diego-api/jobs/name=cfdot
+- type: remove
+  path: /instance_groups/name=diego-api/jobs/name=bbs
+- type: remove
+  path: /instance_groups/name=diego-api/jobs/name=silk-controller
+
+# Override the database address for the jobs under the diego-api instance group.
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host
+  value: ((deployment-name))-database
+
+# Disable tuning /proc/sys kernel parameters as locket is running on a container.
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/set_kernel_parameters?
+  value: false
+
+# Add bosh_containerization properties.
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/bosh_containerization?
+  value:
+    ports:
+    - name: locket
+      protocol: TCP
+      internal: 8891
+    run:
+      memory: 128
+      virtual-cpus: 2
