@@ -29,9 +29,17 @@ if [ "${FORCE}" == "1" ] ; then
   rm -f "${DONE}" 2> /dev/null
 fi
 
+function red() {
+  printf '\e[31m%b\e[0m\n' "$1"
+}
+
+function green() {
+  printf '\e[32m%b\e[0m' "$1"
+}
+
 # Bail out early when already done.
 if [ -f "${DONE}" ]; then
-    printf "Already done\n"
+    printf 'Already done\n'
     exit
 fi
 
@@ -79,10 +87,10 @@ function handle_container() {
     prefix="${1}"
     kind="${2}"
 
-    printf "  - ${prefix}\e[0;32m${CONTAINER}\e[0m logs:"
+    printf "  - ${prefix}%s logs:" "$(green "${CONTAINER}")"
 
     CONTAINER_DIR="${POD_DIR}/${kind}/${CONTAINER}"
-    mkdir -p ${CONTAINER_DIR}
+    mkdir -p "${CONTAINER_DIR}"
 
     # Get the CF logs only if there are any.
     if [ "${PHASE}" != 'Succeeded' ] && check_for_log_dir; then
@@ -94,21 +102,21 @@ function handle_container() {
     fi
 
     retrieve_container_kube_logs 2> /dev/null || true
-    printf "\n"
+    printf '\n'
 }
 
 function get_pod_description() {
-  printf "  Descriptions ...\n"
+  printf '  Descriptions ...\n'
   kubectl describe pods "${POD}" --namespace "${NS}" > "${POD_DIR}/describe-pod.txt"
 }
 
 function get_all_resources() {
-  printf "Resources ...\n"
+  printf '  Resources ...\n'
   kubectl get all --export=true --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/resources.yaml"
 }
 
 function get_all_events() {
-  printf "Events ...\n"
+  printf '  Events ...\n'
   kubectl get events --export=true --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/events.yaml"
 }
 
@@ -116,35 +124,37 @@ rm -rf "${KLOG:?}/${NS:?}"
 NAMESPACE_DIR="${KLOG}/${NS}"
 
 # Iterate over pods and their containers.
-PODS=($(get_all_the_pods))
+PODS="$(get_all_the_pods)"
 
-for POD in "${PODS[@]}"; do
+for POD in ${PODS}; do
   POD_DIR="${NAMESPACE_DIR}/${POD}"
   PHASE="$(get_pod_phase)"
 
-  printf "Pod \e[0;32m$POD\e[0m = $PHASE\n"
+  printf 'Pod %s = %s\n' "$(green "${POD}")" "${PHASE}"
 
   # Iterate over containers and dump logs.
-  CONTAINERS=($(get_init_containers_of_pod))
-  for CONTAINER in "${CONTAINERS[@]}"; do
+  CONTAINERS="$(get_init_containers_of_pod)"
+  for CONTAINER in ${CONTAINERS}; do
     handle_container 'init ' init
   done
 
-  CONTAINERS=($(get_containers_of_pod))
-  for CONTAINER in "${CONTAINERS[@]}"; do
+  CONTAINERS="$(get_containers_of_pod)"
+  for CONTAINER in ${CONTAINERS}; do
     handle_container 'job  ' job
   done
 
   get_pod_description
 done
 
+printf 'Global information...\n'
+
 get_all_resources
 get_all_events
 
-printf "Packaging it all up ...\n"
+printf 'Packaging it all up ...\n'
 
 tar -zcf klog.tar.gz "${KLOG}"
 
-printf "\e[0;32mDone\e[0m\n"
+printf '%s\n' "$(green Done)"
 touch "${DONE}"
 exit
