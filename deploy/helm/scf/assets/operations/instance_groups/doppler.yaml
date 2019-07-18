@@ -5,3 +5,11 @@
   path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder
 - type: remove
   path: /instance_groups/name=doppler/jobs/name=log-cache-cf-auth-proxy
+
+# Add bosh_containerization properties.
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=doppler/properties/bosh_containerization?
+  value:
+    run:
+      memory: 410
+      virtual-cpus: 2
