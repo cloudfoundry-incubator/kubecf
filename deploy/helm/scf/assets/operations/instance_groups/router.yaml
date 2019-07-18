@@ -11,7 +11,7 @@
   value: ((deployment-name))-uaa
 - type: replace
   path: /instance_groups/name=router/jobs/name=gorouter/properties/routing_api/uri?
-  value: https://((deployment-name))-api-group
+  value: https://((deployment-name))-api
 - type: replace
   path: /instance_groups/name=router/jobs/name=gorouter/properties/nats?/machines
   value:
