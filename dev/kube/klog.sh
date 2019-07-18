@@ -30,7 +30,7 @@ if [ "${FORCE}" == "1" ] ; then
 fi
 
 function red() {
-  printf '\e[31m%b\e[0m\n' "$1"
+  printf '\e[31m%b\e[0m' "$1"
 }
 
 function green() {
@@ -39,7 +39,7 @@ function green() {
 
 # Bail out early when already done.
 if [ -f "${DONE}" ]; then
-    printf 'Already done\n'
+    printf '%s\n' "$(red 'Already done')"
     exit
 fi
 
