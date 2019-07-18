@@ -124,22 +124,18 @@ rm -rf "${KLOG:?}/${NS:?}"
 NAMESPACE_DIR="${KLOG}/${NS}"
 
 # Iterate over pods and their containers.
-PODS="$(get_all_the_pods)"
-
-for POD in ${PODS}; do
+for POD in $(get_all_the_pods); do
   POD_DIR="${NAMESPACE_DIR}/${POD}"
   PHASE="$(get_pod_phase)"
 
   printf 'Pod %s = %s\n' "$(green "${POD}")" "${PHASE}"
 
   # Iterate over containers and dump logs.
-  CONTAINERS="$(get_init_containers_of_pod)"
-  for CONTAINER in ${CONTAINERS}; do
+  for CONTAINER in $(get_init_containers_of_pod); do
     handle_container 'init ' init
   done
 
-  CONTAINERS="$(get_containers_of_pod)"
-  for CONTAINER in ${CONTAINERS}; do
+  for CONTAINER in $(get_containers_of_pod); do
     handle_container 'job  ' job
   done
 
