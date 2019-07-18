@@ -88,3 +88,15 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=binary-buildpack/properties?/bosh_containerization?/bpm?/processes?
   value: []
+
+# Add bosh_containerization properties for routing-api.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=routing-api/properties/bosh_containerization?
+  value:
+    ports:
+    - name: routing-api
+      protocol: TCP
+      internal: 3000
+    run:
+      memory: 128
+      virtual-cpus: 4
