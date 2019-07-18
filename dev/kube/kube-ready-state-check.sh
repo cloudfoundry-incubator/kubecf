@@ -60,6 +60,13 @@ function trouble() {
 }
 
 function status() {
+    # While the indirect check is not nice to shellcheck, at the
+    # higher-level our use of `... check command ; status label ; ...`
+    # is much more readable. It also avoids the creation of a lot of
+    # helper functions otherwise needed to group the more complex
+    # checking commands into something which can be run by `if cmd`.
+    # --> Overriding shellcheck here.
+    #
     # shellcheck disable=SC2181
     if [ $? -eq 0 ]; then
 	verified "$1"
