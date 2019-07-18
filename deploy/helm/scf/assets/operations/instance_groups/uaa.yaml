@@ -8,6 +8,12 @@
   path: /variables/name=uaa_ssl/options/alternative_names/-
   value: ((deployment-name))-uaa
 
+# Fix uaa.zones.internal.hostnames to point to the correct service DNS.
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/zones/internal/hostnames
+  value:
+  - ((deployment-name))-uaa
+
 # Add bosh_containerization properties.
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/bosh_containerization?
