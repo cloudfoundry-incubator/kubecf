@@ -6,6 +6,18 @@
 - type: remove
   path: /instance_groups/name=diego-api/jobs/name=silk-controller
 
+# Set the common name for the diego_locket_server certificate.
+- type: replace
+  path: /variables/name=diego_locket_server/options/common_name
+  value: ((deployment-name))-diego-api
+- type: replace
+  path: /variables/name=diego_locket_server/options/alternative_names
+  value:
+  # TODO: Figure out how to do wildcard for this certificate as the original alternative names
+  # included "*.locket.service.cf.internal".
+  # - "*.((deployment-name))-diego-api"
+  - ((deployment-name))-diego-api
+
 # Override the database address for the jobs under the diego-api instance group.
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host
