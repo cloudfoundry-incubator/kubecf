@@ -24,3 +24,8 @@ VM_CPUS=6 VM_MEMORY=$((1024 * 24)) VM_DISK_SIZE=180g bazel run //dev/minikube:st
 ## Specifying a different Kubernetes version
 
 Set the `K8S_VERSION` environment variable to override the default version.
+
+## VM Drivers
+
+At the moment, only the VirtualBox driver is working correctly; the kvm2 driver
+is known to not work (no output, and the network does not come up).
