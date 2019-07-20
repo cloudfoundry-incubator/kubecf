@@ -1,0 +1,7 @@
+# Disable BOSH DNS and set the logs addr manually.
+- type: replace
+  path: /instance_groups/name=adapter/jobs/name=adapter/properties/scalablesyslog/adapter/bosh_dns?
+  value: false
+- type: replace
+  path: /instance_groups/name=adapter/jobs/name=adapter/properties/scalablesyslog/adapter/logs?/addr
+  value: ((deployment-name))-log-api:8082

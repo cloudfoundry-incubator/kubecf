@@ -1,3 +1,9 @@
+# Selectively remove jobs temporarily.
+- type: remove
+  path: /instance_groups/name=uaa/jobs/name=route_registrar
+- type: remove
+  path: /instance_groups/name=uaa/jobs/name=statsd_injector
+
 # Override the database address.
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/address?
@@ -13,6 +19,13 @@
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/zones/internal/hostnames
   value:
   - ((deployment-name))-uaa
+
+# TODO: Figure out why it crashes the uaa job.
+# # Fix the nats address for the route_registrar.
+# - type: replace
+#   path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/nats?/machines
+#   value:
+#   - ((deployment-name))-nats
 
 # Add bosh_containerization properties.
 - type: replace
@@ -35,9 +48,3 @@
               exec:
                 command: ['sh', '-c', '/var/vcap/jobs/uaa/bin/health_check']
           liveness: *probe
-
-# Selectively remove jobs temporarily.
-- type: remove
-  path: /instance_groups/name=uaa/jobs/name=route_registrar
-- type: remove
-  path: /instance_groups/name=uaa/jobs/name=statsd_injector

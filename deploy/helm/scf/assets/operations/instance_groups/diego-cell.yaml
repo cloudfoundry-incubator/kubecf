@@ -1,8 +1,35 @@
+# Selectively remove jobs temporarily.
+- type: remove
+  path: /instance_groups/name=diego-cell/jobs/name=rep
+- type: remove
+  path: /instance_groups/name=diego-cell/jobs/name=garden-cni
+- type: remove
+  path: /instance_groups/name=diego-cell/jobs/name=netmon
+- type: remove
+  path: /instance_groups/name=diego-cell/jobs/name=vxlan-policy-agent
+- type: remove
+  path: /instance_groups/name=diego-cell/jobs/name=silk-daemon
+- type: remove
+  path: /instance_groups/name=diego-cell/jobs/name=silk-cni
+
 # Enable BPM on garden.
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/bpm?
   value:
     enabled: true
+
+# Override the addresses for the jobs under the diego-cell instance group.
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/uaa/hostname?
+  value: ((deployment-name))-uaa
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/diego/route_emitter/nats?/machines
+  value:
+  - ((deployment-name))-nats
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/diego/route_emitter/bbs/api_location?
+  value:
+  - ((deployment-name))-diego-api:8889
 
 # Add bosh_containerization properties.
 - type: replace
@@ -19,29 +46,15 @@
                 command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:17019"']
           liveness: *probe
 
-
 # Temporarily remove garden network_plugin.
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin_extra_args
 
-# Selectively remove jobs temporarily.
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=rep
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=cfdot
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=route_emitter
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=garden-cni
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=netmon
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=vxlan-policy-agent
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=silk-daemon
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=silk-cni
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties?/bosh_containerization?/bpm?/processes?
+  value: []
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties?/bosh_containerization?/bpm?/processes?
+  value: []

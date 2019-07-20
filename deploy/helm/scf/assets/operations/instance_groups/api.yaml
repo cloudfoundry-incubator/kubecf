@@ -11,8 +11,6 @@
   path: /instance_groups/name=api/jobs/name=policy-server-internal
 - type: remove
   path: /instance_groups/name=api/jobs/name=cc_uploader
-- type: remove
-  path: /instance_groups/name=api/jobs/name=loggr-udp-forwarder
 
 # TODO: Remove this replace once all buildpacks are included.
 - type: replace
@@ -83,6 +81,11 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=routing-api/properties/uaa/token_endpoint?
   value: ((deployment-name))-uaa
+# TODO: Figure out why it crashes the nginx job.
+# - type: replace
+#   path: /instance_groups/name=api/jobs/name=route_registrar/properties/nats?/machines
+#   value:
+#   - ((deployment-name))-nats
 
 # Add empty BPM processes to buildpacks.
 - type: replace

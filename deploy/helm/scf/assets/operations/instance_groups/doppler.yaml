@@ -1,10 +1,14 @@
 # Selectively remove jobs temporarily.
 - type: remove
-  path: /instance_groups/name=doppler/jobs/name=route_registrar
-- type: remove
   path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder
 - type: remove
   path: /instance_groups/name=doppler/jobs/name=log-cache-cf-auth-proxy
+
+# Fix the nats address for the route_registrar.
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/nats?/machines
+  value:
+  - ((deployment-name))-nats
 
 # Add bosh_containerization properties.
 - type: replace

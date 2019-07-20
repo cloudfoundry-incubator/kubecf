@@ -1,11 +1,11 @@
-# ops for the log-api instance group
-# Initial: remove all the jobs
-
-- type: remove
-  path: /instance_groups/name=log-api/jobs/name=route_registrar
-
 # Attention: scf/fissile does not use the reverse_log_proxy_gateway
 # We may be able to go without this job
+
+# Fix the nats address for the route_registrar.
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=route_registrar/properties/nats?/machines
+  value:
+  - ((deployment-name))-nats
 
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=loggregator_trafficcontroller/properties/bosh_containerization?
@@ -17,3 +17,6 @@
     - name: dropsonde
       protocol: TCP
       internal: 8081
+    - name: grpc-egress
+      protocol: TCP
+      internal: 8082
