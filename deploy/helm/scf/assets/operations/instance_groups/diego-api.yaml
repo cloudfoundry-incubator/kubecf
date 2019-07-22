@@ -13,6 +13,8 @@
   # included "*.locket.service.cf.internal".
   # - "*.((deployment-name))-diego-api"
   - ((deployment-name))-diego-api
+  # localhost is needed by bbs to talk to locket without having to hairpin.
+  - 127.0.0.1
 
 # Set the common name for the diego_bbs_server certificate.
 - type: replace
@@ -26,13 +28,16 @@
   # - "*.((deployment-name))-diego-api"
   - ((deployment-name))-diego-api
 
-# Override the database address for the jobs under the diego-api instance group.
+# Override the addresses for the jobs under the diego-api instance group.
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host
   value: ((deployment-name))-database
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_host
   value: ((deployment-name))-database
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/locket?/api_location
+  value: 127.0.0.1:8891
 
 # Disable tuning /proc/sys kernel parameters as locket and bbs are running on containers.
 - type: replace
@@ -62,9 +67,6 @@
     - name: cell-bbs-api
       protocol: TCP
       internal: 8889
-    - name: cell-bbs-dbg
-      protocol: TCP
-      internal: 17017
     run:
       memory: 128
       virtual-cpus: 2
