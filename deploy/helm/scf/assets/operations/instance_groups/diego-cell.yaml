@@ -38,13 +38,12 @@
     run:
       memory: 4096
       virtual-cpus: 2
-      healthcheck:
-        garden:
-          readiness: &probe
-            handler:
-              exec:
-                command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:17019"']
-          liveness: *probe
+      # healthcheck:
+      #   garden:
+      #     readiness: &probe
+      #       exec:
+      #         command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:17019"']
+      #     liveness: *probe
 
 # Temporarily remove garden network_plugin.
 - type: remove

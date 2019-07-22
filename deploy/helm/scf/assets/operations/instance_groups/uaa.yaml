@@ -41,10 +41,9 @@
     run:
       memory: 1532
       virtual-cpus: 2
-      healthcheck:
-        uaa:
-          readiness: &probe
-            handler:
-              exec:
-                command: ['sh', '-c', '/var/vcap/jobs/uaa/bin/health_check']
-          liveness: *probe
+      # healthcheck:
+      #   uaa:
+      #     readiness: &probe
+      #       exec:
+      #         command: ['sh', '-c', '/var/vcap/jobs/uaa/bin/health_check']
+      #     liveness: *probe
