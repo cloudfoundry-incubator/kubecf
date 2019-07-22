@@ -1,0 +1,37 @@
+# Override the addresses for the jobs under the cc-worker instance group.
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/address
+  value: ((deployment-name))-database
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/buildpacks?/webdav_config/private_endpoint
+  value: &blobstore_url https://((deployment-name))-singleton-blobstore:4443
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/droplets?/webdav_config/private_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/packages?/webdav_config/private_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/resource_pool?/webdav_config/private_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/diego?/bbs/url
+  value: https://((deployment-name))-diego-api:8889
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/diego?/cc_uploader_url
+  value: https://((deployment-name))-api:9090
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/diego?/file_server_url
+  value: http://((deployment-name))-api:8080
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/internal_service_hostname?
+  value: ((deployment-name))-api
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/loggregator?/internal_url
+  value: http://((deployment-name))-log-api:8081
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/uaa?/internal_url
+  value: ((deployment-name))-uaa
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/credhub_api?/hostname
+  value: ((deployment-name))-credhub

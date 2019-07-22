@@ -10,9 +10,6 @@
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=loggregator_trafficcontroller/properties/bosh_containerization?
   value:
-    run:
-      memory: 128
-      virtual-cpus: 2
     ports:
     - name: dropsonde
       protocol: TCP
@@ -20,3 +17,6 @@
     - name: grpc-egress
       protocol: TCP
       internal: 8082
+    run:
+      memory: 128
+      virtual-cpus: 2

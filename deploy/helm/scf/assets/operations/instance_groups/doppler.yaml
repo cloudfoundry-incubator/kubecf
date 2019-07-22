@@ -10,10 +10,22 @@
   value:
   - ((deployment-name))-nats
 
-# Add bosh_containerization properties.
+# Add bosh_containerization properties for doppler.
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=doppler/properties/bosh_containerization?
   value:
     run:
       memory: 410
+      virtual-cpus: 2
+
+# Add bosh_containerization properties for log-cache.
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=log-cache/properties/bosh_containerization?
+  value:
+    ports:
+    - name: log-cache
+      protocol: TCP
+      internal: 8080
+    run:
+      memory: 256
       virtual-cpus: 2
