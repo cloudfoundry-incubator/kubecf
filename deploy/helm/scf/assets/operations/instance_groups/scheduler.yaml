@@ -1,3 +1,19 @@
+# Override the addresses for the jobs under the scheduler instance group.
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
+  value: ((deployment-name))-database
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/bbs/url
+  value: https://((deployment-name))-diego-api:8889
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/cc_uploader_url
+  value: https://((deployment-name))-api:9090
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/file_server_url
+  value: http://((deployment-name))-api:8080
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/locket?/host
+  value: ((deployment-name))-diego-api
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties?/bosh_containerization?/bpm?/processes?
