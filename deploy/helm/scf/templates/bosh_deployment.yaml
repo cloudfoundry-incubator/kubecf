@@ -32,3 +32,7 @@ spec:
   - ref: {{ include "scf.ops-name" $path }}
     type: configmap
 {{- end }}
+{{- if not .Values.sizing.HA }}
+  - ref: ops-single-availability
+    type: configmap
+{{- end }}

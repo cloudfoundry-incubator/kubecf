@@ -1,6 +1,10 @@
 system_domain: ~
 deployment_name: scf
+
 releases:
   # The defaults for all releases, where we do not otherwise override them.
   defaults:
     url: docker.io/cfcontainerization
+
+sizing:
+  HA: false

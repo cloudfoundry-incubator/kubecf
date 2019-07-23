@@ -1,0 +1,55 @@
+{{ if not .Values.sizing.HA -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ops-single-availability
+  labels:
+    app.kubernetes.io/component: operations
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "scf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "scf.chart" . }}
+data:
+  ops: |
+    - type: replace
+      path: /instance_groups/name=nats/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=adapter/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=database/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=diego-api/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=uaa/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=singleton-blobstore/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=api/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=cc-worker/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=scheduler/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=router/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=doppler/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=diego-cell/instances
+      value: 1
+    - type: replace
+      path: /instance_groups/name=log-api/instances
+      value: 1
+{{- end }}
