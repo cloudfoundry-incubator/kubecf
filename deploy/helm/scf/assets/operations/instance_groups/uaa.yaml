@@ -1,7 +1,5 @@
 # Selectively remove jobs temporarily.
 - type: remove
-  path: /instance_groups/name=uaa/jobs/name=route_registrar
-- type: remove
   path: /instance_groups/name=uaa/jobs/name=statsd_injector
 
 # Override the database address.
@@ -20,12 +18,11 @@
   value:
   - ((deployment-name))-uaa
 
-# TODO: Figure out why it crashes the uaa job.
-# # Fix the nats address for the route_registrar.
-# - type: replace
-#   path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/nats?/machines
-#   value:
-#   - ((deployment-name))-nats
+# Fix the nats address for the route_registrar.
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/nats?/machines
+  value:
+  - ((deployment-name))-nats
 
 # Add bosh_containerization properties.
 - type: replace

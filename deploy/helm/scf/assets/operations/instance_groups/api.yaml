@@ -1,7 +1,5 @@
 # Selectively remove jobs temporarily.
 - type: remove
-  path: /instance_groups/name=api/jobs/name=route_registrar
-- type: remove
   path: /instance_groups/name=api/jobs/name=statsd_injector
 - type: remove
   path: /instance_groups/name=api/jobs/name=file_server
@@ -109,11 +107,10 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=routing-api/properties/uaa/token_endpoint?
   value: ((deployment-name))-uaa
-# TODO: Figure out why it crashes the nginx job.
-# - type: replace
-#   path: /instance_groups/name=api/jobs/name=route_registrar/properties/nats?/machines
-#   value:
-#   - ((deployment-name))-nats
+- type: replace
+  path: /instance_groups/name=api/jobs/name=route_registrar/properties/nats?/machines
+  value:
+  - ((deployment-name))-nats
 
 # Add empty BPM processes to buildpacks.
 - type: replace
