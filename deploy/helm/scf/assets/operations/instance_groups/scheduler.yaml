@@ -1,3 +1,7 @@
+# Selectively remove jobs temporarily.
+- type: remove
+  path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder
+
 # Override the addresses for the jobs under the scheduler instance group.
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
