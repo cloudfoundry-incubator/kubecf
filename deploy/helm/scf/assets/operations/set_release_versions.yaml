@@ -1,3 +1,5 @@
+# Set capi-release version explicitly to get the fix for yaml_escape.
+# https://github.com/cloudfoundry/capi-release/issues/141
 - type: replace
   path: /releases/name=capi/version
   value: 1.83.0
