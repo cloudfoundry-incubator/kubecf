@@ -5,3 +5,18 @@
 - type: replace
   path: /instance_groups/name=adapter/jobs/name=adapter/properties/scalablesyslog/adapter/logs?/addr
   value: ((deployment-name))-log-api:8082
+
+# Add bosh_containerization properties.
+- type: replace
+  path: /instance_groups/name=adapter/jobs/name=adapter/properties/bosh_containerization?
+  value:
+    ports:
+    - name: adapter
+      protocol: TCP
+      internal: 4443
+    - name: adapter-health
+      protocol: TCP
+      internal: 8080
+    run:
+      memory: 128
+      virtual-cpus: 2
