@@ -4,5 +4,12 @@ load(":def.bzl", "generate_pre_render_script_ops")
 
 generate_pre_render_script_ops(
     name = "pre_render_scripts",
-    srcs = glob(["pre_render_scripts/**/*.sh"]),
+    srcs = glob(
+        [
+            "pre_render_scripts/**/*.sh",
+        ],
+        exclude = [
+            "pre_render_scripts/shared/**/*",
+        ],
+    ),
 )
