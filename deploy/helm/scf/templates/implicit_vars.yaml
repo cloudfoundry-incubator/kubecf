@@ -1,8 +1,16 @@
+{{- /*
+  Template "scf.implicit-var" generates the kube secret declaration for a
+  variable.  It takes a list of two arguments: the context, and the variable
+  name.
+*/ -}}
+{{- define "scf.implicit-var" }}
+{{- $variable_name := (last .) }}
+{{- with (first .) }}
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ .Values.deployment_name }}.var-system-domain
+  name: {{ .Values.deployment_name }}.var-{{ $variable_name | replace "_" "-" | replace "." "-" }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
@@ -11,18 +19,10 @@ metadata:
     helm.sh/chart: {{ include "scf.chart" . }}
 type: Opaque
 stringData:
-  value: {{ .Values.system_domain | quote }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Values.deployment_name }}.var-deployment-name
-  labels:
-    app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ include "scf.fullname" . }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ include "scf.chart" . }}
-type: Opaque
-stringData:
-  value: {{ .Values.deployment_name | quote }}
+  value: {{ template "scf.dig" (list .Values ( splitList "." $variable_name )) }}
+{{- end }}
+{{- end }}
+
+{{ include "scf.implicit-var" (list . "system_domain") }}
+{{ include "scf.implicit-var" (list . "deployment_name") }}
+{{ include "scf.implicit-var" (list . "releases.defaults.url") }}

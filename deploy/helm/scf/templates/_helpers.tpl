@@ -37,3 +37,21 @@ Get the metadata name for an ops file.
 {{- define "scf.ops-name" -}}
 {{- printf "ops-%s" (base . | trimSuffix (ext .) | lower | replace "_" "-") -}}
 {{- end -}}
+
+{{- /*
+  Template "scf.dig" takes a dict and a list; it indexes the dict with each
+  successive element of the list.
+
+  For example, given (using JSON prepresentations)
+    $a = { foo: { bar: { baz: 1 } } }
+    $b = [ foo bar baz ]
+  Then `template "scf.dig" $a $b` will return "1".
+
+  Note that if the key is missing there will be a rendering error.
+*/ -}}
+{{- define "scf.dig" }}
+{{- $obj := first . }}
+{{- $keys := last . }}
+{{- range $key := $keys }}{{ $obj = index $obj $key }}{{ end }}
+{{- $obj | quote }}
+{{- end }}
