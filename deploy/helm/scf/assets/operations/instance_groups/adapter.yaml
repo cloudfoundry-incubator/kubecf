@@ -20,3 +20,9 @@
     run:
       memory: 128
       virtual-cpus: 2
+      healthcheck:
+        adapter:
+          readiness:
+            httpGet:
+              path: /health
+              port: 8080

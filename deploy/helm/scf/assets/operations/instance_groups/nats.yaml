@@ -12,9 +12,8 @@
     run:
       memory: 128
       virtual-cpus: 2
-      # healthcheck:
-      #   nats:
-      #     readiness: &probe
-      #       exec:
-      #         command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:4222" && ss -nlt | grep "LISTEN.*:4223"']
-      #     liveness: *probe
+      healthcheck:
+        nats:
+          readiness:
+            exec:
+              command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:4222" && ss -nlt | grep "LISTEN.*:4223"']
