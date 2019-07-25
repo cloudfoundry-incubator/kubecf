@@ -14,15 +14,11 @@
     - name: adapter
       protocol: TCP
       internal: 4443
-    - name: adapter-health
-      protocol: TCP
-      internal: 8080
     run:
       memory: 128
       virtual-cpus: 2
       healthcheck:
         adapter:
           readiness:
-            httpGet:
-              path: /health
-              port: 8080
+            exec:
+              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']
