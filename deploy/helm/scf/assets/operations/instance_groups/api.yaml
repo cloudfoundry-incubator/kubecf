@@ -2,8 +2,6 @@
 - type: remove
   path: /instance_groups/name=api/jobs/name=statsd_injector
 - type: remove
-  path: /instance_groups/name=api/jobs/name=file_server
-- type: remove
   path: /instance_groups/name=api/jobs/name=policy-server
 - type: remove
   path: /instance_groups/name=api/jobs/name=policy-server-internal
@@ -51,6 +49,11 @@
 # core_file_pattern should be disabled as CC is not running on a VM.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/core_file_pattern?
+  value: false
+
+# Disable tuning /proc/sys kernel parameters as file_server is running on a container.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=file_server/properties/set_kernel_parameters?
   value: false
 
 # TODO: Figure out the DB encryption validation.
@@ -173,3 +176,19 @@
 #     run:
 #       memory: 512
 #       virtual-cpus: 4
+# Add bosh_containerization properties for file_server.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=file_server/properties/bosh_containerization?
+  value:
+    ports:
+    - name: file-server
+      protocol: TCP
+      internal: &file-server-port 8080
+    run:
+      memory: 512
+      virtual-cpus: 4
+      healthcheck:
+        file_server:
+          readiness:
+            tcpSocket:
+              port: *file-server-port
