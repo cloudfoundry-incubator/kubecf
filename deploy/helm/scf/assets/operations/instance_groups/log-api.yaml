@@ -1,11 +1,29 @@
-# Attention: scf/fissile does not use the reverse_log_proxy_gateway
-# We may be able to go without this job
-
-# Fix the nats address for the route_registrar.
+# Override the addresses for the jobs under the log-api instance group.
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=loggregator_trafficcontroller/properties/cc/internal_service_hostname
+  value: ((deployment-name))-api
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=loggregator_trafficcontroller/properties/uaa/internal_url
+  value: https://((deployment-name))-uaa:8443
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy_gateway/properties/cc/capi_internal_addr
+  value: https://((deployment-name))-api:9023
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy_gateway/properties/cc/common_name
+  value: ((deployment-name))-api
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy_gateway/properties/uaa/internal_addr
+  value: https://((deployment-name))-uaa:8443
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=route_registrar/properties/nats?/machines
   value:
   - ((deployment-name))-nats
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=route_registrar/properties/route_registrar?/routing_api/api_url
+  value: http://((deployment-name))-api:3000
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
+  value: https://((deployment-name))-uaa:8443
 
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=loggregator_trafficcontroller/properties/bosh_containerization?

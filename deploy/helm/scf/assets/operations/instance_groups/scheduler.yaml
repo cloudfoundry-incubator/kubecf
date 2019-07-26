@@ -66,6 +66,24 @@
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/credhub_api?/hostname
   value: ((deployment-name))-credhub
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/bbs?/hostname
+  value: ((deployment-name))-diego-api
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/locket?/hostname
+  value: ((deployment-name))-diego-api
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/scalablesyslog/scheduler/api/url
+  value: https://((deployment-name))-api:9023
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/scalablesyslog/scheduler/tls/api/cn
+  value: ((deployment-name))-api
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/diego/ssh_proxy/bbs?/api_location
+  value: ((deployment-name))-diego-api:8889
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/diego/ssh_proxy/uaa?/url
+  value: https://((deployment-name))-uaa
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties?/bosh_containerization?/bpm?/processes?

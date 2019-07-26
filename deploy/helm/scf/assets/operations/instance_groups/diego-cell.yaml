@@ -30,6 +30,18 @@
   path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/diego/route_emitter/bbs/api_location?
   value:
   - ((deployment-name))-diego-api:8889
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/locks?/locket/hostname
+  value: ((deployment-name))-diego-api
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/routing_api?/url
+  value: http://((deployment-name))-api
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/bbs?/hostname
+  value: ((deployment-name))-diego-api
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/locket?/hostname
+  value: ((deployment-name))-diego-api
 
 # Add bosh_containerization properties.
 - type: replace

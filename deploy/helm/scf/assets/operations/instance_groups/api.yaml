@@ -61,6 +61,17 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/database_encryption?/skip_validation?
   value: true
 
+# Set the common name for the cc_bridge_cc_uploader_server certificate.
+- type: replace
+  path: /variables/name=cc_bridge_cc_uploader_server/options/common_name
+  value: ((deployment-name))-api
+- type: replace
+  path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names
+  value:
+  - ((deployment-name))-api
+  # 127.0.0.1 is needed by cloud_controller_ng to talk to cc_uploader without having to hairpin.
+  - 127.0.0.1
+
 # Override the addresses for the jobs under the api instance group.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/address
@@ -82,12 +93,15 @@
   value: https://((deployment-name))-diego-api:8889
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego?/file_server_url
-  value: http://localhost.:8080
+  value: http://127.0.0.1:8080
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego?/cc_uploader_https_url
+  value: https://127.0.0.1:9091
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
-  value: localhost.
+  value: 127.0.0.1
 - type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/logcache?
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/logcache?/host
   value: ((deployment-name))-doppler
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/loggregator?/internal_url
@@ -114,6 +128,12 @@
   path: /instance_groups/name=api/jobs/name=route_registrar/properties/nats?/machines
   value:
   - ((deployment-name))-nats
+- type: replace
+  path: /instance_groups/name=api/jobs/name=route_registrar/properties/route_registrar?/routing_api/api_url
+  value: http://127.0.0.1:3000
+- type: replace
+  path: /instance_groups/name=api/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
+  value: https://((deployment-name))-uaa:8443
 
 # Add empty BPM processes to buildpacks.
 - type: replace
@@ -165,17 +185,6 @@
 #       memory: 128
 #       virtual-cpus: 4
 
-# # Add bosh_containerization properties for file_server.
-# - type: replace
-#   path: /instance_groups/name=api/jobs/name=file_server/properties/bosh_containerization?
-#   value:
-#     ports:
-#     - name: file-server
-#       protocol: TCP
-#       internal: 8080
-#     run:
-#       memory: 512
-#       virtual-cpus: 4
 # Add bosh_containerization properties for file_server.
 - type: replace
   path: /instance_groups/name=api/jobs/name=file_server/properties/bosh_containerization?

@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
 
-set -o errexit
+set -o errexit -o nounset
+
+target="/var/vcap/all-releases/jobs-src/routing/route_registrar/templates/bpm.yml.erb"
 
 # Since the bpm.yml.erb file is shared with all containers during bpm rendering and we cannot
 # guarantee which container will render the needed patched bpm first, we create a file to ensure
 # only one patching will occur.
-patched="/var/vcap/all-releases/data/routing/route_registrar/patched"
-if [ -f "${patched}" ]; then
-  exit 0
-fi
-mkdir -p "$(dirname "${patched}")"
+patched="${target}.patched"
+if [ -f "${patched}" ]; then exit 0; fi
 touch "${patched}"
 
 # Patch the route_registrar to remove the unrestricted_volumes. This patch takes effect in every
 # instance group that uses the route_registrar job. The unrestricted_volumes don't play well with
 # other jobs in the same instance group because it wipes out /var/vcap/data/<job>.
-patch --binary --unified /var/vcap/all-releases/jobs-src/routing/route_registrar/templates/bpm.yml.erb <<'EOT'
+patch --binary --unified --verbose "${target}" <<'EOT'
 @@ -6,25 +6,3 @@
      - /var/vcap/jobs/route_registrar/config/registrar_settings.json
      - -timeFormat

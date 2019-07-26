@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-set -o errexit
+set -o errexit -o nounset
 
-patch --binary --unified /var/vcap/all-releases/jobs-src/loggregator/loggregator_trafficcontroller/templates/bpm.yml.erb <<'EOT'
+target="/var/vcap/all-releases/jobs-src/loggregator/loggregator_trafficcontroller/templates/bpm.yml.erb"
+
+patch --binary --unified --verbose "${target}" <<'EOT'
 @@ -35,7 +35,7 @@
        CC_CA_FILE: "/var/vcap/jobs/loggregator_trafficcontroller/config/certs/mutual_tls_ca.crt"
        CC_SERVER_NAME: "<%= p('cc.internal_service_hostname') %>"

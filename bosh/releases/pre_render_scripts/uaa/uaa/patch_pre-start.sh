@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
-set -o errexit
+set -o errexit -o nounset
+
+target="/var/vcap/all-releases/jobs-src/uaa/uaa/templates/bin/pre-start.erb"
 
 # Patch bin/pre-start.erb for the certificates to work with SUSE.
-patch /var/vcap/all-releases/jobs-src/uaa/uaa/templates/bin/pre-start.erb <<'EOT'
+patch --verbose "${target}" <<'EOT'
 24c24
 < rm -f /usr/local/share/ca-certificates/uaa_*
 ---
@@ -14,12 +16,4 @@ patch /var/vcap/all-releases/jobs-src/uaa/uaa/templates/bin/pre-start.erb <<'EOT
 ---
 >     echo "Adding certificate from manifest to OS certs /etc/pki/trust/anchors/uaa_<%= i %>.crt"
 >     echo -n '<%= cert %>' >> "/etc/pki/trust/anchors/uaa_<%= i %>.crt"
-EOT
-
-# Patch bin/uaa.erb for the certificates to work with SUSE.
-patch /var/vcap/all-releases/jobs-src/uaa/uaa/templates/bin/uaa.erb <<'EOT'
-49c49
-< cp /etc/ssl/certs/ca-certificates.crt "$CERT_FILE"
----
-> cp /var/lib/ca-certificates/ca-bundle.pem "$CERT_FILE"
 EOT

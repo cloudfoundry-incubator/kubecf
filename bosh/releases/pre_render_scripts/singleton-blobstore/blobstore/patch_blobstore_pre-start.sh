@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-set -o errexit
+set -o errexit -o nounset
 
 # Perform a faster chown when the blobstore starts.
-patch --binary --unified /var/vcap/all-releases/jobs-src/capi/blobstore/templates/pre-start.sh.erb <<'EOT'
+
+target="/var/vcap/all-releases/jobs-src/capi/blobstore/templates/pre-start.sh.erb"
+
+patch --binary --unified --verbose "${target}" <<'EOT'
 @@ -20,14 +20,10 @@
 
    chown vcap:vcap $store_dir
