@@ -12,3 +12,24 @@
   path: /instance_groups/name=router/jobs/name=gorouter/properties/nats?/machines
   value:
   - ((deployment-name))-nats
+
+# Add bosh_containerization properties for the gorouter job.
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/bosh_containerization?
+  value:
+    ports:
+    - name: router
+      protocol: TCP
+      internal: 8000
+      public: true
+    - name: router-ssl
+      protocol: TCP
+      internal: 443
+    run:
+      memory: 256
+      virtual-cpus: 2
+      healthcheck:
+        gorouter:
+          readiness:
+            exec:
+              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']

@@ -85,6 +85,48 @@
   path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/diego/ssh_proxy/uaa?/url
   value: https://((deployment-name))-uaa
 
+# Add bosh_containerization properties for the scheduler job.
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cfdot/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/bosh_containerization?
+  value:
+    run:
+      memory: 256
+      virtual-cpus: 2
+      healthcheck:
+        scheduler:
+          readiness:
+            exec:
+              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']
+
+# Add bosh_containerization properties for the auctioneer job.
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=auctioneer/properties/bosh_containerization?
+  value:
+    ports:
+    - name: auctioneer
+      protocol: TCP
+      internal: 9016
+    run:
+      memory: 256
+      virtual-cpus: 2
+      healthcheck:
+        auctioneer:
+          readiness:
+            exec:
+              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']
+
+# Add bosh_containerization properties for the ssh_proxy job.
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/bosh_containerization?
+  value:
+    ports:
+    - name: ssh-proxy
+      protocol: TCP
+      internal: 2222
+    run:
+      memory: 256
+      virtual-cpus: 2
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/bosh_containerization?/bpm/processes
   value: []

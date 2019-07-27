@@ -25,6 +25,7 @@
   path: /instance_groups/name=log-api/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
   value: https://((deployment-name))-uaa:8443
 
+# Add bosh_containerization properties for loggregator_trafficcontroller.
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=loggregator_trafficcontroller/properties/bosh_containerization?
   value:
@@ -32,6 +33,15 @@
     - name: dropsonde
       protocol: TCP
       internal: 8081
+    run:
+      memory: 128
+      virtual-cpus: 2
+
+# Add bosh_containerization properties for reverse_log_proxy.
+- type: replace
+  path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy/properties/bosh_containerization?
+  value:
+    ports:
     - name: grpc-egress
       protocol: TCP
       internal: 8082
