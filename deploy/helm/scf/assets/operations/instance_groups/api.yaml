@@ -3,8 +3,6 @@
   path: /instance_groups/name=api/jobs/name=policy-server
 - type: remove
   path: /instance_groups/name=api/jobs/name=policy-server-internal
-- type: remove
-  path: /instance_groups/name=api/jobs/name=cc_uploader
 
 # TODO: Remove this replace once all buildpacks are included.
 - type: replace
@@ -168,17 +166,17 @@
       memory: 128
       virtual-cpus: 4
 
-# # Add bosh_containerization properties for cc_uploader.
-# - type: replace
-#   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/bosh_containerization?
-#   value:
-#     ports:
-#     - name: cc-uploader
-#       protocol: TCP
-#       internal: 9090
-#     run:
-#       memory: 128
-#       virtual-cpus: 4
+# Add bosh_containerization properties for cc_uploader.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cc_uploader/properties/bosh_containerization?
+  value:
+    ports:
+    - name: cc-uploader
+      protocol: TCP
+      internal: 9090
+    run:
+      memory: 256
+      virtual-cpus: 4
 
 # Add bosh_containerization properties for file_server.
 - type: replace
