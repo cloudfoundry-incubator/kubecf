@@ -1,7 +1,3 @@
-# Selectively remove jobs temporarily.
-- type: remove
-  path: /instance_groups/name=uaa/jobs/name=statsd_injector
-
 # Override the database address.
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/address?
