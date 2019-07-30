@@ -9,6 +9,7 @@ if ! "${MINIKUBE}" status > /dev/null; then
     --memory "${VM_MEMORY}" \
     --disk-size "${VM_DISK_SIZE}" \
     --iso-url "${ISO_URL}" \
+    ${VM_DRIVER:+--vm-driver "${VM_DRIVER}"} \
     --extra-config=apiserver.enable-admission-plugins=MutatingAdmissionWebhook
 
   # Enable hairpin by setting the docker0 promiscuous mode on.
