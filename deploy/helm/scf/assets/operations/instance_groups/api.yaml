@@ -1,9 +1,3 @@
-# Selectively remove jobs temporarily.
-- type: remove
-  path: /instance_groups/name=api/jobs/name=policy-server
-- type: remove
-  path: /instance_groups/name=api/jobs/name=policy-server-internal
-
 # TODO: Remove this replace once all buildpacks are included.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/install_buildpacks
@@ -68,6 +62,15 @@
   # 127.0.0.1 is needed by cloud_controller_ng to talk to cc_uploader without having to hairpin.
   - 127.0.0.1
 
+# Set the common name for the network_policy_server certificate.
+- type: replace
+  path: /variables/name=network_policy_server/options/common_name
+  value: ((deployment-name))-api
+- type: replace
+  path: /variables/name=network_policy_server/options/alternative_names?
+  value:
+  - ((deployment-name))-api
+
 # Override the addresses for the jobs under the api instance group.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/address
@@ -130,6 +133,12 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
   value: https://((deployment-name))-uaa:8443
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/database/host
+  value: ((deployment-name))-database
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/uaa_hostname?
+  value: ((deployment-name))-uaa
 
 # Add empty BPM processes to buildpacks.
 - type: replace
@@ -204,6 +213,26 @@
     - name: statsd
       protocol: TCP
       internal: 8125
+    run:
+      memory: 256
+      virtual-cpus: 2
+
+# Add bosh_containerization properties for policy-server.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/bosh_containerization?
+  value:
+    ports:
+    - name: policy-server
+      protocol: TCP
+      internal: 4002
+    run:
+      memory: 256
+      virtual-cpus: 2
+
+# Add bosh_containerization properties for policy-server-internal.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server-internal/properties/bosh_containerization?
+  value:
     run:
       memory: 256
       virtual-cpus: 2
