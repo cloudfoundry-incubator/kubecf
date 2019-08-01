@@ -33,6 +33,8 @@
     run:
       healthcheck:
         uaa:
-          readiness:
+          readiness: &uaa_readiness
             exec:
               command: ['sh', '-c', '/var/vcap/jobs/uaa/bin/health_check']
+    post_start:
+      condition: *uaa_readiness

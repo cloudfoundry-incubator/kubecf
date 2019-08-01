@@ -35,3 +35,11 @@
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/credhub_api?/hostname
   value: ((deployment-name))-credhub
+
+# Add bosh_containerization properties for cloud_controller_worker.
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/bosh_containerization?
+  value:
+    run:
+      memory: 4096
+      virtual-cpus: 4

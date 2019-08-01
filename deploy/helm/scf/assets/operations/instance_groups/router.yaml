@@ -28,6 +28,8 @@
     run:
       healthcheck:
         gorouter:
-          readiness:
+          readiness: &gorouter_readiness
             exec:
               command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']
+    post_start:
+      condition: *gorouter_readiness

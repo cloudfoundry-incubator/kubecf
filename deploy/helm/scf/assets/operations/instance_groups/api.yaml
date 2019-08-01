@@ -213,6 +213,21 @@
     - name: api-mutual-tls
       protocol: TCP
       internal: 9024
+    run:
+      healthcheck:
+        cloud_controller_ng:
+          readiness: &cloud_controller_ng_readiness
+            exec:
+              command:
+              - sh
+              - -c
+              - |
+                set -o errexit
+                ss -nlt | grep "LISTEN.*:9022"
+                ss -nlt | grep "LISTEN.*:9023"
+                ss -nlt | grep "LISTEN.*:9024"
+    post_start:
+      condition: *cloud_controller_ng_readiness
 
 # Add quarks properties for routing-api.
 - type: replace
@@ -268,3 +283,31 @@
     - name: policy-server
       protocol: TCP
       internal: 4002
+    run:
+      healthcheck:
+        policy-server:
+          readiness: &policy_server_readiness
+            exec:
+              command:
+              - sh
+              - -c
+              - ss -nlt | grep "LISTEN.*:4002"
+    post_start:
+      condition: *policy_server_readiness
+
+# Add quarks properties for policy-server-internal.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server-internal/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        policy-server:
+          readiness: &policy_server_internal_readiness
+            exec:
+              command:
+              - sh
+              - -c
+              # TODO: Use curl to call port 31946.
+              - ss -nlt | grep "LISTEN.*:4003"
+    post_start:
+      condition: *policy_server_internal_readiness

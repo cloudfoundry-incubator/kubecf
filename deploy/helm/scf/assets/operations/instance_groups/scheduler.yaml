@@ -117,6 +117,14 @@
       protocol: TCP
       internal: 2222
 
+# Add bosh_containerization properties for cloud_controller_clock.
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/bosh_containerization?
+  value:
+    run:
+      memory: 512
+      virtual-cpus: 2
+
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []

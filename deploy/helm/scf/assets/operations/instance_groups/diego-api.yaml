@@ -50,6 +50,17 @@
     - name: cell-bbs-api
       protocol: TCP
       internal: 8889
+    run:
+      healthcheck:
+        bbs:
+          readiness: &bbs_readiness
+            exec:
+              command:
+              - sh
+              - -c
+              - ss -nlt | grep "LISTEN.*:8889"
+    post_start:
+      condition: *bbs_readiness
 
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/quarks?/bpm/processes
