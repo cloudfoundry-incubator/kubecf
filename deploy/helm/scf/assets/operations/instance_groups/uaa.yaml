@@ -36,8 +36,6 @@
       protocol: TCP
       internal: 8443
     run:
-      memory: 1532
-      virtual-cpus: 2
       healthcheck:
         uaa:
           readiness:

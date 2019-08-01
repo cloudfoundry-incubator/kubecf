@@ -33,9 +33,6 @@
     - name: dropsonde
       protocol: TCP
       internal: 8081
-    run:
-      memory: 128
-      virtual-cpus: 2
 
 # Add bosh_containerization properties for reverse_log_proxy.
 - type: replace
@@ -45,6 +42,3 @@
     - name: grpc-egress
       protocol: TCP
       internal: 8082
-    run:
-      memory: 128
-      virtual-cpus: 2

@@ -159,9 +159,7 @@
     - name: api-mutual-tls
       protocol: TCP
       internal: 9024
-    run:
-      memory: 4096
-      virtual-cpus: 4
+
 
 # Add bosh_containerization properties for routing-api.
 - type: replace
@@ -171,9 +169,6 @@
     - name: routing-api
       protocol: TCP
       internal: 3000
-    run:
-      memory: 128
-      virtual-cpus: 4
 
 # Add bosh_containerization properties for cc_uploader.
 - type: replace
@@ -183,9 +178,6 @@
     - name: cc-uploader
       protocol: TCP
       internal: 9090
-    run:
-      memory: 256
-      virtual-cpus: 4
 
 # Add bosh_containerization properties for file_server.
 - type: replace
@@ -196,8 +188,6 @@
       protocol: TCP
       internal: &file-server-port 8080
     run:
-      memory: 512
-      virtual-cpus: 4
       healthcheck:
         file_server:
           readiness:
@@ -213,9 +203,6 @@
     - name: statsd
       protocol: TCP
       internal: 8125
-    run:
-      memory: 256
-      virtual-cpus: 2
 
 # Add bosh_containerization properties for policy-server.
 - type: replace
@@ -225,14 +212,3 @@
     - name: policy-server
       protocol: TCP
       internal: 4002
-    run:
-      memory: 256
-      virtual-cpus: 2
-
-# Add bosh_containerization properties for policy-server-internal.
-- type: replace
-  path: /instance_groups/name=api/jobs/name=policy-server-internal/properties/bosh_containerization?
-  value:
-    run:
-      memory: 256
-      virtual-cpus: 2

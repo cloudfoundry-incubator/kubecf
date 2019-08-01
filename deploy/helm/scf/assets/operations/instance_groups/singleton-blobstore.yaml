@@ -35,13 +35,3 @@
     - name: https
       protocol: TCP
       internal: 4443
-    run:
-      memory: 512
-      virtual-cpus: 2
-      # healthcheck:
-      #   nginx: &healthcheck
-      #     readiness: &probe
-      #       exec:
-      #         command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:8080" && ss -nlt | grep "LISTEN.*:4443"']
-      #     liveness: *probe
-      #   url_signer: *healthcheck

@@ -1,6 +1,6 @@
 # Selectively remove jobs temporarily.
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=rep
+# - type: remove
+#   path: /instance_groups/name=diego-cell/jobs/name=rep
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden-cni
 - type: remove
@@ -42,20 +42,9 @@
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/locket?/hostname
   value: ((deployment-name))-diego-api
-
-# Add bosh_containerization properties.
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/bosh_containerization?
-  value:
-    run:
-      memory: 4096
-      virtual-cpus: 2
-      # healthcheck:
-      #   garden:
-      #     readiness: &probe
-      #       exec:
-      #         command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:17019"']
-      #     liveness: *probe
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/set_kernel_parameters?
+  value: false
 
 # Temporarily remove garden network_plugin.
 - type: remove
@@ -69,3 +58,36 @@
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties?/bosh_containerization?/bpm?/processes?
   value: []
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/diego?/rep?/locket?/api_location?
+  value: ((deployment-name))-diego-api:8891
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/diego?/rep?/bbs?/api_location?
+  value: ((deployment-name))-diego-api:8889
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/diego?/rep?/advertise_domain?
+  value: ((deployment-name))-diego-cell
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/diego?/rep?/preloaded_rootfses?
+  value:
+  - cflinuxfs3:/var/vcap/data/rep/cflinuxfs3/rootfs.tar
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/diego?/garden?/network_pool?
+  value: 10.38.0.0/16
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/diego?/garden?/apparmor_profile?
+  value: ""
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/diego?/garden?/containerd_mode?
+  value: false
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/bosh_containerization?/privileged?
+  value: true

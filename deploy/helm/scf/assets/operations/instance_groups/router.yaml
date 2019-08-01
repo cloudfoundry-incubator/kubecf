@@ -26,8 +26,6 @@
       protocol: TCP
       internal: 443
     run:
-      memory: 256
-      virtual-cpus: 2
       healthcheck:
         gorouter:
           readiness:

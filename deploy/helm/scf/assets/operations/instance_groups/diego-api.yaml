@@ -69,9 +69,6 @@
     - name: locket
       protocol: TCP
       internal: 8891
-    run:
-      memory: 128
-      virtual-cpus: 2
 
 # Add bosh_containerization properties for bbs.
 - type: replace
@@ -81,9 +78,6 @@
     - name: cell-bbs-api
       protocol: TCP
       internal: 8889
-    run:
-      memory: 128
-      virtual-cpus: 2
 
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=cfdot/properties?/bosh_containerization?/bpm?/processes?

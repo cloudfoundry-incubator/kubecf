@@ -36,9 +36,6 @@
     - name: log-cache-proxy # log-cache-cf-auth-proxy
       protocol: TCP
       internal: 8083
-    run:
-      memory: 512
-      virtual-cpus: 2
 
 # Add bosh_containerization properties for log-cache.
 - type: replace
@@ -48,6 +45,3 @@
     - name: log-cache
       protocol: TCP
       internal: 8080
-    run:
-      memory: 256
-      virtual-cpus: 2
