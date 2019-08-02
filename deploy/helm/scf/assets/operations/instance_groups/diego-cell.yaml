@@ -28,8 +28,7 @@
   - ((deployment-name))-nats
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/diego/route_emitter/bbs/api_location?
-  value:
-  - ((deployment-name))-diego-api:8889
+  value: ((deployment-name))-diego-api:8889
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/locks?/locket/hostname
   value: ((deployment-name))-diego-api
@@ -52,6 +51,18 @@
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin_extra_args
 
+# Add bosh_containerization properties for the rep.
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/bosh_containerization?
+  value:
+    ports:
+    - name: rep
+      protocol: TCP
+      internal: 1800
+    - name: rep-tls
+      protocol: TCP
+      internal: 1801
+
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties?/bosh_containerization?/bpm?/processes?
   value: []
@@ -67,9 +78,15 @@
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/diego?/rep?/bbs?/api_location?
   value: ((deployment-name))-diego-api:8889
 
+# TODO: the namespace here has to be determined automatically - helm can help here?
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/diego?/rep?/advertise_domain?
-  value: ((deployment-name))-diego-cell
+  value: scf.svc.cluster.local
+
+# TODO: this should actually be the container's hostname
+# - type: replace
+#   path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/diego?/rep?/cell_id?
+#   value: scf-dev-diego-cell-v1-0
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/diego?/rep?/preloaded_rootfses?
@@ -77,17 +94,35 @@
   - cflinuxfs3:/var/vcap/data/rep/cflinuxfs3/rootfs.tar
 
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/diego?/garden?/network_pool?
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/  _pool?
   value: 10.38.0.0/16
 
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/diego?/garden?/apparmor_profile?
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/apparmor_profile?
   value: ""
 
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/diego?/garden?/containerd_mode?
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/containerd_mode?
   value: false
+
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/cleanup_process_dirs_on_wait?
+  value: false
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/disable_swap_limit?
+  value: true
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/bosh_containerization?/privileged?
   value: true
+
+- type: replace
+  path: /variables/name=diego_rep_agent_v2/options/alternative_names?
+  value:
+  - ((deployment-name))-diego-cell
+  - "*.((deployment-name))-diego-cell"
+  - ((deployment-name))-diego-cell-0.scf.svc.cluster.local
+  - 127.0.0.1
+  - localhost

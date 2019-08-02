@@ -35,9 +35,3 @@
     - name: https
       protocol: TCP
       internal: 8443
-    run:
-      healthcheck:
-        uaa:
-          readiness:
-            exec:
-              command: ['sh', '-c', '/var/vcap/jobs/uaa/bin/health_check']

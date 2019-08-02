@@ -4,7 +4,7 @@ set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/cflinuxfs3/cflinuxfs3-rootfs-setup/templates/pre-start"
 
-# Remove sysctl calls as we are running in containers.
+# Use the ephemeral data directory for the rootfs
 patch --verbose "${target}" <<'EOT'
 @@ -3,8 +3,8 @@
 
