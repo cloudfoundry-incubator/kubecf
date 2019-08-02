@@ -7,9 +7,6 @@ NAMESPACE = "scf"
 
 helm_template(
     name = "rendered_template",
-    set_values = {
-        "deployment_name": "scf-dev",
-    },
     values = glob(["**/*values.yaml"]),
     install_name = "scf",
     namespace = NAMESPACE,
