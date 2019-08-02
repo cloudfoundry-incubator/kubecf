@@ -117,9 +117,9 @@
       protocol: TCP
       internal: 2222
 
-# Add bosh_containerization properties for cloud_controller_clock.
+# Add quarks properties for cloud_controller_clock.
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/bosh_containerization?
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/quarks?
   value:
     run:
       memory: 512

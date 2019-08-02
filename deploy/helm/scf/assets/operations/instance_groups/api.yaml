@@ -169,34 +169,34 @@
   path: /instance_groups/name=api/jobs/name=binary-buildpack/properties?/quarks/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=api/jobs/name=dotnet-core-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=dotnet-core-buildpack/properties?/quarks/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=api/jobs/name=go-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=go-buildpack/properties?/quarks/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=api/jobs/name=java-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=java-buildpack/properties?/quarks/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=api/jobs/name=nodejs-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=nodejs-buildpack/properties?/quarks/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=api/jobs/name=nginx-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=nginx-buildpack/properties?/quarks/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=api/jobs/name=r-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=r-buildpack/properties?/quarks/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=api/jobs/name=php-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=php-buildpack/properties?/quarks/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=api/jobs/name=python-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=python-buildpack/properties?/quarks/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=api/jobs/name=ruby-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=ruby-buildpack/properties?/quarks/bpm/processes
   value: []
 - type: replace
-  path: /instance_groups/name=api/jobs/name=staticfile-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=staticfile-buildpack/properties?/quarks/bpm/processes
   value: []
 
 # Add quarks properties for cloud_controller_ng.
