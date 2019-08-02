@@ -13,9 +13,9 @@
   value:
   - ((deployment-name))-nats
 
-# Add bosh_containerization properties for the gorouter job.
+# Add quarks properties for the gorouter job.
 - type: replace
-  path: /instance_groups/name=router/jobs/name=gorouter/properties/bosh_containerization?
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/quarks?
   value:
     ports:
     - name: router

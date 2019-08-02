@@ -1,6 +1,6 @@
-# Add bosh_containerization properties.
+# Add quarks properties.
 - type: replace
-  path: /instance_groups/name=nats/jobs/name=nats/properties/bosh_containerization?
+  path: /instance_groups/name=nats/jobs/name=nats/properties/quarks?
   value:
     ports:
     - name: nats

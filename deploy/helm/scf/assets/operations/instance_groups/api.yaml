@@ -29,22 +29,12 @@
 
 # Set the common name for the cc_bridge_cc_uploader_server certificate.
 - type: replace
-  path: /variables/name=cc_bridge_cc_uploader_server/options/common_name?
+  path: /variables/name=cc_bridge_cc_uploader_server/options/common_name
   value: ((deployment-name))-api
-
 - type: replace
   path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?
   value:
   - ((deployment-name))-api
-
-- type: replace
-  path: /variables/name=cc_logcache_tls/options/alternative_names?
-  value:
-  - ((deployment-name))-api
-
-- type: replace
-  path: /variables/name=cc_tls/options/common_name?
-  value: ((deployment-name))-api
 
 # core_file_pattern should be disabled as CC is not running on a VM.
 - type: replace
@@ -56,20 +46,10 @@
   path: /instance_groups/name=api/jobs/name=file_server/properties/set_kernel_parameters?
   value: false
 
-# We don't have a /var/vcap/job/*/packages directory, so we point to all the packages
-- type: replace
-  path: /instance_groups/name=api/jobs/name=file_server/properties/diego?/file_server?/static_directory?
-  value: "/var/vcap/packages/"
-
 # TODO: Figure out the DB encryption validation.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/database_encryption?/skip_validation?
   value: true
-
-# Don't run migrations in pre-start, it seems flaky
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/run_prestart_migrations?
-  value: false
 
 # Set the common name for the cc_bridge_cc_uploader_server certificate.
 - type: replace
@@ -112,13 +92,13 @@
   value: https://((deployment-name))-diego-api:8889
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego?/file_server_url
-  value: http://((deployment-name))-api:8080
+  value: http://127.0.0.1:8080
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego?/cc_uploader_https_url
-  value: https://((deployment-name))-api:9091
+  value: https://127.0.0.1:9091
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
-  value: ((deployment-name))-api
+  value: 127.0.0.1
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/logcache?/host
   value: ((deployment-name))-doppler
@@ -162,12 +142,12 @@
 
 # Add empty BPM processes to buildpacks.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=binary-buildpack/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=binary-buildpack/properties?/quarks?/bpm?/processes?
   value: []
 
-# Add bosh_containerization properties for cloud_controller_ng.
+# Add quarks properties for cloud_controller_ng.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/quarks?
   value:
     ports:
     - name: api
@@ -179,51 +159,80 @@
     - name: api-mutual-tls
       protocol: TCP
       internal: 9024
+    run:
+      memory: 4096
+      virtual-cpus: 4
 
-
-# Add bosh_containerization properties for routing-api.
+# Add quarks properties for routing-api.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=routing-api/properties/quarks?
   value:
     ports:
     - name: routing-api
       protocol: TCP
       internal: 3000
+    run:
+      memory: 128
+      virtual-cpus: 4
 
-# Add bosh_containerization properties for cc_uploader.
+# Add quarks properties for cc_uploader.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=cc_uploader/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=cc_uploader/properties/quarks?
   value:
     ports:
     - name: cc-uploader
       protocol: TCP
       internal: 9090
+    run:
+      memory: 256
+      virtual-cpus: 4
 
-# Add bosh_containerization properties for file_server.
+# Add quarks properties for file_server.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=file_server/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=file_server/properties/quarks?
   value:
     ports:
     - name: file-server
       protocol: TCP
       internal: &file-server-port 8080
+    run:
+      memory: 512
+      virtual-cpus: 4
+      healthcheck:
+        file_server:
+          readiness:
+            tcpSocket:
+              port: *file-server-port
 
-
-# Add bosh_containerization properties for statsd_injector.
+# Add quarks properties for statsd_injector.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=statsd_injector/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=statsd_injector/properties/quarks?
   value:
     ports:
     # TODO: Can we remove this port?
     - name: statsd
       protocol: TCP
       internal: 8125
+    run:
+      memory: 256
+      virtual-cpus: 2
 
-# Add bosh_containerization properties for policy-server.
+# Add quarks properties for policy-server.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=policy-server/properties/bosh_containerization?
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/quarks?
   value:
     ports:
     - name: policy-server
       protocol: TCP
       internal: 4002
+    run:
+      memory: 256
+      virtual-cpus: 2
+
+# Add quarks properties for policy-server-internal.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server-internal/properties/quarks?
+  value:
+    run:
+      memory: 256
+      virtual-cpus: 2

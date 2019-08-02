@@ -6,9 +6,9 @@
   path: /instance_groups/name=adapter/jobs/name=adapter/properties/scalablesyslog/adapter/logs?/addr
   value: ((deployment-name))-log-api:8082
 
-# Add bosh_containerization properties.
+# Add quarks properties.
 - type: replace
-  path: /instance_groups/name=adapter/jobs/name=adapter/properties/bosh_containerization?
+  path: /instance_groups/name=adapter/jobs/name=adapter/properties/quarks?
   value:
     ports:
     - name: adapter

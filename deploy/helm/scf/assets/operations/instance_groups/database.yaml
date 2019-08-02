@@ -76,10 +76,10 @@
               server_certificate: "((mysql_server_certificate.certificate))"
               server_key: "((mysql_server_certificate.private_key))"
 
-# Add bosh_containerization properties. It adds the BPM configuration as cf-mysql-release lacks
+# Add quarks properties. It adds the BPM configuration as cf-mysql-release lacks
 # support for it upstream.
 - type: replace
-  path: /instance_groups/name=database/jobs/name=mysql/properties/bosh_containerization?
+  path: /instance_groups/name=database/jobs/name=mysql/properties/quarks?
   value:
     ports:
     - name: mysql

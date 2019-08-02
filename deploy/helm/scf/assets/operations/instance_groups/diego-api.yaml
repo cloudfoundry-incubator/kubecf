@@ -61,18 +61,18 @@
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/set_kernel_parameters?
   value: false
 
-# Add bosh_containerization properties for locket.
+# Add quarks properties for locket.
 - type: replace
-  path: /instance_groups/name=diego-api/jobs/name=locket/properties/bosh_containerization?
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/quarks?
   value:
     ports:
     - name: locket
       protocol: TCP
       internal: 8891
 
-# Add bosh_containerization properties for bbs.
+# Add quarks properties for bbs.
 - type: replace
-  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/bosh_containerization?
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/quarks?
   value:
     ports:
     - name: cell-bbs-api
@@ -80,5 +80,5 @@
       internal: 8889
 
 - type: replace
-  path: /instance_groups/name=diego-api/jobs/name=cfdot/properties?/bosh_containerization?/bpm?/processes?
+  path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []

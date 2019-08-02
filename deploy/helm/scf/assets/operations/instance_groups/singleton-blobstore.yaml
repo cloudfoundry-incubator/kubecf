@@ -26,7 +26,7 @@
   value: https://((deployment-name))-uaa:8443
 
 - type: replace
-  path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/bosh_containerization?
+  path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/quarks?
   value:
     ports:
     - name: http
