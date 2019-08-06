@@ -10,7 +10,6 @@ def _minikube_start_impl(ctx):
         export VM_MEMORY="${{VM_MEMORY:-{vm_memory}}}"
         export VM_DISK_SIZE="${{VM_DISK_SIZE:-{vm_disk_size}}}"
         export ISO_URL="${{ISO_URL:-{iso_url}}}"
-        export HELM_INIT="{helm_init}"
         "{script}"
     """.format(
         minikube = ctx.executable._minikube.path,
@@ -19,19 +18,16 @@ def _minikube_start_impl(ctx):
         vm_memory = ctx.attr.vm_memory,
         vm_disk_size = ctx.attr.vm_disk_size,
         iso_url = ctx.attr.iso_url,
-        helm_init = ctx.executable._helm_init.short_path,
         script = ctx.executable._script.path,
     )
     ctx.actions.write(executable, contents, is_executable = True)
     runfiles = [
         ctx.executable._minikube,
-        ctx.executable._helm_init,
         ctx.executable._script,
     ]
-    helm_init_runfiles = ctx.attr._helm_init[DefaultInfo].data_runfiles
     return [DefaultInfo(
         executable = executable,
-        runfiles = ctx.runfiles(files = runfiles).merge(helm_init_runfiles),
+        runfiles = ctx.runfiles(files = runfiles),
     )]
 
 attrs = {
@@ -54,12 +50,6 @@ attrs = {
         allow_single_file = True,
         cfg = "host",
         default = "@minikube//:minikube",
-        executable = True,
-    ),
-    "_helm_init": attr.label(
-        allow_single_file = True,
-        cfg = "host",
-        default = "//rules/helm:init",
         executable = True,
     ),
 }

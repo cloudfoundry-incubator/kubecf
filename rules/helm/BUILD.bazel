@@ -1,14 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load(":def.bzl", helm_init = "init")
-
 exports_files([
-    "init.sh",
     "package.sh",
     "template.sh",
 ])
-
-helm_init(
-    name = "init",
-    service_account = "tiller",
-)

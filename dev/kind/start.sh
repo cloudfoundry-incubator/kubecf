@@ -25,9 +25,6 @@ export KUBECONFIG
 "${KUBECTL}" patch storageclass local-path \
   --patch '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true", "storageclass.beta.kubernetes.io/is-default-class":"true"}}}'
 
-# Setup Tiller.
-"${HELM_INIT}"
-
 echo ""
 echo "Set your KUBECONFIG by running:"
 echo "export KUBECONFIG=\"\$(bazel run @kind//:kind -- get kubeconfig-path --name=\"scf\")\""

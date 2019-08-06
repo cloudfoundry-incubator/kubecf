@@ -17,5 +17,3 @@ if ! "${MINIKUBE}" status > /dev/null; then
 else
   echo "Minikube is already started"
 fi
-
-"${HELM_INIT}"
