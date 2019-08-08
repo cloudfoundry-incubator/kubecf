@@ -44,7 +44,7 @@ attrs = {
         default = "120g",
     ),
     "iso_url": attr.string(
-        default = "https://github.com/f0rmiga/opensuse-minikube-image/releases/download/v0.1.0/minikube-openSUSE.x86_64-1.0.0.iso",
+        default = "https://github.com/f0rmiga/opensuse-minikube-image/releases/download/v0.1.3/minikube-openSUSE.x86_64-0.1.3.iso",
     ),
     "_minikube": attr.label(
         allow_single_file = True,
