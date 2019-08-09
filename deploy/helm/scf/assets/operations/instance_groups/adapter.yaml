@@ -14,3 +14,9 @@
     - name: adapter
       protocol: TCP
       internal: 4443
+    run:
+      healthcheck:
+        adapter:
+          readiness:
+            exec:
+              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']

@@ -9,3 +9,9 @@
     - name: nats-routes
       protocol: TCP
       internal: 4223
+    run:
+      healthcheck:
+        nats:
+          readiness:
+            exec:
+              command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:4222" && ss -nlt | grep "LISTEN.*:4223"']

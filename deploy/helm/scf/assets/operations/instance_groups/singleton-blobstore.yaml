@@ -35,3 +35,10 @@
     - name: https
       protocol: TCP
       internal: 4443
+    run:
+      healthcheck:
+        nginx: &nginx_healthcheck
+          readiness:
+            exec:
+              command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:8080" && ss -nlt | grep "LISTEN.*:4443"']
+        url_signer: *nginx_healthcheck	

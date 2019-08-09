@@ -85,6 +85,15 @@
     - name: mysql
       protocol: TCP
       internal: 3306
+    run:
+      healthcheck:
+        mariadb_ctrl:
+          readiness:
+            exec:
+              command:
+              - /var/vcap/packages/mariadb/bin/mysqladmin
+              - --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf
+              - ping
     bpm:
       processes:
       - name: mariadb_ctrl

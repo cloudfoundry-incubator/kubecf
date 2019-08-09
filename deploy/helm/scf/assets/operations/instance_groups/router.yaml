@@ -25,3 +25,9 @@
     - name: router-ssl
       protocol: TCP
       internal: 443
+    run:
+      healthcheck:
+        gorouter:
+          readiness:
+            exec:
+              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']

@@ -51,6 +51,16 @@
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin_extra_args
 
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        garden:
+          readiness:
+            exec:
+              command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:17019"']
+
 # Add quarks properties for the rep.
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/quarks?
