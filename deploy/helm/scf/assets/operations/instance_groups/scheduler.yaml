@@ -11,7 +11,7 @@
   value: https://((deployment-name))-diego-api:8889
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/cc_uploader_url
-  value: https://((deployment-name))-api:9090
+  value: http://((deployment-name))-api:9090
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/file_server_url
   value: http://((deployment-name))-api:8080
@@ -53,7 +53,7 @@
   value: https://((deployment-name))-diego-api:8889
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/diego?/cc_uploader_url
-  value: https://((deployment-name))-api:9090
+  value: http://((deployment-name))-api:9090
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/diego?/file_server_url
   value: http://((deployment-name))-api:8080

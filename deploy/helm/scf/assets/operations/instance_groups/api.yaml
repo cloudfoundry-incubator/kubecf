@@ -122,9 +122,6 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego?/file_server_url
   value: http://127.0.0.1:8080
 - type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego?/cc_uploader_https_url
-  value: https://127.0.0.1:9091
-- type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
   value: 127.0.0.1
 - type: replace
@@ -167,6 +164,9 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/uaa_hostname?
   value: ((deployment-name))-uaa
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
+  value: ((deployment-name))-api
 
 # Add empty BPM processes to buildpacks.
 - type: replace
@@ -202,9 +202,12 @@
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/quarks?
   value:
     ports:
-    - name: cc-uploader
+    - name: http
       protocol: TCP
       internal: 9090
+    - name: https
+      protocol: TCP
+      internal: 9091
 
 # Add quarks properties for file_server.
 - type: replace

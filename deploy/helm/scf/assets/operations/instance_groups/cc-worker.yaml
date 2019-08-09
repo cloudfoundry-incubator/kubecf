@@ -19,7 +19,7 @@
   value: https://((deployment-name))-diego-api:8889
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/diego?/cc_uploader_url
-  value: https://((deployment-name))-api:9090
+  value: http://((deployment-name))-api:9090
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/diego?/file_server_url
   value: http://((deployment-name))-api:8080
