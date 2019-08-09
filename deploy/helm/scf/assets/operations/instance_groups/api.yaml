@@ -27,24 +27,32 @@
 - type: remove
   path: /instance_groups/name=api/jobs/name=staticfile-buildpack
 
-# Set the common name for the cc_bridge_cc_uploader_server certificate.
+# Set the correct names for the cc_bridge_cc_uploader_server certificate.
 - type: replace
-  path: /variables/name=cc_bridge_cc_uploader_server/options/common_name?
+  path: /variables/name=cc_bridge_cc_uploader_server/options/common_name
   value: ((deployment-name))-api
-
 - type: replace
   path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?
   value:
   - ((deployment-name))-api
 
+# Set the correct names for the cc_logcache_tls certificate.
 - type: replace
-  path: /variables/name=cc_logcache_tls/options/alternative_names?
+  path: /variables/name=cc_logcache_tls/options/common_name
+  value: ((deployment-name))-api
+- type: replace
+  path: /variables/name=cc_logcache_tls/options/alternative_names
   value:
   - ((deployment-name))-api
 
+# Set the correct names for the cc_tls certificate.
 - type: replace
-  path: /variables/name=cc_tls/options/common_name?
+  path: /variables/name=cc_tls/options/common_name
   value: ((deployment-name))-api
+- type: replace
+  path: /variables/name=cc_tls/options/alternative_names?
+  value:
+  - ((deployment-name))-api
 
 # core_file_pattern should be disabled as CC is not running on a VM.
 - type: replace
@@ -56,9 +64,9 @@
   path: /instance_groups/name=api/jobs/name=file_server/properties/set_kernel_parameters?
   value: false
 
-# We don't have a /var/vcap/job/*/packages directory, so we point to all the packages
+# We don't have a /var/vcap/job/*/packages directory, so we point to all the packages.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=file_server/properties/diego?/file_server?/static_directory?
+  path: /instance_groups/name=api/jobs/name=file_server/properties/diego?/file_server/static_directory
   value: "/var/vcap/packages/"
 
 # TODO: Figure out the DB encryption validation.
@@ -66,7 +74,7 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/database_encryption?/skip_validation?
   value: true
 
-# Don't run migrations in pre-start, it seems flaky
+# Don't run migrations in pre-start, it seems flaky.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/run_prestart_migrations?
   value: false
@@ -162,7 +170,7 @@
 
 # Add empty BPM processes to buildpacks.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=binary-buildpack/properties?/quarks?/bpm?/processes?
+  path: /instance_groups/name=api/jobs/name=binary-buildpack/properties?/quarks/bpm/processes
   value: []
 
 # Add quarks properties for cloud_controller_ng.

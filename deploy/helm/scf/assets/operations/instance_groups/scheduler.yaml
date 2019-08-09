@@ -125,7 +125,12 @@
   value: []
 
 - type: replace
-  path: /variables/name=diego_auctioneer_server/options/alternative_names?
+  path: /variables/name=diego_auctioneer_server/options/common_name
+  value: ((deployment-name))-scheduler
+- type: replace
+  path: /variables/name=diego_auctioneer_server/options/alternative_names
   value:
-  - "((deployment-name))-scheduler"
-  - "*.((deployment-name))-scheduler"
+  # TODO: Figure out how to do wildcard for this certificate as the original alternative names
+  # included "*.auctioneer.service.cf.internal".
+  # - "*.((deployment-name))-scheduler"
+  - ((deployment-name))-scheduler
