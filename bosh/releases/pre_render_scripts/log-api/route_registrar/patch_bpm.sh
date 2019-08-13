@@ -1,1 +1,0 @@
-../../shared/route_registrar/patch_bpm.sh

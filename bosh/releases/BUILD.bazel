@@ -8,8 +8,5 @@ generate_pre_render_script_ops(
         [
             "pre_render_scripts/**/*.sh",
         ],
-        exclude = [
-            "pre_render_scripts/shared/**/*",
-        ],
     ),
 )

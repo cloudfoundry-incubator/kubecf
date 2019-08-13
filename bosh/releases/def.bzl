@@ -15,6 +15,7 @@ def _pre_render_script_ops_impl(ctx):
             "JOB": ctx.attr.job,
             "PRE_RENDER_SCRIPT": ctx.file.script.path,
             "OUTPUT": output_yaml.path,
+            "TYPE": ctx.attr.script_type,
         },
     )
     return [DefaultInfo(files = depset(outputs))]
@@ -26,6 +27,9 @@ pre_render_script_ops = rule(
             mandatory = True,
         ),
         "job": attr.string(
+            mandatory = True,
+        ),
+        "script_type": attr.string(
             mandatory = True,
         ),
         "script": attr.label(
@@ -49,6 +53,7 @@ def generate_pre_render_script_ops(name, srcs):
             instance_group = script.instance_group,
             job = script.job,
             script = script.src_target,
+            script_type = script.script_type,
         )
 
     pkg_tar(
@@ -58,13 +63,15 @@ def generate_pre_render_script_ops(name, srcs):
     )
 
 def _map_pre_render_script(src):
-    job = paths.basename(paths.dirname(src))
-    instance_group = paths.basename(paths.dirname(paths.dirname(src)))
+    script_type = paths.basename(paths.dirname(src))
+    job = paths.basename(paths.dirname(paths.dirname(src)))
+    instance_group = paths.basename(paths.dirname(paths.dirname(paths.dirname(src))))
     src_target = ":{}".format(src)
     src_basename = paths.basename(src)
     return struct(
         job = job,
         instance_group = instance_group,
+        script_type = script_type,
         src_target = src_target,
-        ops_file_target_name = "{}_{}_{}".format(instance_group, job, src_basename.replace(".", "_"))
+        ops_file_target_name = "{}_{}_{}".format(instance_group, job, src_basename.replace(".", "_")),
     )
