@@ -12,9 +12,8 @@
 
 # Enable BPM on garden.
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/bpm?
-  value:
-    enabled: true
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/bpm?/enabled
+  value: true
 
 # Override the addresses for the jobs under the diego-cell instance group.
 - type: replace
@@ -87,15 +86,9 @@
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/bbs?/api_location
   value: ((deployment-name))-diego-api:8889
 
-# TODO: the namespace here has to be determined automatically - helm can help here?
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/advertise_domain?
-  value: scf.svc.cluster.local
-
-# TODO: this should actually be the container's hostname
-# - type: replace
-#   path: /instance_groups/name=diego-cell/jobs/name=rep/properties?/diego?/rep?/cell_id?
-#   value: scf-dev-diego-cell-v1-0
+  value: ((deployment-name))-diego-cell
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/preloaded_rootfses
