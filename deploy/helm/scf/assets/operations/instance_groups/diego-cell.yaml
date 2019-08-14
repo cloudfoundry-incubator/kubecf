@@ -121,9 +121,7 @@
 - type: replace
   path: /variables/name=diego_rep_agent_v2/options/alternative_names
   value:
-  # TODO: Figure out how to do wildcard for this certificate as the original alternative names
-  # included "*.cell.service.cf.internal".
-  # - "*.((deployment-name))-diego-cell"
+  - "*.((deployment-name))-diego-cell"
   - ((deployment-name))-diego-cell
   - 127.0.0.1
   - localhost

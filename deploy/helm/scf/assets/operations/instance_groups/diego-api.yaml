@@ -9,11 +9,9 @@
 - type: replace
   path: /variables/name=diego_locket_server/options/alternative_names
   value:
-  # TODO: Figure out how to do wildcard for this certificate as the original alternative names
-  # included "*.locket.service.cf.internal".
-  # - "*.((deployment-name))-diego-api"
+  - "*.((deployment-name))-diego-api"
   - ((deployment-name))-diego-api
-  # 127.0.0.1 is needed by bbs to talk to locket without having to hairpin.
+  # 127.0.0.1 is needed by bbs and cfdot to talk to locket without having to hairpin.
   - 127.0.0.1
 
 # Set the common name for the diego_bbs_server certificate.
@@ -23,9 +21,7 @@
 - type: replace
   path: /variables/name=diego_bbs_server/options/alternative_names
   value:
-  # TODO: Figure out how to do wildcard for this certificate as the original alternative names
-  # included "*.bbs.service.cf.internal".
-  # - "*.((deployment-name))-diego-api"
+  - "*.((deployment-name))-diego-api"
   - ((deployment-name))-diego-api
   # 127.0.0.1 is needed by cfdot to talk to bbs without having to hairpin.
   - 127.0.0.1
