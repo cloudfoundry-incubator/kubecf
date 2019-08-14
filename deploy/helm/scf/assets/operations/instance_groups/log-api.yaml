@@ -29,6 +29,12 @@
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=loggregator_trafficcontroller/properties/quarks?
   value:
+    envs:
+    - name: TRAFFIC_CONTROLLER_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
     ports:
     - name: dropsonde
       protocol: TCP
