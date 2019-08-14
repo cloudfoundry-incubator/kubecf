@@ -123,7 +123,7 @@
   value: http://127.0.0.1:8080
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
-  value: 127.0.0.1
+  value: ((deployment-name))-api
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/logcache?/host
   value: ((deployment-name))-doppler
