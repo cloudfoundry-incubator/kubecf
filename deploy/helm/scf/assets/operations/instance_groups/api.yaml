@@ -120,7 +120,7 @@
   value: https://((deployment-name))-diego-api:8889
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego?/file_server_url
-  value: http://127.0.0.1:8080
+  value: http://((deployment-name))-api:8080
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
   value: ((deployment-name))-api
@@ -153,10 +153,10 @@
   value:
   - ((deployment-name))-nats
 - type: replace
-  path: /instance_groups/name=api/jobs/name=route_registrar/properties/route_registrar?/routing_api/api_url
-  value: http://127.0.0.1:3000
+  path: /instance_groups/name=api/jobs/name=route_registrar/properties/route_registrar/routing_api?/api_url
+  value: http://((deployment-name))-api:3000
 - type: replace
-  path: /instance_groups/name=api/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
+  path: /instance_groups/name=api/jobs/name=route_registrar/properties/route_registrar/routing_api?/oauth_url
   value: https://((deployment-name))-uaa:8443
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/host
