@@ -35,11 +35,3 @@
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/credhub_api?/hostname
   value: ((deployment-name))-credhub
-
-# Add quarks properties for cloud_controller_worker.
-- type: replace
-  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/quarks?
-  value:
-    run:
-      memory: 4096
-      virtual-cpus: 4
