@@ -52,4 +52,30 @@ data:
     - type: replace
       path: /instance_groups/name=log-api/instances
       value: 1
+    - type: remove
+      path: /instance_groups/name=nats/azs?
+    - type: remove
+      path: /instance_groups/name=adapter/azs?
+    - type: remove
+      path: /instance_groups/name=database/azs?
+    - type: remove
+      path: /instance_groups/name=diego-api/azs?
+    - type: remove
+      path: /instance_groups/name=uaa/azs?
+    - type: remove
+      path: /instance_groups/name=singleton-blobstore/azs?
+    - type: remove
+      path: /instance_groups/name=api/azs?
+    - type: remove
+      path: /instance_groups/name=cc-worker/azs?
+    - type: remove
+      path: /instance_groups/name=scheduler/azs?
+    - type: remove
+      path: /instance_groups/name=router/azs?
+    - type: remove
+      path: /instance_groups/name=doppler/azs?
+    - type: remove
+      path: /instance_groups/name=diego-cell/azs?
+    - type: remove
+      path: /instance_groups/name=log-api/azs?
 {{- end }}
