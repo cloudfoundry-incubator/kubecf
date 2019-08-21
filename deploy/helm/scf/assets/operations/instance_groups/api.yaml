@@ -1,4 +1,30 @@
-# TODO: Remove this replace once all buildpacks are included.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/install_buildpacks
+  value:
+  ## Order is important here
+  - name: staticfile_buildpack
+    file: /var/vcap/data/shared-packages/staticfile-buildpack/packages/staticfile-buildpack-cflinuxfs3/staticfile_buildpack-cflinuxfs3-v1.4.40.zip
+  - name: java_buildpack
+    file: /var/vcap/data/shared-packages/java-buildpack/packages/java-buildpack-cflinuxfs3/java-buildpack-cflinuxfs3-v4.18.zip
+  - name: ruby_buildpack
+    file: /var/vcap/data/shared-packages/ruby-buildpack/packages/ruby-buildpack-cflinuxfs3/ruby_buildpack-cflinuxfs3-v1.7.36.zip
+  - name: dotnet_core_buildpack
+    file: /var/vcap/data/shared-packages/dotnet-core-buildpack/packages/dotnet-core-buildpack-cflinuxfs3/dotnet-core_buildpack-cflinuxfs3-v2.2.7.zip
+  - name: nodejs_buildpack
+    file: /var/vcap/data/shared-packages/nodejs-buildpack/packages/nodejs-buildpack-cflinuxfs3/nodejs_buildpack-cflinuxfs3-v1.6.45.zip
+  - name: go_buildpack
+    file: /var/vcap/data/shared-packages/go-buildpack/packages/go-buildpack-cflinuxfs3/go_buildpack-cflinuxfs3-v1.8.35.zip
+  - name: python_buildpack
+    file: /var/vcap/data/shared-packages/python-buildpack/packages/python-buildpack-cflinuxfs3/python_buildpack-cflinuxfs3-v1.6.29.zip
+  - name: php_buildpack
+    file: /var/vcap/data/shared-packages/php-buildpack/packages/php-buildpack-cflinuxfs3/php_buildpack-cflinuxfs3-v4.3.72.zip
+  - name: nginx_buildpack
+    file: /var/vcap/data/shared-packages/nginx-buildpack/packages/nginx-buildpack-cflinuxfs3/nginx_buildpack-cflinuxfs3-v1.0.9.zip
+  - name: r_buildpack
+    file: /var/vcap/data/shared-packages/r-buildpack/packages/r-buildpack-cflinuxfs3/r_buildpack-cflinuxfs3-v1.0.7.zip
+  - name: binary_buildpack
+    file: /var/vcap/data/shared-packages/binary-buildpack/packages/binary-buildpack-cflinuxfs3/binary_buildpack-cflinuxfs3-v1.0.31.zip
+
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/install_buildpacks
   value:
