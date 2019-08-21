@@ -2,3 +2,14 @@
   path: /addons/name=bpm
 - type: remove
   path: /addons/name=bosh-dns-aliases
+
+- type: replace
+  path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/properties/quarks?/envs?
+  value:
+  - name: AGENT_IP
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: status.podIP
+  - name: AGENT_INDEX
+    value: "0"

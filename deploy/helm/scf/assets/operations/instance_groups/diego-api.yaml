@@ -23,8 +23,11 @@
   value:
   - "*.((deployment-name))-diego-api"
   - ((deployment-name))-diego-api
+  - 
   # 127.0.0.1 is needed by cfdot to talk to bbs without having to hairpin.
   - 127.0.0.1
+  # TODO: loop through replica count/az count, not just ordinal 0 (using helm templating)
+  - ((deployment-name))-diego-api-0
 
 # Override the addresses for the jobs under the diego-api instance group.
 - type: replace

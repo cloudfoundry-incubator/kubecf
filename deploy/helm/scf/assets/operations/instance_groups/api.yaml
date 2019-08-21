@@ -129,7 +129,7 @@
   value: ((deployment-name))-doppler
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/loggregator?/internal_url
-  value: http://((deployment-name))-log-api:8081
+  value: https://((deployment-name))-log-api:8081
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/credhub_api?/hostname
   value: ((deployment-name))-credhub
