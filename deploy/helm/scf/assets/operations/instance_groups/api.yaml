@@ -218,14 +218,7 @@
         cloud_controller_ng:
           readiness: &cloud_controller_ng_readiness
             exec:
-              command:
-              - sh
-              - -c
-              - |
-                set -o errexit
-                ss -nlt | grep "LISTEN.*:9022"
-                ss -nlt | grep "LISTEN.*:9023"
-                ss -nlt | grep "LISTEN.*:9024"
+              command: [curl, --fail, --head, --silent, http://127.0.0.1:9022/healthz]
     post_start:
       condition: *cloud_controller_ng_readiness
 

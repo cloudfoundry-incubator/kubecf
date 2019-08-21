@@ -48,17 +48,33 @@
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin_extra_args
 
+# Add quarks properties for garden.
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/quarks?
   value:
     run:
       healthcheck:
         garden:
-          readiness:
+          readiness: &garden_readiness
             exec:
-              command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:17019"']
+              command: [sh, -c, 'ss -nlt | grep "LISTEN.*:17019"']
+    post_start:
+      condition: *garden_readiness
 
-# Add quarks properties for the rep.
+# Add quarks properties for route_emitter.
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        route_emitter:
+          readiness: &route_emitter_readiness
+            exec:
+              command: [curl, --fail, --silent, http://127.0.0.1:17011/ping]
+    post_start:
+      condition: *route_emitter_readiness
+
+# Add quarks properties for rep.
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/quarks?
   value:
@@ -70,6 +86,14 @@
     - name: rep-tls
       protocol: TCP
       internal: 1801
+    run:
+      healthcheck:
+        rep:
+          readiness: &rep_readiness
+            exec:
+              command: [sh, -c, 'ss -nlt | grep "LISTEN.*:1800"']
+    post_start:
+      condition: *rep_readiness
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties/quarks?/bpm/processes
