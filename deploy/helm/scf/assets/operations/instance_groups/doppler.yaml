@@ -10,6 +10,11 @@
   path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
   value: https://((deployment-name))-uaa:8443
 
+# Change the log_cache_ca CN to avoid clashing with the other log-cache certificate CNs.
+- type: replace
+  path: /variables/name=log_cache_ca/options/common_name
+  value: log-cache-ca
+
 # Add quarks properties for doppler.
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=doppler/properties/quarks?
