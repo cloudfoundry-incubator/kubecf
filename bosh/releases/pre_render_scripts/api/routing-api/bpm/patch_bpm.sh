@@ -10,7 +10,7 @@ patch --binary --unified --verbose "${target}" <<'EOT'
      - rfc3339
      - -ip
 -    - <%= spec.ip %>
-+    - $(POD_IP)
++    - 0.0.0.0
      <% if p("routing_api.auth_disabled") == true %>- -devMode <% end %>
 
      hooks:
