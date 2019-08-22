@@ -27,33 +27,6 @@
 - type: remove
   path: /instance_groups/name=api/jobs/name=staticfile-buildpack
 
-# Set the correct names for the cc_bridge_cc_uploader_server certificate.
-- type: replace
-  path: /variables/name=cc_bridge_cc_uploader_server/options/common_name
-  value: ((deployment-name))-api
-- type: replace
-  path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?
-  value:
-  - ((deployment-name))-api
-
-# Set the correct names for the cc_logcache_tls certificate.
-- type: replace
-  path: /variables/name=cc_logcache_tls/options/common_name
-  value: ((deployment-name))-api
-- type: replace
-  path: /variables/name=cc_logcache_tls/options/alternative_names
-  value:
-  - ((deployment-name))-api
-
-# Set the correct names for the cc_tls certificate.
-- type: replace
-  path: /variables/name=cc_tls/options/common_name
-  value: ((deployment-name))-api
-- type: replace
-  path: /variables/name=cc_tls/options/alternative_names?
-  value:
-  - ((deployment-name))-api
-
 # core_file_pattern should be disabled as CC is not running on a VM.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/core_file_pattern?
@@ -78,26 +51,6 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/run_prestart_migrations?
   value: false
-
-# Set the common name for the cc_bridge_cc_uploader_server certificate.
-- type: replace
-  path: /variables/name=cc_bridge_cc_uploader_server/options/common_name
-  value: ((deployment-name))-api
-- type: replace
-  path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names
-  value:
-  - ((deployment-name))-api
-  # 127.0.0.1 is needed by cloud_controller_ng to talk to cc_uploader without having to hairpin.
-  - 127.0.0.1
-
-# Set the common name for the network_policy_server certificate.
-- type: replace
-  path: /variables/name=network_policy_server/options/common_name
-  value: ((deployment-name))-api
-- type: replace
-  path: /variables/name=network_policy_server/options/alternative_names?
-  value:
-  - ((deployment-name))-api
 
 # Override the addresses for the jobs under the api instance group.
 - type: replace

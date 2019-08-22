@@ -2,33 +2,6 @@
 - type: remove
   path: /instance_groups/name=diego-api/jobs/name=silk-controller
 
-# Set the common name for the diego_locket_server certificate.
-- type: replace
-  path: /variables/name=diego_locket_server/options/common_name
-  value: ((deployment-name))-diego-api
-- type: replace
-  path: /variables/name=diego_locket_server/options/alternative_names
-  value:
-  - "*.((deployment-name))-diego-api"
-  - ((deployment-name))-diego-api
-  # 127.0.0.1 is needed by bbs and cfdot to talk to locket without having to hairpin.
-  - 127.0.0.1
-
-# Set the common name for the diego_bbs_server certificate.
-- type: replace
-  path: /variables/name=diego_bbs_server/options/common_name
-  value: ((deployment-name))-diego-api
-- type: replace
-  path: /variables/name=diego_bbs_server/options/alternative_names
-  value:
-  - "*.((deployment-name))-diego-api"
-  - ((deployment-name))-diego-api
-  - 
-  # 127.0.0.1 is needed by cfdot to talk to bbs without having to hairpin.
-  - 127.0.0.1
-  # TODO: loop through replica count/az count, not just ordinal 0 (using helm templating)
-  - ((deployment-name))-diego-api-0
-
 # Override the addresses for the jobs under the diego-api instance group.
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host

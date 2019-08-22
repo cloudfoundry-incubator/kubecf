@@ -1,7 +1,3 @@
-# Set the common name for the blobstore_tls.
-- type: replace
-  path: /variables/name=blobstore_tls/options/common_name?
-  value: ((deployment-name))-singleton-blobstore
 
 # Configure the persistent disk in the way that cf-operator can provision.
 - type: remove

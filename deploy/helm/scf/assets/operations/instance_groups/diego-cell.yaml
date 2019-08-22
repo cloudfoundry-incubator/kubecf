@@ -114,14 +114,3 @@
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/disable_swap_limit?
   value: true
-
-- type: replace
-  path: /variables/name=diego_rep_agent_v2/options/common_name
-  value: ((deployment-name))-diego-cell
-- type: replace
-  path: /variables/name=diego_rep_agent_v2/options/alternative_names
-  value:
-  - "*.((deployment-name))-diego-cell"
-  - ((deployment-name))-diego-cell
-  - 127.0.0.1
-  - localhost

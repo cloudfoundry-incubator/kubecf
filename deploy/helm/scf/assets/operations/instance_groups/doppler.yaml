@@ -1,9 +1,3 @@
-# Selectively remove jobs temporarily.
-- type: remove
-  path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder
-- type: remove
-  path: /instance_groups/name=doppler/jobs/name=log-cache-cf-auth-proxy
-
 # Override the addresses for the jobs under the doppler instance group.
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/nats?/machines
@@ -45,3 +39,12 @@
     - name: log-cache
       protocol: TCP
       internal: 8080
+
+
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs?
+  value:
+  - name: INSTANCE_ADDR
+    value: ((deployment-name))-doppler:8080
+  - name: INSTANCE_ID
+    value: "0"

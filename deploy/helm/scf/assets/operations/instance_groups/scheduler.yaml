@@ -1,6 +1,3 @@
-# Selectively remove jobs temporarily.
-- type: remove
-  path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder
 
 # Override the addresses for the jobs under the scheduler instance group.
 - type: replace
@@ -125,10 +122,9 @@
   value: []
 
 - type: replace
-  path: /variables/name=diego_auctioneer_server/options/common_name
-  value: ((deployment-name))-scheduler
-- type: replace
-  path: /variables/name=diego_auctioneer_server/options/alternative_names
+  path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs?
   value:
-  - "*.((deployment-name))-scheduler"
-  - ((deployment-name))-scheduler
+  - name: INSTANCE_ADDR
+    value: ((deployment-name))-scheduler:8080
+  - name: INSTANCE_ID
+    value: "0"

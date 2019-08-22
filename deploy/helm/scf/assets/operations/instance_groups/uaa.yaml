@@ -3,11 +3,6 @@
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/address?
   value: ((deployment-name))-database
 
-# Add the ((deployment-name))-uaa alternative name for the uaa_ssl.
-- type: replace
-  path: /variables/name=uaa_ssl/options/alternative_names/-
-  value: ((deployment-name))-uaa
-
 # Override the addresses for the jobs under the uaa instance group.
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/zones/internal/hostnames

@@ -7,6 +7,7 @@
   path: /variables/name=galera_server_certificate
 
 # Set the common name for the mysql_server_certificate.
+# An alternate name is not enough, the CC specifically looks at the common_name
 - type: replace
   path: /variables/name=mysql_server_certificate/options/common_name?
   value: ((deployment-name))-database
