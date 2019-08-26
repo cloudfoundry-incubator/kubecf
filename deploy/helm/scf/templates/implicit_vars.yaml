@@ -25,6 +25,10 @@ stringData:
 
 {{ include "scf.implicit-var" (list . "system_domain") }}
 {{ include "scf.implicit-var" (list . "deployment_name") }}
+{{ include "scf.implicit-var" (list . "k8s-host-url") }}
+{{ include "scf.implicit-var" (list . "k8s-service-token") }}
+{{ include "scf.implicit-var" (list . "k8s-service-username") }}
+{{ include "scf.implicit-var" (list . "k8s-node-ca") }}
 {{ include "scf.implicit-var" (list . "releases.defaults.url") }}
 {{ include "scf.implicit-var" (list . "releases.defaults.stemcell.os") }}
 {{ include "scf.implicit-var" (list . "releases.defaults.stemcell.version") }}

@@ -15,6 +15,10 @@ spec:
     name: cf-deployment
     type: configmap
   ops:
+{{- if eq .Values.features.eirini true}}
+  - name: ops-use-bits-service
+    type: configmap
+{{- end }}
 # Reference all the ConfigMaps created for each ops file under assets/operations.
 {{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
   - name: {{ include "scf.ops-name" $path }}
@@ -28,11 +32,11 @@ spec:
   - name: {{ include "scf.ops-name" $path }}
     type: configmap
 {{- end }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
-  - name: {{ include "scf.ops-name" $path }}
-    type: configmap
-{{- end }}
 {{- if not .Values.sizing.HA }}
   - name: ops-single-availability
+    type: configmap
+{{- end }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
+  - name: {{ include "scf.ops-name" $path }}
     type: configmap
 {{- end }}

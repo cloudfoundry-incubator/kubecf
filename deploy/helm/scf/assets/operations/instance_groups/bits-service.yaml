@@ -1,0 +1,56 @@
+{{- if eq .Values.features.eirini true}}
+
+- type: replace
+  path: /releases/name=bits-service/version
+  value: 2.29.0
+- type: replace
+  path: /releases/name=bits-service/url
+  value: ((releases-defaults-url))
+- type: remove
+  path: /releases/name=bits-service/sha1
+- type: replace
+  path: /releases/name=bits-service/stemcell?
+  value:
+    alias: default
+    os: opensuse-42.3
+    version: 36.g03b4653-30.80-7.0.0_346.ge9dd9ff3
+
+# Add quarks information to the Bits Service jobs
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/quarks?
+  value:
+    ports:
+    - name: bits-tls
+      protocol: TCP
+      internal: 443
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/bits_service/private_endpoint
+  value: https://((deployment-name))-bits
+
+- type: replace
+  path: /variables/name=bits_service_ssl/options/alternative_names/-
+  value: ((deployment-name))-bits
+- type: replace
+  path: /variables/name=bits_service_ssl/options/alternative_names/-
+  value: "*.((deployment-name))-bits"
+
+
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/app_stash/webdav_config/private_endpoint
+  value: https://((deployment-name))-blobstore:4443
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/buildpacks/webdav_config/private_endpoint
+  value: https://((deployment-name))-blobstore:4443
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/droplets/webdav_config/private_endpoint
+  value: https://((deployment-name))-blobstore:4443
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/packages/webdav_config/private_endpoint
+  value: https://((deployment-name))-blobstore:4443
+
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/private_endpoint
+  value: https://((deployment-name))-bits:4443
+
+{{- end}}

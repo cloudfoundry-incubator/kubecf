@@ -14,7 +14,7 @@ metadata:
     helm.sh/chart: {{ include "scf.chart" .Root }}
 data:
   ops: |-
-    {{- .Root.Files.Get .Path | nindent 4 -}}
+    {{- tpl (.Root.Files.Get .Path) .Root | nindent 4 -}}
 {{- end -}}
 
 {{- $root := . -}}

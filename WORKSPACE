@@ -13,7 +13,7 @@ http_archive(
 package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "cf_deployment",
-    srcs = ["cf-deployment.yml"],
+    srcs = ["cf-deployment.yml", "operations/bits-service/use-bits-service.yml"],
 )
 """,
     sha256 = project.cf_deployment.sha256,
@@ -23,31 +23,32 @@ filegroup(
 
 helm_binary(
     name = "helm",
-    version = project.helm.version,
     platforms = project.helm.platforms,
+    version = project.helm.version,
 )
 
 kubectl_binary(
     name = "kubectl",
-    version = project.kubernetes.version,
     platforms = project.kubernetes.platforms,
+    version = project.kubernetes.version,
 )
 
 minikube_binary(
     name = "minikube",
-    version = project.minikube.version,
     platforms = project.minikube.platforms,
+    version = project.minikube.version,
 )
 
 kind_binary(
     name = "kind",
-    version = project.kind.version,
     platforms = project.kind.platforms,
+    version = project.kind.version,
 )
 
 skylib_version = "0.8.0"
+
 http_archive(
     name = "bazel_skylib",
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format(skylib_version, skylib_version),
     sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format(skylib_version, skylib_version),
 )
