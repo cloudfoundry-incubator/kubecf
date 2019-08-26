@@ -128,3 +128,9 @@
     value: ((deployment-name))-scheduler:8080
   - name: INSTANCE_ID
     value: "0"
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/provides?
+  value:
+    log-cache-expvar-forwarder: {as: this_is_not_used}
+
