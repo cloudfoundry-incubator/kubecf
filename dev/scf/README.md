@@ -47,7 +47,7 @@ kubectl create namespace scf
 DEFAULT_NET_DEVICE="$(ip route list 0/0 | perl -n -e '/\bdev\s+(\S+)/ && print $1')"
 
 # Get the IP address of that device.
-DEFAULT_NET_ADDR="$(ip -4 -o addr show dev eth0 | perl -n -e '/\binet\s+([^\/]+)/ && print $1')"
+DEFAULT_NET_ADDR="$(ip -4 -o addr show dev "${DEFAULT_NET_DEVICE}" | perl -n -e '/\binet\s+([^\/]+)/ && print $1')"
 
 # Deploy cf-operator.
 CF_OPERATOR_WEBHOOK_SERVICE_HOST="${DEFAULT_NET_ADDR}" CF_OPERATOR_NAMESPACE=scf SKIP_IMAGE=true make up
