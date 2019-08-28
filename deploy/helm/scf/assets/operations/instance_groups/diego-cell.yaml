@@ -78,7 +78,6 @@
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/quarks?
   value:
-    privileged: true
     ports:
     - name: rep
       protocol: TCP
@@ -87,6 +86,8 @@
       protocol: TCP
       internal: 1801
     run:
+      security_context:
+        privileged: true
       healthcheck:
         rep:
           readiness: &rep_readiness

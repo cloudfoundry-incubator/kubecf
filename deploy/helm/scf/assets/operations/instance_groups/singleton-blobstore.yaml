@@ -1,4 +1,3 @@
-
 # Configure the persistent disk in the way that cf-operator can provision.
 - type: remove
   path: /instance_groups/name=singleton-blobstore/persistent_disk_type
@@ -32,9 +31,11 @@
       protocol: TCP
       internal: 4443
     run:
+      security_context:
+        runAsUser: 1000 # vcap
       healthcheck:
         nginx: &nginx_healthcheck
           readiness:
             exec:
               command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:8080" && ss -nlt | grep "LISTEN.*:4443"']
-        url_signer: *nginx_healthcheck	
+        url_signer: *nginx_healthcheck
