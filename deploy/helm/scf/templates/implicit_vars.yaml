@@ -30,3 +30,5 @@ stringData:
 {{ include "scf.implicit-var" (list . "k8s-service-username") }}
 {{ include "scf.implicit-var" (list . "k8s-node-ca") }}
 {{ include "scf.implicit-var" (list . "releases.defaults.url") }}
+{{ include "scf.implicit-var" (list . "stemcell.os") }}
+{{ include "scf.implicit-var" (list . "stemcell.version") }}
