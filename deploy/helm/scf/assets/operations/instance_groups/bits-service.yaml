@@ -56,6 +56,12 @@
   path: /instance_groups/name=bits/jobs/name=route_registrar/properties/nats?/machines
   value:
   - ((deployment-name))-nats
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=route_registrar/properties/route_registrar?/routing_api/api_url
+  value: http://((deployment-name))-api:3000
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
+  value: https://((deployment-name))-uaa:8443
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/bits_service?/private_endpoint?
