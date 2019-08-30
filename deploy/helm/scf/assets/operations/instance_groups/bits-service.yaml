@@ -37,16 +37,16 @@
 
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/app_stash/webdav_config/private_endpoint
-  value: https://((deployment-name))-blobstore:4443
+  value: &blobstore_url https://((deployment-name))-singleton-blobstore:4443
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/buildpacks/webdav_config/private_endpoint
-  value: https://((deployment-name))-blobstore:4443
+  value: *blobstore_url
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/droplets/webdav_config/private_endpoint
-  value: https://((deployment-name))-blobstore:4443
+  value: *blobstore_url
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/packages/webdav_config/private_endpoint
-  value: https://((deployment-name))-blobstore:4443
+  value: *blobstore_url
 
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/private_endpoint
