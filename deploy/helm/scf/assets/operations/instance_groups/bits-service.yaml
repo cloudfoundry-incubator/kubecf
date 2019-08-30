@@ -53,6 +53,11 @@
   value: https://((deployment-name))-bits:4443
 
 - type: replace
+  path: /instance_groups/name=bits/jobs/name=route_registrar/properties/nats?/machines
+  value:
+  - ((deployment-name))-nats
+
+- type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/bits_service?/private_endpoint?
   value: https://((deployment-name))-bits
 - type: replace
