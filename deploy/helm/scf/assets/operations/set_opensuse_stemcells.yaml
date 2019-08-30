@@ -1,10 +1,7 @@
 # This ops file sets the openSUSE stemcells.
 
-- type: remove
-  path: /stemcells/alias=default/alias
-
 - type: replace
-  path: /stemcells/-
+  path: /stemcells/alias=default
   value:
     alias: default
     os: ((stemcell-os))
