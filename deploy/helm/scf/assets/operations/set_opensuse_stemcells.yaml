@@ -4,8 +4,8 @@
   path: /stemcells/alias=default
   value:
     alias: default
-    os: ((stemcell-os))
-    version: ((stemcell-version))
+    os: ((releases-defaults-stemcell-os))
+    version: ((releases-defaults-stemcell-version))
 
 - type: replace
   path: /addons/name=loggregator_agent/include/stemcell/os=ubuntu-xenial/os

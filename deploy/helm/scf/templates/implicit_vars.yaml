@@ -26,5 +26,5 @@ stringData:
 {{ include "scf.implicit-var" (list . "system_domain") }}
 {{ include "scf.implicit-var" (list . "deployment_name") }}
 {{ include "scf.implicit-var" (list . "releases.defaults.url") }}
-{{ include "scf.implicit-var" (list . "stemcell.os") }}
-{{ include "scf.implicit-var" (list . "stemcell.version") }}
+{{ include "scf.implicit-var" (list . "releases.defaults.stemcell.os") }}
+{{ include "scf.implicit-var" (list . "releases.defaults.stemcell.version") }}
