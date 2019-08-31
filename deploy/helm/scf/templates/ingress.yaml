@@ -1,0 +1,82 @@
+{{- if .Values.features.ingress.enabled -}}
+---
+# The certificate and key for the TLS secret are passed through ingress.tls.crt and ingress.tls.key
+# respectively. If the operator does not provide these values at installation time, the TLS secret
+# will contain empty values. The standard behaviour for NGINX ingress controller is to provide a
+# fake certificate instead. It is useful only for testing and development. It is expected that for
+# production use the operator will provide these values.
+apiVersion: "v1"
+kind: "Secret"
+type: kubernetes.io/tls
+metadata:
+  name: "ingress-tls"
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: "ingress-tls"
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+data:
+  tls.crt: {{ .Values.features.ingress.tls.crt | default "" | b64enc | quote }}
+  tls.key: {{ .Values.features.ingress.tls.key | default "" | b64enc | quote }}
+---
+# This ingress specifies routing and access for the cloud controller public SCF service, e.g.
+# "api.<domain>" and other services in that domain hierarchy.
+#
+# Note that the two other services (TCP routing and app SSH access) are not suitable to routing via
+# HTTP, and not specified. I.e. they are TCP, which is not supported by the current ingress
+# specification. Although specific controllers may do so in a custom manner.
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  name: {{ .Release.Name | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    {{- if hasKey .Values.features.ingress.annotations "kubernetes.io/ingress.class" | not -}}
+      {{ $_ := set .Values.features.ingress.annotations "kubernetes.io/ingress.class" "nginx" }}
+    {{- end }}
+    {{- if hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends" | not -}}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends" "true" }}
+    {{- end }}
+    {{- if hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol" | not -}}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol" "HTTPS" }}
+    {{- end }}
+    {{- if hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" | not -}}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" "false" }}
+    {{- end }}
+    {{- if hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" | not -}}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" "8m" }}
+    {{- end }}
+    {{ $_ := set .Values.features.ingress.annotations "nginx.org/websocket-services" (printf "%s-router" .Values.deployment_name) }}
+{{ toYaml .Values.features.ingress.annotations | indent 4 }}
+  labels:
+    app.kubernetes.io/component: "ingress"
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+spec:
+  tls:
+  - secretName: "ingress-tls"
+    hosts:
+    - "*.{{ .Values.system_domain }}"
+    - "{{ .Values.system_domain }}"
+  rules:
+    - host: "*.{{ .Values.system_domain }}"
+      http:
+        paths:
+          - path: "/"
+            backend:
+              serviceName: "{{ .Values.deployment_name }}-router"
+              servicePort: 443
+    - host: "{{ .Values.system_domain }}"
+      http:
+        paths:
+          - path: "/"
+            backend:
+              serviceName: "{{ .Values.deployment_name }}-router"
+              servicePort: 443
+{{- end }}

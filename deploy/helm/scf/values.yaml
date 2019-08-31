@@ -11,6 +11,12 @@ sizing:
 
 features:
   eirini: true
+  ingress:
+    enabled: true
+    tls:
+      crt: ~
+      key: ~
+    annotations: {}
 
 k8s-host-url: ""
 k8s-service-token: ""
