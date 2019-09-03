@@ -60,6 +60,10 @@
     - name: eirini-loggregator-bridge
       release: eirini
       properties:
+        quarks:
+          envs:
+          - name: EIRINI_LOGGREGATOR_BRIDGE_LOGLEVEL
+            value: debug 
         eirini-loggregator-bridge:
           loggregator_ca: '((loggregator_ca.certificate))'
           loggregator_cert: '((loggregator_tls_agent.certificate))'
