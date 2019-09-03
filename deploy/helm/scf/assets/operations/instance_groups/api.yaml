@@ -56,7 +56,7 @@
   value: ((deployment-name))-database
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config/private_endpoint
-  value: &blobstore_url https://((deployment-name))-singleton-blobstore:4443
+  value: &blobstore_url https://((deployment-name))-singleton-blobstore.{{ .Release.Namespace }}:4443
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/droplets?/webdav_config/private_endpoint
   value: *blobstore_url
@@ -74,7 +74,7 @@
   value: http://((deployment-name))-api:8080
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
-  value: ((deployment-name))-api
+  value: ((deployment-name))-api.{{ .Release.Namespace }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/logcache?/host
   value: ((deployment-name))-doppler
@@ -117,7 +117,7 @@
   value: ((deployment-name))-uaa
 - type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
-  value: ((deployment-name))-api
+  value: ((deployment-name))-api.{{ .Release.Namespace }}
 
 # Add empty BPM processes to buildpacks.
 - type: replace

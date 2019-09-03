@@ -2,7 +2,7 @@
 
 - type: replace
   path: /releases/name=bits-service/version
-  value: 2.29.0
+  value: 2.28.0
 - type: replace
   path: /releases/name=bits-service/url
   value: ((releases-defaults-url))
@@ -13,7 +13,7 @@
   value:
     alias: default
     os: opensuse-42.3
-    version: 36.g03b4653-30.80-7.0.0_346.ge9dd9ff3
+    version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
 
 # Add quarks information to the Bits Service jobs.
 - type: replace
@@ -25,15 +25,29 @@
       internal: 443
 
 - type: replace
-  path: /variables/name=bits_service_ssl/options/alternative_names/-
-  value: ((deployment-name))-bits
+  path: /variables/name=bits_service_ssl/options?/serviceRef?/-
+  value:
+    name: ((deployment-name))-eirini-registry
+    namespace: {{ .Release.Namespace }}
+- type: replace
+  path: /variables/name=bits_service_ssl/options/signer_type?
+  value: cluster
 - type: replace
   path: /variables/name=bits_service_ssl/options/alternative_names/-
   value: "*.((deployment-name))-bits"
+- type: replace
+  path: /variables/name=bits_service_ssl/options/alternative_names/-
+  value: "((deployment-name))-bits"
+- type: replace
+  path: /variables/name=bits_service_ssl/options/alternative_names/-
+  value: "*.((deployment-name))-bits.{{ .Release.Namespace }}"
+- type: replace
+  path: /variables/name=bits_service_ssl/options/alternative_names/-
+  value: "((deployment-name))-bits.{{ .Release.Namespace }}"
 
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service?/private_endpoint
-  value: https://((deployment-name))-bits
+  value: https://((deployment-name))-bits.{{ .Release.Namespace }}
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/app_stash/webdav_config/private_endpoint
   value: &blobstore_url https://((deployment-name))-singleton-blobstore:4443
@@ -47,9 +61,27 @@
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/packages/webdav_config/private_endpoint
   value: *blobstore_url
 
+# TODO: check to see where these should actually be public - what are the usecases?
+# A proper solution for eirini would be to 
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service?/public_endpoint
+  value: https://((deployment-name))-bits.{{ .Release.Namespace }}
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/app_stash/webdav_config/public_endpoint
+  value: &blobstore_url https://((deployment-name))-singleton-blobstore.{{ .Release.Namespace }}:4443
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/buildpacks/webdav_config/public_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/droplets/webdav_config/public_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/packages/webdav_config/public_endpoint
+  value: *blobstore_url
+
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/cc_updates?/cc_url
-  value: https://((deployment-name))-api:9023/internal/v4/packages
+  value: https://((deployment-name))-api.{{ .Release.Namespace }}:9023/internal/v4/packages
 
 - type: replace
   path: /instance_groups/name=bits/jobs/name=route_registrar/properties/nats?/machines
@@ -64,12 +96,47 @@
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/bits_service?/private_endpoint
-  value: https://((deployment-name))-bits
+  value: https://((deployment-name))-bits.{{ .Release.Namespace }}
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/bits_service?/private_endpoint
-  value: https://((deployment-name))-bits
+  value: https://((deployment-name))-bits.{{ .Release.Namespace }}
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/bits_service?/private_endpoint
-  value: https://((deployment-name))-bits
+  value: https://((deployment-name))-bits.{{ .Release.Namespace }}
 
+# Enable Docker registry on bits-service (used by OPI)
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/enable_registry?
+  value: true
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/registry_endpoint?
+  value: "https://registry.((system_domain))"
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=route_registrar/properties/route_registrar/routes/name=bits-service/uris/-
+  value: registry.((system_domain))
+- type: replace
+  path: /variables/name=bits_service_ssl/options/alternative_names/-
+  value: registry.((system_domain))
+- type: replace
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/rootfs?/blobstore_type?
+  value: local
+
+# Attach a persistent disk to bits-service VM to store eirinifs
+# TODO: storage class type should be configurable
+# - type: replace
+#   path: /instance_groups/name=bits/persistent_disk_type?
+#   value: ???
+- type: replace
+  path: /instance_groups/name=bits/persistent_disk?
+  value: 20480 # 20GB
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/bits_service?/enabled?
+  value: false
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/bits_service?/enabled?
+  value: false
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/bits_service?/enabled?
+  value: false
 {{- end}}

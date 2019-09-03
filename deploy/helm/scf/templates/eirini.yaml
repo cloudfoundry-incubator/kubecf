@@ -1,15 +1,54 @@
+# A service for the cc uploader
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.deployment_name }}-cc-uploader
+spec:
+  type: ClusterIP
+  selector:
+    fissile.cloudfoundry.org/instance-group-name: api
+    fissile.cloudfoundry.org/deployment-name: {{ .Values.deployment_name }}
+  ports:
+    - protocol: TCP
+      name: "http"
+      port: 9090
+      targetPort: 9090
+    - protocol: TCP
+      name: "https"
+      port: 9091
+      targetPort: 9091
+# A service for the eirini image registry
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.deployment_name }}-eirini-registry
+spec:
+  type: ClusterIP
+  selector:
+    fissile.cloudfoundry.org/instance-group-name: bits
+    fissile.cloudfoundry.org/deployment-name: {{ .Values.deployment_name }}
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+---
+# A namespace where eirini apps are created
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .Values.deployment_name }}-eirini
 ---
+# A godlike ServiceAccount for Eirini
+# TODO: this can be restricted
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.deployment_name }}-eirini
   namespace: {{ .Release.Namespace | quote }}
 ---
+# A godlike Role for Eirini
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

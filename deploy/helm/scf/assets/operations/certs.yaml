@@ -1,3 +1,8 @@
+# # This CA should be signed by the API Server, because it's used by the Eirini image registry
+# - type: replace
+#   path: /variables/name=service_cf_internal_ca/options/signer_type?
+#   value: cluster
+
 
 # # ---------------------------------------
 # - type: replace
@@ -32,6 +37,9 @@
 - type: replace
   path: /variables/name=blobstore_tls/options?/alternative_names?/-
   value: '((deployment_name))-singleton-blobstore'
+- type: replace
+  path: /variables/name=blobstore_tls/options?/alternative_names?/-
+  value: '((deployment_name))-singleton-blobstore.{{ .Release.Namespace }}'
 # ---------------------------------------
 - type: replace
   path: /variables/name=diego_auctioneer_client/options?/alternative_names?/-
@@ -155,6 +163,14 @@
   value: '((deployment_name))-api'
 # ---------------------------------------
 - type: replace
+  path: /variables/name=cc_tls/options?/alternative_names?/-
+  value: '((deployment_name))-api.{{ .Release.Namespace }}'
+# ---------------------------------------
+- type: replace
+  path: /variables/name=cc_public_tls/options?/alternative_names?/-
+  value: '((deployment_name))-api.{{ .Release.Namespace }}'
+# ---------------------------------------
+- type: replace
   path: /variables/name=cc_bridge_tps/options?/alternative_names?/-
   value: '((deployment_name))-scheduler'
 # ---------------------------------------
@@ -168,6 +184,10 @@
 - type: replace
   path: /variables/name=cc_bridge_cc_uploader_server/options?/alternative_names?/-
   value: '127.0.0.1'
+- type: replace
+  path: /variables/name=cc_bridge_cc_uploader_server/options?/alternative_names?/-
+  value: '((deployment_name))-api.{{ .Release.Namespace }}'
+
 # ---------------------------------------
 - type: replace
   path: /variables/name=diego_locket_server/options?/alternative_names?/-
@@ -228,6 +248,9 @@
 - type: replace
   path: /variables/name=blobstore_tls/options?/alternative_names?/-
   value: '*.((deployment_name))-singleton-blobstore'
+- type: replace
+  path: /variables/name=blobstore_tls/options?/alternative_names?/-
+  value: '*.((deployment_name))-singleton-blobstore.{{ .Release.Namespace }}'
 # ---------------------------------------
 - type: replace
   path: /variables/name=diego_auctioneer_client/options?/alternative_names?/-
