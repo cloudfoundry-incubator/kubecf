@@ -25,6 +25,18 @@ export KUBECONFIG
 "${KUBECTL}" patch storageclass local-path \
   --patch '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true", "storageclass.beta.kubernetes.io/is-default-class":"true"}}}'
 
+# Deploy the kube dashboard.
+"${KUBECTL}" apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta1/aio/deploy/recommended.yaml
+
+# Create the metrics server.
+cd `mktemp -d`
+git clone https://github.com/kubernetes-incubator/metrics-server.git
+cd metrics-server
+kubectl apply -f deploy/1.8+/
+
+# Make the node trust Kube's CA.
+docker exec kind-control-plane bash -c "cp /etc/kubernetes/pki/ca.crt /usr/local/share/ca-certificates/kube-ca.crt;update-ca-certificates;service containerd restart"
+
 echo ""
 echo "Set your KUBECONFIG by running:"
 echo "export KUBECONFIG=\"\$(bazel run @kind//:kind -- get kubeconfig-path --name=\"scf\")\""
