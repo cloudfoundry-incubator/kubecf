@@ -1,30 +1,7 @@
-# # This CA should be signed by the API Server, because it's used by the Eirini image registry
-# - type: replace
-#   path: /variables/name=service_cf_internal_ca/options/signer_type?
-#   value: cluster
-
-
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=expvar_forwarder/options?/alternative_names?/-
-#   value: '((deployment_name))-'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=loggregator_tls_agent/options?/alternative_names?/-
-#   value: '((deployment_name))'
-
 - type: replace
   path: /variables/name=log_cache_ca/options/common_name?
   value: log-cache-ca
 
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=silk_controller/options?/alternative_names?/-
-#   value: '((deployment_name))-diego-api'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=silk_daemon/options?/alternative_names?/-
-#   value: '((deployment_name))-diego-api'
 # ---------------------------------------
 - type: replace
   path: /variables/name=network_policy_server/options?/alternative_names?/-
@@ -200,18 +177,10 @@
 - type: replace
   path: /variables/name=gorouter_backend_tls/options?/alternative_names?/-
   value: '((deployment_name))-router'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=credhub_tls/options?/alternative_names?/-
-#   value: '((deployment_name))-credhub'
 # ---------------------------------------
 - type: replace
   path: /variables/name=ssh_proxy_backends_tls/options?/alternative_names?/-
   value: '((deployment_name))-scheduler'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=galera_server_certificate/options?/alternative_names?/-
-#   value: '((deployment_name))-database'
 # ---------------------------------------
 - type: replace
   path: /variables/name=mysql_server_certificate/options?/alternative_names?/-
@@ -224,18 +193,6 @@
 - type: replace
   path: /variables/name=loggregator_trafficcontroller_tls/options?/alternative_names?/-
   value: '((deployment_name))-log-api'
-
-
-
-
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=silk_controller/options?/alternative_names?/-
-#   value: '*.((deployment_name))-diego-api'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=silk_daemon/options?/alternative_names?/-
-#   value: '*.((deployment_name))-diego-api'
 # ---------------------------------------
 - type: replace
   path: /variables/name=network_policy_server/options?/alternative_names?/-
@@ -398,18 +355,10 @@
 - type: replace
   path: /variables/name=gorouter_backend_tls/options?/alternative_names?/-
   value: '*.((deployment_name))-router'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=credhub_tls/options?/alternative_names?/-
-#   value: '*.((deployment_name))-credhub'
 # ---------------------------------------
 - type: replace
   path: /variables/name=ssh_proxy_backends_tls/options?/alternative_names?/-
   value: '*.((deployment_name))-scheduler'
-# # ---------------------------------------
-# - type: replace
-#   path: /variables/name=galera_server_certificate/options?/alternative_names?/-
-#   value: '*.((deployment_name))-database'
 # ---------------------------------------
 - type: replace
   path: /variables/name=mysql_server_certificate/options?/alternative_names?/-

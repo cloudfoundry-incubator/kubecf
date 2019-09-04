@@ -1,6 +1,5 @@
 {{- if eq .Values.features.eirini true}}
 
-
 - type: replace
   path: /instance_groups/-
   value:
