@@ -29,10 +29,7 @@ export KUBECONFIG
 "${KUBECTL}" apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta1/aio/deploy/recommended.yaml
 
 # Create the metrics server.
-cd `mktemp -d`
-git clone --branch 'v0.3.3' https://github.com/kubernetes-incubator/metrics-server.git
-cd metrics-server
-kubectl apply -f deploy/1.8+/
+kubectl apply -f "${METRICS_SERVER}"
 
 # Make the node trust Kube's CA.
 docker exec kind-control-plane bash -c "cp /etc/kubernetes/pki/ca.crt /usr/local/share/ca-certificates/kube-ca.crt;update-ca-certificates;service containerd restart"

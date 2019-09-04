@@ -75,4 +75,8 @@ project = struct(
         version = "0.8.0",
         sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
     ),
+    metrics_server = struct(
+        version = "0.3.3",
+        sha256 = "9a8a204a46a4159f5a6bcb508cc51b49cdfb15aa5a034c7910ddca5a435097d4",
+    ),
 )

@@ -50,3 +50,17 @@ http_archive(
     sha256 = project.skylib.sha256,
     url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel-skylib.{version}.tar.gz".format(version = project.skylib.version),
 )
+
+http_archive(
+    name = "com_github_kubernetes_incubator_metrics_server",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+filegroup(
+    name = "deploy",
+    srcs = glob(["deploy/1.8+/**/*"]),
+)
+""",
+    sha256 = project.metrics_server.sha256,
+    strip_prefix = "metrics-server-{}".format(project.metrics_server.version),
+    url = "https://github.com/kubernetes-incubator/metrics-server/archive/v{}.tar.gz".format(project.metrics_server.version),
+)
