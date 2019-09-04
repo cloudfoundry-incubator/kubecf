@@ -1,4 +1,4 @@
-{{- if eq .Values.features.eirini true}}
+{{- if eq .Values.features.eirini true -}}
 
 - type: replace
   path: /instance_groups/-
@@ -62,7 +62,7 @@
         quarks:
           envs:
           - name: EIRINI_LOGGREGATOR_BRIDGE_LOGLEVEL
-            value: debug 
+            value: debug
         eirini-loggregator-bridge:
           loggregator_ca: '((loggregator_ca.certificate))'
           loggregator_cert: '((loggregator_tls_agent.certificate))'
@@ -103,7 +103,7 @@
 
 - type: replace
   path: /releases/-
-  value: 
+  value:
     name: eirini
     version: 0.0.14
     url: ((releases-defaults-url))
@@ -158,4 +158,5 @@
   value:
     bpm:
       processes: []
-{{- end}}
+
+{{- end }}

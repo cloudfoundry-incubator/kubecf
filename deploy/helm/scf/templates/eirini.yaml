@@ -1,4 +1,4 @@
-{{- if eq .Values.features.eirini true}}
+{{- if eq .Values.features.eirini true -}}
 
 # A service for the cc uploader
 ---
@@ -63,4 +63,5 @@ subjects:
   - kind: ServiceAccount
     name: {{ .Values.deployment_name }}-eirini
     namespace: {{ .Release.Namespace | quote }}
-{{- end}}
+    
+{{- end }}
