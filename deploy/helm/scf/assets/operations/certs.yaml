@@ -58,6 +58,10 @@
   value: '((deployment_name))-doppler'
 # ---------------------------------------
 - type: replace
+  path: /variables/name=loggregator_tls_doppler/options?/alternative_names?/-
+  value: 'metron'
+# ---------------------------------------
+- type: replace
   path: /variables/name=loggregator_tls_tc/options?/alternative_names?/-
   value: '((deployment_name))-log-api'
 # ---------------------------------------
