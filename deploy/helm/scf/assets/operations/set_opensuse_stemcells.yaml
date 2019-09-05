@@ -9,8 +9,8 @@
 
 - type: replace
   path: /addons/name=loggregator_agent/include/stemcell/os=ubuntu-xenial/os
-  value: default
+  value: ((releases-defaults-stemcell-os))
 
 - type: replace
   path: /addons/name=forwarder_agent/include/stemcell/os=ubuntu-xenial/os
-  value: default
+  value: ((releases-defaults-stemcell-os))
