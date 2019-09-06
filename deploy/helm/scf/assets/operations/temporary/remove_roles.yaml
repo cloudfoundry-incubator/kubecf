@@ -2,8 +2,6 @@
 # development. It should go away once all instance_groups work properly with cf-operator.
 
 - type: remove
-  path: /instance_groups/name=smoke-tests
-- type: remove
   path: /instance_groups/name=tcp-router
 - type: remove
   path: /instance_groups/name=credhub
