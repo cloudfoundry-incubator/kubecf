@@ -13,7 +13,7 @@ sizing:
   HA: false
 
 features:
-  eirini: true
+  eirini: false
   ingress:
     enabled: true
     tls:
