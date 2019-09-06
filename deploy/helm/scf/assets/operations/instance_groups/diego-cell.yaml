@@ -1,3 +1,5 @@
+{{- if not .Values.features.eirini -}}
+
 # Selectively remove jobs temporarily.
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden-cni
@@ -139,3 +141,10 @@
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/disable_swap_limit?
   value: true
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}
+
+{{- end }}

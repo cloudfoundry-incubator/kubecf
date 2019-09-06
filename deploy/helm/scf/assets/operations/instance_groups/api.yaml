@@ -259,3 +259,8 @@
               - ss -nlt | grep "LISTEN.*:4003"
     post_start:
       condition: *policy_server_internal_readiness
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/api_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}

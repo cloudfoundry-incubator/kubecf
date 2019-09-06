@@ -1,4 +1,4 @@
-{{- if eq .Values.features.eirini true -}}
+{{- if .Values.features.eirini -}}
 
 - type: replace
   path: /releases/name=bits-service/version
@@ -62,7 +62,6 @@
   value: *blobstore_url
 
 # TODO: check to see where these should actually be public - what are the usecases?
-# A proper solution for eirini would be to 
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service?/public_endpoint
   value: https://((deployment-name))-bits.{{ .Release.Namespace }}
@@ -139,4 +138,10 @@
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/bits_service?/enabled?
   value: false
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/bits_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}
+
 {{- end}}

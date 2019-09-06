@@ -1,4 +1,4 @@
-{{- if eq .Values.features.eirini true -}}
+{{- if .Values.features.eirini -}}
 
 apiVersion: v1
 kind: ConfigMap

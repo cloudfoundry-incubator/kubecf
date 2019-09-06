@@ -1,4 +1,4 @@
-{{- if eq .Values.features.eirini true -}}
+{{- if .Values.features.eirini -}}
 
 - type: replace
   path: /instance_groups/-
@@ -61,8 +61,7 @@
       properties:
         quarks:
           envs:
-          # TODO: this isn't working for some reason - the env var is not present in 
-          # the pod
+          # TODO: this isn't working for some reason - the env var is not present in the pod.
           - name: EIRINI_LOGGREGATOR_BRIDGE_LOGLEVEL
             value: debug
         eirini-loggregator-bridge:
@@ -160,5 +159,10 @@
   value:
     bpm:
       processes: []
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/eirini_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}
 
 {{- end }}

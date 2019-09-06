@@ -39,3 +39,8 @@
             exec:
               command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:8080" && ss -nlt | grep "LISTEN.*:4443"']
         url_signer: *nginx_healthcheck
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/singleton-blobstore_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}

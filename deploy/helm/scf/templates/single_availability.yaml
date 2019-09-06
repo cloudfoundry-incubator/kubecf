@@ -52,12 +52,6 @@ data:
     - type: replace
       path: /instance_groups/name=log-api/instances
       value: 1
-    - type: replace
-      path: /instance_groups/name=eirini/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=bits/instances
-      value: 1
     - type: remove
       path: /instance_groups/name=nats/azs?
     - type: remove
@@ -84,8 +78,19 @@ data:
       path: /instance_groups/name=diego-cell/azs?
     - type: remove
       path: /instance_groups/name=log-api/azs?
+
+    {{- if .Values.features.eirini }}
+    - type: replace
+      path: /instance_groups/name=bits/instances
+      value: 1
+    - type: remove
+      path: /instance_groups/name=bits/azs?
+
+    - type: replace
+      path: /instance_groups/name=eirini/instances
+      value: 1
     - type: remove
       path: /instance_groups/name=eirini/azs?
-    - type: remove
-      path: /instance_groups/name=bits/azs?      
+    {{- end }}
+
 {{- end }}

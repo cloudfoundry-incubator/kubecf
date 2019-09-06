@@ -15,7 +15,7 @@ spec:
     name: cf-deployment
     type: configmap
   ops:
-{{- if eq .Values.features.eirini true}}
+{{- if .Values.features.eirini }}
   - name: ops-use-bits-service
     type: configmap
 {{- end }}
@@ -25,10 +25,6 @@ spec:
     type: configmap
 {{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
-  - name: {{ include "scf.ops-name" $path }}
-    type: configmap
-{{- end }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/*" }}
   - name: {{ include "scf.ops-name" $path }}
     type: configmap
 {{- end }}

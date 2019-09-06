@@ -38,3 +38,8 @@
               command: ['sh', '-c', '/var/vcap/jobs/uaa/bin/health_check']
     post_start:
       condition: *uaa_readiness
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/uaa_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}

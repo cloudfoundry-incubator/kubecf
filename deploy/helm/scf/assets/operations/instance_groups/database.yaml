@@ -131,3 +131,8 @@
             tail \
               --pid $(cat "${pid_file}") \
               --follow "${log_file}"
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/database_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}
