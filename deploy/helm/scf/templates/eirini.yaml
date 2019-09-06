@@ -63,5 +63,35 @@ subjects:
   - kind: ServiceAccount
     name: {{ .Values.deployment_name }}-eirini
     namespace: {{ .Release.Namespace | quote }}
-    
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ops-remove-diego
+  labels:
+    app.kubernetes.io/component: operations
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "scf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "scf.chart" . }}
+data:
+  ops: |
+    # Remove the whole diego-cell instance group.
+    - type: remove
+      path: /instance_groups/name=diego-cell
+
+    # Remove bbs and silk-controller from diego-api.
+    # TODO: remove bbs in the future - when the clock and worker no longer need it.
+    # - type: remove
+    #   path: /instance_groups/name=diego-api/jobs/name=bbs
+
+    # Remove auctioneer, tps and ssh_proxy from scheduler.
+    - type: remove
+      path: /instance_groups/name=scheduler/jobs/name=auctioneer
+    - type: remove
+      path: /instance_groups/name=scheduler/jobs/name=tps
+    - type: remove
+      path: /instance_groups/name=scheduler/jobs/name=ssh_proxy
+
 {{- end }}
