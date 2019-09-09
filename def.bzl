@@ -21,19 +21,19 @@ project = struct(
         ],
     ),
     kubernetes = struct(
-        version = "1.13.8",
+        version = "1.14.6",
         platforms = [
             {
                 "platform": "linux",
-                "sha256": "28919b49b8d9d9aee98001556952cf7d36aae6d4875f4f305399590ff9849d6e",
+                "sha256": "5f8e8d8de929f64b8f779d0428854285e1a1c53a02cc2ad6b1ce5d32eefad25c",
             },
             {
                 "platform": "darwin",
-                "sha256": "7b788747a5536f5156b37c71489b8a5c18bd6ab8315db84d579e47db1eb9d56a",
+                "sha256": "de42dd22f67c135b749c75f389c70084c3fe840e3d89a03804edd255ac6ee829",
             },
             {
                 "platform": "windows",
-                "sha256": "a3b2895aa5d5344971e55126f8b33b65f8b7c3b2ef8b07a1e3d80b06037d0549",
+                "sha256": "3aa2d64f5eb9564622ddabe5f0a6c12d13d9dda90125f5a56ce41779395fa6f5",
             },
         ],
     ),
