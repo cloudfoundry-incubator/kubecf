@@ -89,7 +89,10 @@
       internal: 1801
     run:
       security_context:
-        privileged: true
+        privileged: false
+        capabilities:
+          add:
+          - SYS_ADMIN
       healthcheck:
         rep:
           readiness: &rep_readiness
@@ -97,6 +100,18 @@
               command: [sh, -c, 'ss -nlt | grep "LISTEN.*:1800"']
     post_start:
       condition: *rep_readiness
+
+# Set the unconfined AppArmor profile for bpm-pre-start-rep in order to perform mounts.
+# This works in combination with CAP_SYS_ADMIN Linux capability.
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/annotations/container.apparmor.security.beta.kubernetes.io~1bpm-pre-start-rep
+  value: unconfined
+
+# Set the unconfined AppArmor profile for rep-rep in order to perform mounts.
+# This works in combination with CAP_SYS_ADMIN Linux capability.
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/annotations/container.apparmor.security.beta.kubernetes.io~1rep-rep
+  value: unconfined
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties/quarks?/bpm/processes
