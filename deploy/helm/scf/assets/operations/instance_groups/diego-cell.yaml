@@ -20,26 +20,26 @@
 # Override the addresses for the jobs under the diego-cell instance group.
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/uaa/hostname?
-  value: ((deployment-name))-uaa
+  value: {{ .Values.deployment_name }}-uaa
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/diego/route_emitter/nats?/machines
   value:
-  - ((deployment-name))-nats
+  - {{ .Values.deployment_name }}-nats
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/diego/route_emitter/bbs/api_location?
-  value: ((deployment-name))-diego-api:8889
+  value: {{ .Values.deployment_name }}-diego-api:8889
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/locks?/locket/hostname
-  value: ((deployment-name))-diego-api
+  value: {{ .Values.deployment_name }}-diego-api
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/routing_api?/url
-  value: http://((deployment-name))-api
+  value: http://{{ .Values.deployment_name }}-api
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/bbs?/hostname
-  value: ((deployment-name))-diego-api
+  value: {{ .Values.deployment_name }}-diego-api
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/locket?/hostname
-  value: ((deployment-name))-diego-api
+  value: {{ .Values.deployment_name }}-diego-api
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/set_kernel_parameters?
   value: false
@@ -107,15 +107,15 @@
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/locket?/api_location
-  value: ((deployment-name))-diego-api:8891
+  value: {{ .Values.deployment_name }}-diego-api:8891
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/bbs?/api_location
-  value: ((deployment-name))-diego-api:8889
+  value: {{ .Values.deployment_name }}-diego-api:8889
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/advertise_domain?
-  value: ((deployment-name))-diego-cell
+  value: {{ .Values.deployment_name }}-diego-cell
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/preloaded_rootfses

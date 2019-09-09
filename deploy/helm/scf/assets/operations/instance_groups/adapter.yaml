@@ -4,7 +4,7 @@
   value: false
 - type: replace
   path: /instance_groups/name=adapter/jobs/name=adapter/properties/scalablesyslog/adapter/logs?/addr
-  value: ((deployment-name))-log-api:8082
+  value: {{ .Values.deployment_name }}-log-api:8082
 
 # Add quarks properties.
 - type: replace

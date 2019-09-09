@@ -4,13 +4,13 @@
   path: /stemcells/alias=default
   value:
     alias: default
-    os: ((releases-defaults-stemcell-os))
-    version: ((releases-defaults-stemcell-version))
+    os: {{ .Values.releases.defaults.stemcell.os | quote }}
+    version: {{ .Values.releases.defaults.stemcell.version | quote }}
 
 - type: replace
   path: /addons/name=loggregator_agent/include/stemcell/os=ubuntu-xenial/os
-  value: ((releases-defaults-stemcell-os))
+  value: {{ .Values.releases.defaults.stemcell.os | quote }}
 
 - type: replace
   path: /addons/name=forwarder_agent/include/stemcell/os=ubuntu-xenial/os
-  value: ((releases-defaults-stemcell-os))
+  value: {{ .Values.releases.defaults.stemcell.os | quote }}

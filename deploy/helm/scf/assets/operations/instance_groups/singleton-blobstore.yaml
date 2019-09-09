@@ -8,17 +8,17 @@
 # Override the addresses for the jobs under the singleton-blobstore instance group.
 - type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/internal_server_name?
-  value: ((deployment-name))-singleton-blobstore
+  value: {{ .Values.deployment_name }}-singleton-blobstore
 - type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=route_registrar/properties/nats?/machines
   value:
-  - ((deployment-name))-nats
+  - {{ .Values.deployment_name }}-nats
 - type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=route_registrar/properties/route_registrar?/routing_api/api_url
-  value: http://((deployment-name))-api:3000
+  value: http://{{ .Values.deployment_name }}-api:3000
 - type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
-  value: https://((deployment-name))-uaa:8443
+  value: https://{{ .Values.deployment_name }}-uaa:8443
 
 - type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/quarks?

@@ -2,180 +2,180 @@
 
 - type: replace
   path: /releases/name=binary-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=binary-buildpack/sha1
 
 - type: replace
   path: /releases/name=bpm/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=bpm/sha1
 
 - type: replace
   path: /releases/name=capi/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=capi/sha1
 
 - type: replace
   path: /releases/name=cf-networking/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=cf-networking/sha1
 
 - type: replace
   path: /releases/name=cf-smoke-tests/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=cf-smoke-tests/sha1
 
 - type: replace
   path: /releases/name=cf-syslog-drain/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=cf-syslog-drain/sha1
 
 - type: replace
   path: /releases/name=cflinuxfs3/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=cflinuxfs3/sha1
 
 - type: replace
   path: /releases/name=credhub/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=credhub/sha1
 
 - type: replace
   path: /releases/name=diego/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=diego/sha1
 
 - type: replace
   path: /releases/name=dotnet-core-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=dotnet-core-buildpack/sha1
 
 - type: replace
   path: /releases/name=garden-runc/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=garden-runc/sha1
 
 - type: replace
   path: /releases/name=go-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=go-buildpack/sha1
 
 - type: replace
   path: /releases/name=java-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=java-buildpack/sha1
 
 - type: replace
   path: /releases/name=loggregator/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=loggregator/sha1
 
 - type: replace
   path: /releases/name=nats/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=nats/sha1
 
 - type: replace
   path: /releases/name=nginx-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=nginx-buildpack/sha1
 
 - type: replace
   path: /releases/name=r-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=r-buildpack/sha1
 
 - type: replace
   path: /releases/name=nodejs-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=nodejs-buildpack/sha1
 
 - type: replace
   path: /releases/name=php-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=php-buildpack/sha1
 
 - type: replace
   path: /releases/name=python-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=python-buildpack/sha1
 
 - type: replace
   path: /releases/name=routing/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=routing/sha1
 
 - type: replace
   path: /releases/name=ruby-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=ruby-buildpack/sha1
 
 - type: replace
   path: /releases/name=silk/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=silk/sha1
 
 - type: replace
   path: /releases/name=staticfile-buildpack/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=staticfile-buildpack/sha1
 
 - type: replace
   path: /releases/name=statsd-injector/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=statsd-injector/sha1
 
 - type: replace
   path: /releases/name=uaa/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=uaa/sha1
 
 - type: replace
   path: /releases/name=loggregator-agent/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=loggregator-agent/sha1
 
 - type: replace
   path: /releases/name=log-cache/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=log-cache/sha1
 
 - type: replace
   path: /releases/name=bosh-dns-aliases/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=bosh-dns-aliases/sha1
 
 - type: replace
   path: /releases/name=cf-cli/url
-  value: ((releases-defaults-url))
+  value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=cf-cli/sha1

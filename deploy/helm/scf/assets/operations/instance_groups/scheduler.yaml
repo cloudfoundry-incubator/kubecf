@@ -2,40 +2,40 @@
 # Override the addresses for the jobs under the scheduler instance group.
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
-  value: ((deployment-name))-database
+  value: {{ .Values.deployment_name }}-database
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/bbs/url
-  value: https://((deployment-name))-diego-api:8889
+  value: https://{{ .Values.deployment_name }}-diego-api:8889
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/cc_uploader_url
-  value: http://((deployment-name))-api:9090
+  value: http://{{ .Values.deployment_name }}-api:9090
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/file_server_url
-  value: http://((deployment-name))-api:8080
+  value: http://{{ .Values.deployment_name }}-api:8080
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/locket?/host
-  value: ((deployment-name))-diego-api
+  value: {{ .Values.deployment_name }}-diego-api
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=auctioneer/properties/diego/auctioneer/bbs?/api_location
-  value: ((deployment-name))-diego-api:8889
+  value: {{ .Values.deployment_name }}-diego-api:8889
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=auctioneer/properties/diego/auctioneer/locket?/api_location
-  value: ((deployment-name))-diego-api:8891
+  value: {{ .Values.deployment_name }}-diego-api:8891
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=tps/properties/capi/tps/bbs?/api_location
-  value: ((deployment-name))-diego-api:8889
+  value: {{ .Values.deployment_name }}-diego-api:8889
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=tps/properties/capi/tps/cc/internal_service_hostname?
-  value: ((deployment-name))-api
+  value: {{ .Values.deployment_name }}-api
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=tps/properties/capi/tps/watcher/locket/api_location
-  value: ((deployment-name))-diego-api:8891
+  value: {{ .Values.deployment_name }}-diego-api:8891
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/address
-  value: ((deployment-name))-database
+  value: {{ .Values.deployment_name }}-database
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/buildpacks?/webdav_config/private_endpoint
-  value: &blobstore_url https://((deployment-name))-singleton-blobstore:4443
+  value: &blobstore_url https://{{ .Values.deployment_name }}-singleton-blobstore:4443
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/droplets?/webdav_config/private_endpoint
   value: *blobstore_url
@@ -47,40 +47,40 @@
   value: *blobstore_url
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/diego?/bbs/url
-  value: https://((deployment-name))-diego-api:8889
+  value: https://{{ .Values.deployment_name }}-diego-api:8889
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/diego?/cc_uploader_url
-  value: http://((deployment-name))-api:9090
+  value: http://{{ .Values.deployment_name }}-api:9090
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/diego?/file_server_url
-  value: http://((deployment-name))-api:8080
+  value: http://{{ .Values.deployment_name }}-api:8080
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/internal_service_hostname?
-  value: ((deployment-name))-api
+  value: {{ .Values.deployment_name }}-api
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/uaa?/internal_url
-  value: ((deployment-name))-uaa
+  value: {{ .Values.deployment_name }}-uaa
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/credhub_api?/hostname
-  value: ((deployment-name))-credhub
+  value: {{ .Values.deployment_name }}-credhub
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/bbs?/hostname
-  value: ((deployment-name))-diego-api
+  value: {{ .Values.deployment_name }}-diego-api
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/locket?/hostname
-  value: ((deployment-name))-diego-api
+  value: {{ .Values.deployment_name }}-diego-api
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/scalablesyslog/scheduler/api/url
-  value: https://((deployment-name))-api:9023
+  value: https://{{ .Values.deployment_name }}-api:9023
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/scalablesyslog/scheduler/tls/api/cn
-  value: ((deployment-name))-api
+  value: {{ .Values.deployment_name }}-api
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/diego/ssh_proxy/bbs?/api_location
-  value: ((deployment-name))-diego-api:8889
+  value: {{ .Values.deployment_name }}-diego-api:8889
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/diego/ssh_proxy/uaa?/url
-  value: https://((deployment-name))-uaa
+  value: https://{{ .Values.deployment_name }}-uaa
 
 # Add quarks properties for the scheduler job.
 - type: replace
@@ -125,7 +125,7 @@
   path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs?
   value:
   - name: INSTANCE_ADDR
-    value: ((deployment-name))-scheduler:8080
+    value: {{ .Values.deployment_name }}-scheduler:8080
   - name: INSTANCE_ID
     value: "0"
 

@@ -1,23 +1,23 @@
 # Override the database address.
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/address?
-  value: ((deployment-name))-database
+  value: {{ .Values.deployment_name }}-database
 
 # Override the addresses for the jobs under the uaa instance group.
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/zones/internal/hostnames
   value:
-  - ((deployment-name))-uaa
+  - {{ .Values.deployment_name }}-uaa
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/nats?/machines
   value:
-  - ((deployment-name))-nats
+  - {{ .Values.deployment_name }}-nats
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/route_registrar?/routing_api/api_url
-  value: http://((deployment-name))-api:3000
+  value: http://{{ .Values.deployment_name }}-api:3000
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
-  value: https://((deployment-name))-uaa:8443
+  value: https://{{ .Values.deployment_name }}-uaa:8443
 
 # Add quarks properties.
 - type: replace

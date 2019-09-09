@@ -5,19 +5,19 @@
 # Override the addresses for the jobs under the diego-api instance group.
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host
-  value: ((deployment-name))-database
+  value: {{ .Values.deployment_name }}-database
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_host
-  value: ((deployment-name))-database
+  value: {{ .Values.deployment_name }}-database
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/locket?/api_location
   value: 127.0.0.1:8891
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/auctioneer?/api_location
-  value: ((deployment-name))-scheduler:9016
+  value: {{ .Values.deployment_name }}-scheduler:9016
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/advertisement_base_hostname?
-  value: ((deployment-name))-diego-api
+  value: {{ .Values.deployment_name }}-diego-api
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/bbs?/hostname
   value: 127.0.0.1

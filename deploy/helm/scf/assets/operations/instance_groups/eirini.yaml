@@ -12,7 +12,7 @@
       bosh:
         agent:
           settings:
-            serviceAccountName: ((deployment-name))-eirini
+            serviceAccountName: {{ .Values.deployment_name }}-eirini
             disable_log_sidecar: true
     jobs:
     - name: configure-eirini-scf
@@ -36,7 +36,7 @@
           cert_copier_image: ""
         opi:
           registry_address: ""
-          kube_namespace: ((deployment-name))-eirini
+          kube_namespace: {{ .Values.deployment_name }}-eirini
           certs_secret_name: eirini-staging-secret
           cc_cert: ((cc_bridge_tps.certificate))
           cc_key: ((cc_bridge_tps.private_key))
@@ -54,7 +54,7 @@
       bosh:
         agent:
           settings:
-            serviceAccountName: ((deployment-name))-eirini
+            serviceAccountName: {{ .Values.deployment_name }}-eirini
     jobs:
     - name: eirini-loggregator-bridge
       release: eirini
@@ -68,20 +68,20 @@
           loggregator_ca: '((loggregator_ca.certificate))'
           loggregator_cert: '((loggregator_tls_agent.certificate))'
           loggregator_key: '((loggregator_tls_agent.private_key))'
-          loggregator_endpoint: "((deployment-name))-doppler:8082"
-          namespace: '((deployment-name))-eirini'
+          loggregator_endpoint: "{{ .Values.deployment_name }}-doppler:8082"
+          namespace: '{{ .Values.deployment_name }}-eirini'
     - name: opi
       release: eirini
       properties:
         opi:
-          kube_namespace: ((deployment-name))-eirini
+          kube_namespace: {{ .Values.deployment_name }}-eirini
           kube_service_host: ""
           kube_service_port: ""
           nats_password: ((nats_password))
-          nats_ip: ((deployment-name))-nats
+          nats_ip: {{ .Values.deployment_name }}-nats
           certs_secret_name: eirini-staging-secret
-          cc_internal_api: https://((deployment-name))-api.{{ .Release.Namespace }}:9023
-          eirini_address: http://((deployment-name))-eirini.{{ .Release.Namespace }}:8085
+          cc_internal_api: https://{{ .Values.deployment_name }}-api.{{ .Release.Namespace }}:9023
+          eirini_address: http://{{ .Values.deployment_name }}-eirini.{{ .Release.Namespace }}:8085
           downloader_image: "eirini/recipe-downloader:0.2.0"
           uploader_image: "eirini/recipe-uploader:0.2.0"
           executor_image: "eirini/recipe-executor:0.2.0"
@@ -107,7 +107,7 @@
   value:
     name: eirini
     version: 0.0.14
-    url: ((releases-defaults-url))
+    url: {{ .Values.releases.defaults.url | quote }}
     stemcell:
       alias: default
       os: opensuse-42.3
@@ -119,7 +119,7 @@
   value: true
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/url?
-  value: http://((deployment-name))-eirini:8085
+  value: http://{{ .Values.deployment_name }}-eirini:8085
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/opi_staging?
   value: true
@@ -129,7 +129,7 @@
   value: true
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/url?
-  value: http://((deployment-name))-eirini:8085
+  value: http://{{ .Values.deployment_name }}-eirini:8085
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/opi_staging?
   value: true
@@ -139,7 +139,7 @@
   value: true
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/url?
-  value: http://((deployment-name))-eirini:8085
+  value: http://{{ .Values.deployment_name }}-eirini:8085
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/opi_staging?
   value: true
