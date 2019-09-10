@@ -15,6 +15,8 @@ done
 admin_password=$(kubectl get secret --namespace "${namespace}" "${deployment_name}.var-cf-admin-password" -o jsonpath='{.data.password}' | base64 --decode)
 system_domain=$(kubectl get secret --namespace "${namespace}" "${deployment_name}.var-system-domain" -o jsonpath='{.data.value}' | base64 --decode)
 
+echo "Found router endpoint: ${router_endpoint}"
+
 kubectl delete pod --namespace "${namespace}" "${pod_name}" || true
 kubectl create --namespace "${namespace}" -f - <<EOF
 apiVersion: v1
