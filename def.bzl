@@ -1,4 +1,5 @@
 project = struct(
+    namespace = "scf", # The namespace used across the project.
     cf_deployment = struct(
         version = "8.0.0",
         sha256 = "289f6c5a116eef4b16b228d07d55517dc20f76199c1476036fc0ade5a08a3e1b",

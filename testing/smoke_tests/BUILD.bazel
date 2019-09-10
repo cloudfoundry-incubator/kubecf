@@ -1,0 +1,13 @@
+package(default_visibility = ["//visibility:public"])
+
+load("//rules/kubectl:def.bzl", kubectl_patch = "patch")
+load("//:def.bzl", "project")
+
+kubectl_patch(
+    name = "smoke_tests",
+    namespace = project.namespace,
+    resource_type = "ejob",
+    resource_name = "scf-smoke-tests",
+    patch_type = "merge",
+    patch_file = ":trigger.yaml",
+)
