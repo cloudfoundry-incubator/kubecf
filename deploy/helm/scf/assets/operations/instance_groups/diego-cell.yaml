@@ -89,7 +89,6 @@
       internal: 1801
     run:
       security_context:
-        privileged: false
         capabilities:
           add:
           - SYS_ADMIN
