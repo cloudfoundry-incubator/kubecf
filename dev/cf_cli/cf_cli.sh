@@ -5,11 +5,11 @@ set -o errexit -o nounset
 namespace="scf"
 deployment_name="scf"
 pod_name="cf-terminal"
-api_ip=""
+router_endpoint=""
 echo "Waiting for endpoint..."
 while true; do
-  api_ip=$(kubectl describe endpoints -n "${namespace}" "${deployment_name}-router" | awk 'match($0, /  Addresses:[ ]+(.*)/, ip) { print ip[1] }')
-  if [ -n "${api_ip}" ]; then break; fi
+  router_endpoint=$(kubectl describe endpoints -n "${namespace}" "${deployment_name}-router" | awk 'match($0, /  Addresses:[ ]+(.*)/, ip) { print ip[1] }')
+  if [ -n "${router_endpoint}" ]; then break; fi
   sleep 3
 done
 admin_password=$(kubectl get secret --namespace "${namespace}" "${deployment_name}.var-cf-admin-password" -o jsonpath='{.data.password}' | base64 --decode)
@@ -23,7 +23,7 @@ metadata:
   name: "${pod_name}"
 spec:
   hostAliases:
-  - ip: "${api_ip}"
+  - ip: "${router_endpoint}"
     hostnames:
     - "app1.${system_domain}"
     - "app2.${system_domain}"
