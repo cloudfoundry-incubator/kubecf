@@ -8,7 +8,7 @@ pod_name="cf-terminal"
 router_endpoint=""
 echo "Waiting for endpoint..."
 while true; do
-  router_endpoint=$(kubectl describe endpoints -n "${namespace}" "${deployment_name}-router" | awk 'match($0, /  Addresses:[ ]+(.*)/, ip) { print ip[1] }')
+  router_endpoint=$(kubectl describe endpoints -n "${namespace}" "${deployment_name}-router" | awk 'match($0, /  Addresses:[ ]+([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/, ip) { print ip[1] }')
   if [ -n "${router_endpoint}" ]; then break; fi
   sleep 3
 done
