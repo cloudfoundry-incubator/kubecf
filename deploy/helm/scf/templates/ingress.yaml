@@ -34,19 +34,19 @@ metadata:
   name: {{ .Release.Name | quote }}
   namespace: {{ .Release.Namespace | quote }}
   annotations:
-    {{- if hasKey .Values.features.ingress.annotations "kubernetes.io/ingress.class" | not -}}
+    {{- if not (hasKey .Values.features.ingress.annotations "kubernetes.io/ingress.class") -}}
       {{ $_ := set .Values.features.ingress.annotations "kubernetes.io/ingress.class" "nginx" }}
     {{- end }}
-    {{- if hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends" | not -}}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends") -}}
       {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends" "true" }}
     {{- end }}
-    {{- if hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol" | not -}}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol") -}}
       {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol" "HTTPS" }}
     {{- end }}
-    {{- if hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" | not -}}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect") -}}
       {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" "false" }}
     {{- end }}
-    {{- if hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" | not -}}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size") -}}
       {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" "8m" }}
     {{- end }}
     {{ $_ := set .Values.features.ingress.annotations "nginx.org/websocket-services" (printf "%s-router" .Values.deployment_name) }}
