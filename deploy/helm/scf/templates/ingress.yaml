@@ -34,6 +34,7 @@ metadata:
   name: {{ .Release.Name | quote }}
   namespace: {{ .Release.Namespace | quote }}
   annotations:
+    # Inject some annotations if they don't exist in the annotations provided during deployment.
     {{- if not (hasKey .Values.features.ingress.annotations "kubernetes.io/ingress.class") -}}
       {{ $_ := set .Values.features.ingress.annotations "kubernetes.io/ingress.class" "nginx" }}
     {{- end }}
