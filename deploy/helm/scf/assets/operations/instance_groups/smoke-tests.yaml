@@ -2,6 +2,11 @@
   path: /instance_groups/name=smoke-tests/jobs/name=cf-cli-6-linux/properties?/quarks/bpm/processes
   value: []
 
+# The smoke-tests require the cf-cli package that is provided by the cf-cli-6-linux job. Since the
+# /var/vcap/packages directory is not shared between the containers, smoke-tests won't have access
+# to the cf-cli package. As part of the pre-render scripts added here will patch the cf-cli-6-linux
+# job in order to add a BOSH pre-start script. This script will then copy the cf-cli package into a
+# shared volume that can be accessed by the smoke-tests job.
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/smoke-tests_*" }}
 {{ $root.Files.Get $path }}
