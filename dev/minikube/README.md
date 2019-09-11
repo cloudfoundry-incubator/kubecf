@@ -27,5 +27,5 @@ Set the `K8S_VERSION` environment variable to override the default version.
 
 ## VM Drivers
 
-At the moment, only the VirtualBox driver is working correctly; the kvm2 driver
-is known to not work (no output, and the network does not come up).
+At the moment, only the VirtualBox and KVM2 drivers are working correctly. Set the `VM_DRIVER`
+environment variable to override the default. E.g. `VM_DRIVER=kvm2`.
