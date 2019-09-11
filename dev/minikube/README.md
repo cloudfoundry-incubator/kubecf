@@ -1,5 +1,8 @@
 # Minikube
 
+IMPORTANT! The `~/.kube/config` file will be edited by Minikube. Make a backup if you want to
+preserve the original configuration.
+
 For developing with Minikube, start a local cluster by running the `start` target:
 
 ```txt
