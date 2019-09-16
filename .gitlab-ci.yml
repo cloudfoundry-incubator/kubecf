@@ -1,0 +1,24 @@
+stages:
+- lint
+- build
+
+lint:
+  stage: lint
+  tags:
+  - personal-minikube-tassis
+  image: thulioassis/bazel-docker-image:0.29.1
+  script:
+  - ./dev/linters/shellcheck.sh
+
+build:chart:
+  stage: build
+  tags:
+  - personal-minikube-tassis
+  image: thulioassis/bazel-docker-image:0.29.1
+  script:
+  - bazel build //deploy/helm/scf:chart
+  - mkdir -p output; (cd bazel-bin/deploy/helm/scf; tar cf - .) | (cd output; tar xvf -)
+  artifacts:
+    paths:
+    - output/scf-*.tgz
+    expire_in: 1 week
