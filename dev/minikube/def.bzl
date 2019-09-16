@@ -38,7 +38,7 @@ attrs = {
         default = "4",
     ),
     "vm_memory": attr.string(
-        default = "{}".format(1024 * 12),
+        default = "{}".format(1024 * 16),
     ),
     "vm_disk_size": attr.string(
         default = "120g",
