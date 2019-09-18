@@ -170,12 +170,56 @@
       internal: 9024
     run:
       healthcheck:
+        ccng_monit_http_healthcheck:
+          readiness:
+            # This job exists just to healthcheck cloud_controller_ng; we're
+            # already doing that separately.
+            exec:
+              command: [/bin/true]
+          liveness:
+            exec:
+              command:
+              - /usr/bin/pgrep
+              - --full
+              - --exact
+              - bash /var/vcap/jobs/cloud_controller_ng/bin/ccng_monit_http_healthcheck
         cloud_controller_ng:
           readiness: &cloud_controller_ng_readiness
+            httpGet:
+              path: /healthz
+              port: 9022
+          # We don't want a liveness probe here as we do migration here, and we
+          # do not want to interrupt that.
+          #liveness:
+          #  exec:
+          #    command:
+          #    - /usr/bin/pgrep
+          #    - --full
+          #    - /var/vcap/packages/cloud_controller_ng/cloud_controller_ng/bin/cloud_controller
+        local_worker_1:
+          readiness: &cc_local_worker_readiness
             exec:
-              command: [curl, --fail, --head, --silent, http://127.0.0.1:9022/healthz]
+              command: [/usr/bin/pgrep, --full, cc_api_worker]
+          liveness: *cc_local_worker_readiness
+        local_worker_2:
+          readiness: *cc_local_worker_readiness
+          liveness: *cc_local_worker_readiness
+        nginx:
+          readiness:
+            httpGet:
+              httpHeaders:
+              - name: Host
+                value: api
+              path: /healthz
+              port: 9024
+              scheme: HTTPS
+          liveness:
+            exec:
+              command: [/usr/bin/pgrep, --full, "nginx: master process"]
     post_start:
-      condition: *cloud_controller_ng_readiness
+      condition:
+        exec:
+          command: [curl, --fail, --head, --silent, http://127.0.0.1:9022/healthz]
 
 # Add quarks properties for routing-api.
 - type: replace
@@ -185,6 +229,16 @@
     - name: routing-api
       protocol: TCP
       internal: 3000
+    run:
+      healthcheck:
+        routing-api:
+          readiness:
+            # routing-api does not expose a health check endpoint
+            tcpSocket:
+              port: 3000
+          liveness:
+            exec:
+              command: [pidof, routing-api]
 
 # Add quarks properties for cc_uploader.
 - type: replace
@@ -197,6 +251,17 @@
     - name: https
       protocol: TCP
       internal: 9091
+    run:
+      healthcheck:
+        cc_uploader:
+          readiness:
+            # cc-uploader does not have a health check endpoint; just use a TCP
+            # socket.
+            tcpSocket:
+              port: 9091
+          liveness:
+            exec:
+              command: [pidof, cc-uploader]
 
 # Add quarks properties for file_server.
 - type: replace
@@ -210,18 +275,26 @@
       healthcheck:
         file_server:
           readiness:
-            tcpSocket:
+            httpGet:
+              path: /v1/static/file_server/bin/file-server
               port: *file-server-port
+          liveness:
+            exec:
+              command: [pidof, file-server]
 
 # Add quarks properties for statsd_injector.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=statsd_injector/properties/quarks?
+  path: /instance_groups/name=api/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector
   value:
-    ports:
-    # TODO: Can we remove this port?
-    - name: statsd
-      protocol: TCP
-      internal: 8125
+    readiness:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - ss -nlu src localhost:8125 | grep :8125
+    liveness:
+      exec:
+        command: [pidof, statsd-injector]
 
 # Add quarks properties for policy-server.
 - type: replace
@@ -234,14 +307,17 @@
     run:
       healthcheck:
         policy-server:
-          readiness: &policy_server_readiness
+          readiness:
+            httpGet:
+              port: 4002
+          liveness:
             exec:
-              command:
-              - sh
-              - -c
-              - ss -nlt | grep "LISTEN.*:4002"
+              command: [pidof, policy-server]
     post_start:
-      condition: *policy_server_readiness
+      condition:
+        exec:
+          # policy-server doesn't support HTTP HEAD requests
+          command: [curl, --fail, --silent, http://localhost:4002/]
 
 # Add quarks properties for policy-server-internal.
 - type: replace
@@ -249,16 +325,38 @@
   value:
     run:
       healthcheck:
-        policy-server:
+        policy-server-internal:
           readiness: &policy_server_internal_readiness
+            httpGet:
+              port: 31946
+          liveness:
             exec:
-              command:
-              - sh
-              - -c
-              # TODO: Use curl to call port 31946.
-              - ss -nlt | grep "LISTEN.*:4003"
+              command: [pidof, policy-server-internal]
     post_start:
-      condition: *policy_server_internal_readiness
+      condition:
+        exec:
+          # policy-server-internal doesn't support HTTP HEAD requests
+          command: [curl, --fail, --silent, http://localhost:31946/]
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
+  value:
+    readiness: &route_registrar_readiness
+      # The route registrar doesn't expose anything to indicate if the
+      # routes are healthy; we can only detect that it's still running.
+      exec:
+        command: [pidof, route-registrar]
+    liveness: *route_registrar_readiness
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=loggr-udp-forwarder/properties/quarks?/run/healthcheck/loggr-udp-forwarder
+  value:
+    readiness:
+      exec:
+        command: [sh, -c, 'ss -nlu sport = 3457 | grep :3457']
+    liveness:
+      exec:
+        command: [pidof, udp-forwarder]
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/api_*" }}
