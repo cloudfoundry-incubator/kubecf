@@ -18,6 +18,9 @@ data:
 {{- end -}}
 
 {{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/buildpacks/*" }}
+{{ include "scf.ops" (dict "Root" $root "Path" $path) }}
+{{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
 {{ include "scf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}

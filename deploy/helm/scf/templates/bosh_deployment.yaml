@@ -15,6 +15,10 @@ spec:
     name: cf-deployment
     type: configmap
   ops:
+{{- range $path, $bytes := .Files.Glob "assets/operations/buildpacks/*" }}
+  - name: {{ include "scf.ops-name" $path }}
+    type: configmap
+{{- end }}
 {{- if .Values.features.eirini }}
   - name: ops-use-bits-service
     type: configmap

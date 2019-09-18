@@ -1,0 +1,79 @@
+- type: replace
+  path: /releases/name=binary-buildpack
+  value:
+    name: binary-buildpack
+    url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.33.1.tgz"
+    version: "1.0.33.1"
+    sha1: "efc52da5fdeccfc407bd9bcf1139d222bac394b2"
+
+- type: replace
+  path: /releases/name=go-buildpack
+  value:
+    name: go-buildpack
+    url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.42.1.tgz"
+    version: "1.8.42.1"
+    sha1: "f811bef86bfba4532d6a7f9653444c7901c59989"
+
+- type: replace
+  path: /releases/name=java-buildpack
+  value:
+    name: java-buildpack
+    url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.21.0.1.tgz"
+    version: "4.21.0.1"
+    sha1: "76796e0687b7348afe2d947468d68910fc95c86d"
+
+- type: replace
+  path: /releases/name=nodejs-buildpack
+  value:
+    name: nodejs-buildpack
+    url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.53.1.tgz"
+    version: "1.6.53.1"
+    sha1: "24e426b2bcd28bb6dc0e456b70f121d5228074fa"
+
+- type: replace
+  path: /releases/name=php-buildpack
+  value:
+    name: php-buildpack
+    url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.80.1.tgz"
+    version: "4.3.80.1"
+    sha1: "6f175c1c116c70542521e404394926c9be3017bb"
+
+- type: replace
+  path: /releases/name=python-buildpack
+  value:
+    name: python-buildpack
+    url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.36.1.tgz"
+    version: "1.6.36.1"
+    sha1: "4f0a35780ee32df8b0809fee23bcfb2176ea4d73"
+
+- type: replace
+  path: /releases/name=ruby-buildpack
+  value:
+    name: ruby-buildpack
+    url: "https://s3.amazonaws.com/suse-final-releases/ruby-buildpack-release-1.7.42.1.tgz"
+    version: "1.7.42.1"
+    sha1: "5b4dedf8bc8f8b127dd96e51da0a1cefb69c2624"
+
+- type: replace
+  path: /releases/name=staticfile-buildpack
+  value:
+    name: staticfile-buildpack
+    url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.44.1.tgz"
+    version: "1.4.44.1"
+    sha1: "dfde6883b38dc39669ec33caa2e1a384a807dc2b"
+
+- type: replace
+  path: /releases/name=nginx-buildpack
+  value:
+    name: nginx-buildpack
+    url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.18.1.tgz"
+    version: "1.0.18.1"
+    sha1: "feaff64dfbf7d7e006f3fcf5a3320f25b19be171"
+
+- type: replace
+  path: /releases/name=dotnet-core-buildpack
+  value:
+    name: dotnet-core-buildpack
+    url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.13.1.tgz"
+    version: "2.2.13.1"
+    sha1: "2891486988d66aaae783c6f8df506695a916201b"
