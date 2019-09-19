@@ -19,6 +19,9 @@
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/advertisement_base_hostname?
   value: {{ .Values.deployment_name }}-diego-api
 - type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/health_addr?
+  value: 0.0.0.0:8890
+- type: replace
   path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/bbs?/hostname
   value: 127.0.0.1
 - type: replace
@@ -41,6 +44,25 @@
     - name: locket
       protocol: TCP
       internal: 8891
+    run:
+      healthcheck:
+        locket:
+          readiness:
+            exec:
+              command:
+              - /var/vcap/packages/cfdot/bin/cfdot
+              - locks
+              - --locketAPILocation=localhost:8891
+              # We need to both give --skipCertVerify and provide a CA cert;
+              # skipping the former ends up with context deadline exceeded, and
+              # skipping the latter errors out failing to read file ""
+              - --skipCertVerify
+              - --caCertFile=/var/vcap/jobs/locket/config/certs/ca.crt
+              - --clientCertFile=/var/vcap/jobs/locket/config/certs/server.crt
+              - --clientKeyFile=/var/vcap/jobs/locket/config/certs/server.key
+          liveness:
+            exec:
+              command: [pidof, locket]
 
 # Add quarks properties for bbs.
 - type: replace
@@ -53,14 +75,19 @@
     run:
       healthcheck:
         bbs:
-          readiness: &bbs_readiness
+          readiness:
+            httpGet:
+              port: 8890
+          liveness:
             exec:
-              command:
-              - sh
-              - -c
-              - ss -nlt | grep "LISTEN.*:8889"
+              command: [pidof, bbs]
     post_start:
-      condition: *bbs_readiness
+      condition:
+        exec:
+          command:
+          - sh
+          - -c
+          - ss -nlt sport = 8889 | grep "LISTEN.*:8889"
 
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/quarks?/bpm/processes
