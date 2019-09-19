@@ -35,3 +35,11 @@
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/credhub_api?/hostname
   value: {{ .Values.deployment_name }}-credhub
+# Add quarks properties for cloud_controller_worker
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/quarks?/run/healthcheck/worker_1
+  value:
+    readiness: &cloud_controller_worker_readiness
+      exec:
+        command: [/usr/bin/pgrep, --full, cc-worker-cloud_controller_worker]
+    liveness: *cloud_controller_worker_readiness
