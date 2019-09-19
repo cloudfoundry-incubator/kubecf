@@ -28,11 +28,27 @@
     run:
       healthcheck:
         gorouter:
-          readiness: &gorouter_readiness
+          readiness:
+            httpGet:
+              port: 8080
+              path: /health
+          liveness:
             exec:
-              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']
+              command: [pidof, gorouter]
     post_start:
-      condition: *gorouter_readiness
+      condition:
+        exec:
+          command: [curl, --fail, --head, http://127.0.0.1:8080/health]
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=loggr-udp-forwarder/properties/quarks?/run/healthcheck/loggr-udp-forwarder
+  value:
+    readiness:
+      exec:
+        command: [sh, -c, 'ss -nlu sport = 3457 | grep :3457']
+    liveness:
+      exec:
+        command: [pidof, udp-forwarder]
 
 # Add necessary labels to the router instance group so that the service can select it to create the
 # endpoint.
