@@ -95,6 +95,9 @@
               - /var/vcap/packages/mariadb/bin/mysqladmin
               - --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf
               - ping
+          liveness:
+            exec:
+              command: [pidof, mysqld]
     bpm:
       processes:
       - name: mariadb_ctrl
