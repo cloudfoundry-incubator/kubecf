@@ -35,8 +35,20 @@
     - name: log-cache-proxy # log-cache-cf-auth-proxy
       protocol: TCP
       internal: 8083
+    run:
+      healthcheck:
+        doppler:
+          readiness:
+            exec:
+              command: [curl, --fail, --head, --silent, http://localhost:14825/health]
+          liveness:
+            exec:
+              command: [pidof, doppler]
 
 # Add quarks properties for log-cache.
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=log-cache/properties/health_addr?
+  value: "::6060"
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=log-cache/properties/quarks?
   value:
@@ -44,7 +56,40 @@
     - name: log-cache
       protocol: TCP
       internal: 8080
+    run:
+      healthcheck:
+        log-cache:
+          readiness:
+            httpGet:
+              port: 6060
+              path: /debug/pprof/cmdline
+          liveness:
+            exec:
+              command: [pidof, log-cache]
 
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=log-cache-gateway/properties/quarks?/run/healthcheck/log-cache-gateway
+  value:
+    readiness:
+      # Unfortunately, by default the health port listens on localhost only
+      # and isn't easily configurable
+      exec:
+        command: [curl, --fail, --head, --silent, http://localhost:6063/debug/pprof/cmdline]
+    liveness:
+      exec:
+        command: [pidof, log-cache-gateway]
+
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=log-cache-nozzle/properties/quarks?/run/healthcheck/log-cache-nozzle
+  value:
+    readiness:
+      # Unfortunately, by default the health port listens on localhost only
+      # and isn't easily configurable
+      exec:
+        command: [curl, --fail, --head, --silent, http://localhost:6061/debug/pprof/cmdline]
+    liveness:
+      exec:
+        command: [pidof, log-cache-nozzle]
 
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs?
@@ -53,3 +98,35 @@
     value: {{ .Values.deployment_name }}-doppler:8080
   - name: INSTANCE_ID
     value: "0"
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/run/healthcheck/log-cache-expvar-forwarder
+  value:
+    readiness:
+      # TODO: find a better readiness probe; currently we have nothing.
+      exec:
+        command: [/bin/true]
+    liveness:
+      exec:
+        command: [pidof, log-cache-expvar-forwarder]
+
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
+  value:
+    readiness: &route_registrar_readiness
+      # The route registrar doesn't expose anything to indicate if the
+      # routes are healthy; we can only detect that it's still running.
+      exec:
+        command: [pidof, route-registrar]
+    liveness: *route_registrar_readiness
+
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=log-cache-cf-auth-proxy/properties/quarks?/run/healthcheck/log-cache-cf-auth-proxy
+  value:
+    readiness:
+      # Unfortunately, by default the health port listens on localhost only
+      # and isn't easily configurable
+      exec:
+        command: [curl, --fail, --head, --silent, http://localhost:6065/debug/pprof/cmdline]
+    liveness:
+      exec:
+        command: [pidof, log-cache-cf-auth-proxy]
