@@ -57,11 +57,16 @@
     run:
       healthcheck:
         garden:
-          readiness: &garden_readiness
+          readiness:
             exec:
-              command: [sh, -c, 'ss -nlt | grep "LISTEN.*:17019"']
+              command: [curl, --head, --fail, --silent, http://127.0.0.1:17019/debug/vars]
+          liveness:
+            exec:
+              command: [pidof, gdn]
     post_start:
-      condition: *garden_readiness
+      condition:
+        exec:
+          command: [sh, -c, 'ss -nlt sport = 17019 | grep "LISTEN.*:17019"']
 
 # Add quarks properties for route_emitter.
 - type: replace
@@ -73,6 +78,9 @@
           readiness: &route_emitter_readiness
             exec:
               command: [curl, --fail, --silent, http://127.0.0.1:17011/ping]
+          liveness:
+            exec:
+              command: [pidof, route-emitter]
     post_start:
       condition: *route_emitter_readiness
 
@@ -81,9 +89,6 @@
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/quarks?
   value:
     ports:
-    - name: rep
-      protocol: TCP
-      internal: 1800
     - name: rep-tls
       protocol: TCP
       internal: 1801
@@ -94,11 +99,25 @@
           - SYS_ADMIN
       healthcheck:
         rep:
-          readiness: &rep_readiness
+          readiness:
             exec:
-              command: [sh, -c, 'ss -nlt | grep "LISTEN.*:1800"']
+              command:
+              - curl
+              - --head
+              - --fail
+              - --insecure
+              - --cert
+              - /var/vcap/jobs/rep/config/certs/tls.crt
+              - --key
+              - /var/vcap/jobs/rep/config/certs/tls.key
+              - https://127.0.0.1:1800/ping
+          liveness:
+            exec:
+              command: [pidof, rep]
     post_start:
-      condition: *rep_readiness
+      condition:
+        exec:
+          command: [sh, -c, 'ss -nlt sport = 1800 | grep "LISTEN.*:1800"']
 
 # Set the unconfined AppArmor profile for bpm-pre-start-rep in order to perform mounts.
 # This works in combination with CAP_SYS_ADMIN Linux capability.
