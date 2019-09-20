@@ -20,6 +20,9 @@ features:
       crt: ~
       key: ~
     annotations: {}
+  # TODO: suse_buildpacks should be default to true after the opensuse-stemcell-based images are
+  # published to docker.io.
+  suse_buildpacks: false
 
 k8s-host-url: ""
 k8s-service-token: ""

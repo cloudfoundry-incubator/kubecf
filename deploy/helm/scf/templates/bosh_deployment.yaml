@@ -15,8 +15,8 @@ spec:
     name: cf-deployment
     type: configmap
   ops:
-{{- range $path, $bytes := .Files.Glob "assets/operations/buildpacks/*" }}
-  - name: {{ include "scf.ops-name" $path }}
+{{- if .Values.features.suse_buildpacks }}
+  - name: {{ include "scf.ops-name" "assets/operations/buildpacks/set_suse_buildpacks.yaml" }}
     type: configmap
 {{- end }}
 {{- if .Values.features.eirini }}
