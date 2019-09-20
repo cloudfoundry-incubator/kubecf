@@ -1,0 +1,10 @@
+gitlabUrl: https://gitlab.com/
+concurrent: 1
+checkInterval: 10
+rbac:
+  create: true
+  clusterWideAccess: false
+runners:
+  image: opensuse/leap:15.1
+  privileged: true
+  runUntagged: false
