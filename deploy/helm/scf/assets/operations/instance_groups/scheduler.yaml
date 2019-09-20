@@ -84,14 +84,14 @@
 
 # Add quarks properties for the scheduler job.
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/quarks?
+  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/quarks?/run/healthcheck/scheduler
   value:
-    run:
-      healthcheck:
-        scheduler:
-          readiness:
-            exec:
-              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']
+    readiness:
+      exec:
+        command: [curl, --fail, --head, --silent, http://127.0.0.1:8080/health]
+    liveness:
+      exec:
+        command: [pidof, scheduler]
 
 # Add quarks properties for the auctioneer job.
 - type: replace
@@ -105,10 +105,63 @@
       healthcheck:
         auctioneer:
           readiness:
+            # There is no health check, just depend on the port being open
+            tcpSocket:
+              port: 9016
+          liveness:
             exec:
-              command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']
+              command: [pidof, auctioneer]
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/quarks?/run/healthcheck/cloud_controller_clock
+  value:
+    readiness: &cc_clock_readiness
+      # There is no good readiness check for the scheduled tasks
+      exec:
+        command: [pgrep, --full, clock:start]
+    liveness: *cc_clock_readiness
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/quarks?/run/healthcheck/cc_deployment_updater
+  value:
+    readiness:
+      exec:
+        command:
+        # We should sleep about once every 5 seconds; check that the last entry was no more than 2 cycles ago
+        - sh
+        - -c
+        - tac /var/vcap/sys/log/cc_deployment_updater/cc_deployment_updater.log | grep --max-count=1 Sleeping | jq -r '(now - .timestamp) < 10'
+    liveness:
+      exec:
+        command: [pgrep, --full, deployment_updater:start]
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector
+  value:
+    readiness:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - ss -nlu src localhost:8125 | grep :8125
+    liveness:
+      exec:
+        command: [pidof, statsd-injector]
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=tps/properties/quarks?/run/healthcheck/watcher
+  value:
+    readiness:
+      exec:
+        command: [curl, --fail, --silent, http://127.0.0.1:17015/debug/pprof/cmdline]
+    liveness:
+      exec:
+        command: [pidof, tps-watcher]
 
 # Add quarks properties for the ssh_proxy job.
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/diego/ssh_proxy/disable_healthcheck_server
+  value: false
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/quarks?
   value:
@@ -116,6 +169,25 @@
     - name: ssh-proxy
       protocol: TCP
       internal: 2222
+    run:
+      healthcheck:
+        ssh_proxy:
+          readiness:
+            httpGet:
+              port: 2223
+          liveness:
+            exec:
+              command: [pidof, ssh-proxy]
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=log-cache-scheduler/properties?/quarks/run/healthcheck/log-cache-scheduler
+  value:
+    readiness:
+      exec:
+        command: [curl, --fail, --silent, http://localhost:6064/debug/pprof/cmdline]
+    liveness:
+      exec:
+        command: [pidof, log-cache-scheduler]
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/quarks?/bpm/processes
@@ -128,6 +200,17 @@
     value: {{ .Values.deployment_name }}-scheduler:8080
   - name: INSTANCE_ID
     value: "0"
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/run/healthcheck/log-cache-expvar-forwarder
+  value:
+    readiness:
+      # TODO: find a better readiness probe; currently we have nothing.
+      exec:
+        command: [/bin/true]
+    liveness:
+      exec:
+        command: [pidof, log-cache-expvar-forwarder]
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/provides?
