@@ -1,11 +1,19 @@
 workspace(name = "scf")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//dev/kind:binary.bzl", "kind_binary")
+load("//dev/minikube:binary.bzl", "minikube_binary")
+load("//rules/external_binary:def.bzl", "external_binary")
 load("//rules/helm:binary.bzl", "helm_binary")
 load("//rules/kubectl:binary.bzl", "kubectl_binary")
-load("//dev/minikube:binary.bzl", "minikube_binary")
-load("//dev/kind:binary.bzl", "kind_binary")
 load(":def.bzl", "project")
+
+external_binary(
+    name = "shellcheck",
+    darwin = project.shellcheck.platforms.darwin,
+    linux = project.shellcheck.platforms.linux,
+    windows = project.shellcheck.platforms.windows,
+)
 
 http_archive(
     name = "cf_deployment",

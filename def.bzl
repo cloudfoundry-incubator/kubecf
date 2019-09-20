@@ -80,4 +80,20 @@ project = struct(
         version = "0.3.3",
         sha256 = "9a8a204a46a4159f5a6bcb508cc51b49cdfb15aa5a034c7910ddca5a435097d4",
     ),
+    shellcheck = struct(
+        platforms = struct(
+            darwin = {
+                "url": "https://storage.googleapis.com/shellcheck/shellcheck-v0.7.0.darwin-x86_64",
+                "sha256": "a5d77cbe4c3e92916bce712b959f6d54392f94bcf8ea84f80ba425a9e72e2afe",
+            },
+            linux = {
+                "url": "https://storage.googleapis.com/shellcheck/shellcheck-v0.7.0.linux-x86_64",
+                "sha256": "c37d4f51e26ec8ab96b03d84af8c050548d7288a47f755ffb57706c6c458e027",
+            },
+            windows = {
+                "url": "https://storage.googleapis.com/shellcheck/shellcheck-v0.7.0.exe",
+                "sha256": "8aafdeff31095613308e92ce6a13e3c41249b51e757fd4fcdfdfc7a81d29286a",
+            },
+        ),
+    ),
 )
