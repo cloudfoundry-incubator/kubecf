@@ -34,11 +34,30 @@
       security_context:
         runAsUser: 1000 # vcap
       healthcheck:
-        nginx: &nginx_healthcheck
+        nginx:
+          readiness:
+            tcpSocket:
+              port: 8080
+          liveness:
+            exec:
+              command: [pgrep, --full, 'nginx: master process']
+        url_signer:
           readiness:
             exec:
-              command: ['sh', '-c', 'ss -nlt | grep "LISTEN.*:8080" && ss -nlt | grep "LISTEN.*:4443"']
-        url_signer: *nginx_healthcheck
+              command: [test, -S, /var/vcap/data/blobstore/signer.sock]
+          liveness:
+            exec:
+              command: [pidof, blobstore_url_signer]
+
+- type: replace
+  path: /instance_groups/name=singleton-blobstore/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
+  value:
+    readiness: &route_registrar_readiness
+      # The route registrar doesn't expose anything to indicate if the
+      # routes are healthy; we can only detect that it's still running.
+      exec:
+        command: [pidof, route-registrar]
+    liveness: *route_registrar_readiness
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/singleton-blobstore_*" }}
