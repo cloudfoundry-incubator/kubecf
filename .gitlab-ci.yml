@@ -1,19 +1,21 @@
+.tags: &tags
+- personal-minikube-tassis
+
 stages:
 - lint
 - build
+- publish
 
 lint:
   stage: lint
-  tags:
-  - personal-minikube-tassis
+  tags: *tags
   image: thulioassis/bazel-docker-image:0.29.1
   script:
   - ./dev/linters/shellcheck.sh
 
 build:chart:
   stage: build
-  tags:
-  - personal-minikube-tassis
+  tags: *tags
   image: thulioassis/bazel-docker-image:0.29.1
   script:
   - bazel build //deploy/helm/scf:chart
@@ -22,3 +24,13 @@ build:chart:
     paths:
     - output/scf-*.tgz
     expire_in: 1 week
+
+publish:chart:
+  stage: publish
+  tags: *tags
+  image: minio/mc
+  script:
+  - mc config host add "s3" "https://s3.amazonaws.com" "${AWS_ACCESS_KEY}" "${AWS_SECRET_KEY}"
+  - mc cp output/scf-*.tgz "s3/scf-v3"
+  - >-
+    echo "URL: https://scf-v3.s3.amazonaws.com/$(find output/ -name 'scf-*.tgz' -print0 | xargs -0 basename)"
