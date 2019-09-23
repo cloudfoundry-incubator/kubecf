@@ -23,8 +23,25 @@ With minikube you can build directly on minikube's Docker, run `eval $(minikube 
 With kind, you need to use `kind load docker-image` to make it available, i.e.:
 
 ```
-kind load docker-image docker.io/cfcontainerization/cf-operator:0.1-dev
+kind load docker-image docker.io/org/nats:0.1-dev
 ```
+
+### Modify SCF to Use the New Image
+
+Add an operations file to change the image location to SCF before running bazel:
+
+```
+cat > deploy/helm/scf/assets/operations/instance_groups/zz-dev-nats.yml <<EOF
+- type: replace
+  path: /releases/name=nats?
+  value:
+    name: nats
+    url: docker.io/org/nats
+    version: 0.1-dev
+    sha1: ~
+EOF
+```
+
 
 ## Integrating the Release in SCF
 
