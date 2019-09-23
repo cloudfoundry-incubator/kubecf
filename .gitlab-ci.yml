@@ -19,7 +19,7 @@ build:chart:
   image: thulioassis/bazel-docker-image:0.29.1
   script:
   - bazel build //deploy/helm/scf:chart
-  - mkdir -p output; (cd bazel-bin/deploy/helm/scf; tar cf - .) | (cd output; tar xvf -)
+  - mkdir -p output; (cd bazel-bin/deploy/helm/scf; tar cf - scf-*.tgz) | (cd output; tar xvf -)
   - |-
     set -o errexit -o nounset
 
