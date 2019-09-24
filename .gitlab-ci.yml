@@ -1,4 +1,5 @@
 .bazel_docker_image: &bazel_docker_image thulioassis/bazel-docker-image:0.29.1
+.default_branch: &default_branch v3-develop
 
 stages:
 - lint
@@ -35,6 +36,9 @@ build:chart:
 
 publish:chart:
   stage: publish
+  only:
+    refs:
+    - *default_branch
   image: minio/mc
   script:
   - mc config host add "s3" "https://s3.amazonaws.com" "${AWS_ACCESS_KEY}" "${AWS_SECRET_KEY}"
