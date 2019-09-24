@@ -1,3 +1,5 @@
+.bazel_docker_image: &bazel_docker_image thulioassis/bazel-docker-image:0.29.1
+
 stages:
 - lint
 - build
@@ -5,13 +7,13 @@ stages:
 
 lint:
   stage: lint
-  image: thulioassis/bazel-docker-image:0.29.1
+  image: *bazel_docker_image
   script:
   - ./dev/linters/shellcheck.sh
 
 build:chart:
   stage: build
-  image: thulioassis/bazel-docker-image:0.29.1
+  image: *bazel_docker_image
   script:
   - bazel build //deploy/helm/scf:chart
   - mkdir -p output; (cd bazel-bin/deploy/helm/scf; tar cf - scf-*.tgz) | (cd output; tar xvf -)
