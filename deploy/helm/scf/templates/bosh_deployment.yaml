@@ -43,3 +43,7 @@ spec:
   - name: ops-remove-diego
     type: configmap
 {{- end }}
+{{- range $_, $ops := .Values.operations.custom }}
+  - name: {{ $ops | quote }}
+    type: configmap
+{{- end }}

@@ -24,6 +24,10 @@ features:
   # published to docker.io.
   suse_buildpacks: false
 
+operations:
+  # A list of configmap names that should be applied to the BOSH manifest.
+  custom: []
+
 k8s-host-url: ""
 k8s-service-token: ""
 k8s-service-username: ""
