@@ -6,21 +6,22 @@ This document describes how SCF and Quarks can be used for BOSH release developm
 
 BOSH release authors, who want to test their development code with the Quarks operator, need to build a Docker image from their release.
 This can be done with fissile.
-Afterwards the image can be uploaded to the test cluster and  tested locally with
+Upload the image to a cluster and test it, e.g. with SCF.
 
 ### Building a Docker Image with Fissile
 
-Build the BOSH release first and transform it with fissile.
+Build the BOSH release first and convert it with [fissile](https://github.com/cloudfoundry-incubator/fissile).
 
+Example on how to use fissile to build just the image:
 https://github.com/cloudfoundry-incubator/cf-operator-ci/blob/master/pipelines/release-images/tasks/build.sh#L30
 
 ### Uploading The Image
 
-Depending on your cluster, you'll need to get the locally build image to Kubernetes registry.
+Depending on your cluster, you'll need a way to get the locally build image into the Kubernetes registry.
 
-With minikube you can build directly on minikube's Docker, run `eval $(minikube docker-env)`, before you build the image with fissile.
+With *minikube* you can build directly on minikube's Docker. Switch to that docker daemon by running `eval $(minikube docker-env)`, before you build the image with fissile.
 
-With kind, you need to use `kind load docker-image` to make it available, i.e.:
+With *kind*, you need to use `kind load docker-image` after building the image, to make it available, i.e.:
 
 ```
 kind load docker-image docker.io/org/nats:0.1-dev
@@ -28,10 +29,17 @@ kind load docker-image docker.io/org/nats:0.1-dev
 
 ### Modify SCF to Use the New Image
 
-Add an operations file to change the image location to SCF before running bazel:
+Add an operations file to Kubernetes with the new image location:
 
 ```
-cat > deploy/helm/scf/assets/operations/instance_groups/zz-dev-nats.yml <<EOF
+kubectl apply -f - <<EOF
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nats-dev
+data:
+  ops: |
 - type: replace
   path: /releases/name=nats?
   value:
@@ -42,6 +50,13 @@ cat > deploy/helm/scf/assets/operations/instance_groups/zz-dev-nats.yml <<EOF
 EOF
 ```
 
+When running `helm install scf` refer to that image:
+
+```
+helm install ... --set 'operations.custom={nats-dev}'
+```
+
+Note: You can also unpack the helm release and modify it directly. There is no need to zip the release again, `helm install scf/` can install the unpacked release.
 
 ## Integrating the Release in SCF
 
