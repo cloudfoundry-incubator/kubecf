@@ -18,6 +18,3 @@
               - sh
               - -c
               - ss -nlt sport = 4222 | grep "LISTEN.*:4222" && ss -nlt sport = 4223 | grep "LISTEN.*:4223"
-          liveness:
-            exec:
-              command: [pidof, gnatsd]

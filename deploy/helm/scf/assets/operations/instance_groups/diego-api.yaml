@@ -60,9 +60,6 @@
               - --caCertFile=/var/vcap/jobs/locket/config/certs/ca.crt
               - --clientCertFile=/var/vcap/jobs/locket/config/certs/server.crt
               - --clientKeyFile=/var/vcap/jobs/locket/config/certs/server.key
-          liveness:
-            exec:
-              command: [pidof, locket]
 
 # Add quarks properties for bbs.
 - type: replace
@@ -78,9 +75,6 @@
           readiness:
             httpGet:
               port: 8890
-          liveness:
-            exec:
-              command: [pidof, bbs]
     post_start:
       condition:
         exec:

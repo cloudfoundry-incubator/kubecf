@@ -193,20 +193,16 @@
                 printf "GET /healthz HTTP/1.0\r\n\r\n" |
                 nc -q 2 -U /var/vcap/data/cloud_controller_ng/cloud_controller.sock |
                 grep --silent "200 OK"
-            httpGet:
-              path: /healthz
-              port: 9022
           # We don't want a liveness probe here as we do migration here, and we
-          # do not want to interrupt that.
+          # do not want to interrupt that.  We may want to consider using a
+          # startupProbe in the future (once that feature stabilizes).
           liveness: ~
         local_worker_1:
           readiness: &cc_local_worker_readiness
             exec:
               command: [/usr/bin/pgrep, --full, cc_api_worker]
-          liveness: *cc_local_worker_readiness
         local_worker_2:
           readiness: *cc_local_worker_readiness
-          liveness: *cc_local_worker_readiness
         nginx:
           readiness:
             httpGet:
@@ -239,9 +235,6 @@
             # routing-api does not expose a health check endpoint
             tcpSocket:
               port: 3000
-          liveness:
-            exec:
-              command: [pidof, routing-api]
 
 # Add quarks properties for cc_uploader.
 - type: replace
@@ -262,9 +255,6 @@
             # socket.
             tcpSocket:
               port: 9091
-          liveness:
-            exec:
-              command: [pidof, cc-uploader]
 
 # Add quarks properties for file_server.
 - type: replace
@@ -281,23 +271,14 @@
             httpGet:
               path: /v1/static/file_server/bin/file-server
               port: *file-server-port
-          liveness:
-            exec:
-              command: [pidof, file-server]
 
 # Add quarks properties for statsd_injector.
 - type: replace
-  path: /instance_groups/name=api/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector
+  path: /instance_groups/name=api/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
   value:
-    readiness:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - ss -nlu src localhost:8125 | grep :8125
-    liveness:
-      exec:
-        command: [pidof, statsd-injector]
+  - /bin/sh
+  - -c
+  - ss -nlu src localhost:8125 | grep :8125
 
 # Add quarks properties for policy-server.
 - type: replace
@@ -313,9 +294,6 @@
           readiness:
             httpGet:
               port: 4002
-          liveness:
-            exec:
-              command: [pidof, policy-server]
     post_start:
       condition:
         exec:
@@ -332,9 +310,6 @@
           readiness: &policy_server_internal_readiness
             httpGet:
               port: 31946
-          liveness:
-            exec:
-              command: [pidof, policy-server-internal]
     post_start:
       condition:
         exec:
@@ -344,22 +319,13 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
   value:
-    readiness: &route_registrar_readiness
+    readiness: ~
       # The route registrar doesn't expose anything to indicate if the
-      # routes are healthy; we can only detect that it's still running.
-      exec:
-        command: [pidof, route-registrar]
-    liveness: *route_registrar_readiness
+      # routes are healthy
 
 - type: replace
-  path: /instance_groups/name=api/jobs/name=loggr-udp-forwarder/properties/quarks?/run/healthcheck/loggr-udp-forwarder
-  value:
-    readiness:
-      exec:
-        command: [sh, -c, 'ss -nlu sport = 3457 | grep :3457']
-    liveness:
-      exec:
-        command: [pidof, udp-forwarder]
+  path: /instance_groups/name=api/jobs/name=loggr-udp-forwarder/properties/quarks?/run/healthcheck/loggr-udp-forwarder/readiness/exec/command
+  value: [sh, -c, ss -nlu sport = 3457 | grep :3457]
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/api_*" }}

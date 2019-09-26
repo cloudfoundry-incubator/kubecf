@@ -45,9 +45,6 @@
           readiness:
             exec:
               command: [curl, --fail, --silent, --head, http://localhost:14825/health]
-          liveness:
-            exec:
-              command: [pidof, trafficcontroller]
 
 # Add quarks properties for reverse_log_proxy.
 - type: replace
@@ -66,29 +63,17 @@
           readiness:
             exec:
               command: [curl, --fail, --silent, --head, http://localhost:14826/health]
-          liveness:
-            exec:
-              command: [pidof, rlp]
 
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy_gateway/properties/quarks?/bpm/processes/name=reverse_log_proxy_gateway/env/PPROF_PORT?
   value: "33045"
 - type: replace
-  path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy_gateway/properties/quarks?/run/healthcheck/reverse_log_proxy_gateway
-  value:
-    readiness:
-      exec:
-        command: [curl, --fail, --head, --silent, http://localhost:33045/debug/pprof/cmdline]
-    liveness:
-      exec:
-        command: [pidof, rlp-gateway]
+  path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy_gateway/properties/quarks?/run/healthcheck/reverse_log_proxy_gateway/readiness/exec/command
+  value: [curl, --fail, --head, --silent, http://localhost:33045/debug/pprof/cmdline]
 
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
   value:
-    readiness: &route_registrar_readiness
+    readiness: ~
       # The route registrar doesn't expose anything to indicate if the
-      # routes are healthy; we can only detect that it's still running.
-      exec:
-        command: [pidof, route-registrar]
-    liveness: *route_registrar_readiness
+      # routes are healthy

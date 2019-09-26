@@ -32,9 +32,6 @@
             httpGet:
               port: 8080
               path: /health
-          liveness:
-            exec:
-              command: [pidof, gorouter]
     post_start:
       condition:
         exec:
@@ -46,9 +43,6 @@
     readiness:
       exec:
         command: [sh, -c, 'ss -nlu sport = 3457 | grep :3457']
-    liveness:
-      exec:
-        command: [pidof, udp-forwarder]
 
 # Add necessary labels to the router instance group so that the service can select it to create the
 # endpoint.

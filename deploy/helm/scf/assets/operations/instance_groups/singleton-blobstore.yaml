@@ -45,19 +45,13 @@
           readiness:
             exec:
               command: [test, -S, /var/vcap/data/blobstore/signer.sock]
-          liveness:
-            exec:
-              command: [pidof, blobstore_url_signer]
 
 - type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
   value:
-    readiness: &route_registrar_readiness
+    readiness: ~
       # The route registrar doesn't expose anything to indicate if the
-      # routes are healthy; we can only detect that it's still running.
-      exec:
-        command: [pidof, route-registrar]
-    liveness: *route_registrar_readiness
+      # routes are healthy.
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/singleton-blobstore_*" }}

@@ -60,9 +60,6 @@
           readiness:
             exec:
               command: [curl, --head, --fail, --silent, http://127.0.0.1:17019/debug/vars]
-          liveness:
-            exec:
-              command: [pidof, gdn]
     post_start:
       condition:
         exec:
@@ -78,9 +75,6 @@
           readiness: &route_emitter_readiness
             exec:
               command: [curl, --fail, --silent, http://127.0.0.1:17011/ping]
-          liveness:
-            exec:
-              command: [pidof, route-emitter]
     post_start:
       condition: *route_emitter_readiness
 
@@ -111,9 +105,6 @@
               - --key
               - /var/vcap/jobs/rep/config/certs/tls.key
               - https://127.0.0.1:1800/ping
-          liveness:
-            exec:
-              command: [pidof, rep]
     post_start:
       condition:
         exec:

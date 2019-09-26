@@ -42,4 +42,3 @@
     readiness: &cloud_controller_worker_readiness
       exec:
         command: [/usr/bin/pgrep, --full, cc-worker-cloud_controller_worker]
-    liveness: *cloud_controller_worker_readiness

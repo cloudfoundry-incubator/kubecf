@@ -96,6 +96,9 @@
               - --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf
               - ping
           liveness:
+            # Check for mysql, as we go through a bunch of control scripts
+            # before the actual database server is run; ensure that all of that
+            # is succeeding and we actually have a DB.
             exec:
               command: [pidof, mysqld]
     bpm:

@@ -44,25 +44,13 @@
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
   value:
-    readiness: &route_registrar_readiness
+    readiness: ~
       # The route registrar doesn't expose anything to indicate if the
-      # routes are healthy; we can only detect that it's still running.
-      exec:
-        command: [pidof, route-registrar]
-    liveness: *route_registrar_readiness
+      # routes are healthy.
 
 - type: replace
-  path: /instance_groups/name=uaa/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector
-  value:
-    readiness:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - ss -nlu src localhost:8125 | grep :8125
-    liveness:
-      exec:
-        command: [pidof, statsd-injector]
+  path: /instance_groups/name=uaa/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
+  value: [/bin/sh, -c, ss -nlu src localhost:8125 | grep :8125]
 
 
 {{- $root := . -}}

@@ -41,9 +41,6 @@
           readiness:
             exec:
               command: [curl, --fail, --head, --silent, http://localhost:14825/health]
-          liveness:
-            exec:
-              command: [pidof, doppler]
 
 # Add quarks properties for log-cache.
 - type: replace
@@ -63,9 +60,6 @@
             httpGet:
               port: 6060
               path: /debug/pprof/cmdline
-          liveness:
-            exec:
-              command: [pidof, log-cache]
 
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=log-cache-gateway/properties/quarks?/run/healthcheck/log-cache-gateway
@@ -75,9 +69,6 @@
       # and isn't easily configurable
       exec:
         command: [curl, --fail, --head, --silent, http://localhost:6063/debug/pprof/cmdline]
-    liveness:
-      exec:
-        command: [pidof, log-cache-gateway]
 
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=log-cache-nozzle/properties/quarks?/run/healthcheck/log-cache-nozzle
@@ -87,9 +78,6 @@
       # and isn't easily configurable
       exec:
         command: [curl, --fail, --head, --silent, http://localhost:6061/debug/pprof/cmdline]
-    liveness:
-      exec:
-        command: [pidof, log-cache-nozzle]
 
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs?
@@ -101,23 +89,15 @@
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/run/healthcheck/log-cache-expvar-forwarder
   value:
-    readiness:
-      # TODO: find a better readiness probe; currently we have nothing.
-      exec:
-        command: [/bin/true]
-    liveness:
-      exec:
-        command: [pidof, log-cache-expvar-forwarder]
+    readiness: ~
+      # We do not have a good thing to use as a readiness probe
 
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
   value:
-    readiness: &route_registrar_readiness
+    readiness: ~
       # The route registrar doesn't expose anything to indicate if the
-      # routes are healthy; we can only detect that it's still running.
-      exec:
-        command: [pidof, route-registrar]
-    liveness: *route_registrar_readiness
+      # routes are healthy
 
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=log-cache-cf-auth-proxy/properties/quarks?/run/healthcheck/log-cache-cf-auth-proxy
@@ -127,6 +107,3 @@
       # and isn't easily configurable
       exec:
         command: [curl, --fail, --head, --silent, http://localhost:6065/debug/pprof/cmdline]
-    liveness:
-      exec:
-        command: [pidof, log-cache-cf-auth-proxy]

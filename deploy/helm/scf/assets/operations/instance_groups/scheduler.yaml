@@ -89,9 +89,6 @@
     readiness:
       exec:
         command: [curl, --fail, --head, --silent, http://127.0.0.1:8080/health]
-    liveness:
-      exec:
-        command: [pidof, scheduler]
 
 # Add quarks properties for the auctioneer job.
 - type: replace
@@ -108,18 +105,14 @@
             # There is no health check, just depend on the port being open
             tcpSocket:
               port: 9016
-          liveness:
-            exec:
-              command: [pidof, auctioneer]
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/quarks?/run/healthcheck/cloud_controller_clock
   value:
-    readiness: &cc_clock_readiness
+    readiness:
       # There is no good readiness check for the scheduled tasks
       exec:
         command: [pgrep, --full, clock:start]
-    liveness: *cc_clock_readiness
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/quarks?/run/healthcheck/cc_deployment_updater
@@ -136,27 +129,12 @@
         command: [pgrep, --full, deployment_updater:start]
 
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector
-  value:
-    readiness:
-      exec:
-        command:
-        - /bin/sh
-        - -c
-        - ss -nlu src localhost:8125 | grep :8125
-    liveness:
-      exec:
-        command: [pidof, statsd-injector]
+  path: /instance_groups/name=scheduler/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
+  value: [/bin/sh, -c, ss -nlu src localhost:8125 | grep :8125]
 
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=tps/properties/quarks?/run/healthcheck/watcher
-  value:
-    readiness:
-      exec:
-        command: [curl, --fail, --silent, http://127.0.0.1:17015/debug/pprof/cmdline]
-    liveness:
-      exec:
-        command: [pidof, tps-watcher]
+  path: /instance_groups/name=scheduler/jobs/name=tps/properties/quarks?/run/healthcheck/watcher/readiness/exec/command
+  value: [curl, --fail, --silent, http://127.0.0.1:17015/debug/pprof/cmdline]
 
 # Add quarks properties for the ssh_proxy job.
 - type: replace
@@ -175,19 +153,10 @@
           readiness:
             httpGet:
               port: 2223
-          liveness:
-            exec:
-              command: [pidof, ssh-proxy]
 
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=log-cache-scheduler/properties?/quarks/run/healthcheck/log-cache-scheduler
-  value:
-    readiness:
-      exec:
-        command: [curl, --fail, --silent, http://localhost:6064/debug/pprof/cmdline]
-    liveness:
-      exec:
-        command: [pidof, log-cache-scheduler]
+  path: /instance_groups/name=scheduler/jobs/name=log-cache-scheduler/properties?/quarks/run/healthcheck/log-cache-scheduler/readiness/exec/command
+  value: [curl, --fail, --silent, http://localhost:6064/debug/pprof/cmdline]
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/quarks?/bpm/processes
@@ -204,13 +173,8 @@
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/run/healthcheck/log-cache-expvar-forwarder
   value:
-    readiness:
-      # TODO: find a better readiness probe; currently we have nothing.
-      exec:
-        command: [/bin/true]
-    liveness:
-      exec:
-        command: [pidof, log-cache-expvar-forwarder]
+    readiness: ~
+      # We do not have a good thing to use as a readiness probe
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/provides?

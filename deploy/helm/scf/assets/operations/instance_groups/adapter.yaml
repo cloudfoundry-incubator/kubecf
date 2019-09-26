@@ -21,6 +21,3 @@
             # The healthcheck port is bound to localhost only
             exec:
               command: [curl, --fail, --head, --silent, http://localhost:8080/health]
-          liveness:
-            exec:
-              command: [pidof, adapter]
