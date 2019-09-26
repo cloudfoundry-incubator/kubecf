@@ -185,17 +185,20 @@
               - bash /var/vcap/jobs/cloud_controller_ng/bin/ccng_monit_http_healthcheck
         cloud_controller_ng:
           readiness: &cloud_controller_ng_readiness
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - >
+                printf "GET /healthz HTTP/1.0\r\n\r\n" |
+                nc -q 2 -U /var/vcap/data/cloud_controller_ng/cloud_controller.sock |
+                grep --silent "200 OK"
             httpGet:
               path: /healthz
               port: 9022
           # We don't want a liveness probe here as we do migration here, and we
           # do not want to interrupt that.
-          #liveness:
-          #  exec:
-          #    command:
-          #    - /usr/bin/pgrep
-          #    - --full
-          #    - /var/vcap/packages/cloud_controller_ng/cloud_controller_ng/bin/cloud_controller
+          liveness: ~
         local_worker_1:
           readiness: &cc_local_worker_readiness
             exec:
