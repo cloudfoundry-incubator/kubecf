@@ -22,7 +22,7 @@ service:
 features:
   eirini: false
   ingress:
-    enabled: true
+    enabled: false
     tls:
       crt: ~
       key: ~
