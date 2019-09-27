@@ -1,0 +1,24 @@
+# This ConfigMap creates an ops-file containing the user provided properties.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-provided-properties
+  labels:
+    app.kubernetes.io/component: operations
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "scf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "scf.chart" . }}
+data:
+  ops: |-
+    {{- range $instanceGroupName, $instanceGroup := .Values.properties }}
+    {{- range $jobName, $properties := $instanceGroup }}
+    {{- range $propertyKey, $propertyValue := $properties }}
+    - type: replace
+      path: /instance_groups/name={{ $instanceGroupName }}/jobs/name={{ $jobName }}/properties?/{{ $propertyKey | replace "." "/" }}
+      value: {{ $propertyValue | toJson }}
+    {{- end }}
+    {{- end }}
+    {{- end }}

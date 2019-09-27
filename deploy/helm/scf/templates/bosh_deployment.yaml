@@ -47,3 +47,5 @@ spec:
   - name: {{ $ops | quote }}
     type: configmap
 {{- end }}
+  - name: user-provided-properties
+    type: configmap
