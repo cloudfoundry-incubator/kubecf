@@ -16,19 +16,7 @@ build:chart:
   stage: build
   image: *bazel_docker_image
   script:
-  - bazel build //deploy/helm/scf:chart
-  - mkdir -p output; (cd bazel-bin/deploy/helm/scf; tar cf - scf-*.tgz) | (cd output; tar xvf -)
-  - |-
-    set -o errexit -o nounset
-
-    built_file="$(find output/ -name 'scf-*.tgz' -print0 | xargs -0 basename)"
-    commit_hash="$(git rev-parse --short HEAD)"
-    release_filename="$(basename "${built_file}" .tgz)-${commit_hash}"
-    if [ -n "$(git status --porcelain)" ]; then
-      release_filename="${release_filename}-dirty"
-    fi
-
-    mv "output/${built_file}" "output/${release_filename}.tgz"
+  - .gitlab/pipelines/stages/build.sh
   artifacts:
     paths:
     - output/scf-*.tgz
@@ -41,7 +29,4 @@ publish:chart:
     - *default_branch
   image: minio/mc
   script:
-  - mc config host add "s3" "https://s3.amazonaws.com" "${AWS_ACCESS_KEY}" "${AWS_SECRET_KEY}"
-  - mc cp output/scf-*.tgz "s3/scf-v3"
-  - >-
-    echo "URL: https://scf-v3.s3.amazonaws.com/$(find output/ -name 'scf-*.tgz' -print0 | xargs -0 basename)"
+  - .gitlab/pipelines/stages/publish.sh
