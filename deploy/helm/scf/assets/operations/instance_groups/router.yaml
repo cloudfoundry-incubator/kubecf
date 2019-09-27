@@ -33,3 +33,15 @@
               command: ['curl', '--fail', '--head', 'http://127.0.0.1:8080/health']
     post_start:
       condition: *gorouter_readiness
+
+# Add necessary labels to the router instance group so that the service can select it to create the
+# endpoint.
+- type: replace
+  path: /instance_groups/name=router/env?/bosh/agent/settings/labels/app.kubernetes.io~1component
+  value: "router"
+- type: replace
+  path: /instance_groups/name=router/env?/bosh/agent/settings/labels/app.kubernetes.io~1instance
+  value: {{ .Release.Name | quote }}
+- type: replace
+  path: /instance_groups/name=router/env?/bosh/agent/settings/labels/app.kubernetes.io~1version
+  value: {{ default .Chart.Version .Chart.AppVersion | quote }}

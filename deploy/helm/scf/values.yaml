@@ -12,6 +12,13 @@ releases:
 sizing:
   HA: false
 
+# Service is only valid to set an external endpoint for the router if features.ingress.enabled is
+# false.
+service:
+  type: LoadBalancer
+  externalIPs: []
+  clusterIP: ~
+
 features:
   eirini: false
   ingress:
