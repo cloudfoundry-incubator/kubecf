@@ -17,7 +17,7 @@ https://github.com/cloudfoundry-incubator/cf-operator-ci/blob/master/pipelines/r
 
 ### Uploading The Image
 
-Depending on your cluster, you'll need a way to get the locally build image into the Kubernetes registry.
+Depending on your cluster, you'll need a way to get the locally built image into the Kubernetes registry.
 
 With *minikube* you can build directly on minikube's Docker. Switch to that docker daemon by running `eval $(minikube docker-env)`, before you build the image with fissile.
 
@@ -64,7 +64,7 @@ With Quarks and SCF BOSH releases can largely be used just the same as with a BO
 
 ### BPM
 
-BPM configurations for jobs are parsed from the `config/bpm.yml` as usual. But if need be, it is also possible to override the BPM configuration in the deployment manifest in the `quarks` field. See [the bpm documentation](https://bosh.io/docs/bpm/config/) for details on how to configure BPM.
+BPM configurations for jobs are parsed from a rendered `bpm.yml`, as usual. But if need be, it is also possible to override BPM configuration in the deployment manifest in the `quarks` field. See [the bpm documentation](https://bosh.io/docs/bpm/config/) for details on how to configure BPM.
 
 Example:
 
@@ -91,7 +91,7 @@ Note: See [ops files](#ops-files) for how this can be applied without the need t
 
 ### ops files
 
-[ops files](https://bosh.io/docs/cli-ops-files/) can be used to modify arbitrary parts of the deployment manifest before it is being applied. To do so create an according file in `deploy/helm/scf/assets/operations/instance_groups` and it will automagically be applied during installation.
+[ops files](https://bosh.io/docs/cli-ops-files/) can be used to modify arbitrary parts of the deployment manifest before being applied. To do so, create a file in `deploy/helm/scf/assets/operations/instance_groups` and it will automagically be applied during installation.
 
 The ops file for the example above could look like this:
 
@@ -112,4 +112,4 @@ The ops file for the example above could look like this:
 
 ## Testing With SCFv3
 
-Afterwards build and deploy SCF according to the [SCFv3 docs](https://github.com/SUSE/scf/blob/v3-develop/dev/scf/docs/installing.md).
+Afterwards you can build and deploy SCF according to the [SCFv3 docs](https://github.com/SUSE/scf/blob/v3-develop/dev/scf/docs/installing.md).
