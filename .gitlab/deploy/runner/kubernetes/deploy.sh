@@ -36,7 +36,6 @@ fi
 helm upgrade "${installation_name}" gitlab/gitlab-runner \
   --install \
   --namespace "${namespace}" \
-  --values .gitlab/deploy/runner/kubernetes/minikube/values.yaml \
+  --values .gitlab/deploy/runner/kubernetes/values.yaml \
   --set "runners.namespace=${namespace}" \
-  --set "runners.tags=personal-minikube-${default_personal_id}" \
   --set "runnerRegistrationToken=${runner_registration_token}"
