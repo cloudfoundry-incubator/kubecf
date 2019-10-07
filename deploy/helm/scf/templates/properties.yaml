@@ -14,11 +14,13 @@ metadata:
 data:
   ops: |-
     {{- range $instanceGroupName, $instanceGroup := .Values.properties }}
-    {{- range $jobName, $properties := $instanceGroup }}
-    {{- range $propertyKey, $propertyValue := $properties }}
+      {{- range $jobName, $properties := $instanceGroup }}
+        {{- $flattened := dict }}
+        {{- include "scf.flatten" (dict "flattened" $flattened "toFlatten" $properties) }}
+        {{- range $propertyPath, $value := $flattened }}
     - type: replace
-      path: /instance_groups/name={{ $instanceGroupName }}/jobs/name={{ $jobName }}/properties?/{{ $propertyKey | replace "." "/" }}
-      value: {{ $propertyValue | toJson }}
-    {{- end }}
-    {{- end }}
+      path: /instance_groups/name={{ $instanceGroupName }}/jobs/name={{ $jobName }}/properties?{{ $propertyPath }}
+      value: {{ $value | toJson }}
+        {{- end }}
+      {{- end }}
     {{- end }}

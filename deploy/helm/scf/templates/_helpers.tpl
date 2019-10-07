@@ -55,3 +55,25 @@ Get the metadata name for an ops file.
 {{- range $key := $keys }}{{ $obj = index $obj $key }}{{ end }}
 {{- $obj | quote }}
 {{- end }}
+
+{{/*
+Flatten the `toFlatten` map into `flattened`. The `flattened` map contains only one layer of keys
+flattened and separated by `separator`.
+*/}}
+{{- define "scf.flatten" -}}
+  {{- $flattened := index . "flattened" }}
+  {{- $toFlatten := index . "toFlatten" }}
+  {{- $separator := hasKey . "separator" | ternary (index . "separator") "/" }}
+  {{- $_prefix := hasKey . "_prefix" | ternary (index . "_prefix") "" }}
+
+  {{- if (kindIs "map" $toFlatten) }}
+    {{- range $key, $value := $toFlatten }}
+      {{- $newPrefix := printf "%s%s%s" $_prefix $separator $key }}
+      {{- include "scf.flatten" (dict "flattened" $flattened "toFlatten" $value "_prefix" $newPrefix "separator" $separator) }}
+    {{- end }}
+  {{- else }}
+    {{- $key := $_prefix }}
+    {{- $value := $toFlatten }}
+    {{- $_ := set $flattened $key $value }}
+  {{- end }}
+{{- end -}}
