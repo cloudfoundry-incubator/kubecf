@@ -27,6 +27,8 @@ publish:chart:
   only:
     refs:
     - *default_branch
-  image: minio/mc
+  image:
+    name: minio/mc
+    entrypoint: [""]
   script:
   - .gitlab/pipelines/stages/publish.sh
