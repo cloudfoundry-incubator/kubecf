@@ -3,10 +3,13 @@ deployment_name: scf
 
 # Set or override job properties. The first level of the map is the instance group name. The second
 # level of the map is the job name. E.g.:
-#   properties:
-#     adapter:
-#       adapter:
-#         scalablesyslog.adapter.logs.addr: scf-log-api:8082
+#  properties:
+#    adapter:
+#      adapter:
+#        scalablesyslog:
+#          adapter:
+#            logs:
+#              addr: scf-log-api:8082
 properties: {}
 
 releases:
