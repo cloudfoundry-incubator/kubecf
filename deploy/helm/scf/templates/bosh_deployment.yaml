@@ -23,11 +23,11 @@ spec:
   - name: ops-use-bits-service
     type: configmap
 {{- end }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
   - name: {{ include "scf.ops-name" $path }}
     type: configmap
 {{- end }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
   - name: {{ include "scf.ops-name" $path }}
     type: configmap
 {{- end }}

@@ -1,0 +1,9 @@
+# cf-acceptance-tests is currently only built with a newer stemcell (i.e.
+# the default stemcell isn't currently built of all of our instance groups).
+# Temporarily replace its stemcell until everything is up to date.
+- type: replace
+  path: /releases/name=cf-acceptance-tests/stemcell?
+  value:
+      alias: default
+      os: opensuse-42.3
+      version: 36.g03b4653-30.80-7.0.0_355.gd4df8ff7
