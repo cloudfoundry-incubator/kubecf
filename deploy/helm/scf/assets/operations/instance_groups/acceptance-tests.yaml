@@ -18,8 +18,6 @@
           admin_user: admin
           api: https://api.((system_domain))
           apps_domain: ((system_domain))
-          include: >-
-            {{ .Values.releases.cf_acceptance_tests.properties.acceptance_tests.include }}
           skip_ssl_validation: true
         bpm:
           enabled: true

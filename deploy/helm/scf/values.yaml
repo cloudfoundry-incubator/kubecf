@@ -19,10 +19,6 @@ releases:
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_340.g2b599a90
-  cf_acceptance_tests:
-    properties:
-      acceptance_tests:
-        include: "" # e.g. "+docker,-ssh"
 
 sizing:
   HA: false
