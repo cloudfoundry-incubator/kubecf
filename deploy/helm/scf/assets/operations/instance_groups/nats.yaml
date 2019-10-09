@@ -1,3 +1,15 @@
+# Add the nats BOSH DNS alias.
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: nats.service.cf.internal
+    targets:
+    - deployment: cf
+      domain: bosh
+      instance_group: nats
+      network: default
+      query: '*'
+
 # Add quarks properties.
 - type: replace
   path: /instance_groups/name=nats/jobs/name=nats/properties/quarks?

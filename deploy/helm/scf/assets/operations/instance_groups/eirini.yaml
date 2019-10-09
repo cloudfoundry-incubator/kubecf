@@ -1,5 +1,17 @@
 {{- if .Values.features.eirini -}}
 
+# Add the eirini BOSH DNS alias.
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: eirini.service.cf.internal
+    targets:
+    - deployment: cf
+      domain: bosh
+      instance_group: eirini
+      network: default
+      query: '*'
+
 - type: replace
   path: /instance_groups/-
   value:
@@ -68,7 +80,7 @@
           loggregator_ca: '((loggregator_ca.certificate))'
           loggregator_cert: '((loggregator_tls_agent.certificate))'
           loggregator_key: '((loggregator_tls_agent.private_key))'
-          loggregator_endpoint: "{{ .Values.deployment_name }}-doppler:8082"
+          loggregator_endpoint: "doppler.service.cf.internal:8082"
           namespace: '{{ .Values.deployment_name }}-eirini'
     - name: opi
       release: eirini
@@ -78,10 +90,10 @@
           kube_service_host: ""
           kube_service_port: ""
           nats_password: ((nats_password))
-          nats_ip: {{ .Values.deployment_name }}-nats
+          nats_ip: nats.service.cf.internal
           certs_secret_name: eirini-staging-secret
-          cc_internal_api: https://{{ .Values.deployment_name }}-api.{{ .Release.Namespace }}:9023
-          eirini_address: http://{{ .Values.deployment_name }}-eirini.{{ .Release.Namespace }}:8085
+          cc_internal_api: https://cloud-controller-ng.service.cf.internal:9023
+          eirini_address: http://eirini.service.cf.internal:8085
           downloader_image: "eirini/recipe-downloader:0.2.0"
           uploader_image: "eirini/recipe-uploader:0.2.0"
           executor_image: "eirini/recipe-executor:0.2.0"
@@ -119,7 +131,7 @@
   value: true
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/url?
-  value: http://{{ .Values.deployment_name }}-eirini:8085
+  value: http://eirini.service.cf.internal:8085
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/opi_staging?
   value: true
@@ -129,7 +141,7 @@
   value: true
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/url?
-  value: http://{{ .Values.deployment_name }}-eirini:8085
+  value: http://eirini.service.cf.internal:8085
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/opi_staging?
   value: true
@@ -139,7 +151,7 @@
   value: true
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/url?
-  value: http://{{ .Values.deployment_name }}-eirini:8085
+  value: http://eirini.service.cf.internal:8085
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/opi_staging?
   value: true

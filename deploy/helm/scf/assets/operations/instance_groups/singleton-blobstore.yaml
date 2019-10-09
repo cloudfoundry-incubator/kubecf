@@ -5,21 +5,6 @@
   path: /instance_groups/name=singleton-blobstore/persistent_disk?
   value: 102400 # 100GB
 
-# Override the addresses for the jobs under the singleton-blobstore instance group.
-- type: replace
-  path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/internal_server_name?
-  value: {{ .Values.deployment_name }}-singleton-blobstore
-- type: replace
-  path: /instance_groups/name=singleton-blobstore/jobs/name=route_registrar/properties/nats?/machines
-  value:
-  - {{ .Values.deployment_name }}-nats
-- type: replace
-  path: /instance_groups/name=singleton-blobstore/jobs/name=route_registrar/properties/route_registrar?/routing_api/api_url
-  value: http://{{ .Values.deployment_name }}-api:3000
-- type: replace
-  path: /instance_groups/name=singleton-blobstore/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
-  value: https://{{ .Values.deployment_name }}-uaa:8443
-
 - type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/quarks?
   value:

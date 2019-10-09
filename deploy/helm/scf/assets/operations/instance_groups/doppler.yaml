@@ -1,15 +1,3 @@
-# Override the addresses for the jobs under the doppler instance group.
-- type: replace
-  path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/nats?/machines
-  value:
-  - {{ .Values.deployment_name }}-nats
-- type: replace
-  path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/route_registrar?/routing_api/api_url
-  value: http://{{ .Values.deployment_name }}-api:3000
-- type: replace
-  path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/route_registrar?/routing_api/oauth_url
-  value: https://{{ .Values.deployment_name }}-uaa:8443
-
 # Change the log_cache_ca CN to avoid clashing with the other log-cache certificate CNs.
 - type: replace
   path: /variables/name=log_cache_ca/options/common_name

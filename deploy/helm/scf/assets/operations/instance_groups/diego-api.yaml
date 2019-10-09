@@ -4,20 +4,8 @@
 
 # Override the addresses for the jobs under the diego-api instance group.
 - type: replace
-  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host
-  value: {{ .Values.deployment_name }}-database
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_host
-  value: {{ .Values.deployment_name }}-database
-- type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/locket?/api_location
   value: 127.0.0.1:8891
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/auctioneer?/api_location
-  value: {{ .Values.deployment_name }}-scheduler:9016
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/advertisement_base_hostname?
-  value: {{ .Values.deployment_name }}-diego-api
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/health_addr?
   value: 0.0.0.0:8890
@@ -27,6 +15,12 @@
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/locket?/hostname
   value: 127.0.0.1
+- type: replace
+  path: /variables/name=diego_bbs_server/options?/alternative_names?/-
+  value: '127.0.0.1'
+- type: replace
+  path: /variables/name=diego_locket_server/options?/alternative_names?/-
+  value: '127.0.0.1'
 
 # Disable tuning /proc/sys kernel parameters as locket and bbs are running on containers.
 - type: replace
