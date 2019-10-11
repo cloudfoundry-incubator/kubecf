@@ -68,12 +68,15 @@
         command: [curl, --fail, --head, --silent, http://localhost:6061/debug/pprof/cmdline]
 
 - type: replace
-  path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs?
+  path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs
   value:
   - name: INSTANCE_ADDR
     value: {{ .Values.deployment_name }}-doppler:8080
   - name: INSTANCE_ID
-    value: "0"
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: metadata.labels['fissile.cloudfoundry.org/pod-ordinal']
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/run/healthcheck/log-cache-expvar-forwarder
   value:
