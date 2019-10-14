@@ -5,7 +5,8 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/eirini/eirini-loggregator-bridge/templates/bpm.yml.erb"
 
 # Patch BPM, since we're actually running in-cluster without BPM
-PATCH='@@ -8,17 +8,3 @@
+PATCH=$(cat <<'EOT'
+@@ -8,17 +8,3 @@
        - "--kubeconfig"
        - "<%= kubeconfig %>"
        <% end %>
@@ -22,7 +23,9 @@ PATCH='@@ -8,17 +8,3 @@
 -      mount_only: true
 -    - path: /var/run/secrets/kubernetes.io/serviceaccount/namespace
 -      mount_only: true
--    <% end %>'
+-    <% end %>
+EOT
+)
 
 # Only patch once
 if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then

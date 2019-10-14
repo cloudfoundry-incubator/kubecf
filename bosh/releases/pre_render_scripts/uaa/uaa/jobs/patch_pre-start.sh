@@ -5,7 +5,7 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/uaa/uaa/templates/bin/pre-start.erb"
 
 # Patch bin/pre-start.erb for the certificates to work with SUSE.
-patch --verbose "${target}" <<'EOT'
+PATCH=$(cat <<'EOT'
 24c24
 < rm -f /usr/local/share/ca-certificates/uaa_*
 ---
@@ -17,3 +17,11 @@ patch --verbose "${target}" <<'EOT'
 >     echo "Adding certificate from manifest to OS certs /etc/pki/trust/anchors/uaa_<%= i %>.crt"
 >     echo -n '<%= cert %>' >> "/etc/pki/trust/anchors/uaa_<%= i %>.crt"
 EOT
+)
+
+# Only patch once
+if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
+  patch --verbose "${target}" <<<"$PATCH"
+else
+  echo "Patch already applied. Skipping"
+fi

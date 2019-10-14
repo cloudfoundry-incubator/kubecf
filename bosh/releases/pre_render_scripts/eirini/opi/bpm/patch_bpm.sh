@@ -5,7 +5,7 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/eirini/opi/templates/bpm.yml.erb"
 
 # Patch BPM, since we're actually running in-cluster without BPM
-patch --verbose "${target}" <<'EOT'
+PATCH=$(cat <<'EOT'
 7,20d6
 <     env:
 <       KUBERNETES_SERVICE_HOST: "<%= p("opi.kube_service_host") %>"
@@ -22,3 +22,11 @@ patch --verbose "${target}" <<'EOT'
 <       mount_only: true
 <     <% end %>
 EOT
+)
+
+# Only patch once
+if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
+  patch --verbose "${target}" <<<"$PATCH"
+else
+  echo "Patch already applied. Skipping"
+fi

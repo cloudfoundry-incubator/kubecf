@@ -4,7 +4,7 @@ set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/routing/routing-api/templates/bpm.yml.erb"
 
-patch --binary --unified --verbose "${target}" <<'EOT'
+PATCH=$(cat <<'EOT'
 @@ -11,7 +11,7 @@
      - -timeFormat
      - rfc3339
@@ -15,3 +15,11 @@ patch --binary --unified --verbose "${target}" <<'EOT'
 
      hooks:
 EOT
+)
+
+# Only patch once
+if ! patch --reverse --binary --unified --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
+  patch --verbose --binary --unified "${target}" <<<"$PATCH"
+else
+  echo "Patch already applied. Skipping"
+fi
