@@ -13,7 +13,7 @@ Upload the image to a cluster and test it, e.g. with SCF.
 Build the BOSH release first and convert it with [fissile](https://github.com/cloudfoundry-incubator/fissile).
 
 Example on how to use fissile to build just the image:
-https://github.com/cloudfoundry-incubator/cf-operator-ci/blob/master/pipelines/release-images/tasks/build.sh#L30
+https://github.com/cloudfoundry-incubator/cf-operator-ci/blob/e83e46548787ee740ea1918182604faaa5cddf8f/pipelines/release-images/tasks/build.sh#L34
 
 ### Uploading The Image
 
