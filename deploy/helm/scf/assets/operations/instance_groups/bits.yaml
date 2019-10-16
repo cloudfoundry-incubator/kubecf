@@ -32,45 +32,10 @@
 - type: replace
   path: /variables/name=bits_service_ssl/options/signer_type?
   value: cluster
-- type: replace
-  path: /variables/name=bits_service_ssl/options/alternative_names/-
-  value: "*.{{ .Values.deployment_name }}-bits"
-- type: replace
-  path: /variables/name=bits_service_ssl/options/alternative_names/-
-  value: "{{ .Values.deployment_name }}-bits"
-- type: replace
-  path: /variables/name=bits_service_ssl/options/alternative_names/-
-  value: "*.{{ .Values.deployment_name }}-bits.{{ .Release.Namespace }}"
-- type: replace
-  path: /variables/name=bits_service_ssl/options/alternative_names/-
-  value: "{{ .Values.deployment_name }}-bits.{{ .Release.Namespace }}"
-
-- type: replace
-  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service?/private_endpoint
-  value: https://{{ .Values.deployment_name }}-bits.{{ .Release.Namespace }}
-- type: replace
-  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/buildpacks/webdav_config/private_endpoint
-  value: *blobstore_url
-- type: replace
-  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/droplets/webdav_config/private_endpoint
-  value: *blobstore_url
-- type: replace
-  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/packages/webdav_config/private_endpoint
-  value: *blobstore_url
 
 # TODO: check to see where these should actually be public - what are the usecases?
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service?/public_endpoint
-  value: https://{{ .Values.deployment_name }}-bits.{{ .Release.Namespace }}
-
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/bits_service?/private_endpoint
-  value: https://{{ .Values.deployment_name }}-bits.{{ .Release.Namespace }}
-- type: replace
-  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/bits_service?/private_endpoint
-  value: https://{{ .Values.deployment_name }}-bits.{{ .Release.Namespace }}
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/bits_service?/private_endpoint
   value: https://{{ .Values.deployment_name }}-bits.{{ .Release.Namespace }}
 
 # Enable Docker registry on bits-service (used by OPI)
@@ -87,7 +52,7 @@
   path: /variables/name=bits_service_ssl/options/alternative_names/-
   value: registry.((system_domain))
 - type: replace
-  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/rootfs?/blobstore_type?
+  path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/rootfs?/blobstore_type
   value: local
 
 # Attach a persistent disk to bits-service VM to store eirinifs

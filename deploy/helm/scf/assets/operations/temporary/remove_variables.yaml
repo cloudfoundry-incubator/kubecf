@@ -2,12 +2,6 @@
 # It should go away once all instance_groups work properly with cf-operator.
 
 - type: remove
-  path: /variables/name=silk_ca
-- type: remove
-  path: /variables/name=silk_controller
-- type: remove
-  path: /variables/name=silk_daemon
-- type: remove
   path: /variables/name=credhub_encryption_password
 - type: remove
   path: /variables/name=credhub_tls
