@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -o errexit -o nounset
+
+NS=""
+OPTS=$(getopt --options=wn:h --longoptions=watch,namespace:,help -- "$@")
+
+eval set -- "${OPTS}"
+
+usage() {
+    sed 's@^\s*@@' <<-EOF
+        Usage:
+            ${0} [--watch] [--namespace=NS]
+
+        -w, --watch          Watch execution (repeatedly update)
+        -n, --namespace=NS   Only show pods from namespace NS
+EOF
+}
+
+while true ; do
+    case "${1:-}" in
+        -w|--watch)
+            shift 1
+            args=("$0" "$@")
+            if test -n "${NS}" ; then
+                args=("$0" --namespace="${NS}" "$@")
+            fi
+            exec watch -c "${args[@]}"
+            ;;
+        -n|--namespace)
+            NS="${2}"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --)
+            shift
+            break
+            ;;
+    esac
+done
+
+kubectl get pods ${NS:+--namespace} ${NS:---all-namespaces} \
+    | perl -p -e 's@^((?:\S+\s+)?\S+\s*)(\d+)/(\d+)(\s+)(\w+)@"$1\e[0;" . (($2 == $3 || $5 eq "Completed") ? "32" : "31;1") . "m$2/$3\e[0m$4$5"@e'

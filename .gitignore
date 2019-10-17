@@ -1,0 +1,11 @@
+*~
+\#*
+_work/
+target/
+password
+*.pem
+.vagrant
+.bash_history
+*.box
+*.vmdk
+personal-setup
