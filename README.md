@@ -1,8 +1,8 @@
 ![pipeline](https://gitlab.com/susecf/scf/badges/v3-develop/pipeline.svg)
 
-# SUSE Cloud Foundry v3 (SCF)
+# Kube CF
 
-Cloud Foundry built for Kubernetes.
+Cloud Foundry built for Kubernetes (formerly [SUSE/scf v3 branch](https://github.com/SUSE/scf/tree/v3).
 It makes use of the [Cloud Foundry Operator](https://github.com/cloudfoundry-incubator/cf-operator/), which is incubating under [Project Quarks](https://www.cloudfoundry.org/project-quarks/).
 
 ## Useful Information
