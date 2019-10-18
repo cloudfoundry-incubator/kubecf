@@ -12,8 +12,13 @@ Upload the image to a cluster and test it, e.g. with SCF.
 
 Build the BOSH release first and convert it with [fissile](https://github.com/cloudfoundry-incubator/fissile).
 
-Example on how to use fissile to build just the image:
-https://github.com/cloudfoundry-incubator/cf-operator-ci/blob/e83e46548787ee740ea1918182604faaa5cddf8f/pipelines/release-images/tasks/build.sh#L34
+To generate a docker image from the BOSH release, you should use the following subcommand:
+
+```sh
+fissile build release-image
+```
+
+For more information on how to use the command, please refer to the related [documentation](https://github.com/cloudfoundry-incubator/fissile/blob/develop/docs/build-docker-imgs.md). For a real example, see [build.sh](https://github.com/cloudfoundry-incubator/cf-operator-ci/blob/e83e46548787ee740ea1918182604faaa5cddf8f/pipelines/release-images/tasks/build.sh#L34).
 
 ### Uploading The Image
 
@@ -23,7 +28,7 @@ With *minikube* you can build directly on minikube's Docker. Switch to that dock
 
 With *kind*, you need to use `kind load docker-image` after building the image, to make it available, i.e.:
 
-```
+```sh
 kind load docker-image docker.io/org/nats:0.1-dev
 ```
 
@@ -31,7 +36,7 @@ kind load docker-image docker.io/org/nats:0.1-dev
 
 Add an operations file to Kubernetes with the new image location:
 
-```
+```yaml
 kubectl apply -f - <<EOF
 ---
 apiVersion: v1
@@ -52,7 +57,7 @@ EOF
 
 When running `helm install scf` refer to that image:
 
-```
+```sh
 helm install ... --set 'operations.custom={nats-dev}'
 ```
 
@@ -108,7 +113,6 @@ The ops file for the example above could look like this:
     - "/var/vcap/jobs/nats/config/nats.conf"
 
 ```
-
 
 ## Testing With SCFv3
 
