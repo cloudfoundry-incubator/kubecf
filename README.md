@@ -1,4 +1,4 @@
-![pipeline](https://gitlab.com/susecf/scf/badges/v3-develop/pipeline.svg)
+[![pipeline status](https://gitlab.com/susecf/kubecf/badges/master/pipeline.svg)](https://gitlab.com/susecf/kubecf/commits/master)
 
 # Kube CF
 

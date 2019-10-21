@@ -1,5 +1,5 @@
 .bazel_docker_image: &bazel_docker_image thulioassis/bazel-docker-image:0.29.1
-.default_branch: &default_branch v3-develop
+.default_branch: &default_branch master
 
 stages:
 - lint

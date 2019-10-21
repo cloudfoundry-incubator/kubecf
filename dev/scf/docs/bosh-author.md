@@ -116,4 +116,4 @@ The ops file for the example above could look like this:
 
 ## Testing With SCFv3
 
-Afterwards you can build and deploy SCF according to the [SCFv3 docs](https://github.com/SUSE/scf/blob/v3-develop/dev/scf/docs/installing.md).
+Afterwards you can build and deploy SCF according to the [SCFv3 docs](https://github.com/SUSE/kubecf/blob/master/dev/scf/docs/installing.md).
