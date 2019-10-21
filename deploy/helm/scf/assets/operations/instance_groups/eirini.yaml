@@ -53,6 +53,10 @@
           cc_cert: ((cc_bridge_tps.certificate))
           cc_key: ((cc_bridge_tps.private_key))
           cc_ca: ((service_cf_internal_ca.certificate))
+        cc:
+          opi:
+            client_cert: ((eirini_tls_client_cert.certificate))
+            client_key: ((eirini_tls_client_cert.private_key))
 
 # Add eirini
 - type: replace
@@ -86,17 +90,24 @@
       release: eirini
       properties:
         opi:
+          server_cert: ((eirini_tls_server_cert.certificate))
+          server_key: ((eirini_tls_server_cert.private_key))
+          client_ca: ((service_cf_internal_ca.certificate))
+
           kube_namespace: {{ .Values.deployment_name }}-eirini
           kube_service_host: ""
           kube_service_port: ""
+          registry_address: registry.((system_domain))
+          registry_username: admin
+          registry_password: ((bits_service_signing_password))
           nats_password: ((nats_password))
           nats_ip: nats.service.cf.internal
           certs_secret_name: eirini-staging-secret
           cc_internal_api: https://cloud-controller-ng.service.cf.internal:9023
-          eirini_address: http://eirini.service.cf.internal:8085
+          eirini_address: https://eirini.service.cf.internal:8484
           downloader_image: "eirini/recipe-downloader:0.2.0"
-          uploader_image: "eirini/recipe-uploader:0.2.0"
-          executor_image: "eirini/recipe-executor:0.2.0"
+          uploader_image: "eirini/recipe-uploader:0.3.0"
+          executor_image: "eirini/recipe-executor:0.3.0"
           # TODO: make this configurable
           metrics_source_address: ""
           loggregator_address: localhost:3458
@@ -118,44 +129,110 @@
   path: /releases/-
   value:
     name: eirini
-    version: 0.0.14
+    version: 0.0.17
     url: {{ .Values.releases.defaults.url | quote }}
     stemcell:
       alias: default
       os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
+      version: 36.g03b4653-30.80-7.0.0_352.g17b53d96
 
 # Enable OPI in CC
+# cloud_controller_ng
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/enabled?
   value: true
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/url?
-  value: http://eirini.service.cf.internal:8085
+  value: https://eirini.service.cf.internal:8484
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/opi_staging?
   value: true
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/client_cert?
+  value: ((eirini_tls_client_cert.certificate))
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/client_key?
+  value: ((eirini_tls_client_cert.private_key))
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/ca_cert?
+  value: ((eirini_tls_server_cert.ca))
 
+# cloud_controller_worker
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/enabled?
   value: true
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/url?
-  value: http://eirini.service.cf.internal:8085
+  value: https://eirini.service.cf.internal:8484
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/opi_staging?
   value: true
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/client_cert?
+  value: ((eirini_tls_client_cert.certificate))
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/client_key?
+  value: ((eirini_tls_client_cert.private_key))
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/ca_cert?
+  value: ((eirini_tls_server_cert.ca))
 
+# cloud_controller_clock
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/enabled?
   value: true
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/url?
-  value: http://eirini.service.cf.internal:8085
+  value: https://eirini.service.cf.internal:8484
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/opi_staging?
   value: true
+# - type: replace
+#   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/opi_staging?
+#   value: false
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/client_cert?
+  value: ((eirini_tls_client_cert.certificate))
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/client_key?
+  value: ((eirini_tls_client_cert.private_key))
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/ca_cert?
+  value: ((eirini_tls_server_cert.ca))
 
+
+- type: replace
+  path: /variables/name=eirini_tls_server_cert?
+  value:
+    name: eirini_tls_server_cert
+    type: certificate
+    options:
+      ca: service_cf_internal_ca
+      common_name: {{ .Values.deployment_name }}-eirini
+      alternative_names:
+      - {{ .Values.deployment_name }}-eirini.{{ .Release.Namespace }}
+      extended_key_usage:
+      - server_auth
+- type: replace
+  path: /variables/name=eirini_tls_client_cert?
+  value:
+    name: eirini_tls_client_cert
+    type: certificate
+    options:
+      ca: service_cf_internal_ca
+      common_name: cloud_controller
+      extended_key_usage:
+      - client_auth
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=eirini.service.cf.internal?
+  value:
+    domain: {{ .Values.deployment_name }}-eirini
+    targets:
+    - query: '*'
+      instance_group: eirini
+      deployment: cf
+      network: default
+      domain: bosh
 
 # Add quarks information to the Eirini jobs
 - type: replace
@@ -164,13 +241,19 @@
     ports:
     - name: opi
       protocol: TCP
-      internal: 8085
+      internal: 8484
 
 - type: replace
   path: /instance_groups/name=bits/jobs/name=eirinifs/properties?/quarks?
   value:
     bpm:
       processes: []
+# Make loggregator agent cert validate correctly for fluentd in k8s nodes
+- type: replace
+  path: /variables/name=loggregator_tls_agent/options/alternative_names?
+  value:
+    - localhost
+    - metron
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/eirini_*" }}
