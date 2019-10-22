@@ -13,7 +13,7 @@
       query: '*'
 
 - type: replace
-  path: /instance_groups/-
+  path: /instance_groups/0:before
   value:
     name: configure-eirini
     lifecycle: auto-errand
@@ -56,7 +56,7 @@
 
 # Add eirini
 - type: replace
-  path: /instance_groups/-
+  path: /instance_groups/0:after
   value:
     name: eirini
     release: eirini
