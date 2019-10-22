@@ -119,9 +119,6 @@
           cc_ca: ((service_cf_internal_ca.certificate))
         quarks:
             ports:
-            - name: http
-              protocol: TCP
-              internal: 8085
             - name: https
               protocol: TCP
               internal: 8484
