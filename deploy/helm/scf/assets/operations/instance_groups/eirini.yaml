@@ -97,7 +97,7 @@
           kube_namespace: {{ .Values.deployment_name }}-eirini
           kube_service_host: ""
           kube_service_port: ""
-          registry_address: registry.((system_domain))
+          registry_address: "invalid-registry"
           registry_username: admin
           registry_password: ((bits_service_signing_password))
           nats_password: ((nats_password))
@@ -117,6 +117,15 @@
           cc_cert: ((cc_bridge_tps.certificate))
           cc_key: ((cc_bridge_tps.private_key))
           cc_ca: ((service_cf_internal_ca.certificate))
+        quarks:
+            ports:
+            - name: http
+              protocol: TCP
+              internal: 8085
+            - name: https
+              protocol: TCP
+              internal: 8484
+
 
 # Add eirinifs job to the bits-service to copy the tarball into the bits-service VM
 - type: replace
@@ -187,9 +196,6 @@
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/opi_staging?
   value: true
-# - type: replace
-#   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/opi_staging?
-#   value: false
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/client_cert?
   value: ((eirini_tls_client_cert.certificate))
@@ -210,7 +216,7 @@
       ca: service_cf_internal_ca
       common_name: {{ .Values.deployment_name }}-eirini
       alternative_names:
-      - {{ .Values.deployment_name }}-eirini.{{ .Release.Namespace }}
+      - eirini.service.cf.internal
       extended_key_usage:
       - server_auth
 - type: replace
@@ -223,25 +229,6 @@
       common_name: cloud_controller
       extended_key_usage:
       - client_auth
-- type: replace
-  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=eirini.service.cf.internal?
-  value:
-    domain: {{ .Values.deployment_name }}-eirini
-    targets:
-    - query: '*'
-      instance_group: eirini
-      deployment: cf
-      network: default
-      domain: bosh
-
-# Add quarks information to the Eirini jobs
-- type: replace
-  path: /instance_groups/name=eirini/jobs/name=opi/properties/quarks?
-  value:
-    ports:
-    - name: opi
-      protocol: TCP
-      internal: 8484
 
 - type: replace
   path: /instance_groups/name=bits/jobs/name=eirinifs/properties?/quarks?
