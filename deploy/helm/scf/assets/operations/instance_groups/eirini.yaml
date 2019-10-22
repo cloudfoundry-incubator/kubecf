@@ -105,7 +105,7 @@
           certs_secret_name: eirini-staging-secret
           cc_internal_api: https://cloud-controller-ng.service.cf.internal:9023
           eirini_address: https://eirini.service.cf.internal:8484
-          downloader_image: "eirini/recipe-downloader:0.2.0"
+          downloader_image: "eirini/recipe-downloader:0.3.0"
           uploader_image: "eirini/recipe-uploader:0.3.0"
           executor_image: "eirini/recipe-executor:0.3.0"
           # TODO: make this configurable
@@ -138,12 +138,12 @@
   path: /releases/-
   value:
     name: eirini
-    version: 0.0.17
+    version: 0.0.21
     url: {{ .Values.releases.defaults.url | quote }}
     stemcell:
       alias: default
       os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_352.g17b53d96
+      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
 
 # Enable OPI in CC
 # cloud_controller_ng
