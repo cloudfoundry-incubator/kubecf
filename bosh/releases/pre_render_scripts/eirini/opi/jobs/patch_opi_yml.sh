@@ -5,7 +5,7 @@ set -o errexit -o nounset
 # Eirini registry
 target="/var/vcap/all-releases/jobs-src/eirini/opi/templates/opi.yml.erb"
 
-patch --verbose "${target}" <<'EOT'
+PATCH=$(cat <<'EOT'
 10c10
 <   cc_uploader_ip: <%= p("opi.cc_uploader_ip") %>
 ---
@@ -15,3 +15,11 @@ patch --verbose "${target}" <<'EOT'
 ---
 >   registry_address: <%= ENV["{{ .Values.deployment_name | upper }}_EIRINI_REGISTRY_SERVICE_HOST"] %>
 EOT
+)
+
+# Only patch once
+if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
+  patch --verbose "${target}" <<<"$PATCH"
+else
+  echo "Patch already applied. Skipping"
+fi
