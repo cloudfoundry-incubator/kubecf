@@ -6,6 +6,9 @@
   value: 102400 # 100GB
 
 - type: replace
+  path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/blobstore/internal_access_rules?
+  value: [ "allow 10.0.0.0/8;","allow 172.16.0.0/12;", "allow 192.168.0.0/16;" , "allow 100.64.0.0/10;"]
+- type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/quarks?
   value:
     ports:
