@@ -6,7 +6,7 @@ target="/var/vcap/all-releases/jobs-src/garden-runc/garden/templates/bin/post-st
 
 # Patch the post-start script to use netcat instead of curl when performing the ping to a unix
 # socket. curl support for unix sockets varies considerably depending on its version.
-patch --binary --verbose "${target}" <<'EOT'
+PATCH=$(cat <<'EOT'
 @@ -1,19 +1,21 @@
  #!/usr/bin/env bash
  set -euo pipefail
@@ -35,3 +35,11 @@ patch --binary --verbose "${target}" <<'EOT'
      exit 0
    fi
 EOT
+)
+
+# Only patch once
+if ! patch --binary --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
+  patch --binary --verbose "${target}" <<<"$PATCH"
+else
+  echo "Patch already applied. Skipping"
+fi

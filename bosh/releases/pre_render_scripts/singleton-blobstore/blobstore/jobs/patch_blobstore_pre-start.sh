@@ -6,7 +6,7 @@ set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/capi/blobstore/templates/pre-start.sh.erb"
 
-patch --binary --unified --verbose "${target}" <<'EOT'
+PATCH=$(cat <<'EOT'
 @@ -9,7 +9,6 @@
    local data_dir=/var/vcap/data/blobstore
    local store_tmp_dir=$store_dir/tmp/uploads
@@ -25,3 +25,11 @@ patch --binary --unified --verbose "${target}" <<'EOT'
 
    if [ $num_needing_chown -gt 0 ]; then
 EOT
+)
+
+# Only patch once
+if ! patch --binary --unified --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
+  patch --binary --unified --verbose "${target}" <<<"$PATCH"
+else
+  echo "Patch already applied. Skipping"
+fi

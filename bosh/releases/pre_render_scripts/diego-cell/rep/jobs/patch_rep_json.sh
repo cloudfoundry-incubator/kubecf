@@ -5,7 +5,7 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/diego/rep/templates/rep.json.erb"
 
 # Don't share /var/vcap/packages between containers.
-patch --verbose "${target}" <<'EOT'
+PATCH=$(cat <<'EOT'
 @@ -39,7 +39,7 @@
      disk_mb: p("diego.executor.disk_capacity_mb").to_s,
      enable_consul_service_registration: p("enable_consul_service_registration"),
@@ -25,3 +25,11 @@ patch --verbose "${target}" <<'EOT'
      evacuation_polling_interval: "#{p("diego.rep.evacuation_polling_interval_in_seconds")}s",
      evacuation_timeout: "#{p("diego.rep.evacuation_timeout_in_seconds")}s",
 EOT
+)
+
+# Only patch once
+if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
+  patch --verbose "${target}" <<<"$PATCH"
+else
+  echo "Patch already applied. skipping"
+fi

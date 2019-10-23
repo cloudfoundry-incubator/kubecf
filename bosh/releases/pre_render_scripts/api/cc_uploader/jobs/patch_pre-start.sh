@@ -7,7 +7,7 @@ target="/var/vcap/all-releases/jobs-src/capi/cc_uploader/templates/pre-start.erb
 # Remove sysctl calls as we are running in containers.
 # cc_uploader_ctl in https://github.com/cloudfoundry/capi-release/blob/master/jobs/cc_uploader/templates/cc_uploader_ctl.erb#L26
 # also skips setting those parameters.
-patch --verbose "${target}" <<'EOT'
+PATCH=$(cat <<'EOT'
 @@ -6,6 +6,3 @@
      /var/vcap/jobs/bosh-dns/bin/wait
    fi
@@ -16,3 +16,11 @@ patch --verbose "${target}" <<'EOT'
 -sysctl -e -w net.ipv4.tcp_fin_timeout=10
 -sysctl -e -w net.ipv4.tcp_tw_reuse=1
 EOT
+)
+
+# Only patch once
+if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
+  patch --verbose "${target}" <<<"$PATCH"
+else
+  echo "Patch already applied. Skipping"
+fi
