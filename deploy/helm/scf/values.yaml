@@ -31,7 +31,11 @@ service:
   clusterIP: ~
 
 features:
-  eirini: false
+  eirini:
+    enabled: false
+    registry:
+      service:
+        nodePort: 32123
   ingress:
     enabled: false
     tls:

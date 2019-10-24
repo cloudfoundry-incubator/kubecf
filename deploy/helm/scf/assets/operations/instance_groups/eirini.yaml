@@ -1,4 +1,4 @@
-{{- if .Values.features.eirini -}}
+{{- if .Values.features.eirini.enabled -}}
 
 # Add the eirini BOSH DNS alias.
 - type: replace
@@ -47,7 +47,7 @@
           run_cert_copier: ~
           cert_copier_image: ""
         opi:
-          registry_address: ""
+          registry_address: 127.0.0.1:{{ .Values.features.eirini.registry.service.nodePort }}
           kube_namespace: {{ .Values.deployment_name }}-eirini
           certs_secret_name: eirini-staging-secret
           cc_cert: ((cc_bridge_tps.certificate))
@@ -93,18 +93,17 @@
           server_cert: ((eirini_tls_server_cert.certificate))
           server_key: ((eirini_tls_server_cert.private_key))
           client_ca: ((service_cf_internal_ca.certificate))
-
           kube_namespace: {{ .Values.deployment_name }}-eirini
           kube_service_host: ""
           kube_service_port: ""
-          registry_address: "invalid-registry"
+          registry_address: 127.0.0.1:{{ .Values.features.eirini.registry.service.nodePort }}
           registry_username: admin
           registry_password: ((bits_service_signing_password))
           nats_password: ((nats_password))
           nats_ip: nats.service.cf.internal
           certs_secret_name: eirini-staging-secret
           cc_internal_api: https://cloud-controller-ng.service.cf.internal:9023
-          eirini_address: https://eirini.service.cf.internal:8484
+          eirini_address: https://{{ .Values.deployment_name }}-eirini.{{ .Release.Namespace }}:8484
           downloader_image: "eirini/recipe-downloader:0.3.0"
           uploader_image: "eirini/recipe-uploader:0.3.0"
           executor_image: "eirini/recipe-executor:0.3.0"
@@ -118,11 +117,10 @@
           cc_key: ((cc_bridge_tps.private_key))
           cc_ca: ((service_cf_internal_ca.certificate))
         quarks:
-            ports:
-            - name: https
-              protocol: TCP
-              internal: 8484
-
+          ports:
+          - name: https
+            protocol: TCP
+            internal: 8484
 
 # Add eirinifs job to the bits-service to copy the tarball into the bits-service VM
 - type: replace
@@ -135,12 +133,38 @@
   path: /releases/-
   value:
     name: eirini
-    version: 0.0.21
+    version: 0.0.22
     url: {{ .Values.releases.defaults.url | quote }}
     stemcell:
       alias: default
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+
+# Set the correct addresses to be reached by the Eirini apps namespace.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config/private_endpoint
+  value: &blobstore_url "https://{{ .Values.deployment_name }}-singleton-blobstore.{{ .Release.Namespace }}:4443"
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/droplets?/webdav_config/private_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/webdav_config/private_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/resource_pool?/webdav_config/private_endpoint
+  value: *blobstore_url
+- type: replace
+  path: /variables/name=blobstore_tls/options/alternative_names?/-
+  value: "{{ .Values.deployment_name }}-singleton-blobstore"
+- type: replace
+  path: /variables/name=blobstore_tls/options/alternative_names?/-
+  value: "{{ .Values.deployment_name }}-singleton-blobstore.{{ .Release.Namespace }}"
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
+  value: "{{ .Values.deployment_name }}-api.{{ .Release.Namespace }}"
+- type: replace
+  path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?/-
+  value: "{{ .Values.deployment_name }}-api.{{ .Release.Namespace }}"
 
 # Enable OPI in CC
 # cloud_controller_ng
@@ -203,7 +227,6 @@
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/ca_cert?
   value: ((eirini_tls_server_cert.ca))
 
-
 - type: replace
   path: /variables/name=eirini_tls_server_cert?
   value:
@@ -211,8 +234,10 @@
     type: certificate
     options:
       ca: service_cf_internal_ca
-      common_name: {{ .Values.deployment_name }}-eirini
+      common_name: "{{ .Values.deployment_name }}-eirini"
       alternative_names:
+      - "{{ .Values.deployment_name }}-eirini"
+      - "{{ .Values.deployment_name }}-eirini.{{ .Release.Namespace }}"
       - eirini.service.cf.internal
       extended_key_usage:
       - server_auth
