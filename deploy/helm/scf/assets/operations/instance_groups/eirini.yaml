@@ -133,7 +133,7 @@
   path: /releases/-
   value:
     name: eirini
-    version: 0.0.21
+    version: 0.0.22
     url: {{ .Values.releases.defaults.url | quote }}
     stemcell:
       alias: default
