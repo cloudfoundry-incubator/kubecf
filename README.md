@@ -1,4 +1,4 @@
-[![pipeline status](https://gitlab.com/susecf/kubecf/badges/master/pipeline.svg)](https://gitlab.com/susecf/kubecf/commits/master)
+[![pipeline status](https://gitlab.com/susecf/kubecf/badges/master/pipeline.svg)](https://gitlab.com/susecf/kubecf/pipelines)
 
 # Kube CF
 
@@ -9,7 +9,7 @@ It makes use of the [Cloud Foundry Operator](https://github.com/cloudfoundry-inc
 
 | What                       | Where                                                        |
 | -------------------------- | ------------------------------------------------------------ |
-| GitLab Pipeline            | https://gitlab.com/susecf/scf/pipelines                      |
+| GitLab Pipeline            | https://gitlab.com/susecf/kubecf/pipelines                   |
 | S3 Bucket with helm charts | https://scf-v3.s3.amazonaws.com/index.html                   |
 | Installation Instructions  | [dev/scf/docs/installing.md](dev/scf/docs/installing.md)     |
 | Cloud Foundry Operator     | https://github.com/cloudfoundry-incubator/cf-operator/       |
