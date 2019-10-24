@@ -1,4 +1,4 @@
-{{- if eq .Values.features.eirini true -}}
+{{- if .Values.features.eirini.enabled -}}
 
 # A service for the cc uploader
 ---
@@ -27,7 +27,7 @@ kind: Service
 metadata:
   name: {{ .Values.deployment_name }}-eirini-registry
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     fissile.cloudfoundry.org/instance-group-name: bits
     fissile.cloudfoundry.org/deployment-name: {{ .Values.deployment_name }}
@@ -35,6 +35,7 @@ spec:
     - protocol: TCP
       port: 443
       targetPort: 443
+      nodePort: {{ .Values.features.eirini.registry.service.nodePort }}
 ---
 # A namespace where eirini apps are created
 apiVersion: v1

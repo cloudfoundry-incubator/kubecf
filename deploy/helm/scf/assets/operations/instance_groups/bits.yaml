@@ -1,4 +1,4 @@
-{{- if .Values.features.eirini -}}
+{{- if .Values.features.eirini.enabled -}}
 
 - type: replace
   path: /releases/name=bits-service/version
@@ -25,13 +25,16 @@
       internal: 443
 
 - type: replace
-  path: /variables/name=bits_service_ssl/options?/serviceRef?/-
+  path: /variables/name=bits_service_ssl/options/serviceRef?/-
   value:
     name: {{ .Values.deployment_name }}-eirini-registry
     namespace: {{ .Release.Namespace }}
 - type: replace
   path: /variables/name=bits_service_ssl/options/signer_type?
   value: cluster
+- type: replace
+  path: /variables/name=bits_service_ssl/options/alternative_names/-
+  value: 127.0.0.1
 
 # TODO: check to see where these should actually be public - what are the usecases?
 - type: replace
@@ -44,13 +47,7 @@
   value: true
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/registry_endpoint?
-  value: "https://registry.((system_domain))"
-- type: replace
-  path: /instance_groups/name=bits/jobs/name=route_registrar/properties/route_registrar/routes/name=bits-service/uris/-
-  value: registry.((system_domain))
-- type: replace
-  path: /variables/name=bits_service_ssl/options/alternative_names/-
-  value: registry.((system_domain))
+  value: "https://127.0.0.1"
 - type: replace
   path: /instance_groups/name=bits/jobs/name=bits-service/properties/bits-service/rootfs?/blobstore_type
   value: local

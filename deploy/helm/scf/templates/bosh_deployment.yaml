@@ -19,7 +19,7 @@ spec:
   - name: {{ include "scf.ops-name" "assets/operations/buildpacks/set_suse_buildpacks.yaml" }}
     type: configmap
 {{- end }}
-{{- if .Values.features.eirini }}
+{{- if .Values.features.eirini.enabled }}
   - name: ops-use-bits-service
     type: configmap
 {{- end }}
@@ -39,7 +39,7 @@ spec:
   - name: {{ include "scf.ops-name" $path }}
     type: configmap
 {{- end }}
-{{- if .Values.features.eirini }}
+{{- if .Values.features.eirini.enabled }}
   - name: ops-remove-diego
     type: configmap
 {{- end }}

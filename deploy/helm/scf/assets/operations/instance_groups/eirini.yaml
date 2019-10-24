@@ -1,4 +1,4 @@
-{{- if .Values.features.eirini -}}
+{{- if .Values.features.eirini.enabled -}}
 
 # Add the eirini BOSH DNS alias.
 - type: replace
@@ -47,7 +47,7 @@
           run_cert_copier: ~
           cert_copier_image: ""
         opi:
-          registry_address: ""
+          registry_address: 127.0.0.1:{{ .Values.features.eirini.registry.service.nodePort }}
           kube_namespace: {{ .Values.deployment_name }}-eirini
           certs_secret_name: eirini-staging-secret
           cc_cert: ((cc_bridge_tps.certificate))
@@ -93,11 +93,10 @@
           server_cert: ((eirini_tls_server_cert.certificate))
           server_key: ((eirini_tls_server_cert.private_key))
           client_ca: ((service_cf_internal_ca.certificate))
-
           kube_namespace: {{ .Values.deployment_name }}-eirini
           kube_service_host: ""
           kube_service_port: ""
-          registry_address: "invalid-registry"
+          registry_address: 127.0.0.1:{{ .Values.features.eirini.registry.service.nodePort }}
           registry_username: admin
           registry_password: ((bits_service_signing_password))
           nats_password: ((nats_password))
@@ -118,11 +117,10 @@
           cc_key: ((cc_bridge_tps.private_key))
           cc_ca: ((service_cf_internal_ca.certificate))
         quarks:
-            ports:
-            - name: https
-              protocol: TCP
-              internal: 8484
-
+          ports:
+          - name: https
+            protocol: TCP
+            internal: 8484
 
 # Add eirinifs job to the bits-service to copy the tarball into the bits-service VM
 - type: replace
@@ -228,7 +226,6 @@
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/ca_cert?
   value: ((eirini_tls_server_cert.ca))
-
 
 - type: replace
   path: /variables/name=eirini_tls_server_cert?

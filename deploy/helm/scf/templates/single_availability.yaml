@@ -79,7 +79,7 @@ data:
     - type: remove
       path: /instance_groups/name=log-api/azs?
 
-    {{- if .Values.features.eirini }}
+    {{- if .Values.features.eirini.enabled }}
     - type: replace
       path: /instance_groups/name=bits/instances
       value: 1
