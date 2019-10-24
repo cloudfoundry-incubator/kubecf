@@ -1,4 +1,4 @@
-{{- if not .Values.features.eirini -}}
+{{- if not .Values.features.eirini.enabled -}}
 
 # Selectively remove jobs temporarily.
 - type: remove

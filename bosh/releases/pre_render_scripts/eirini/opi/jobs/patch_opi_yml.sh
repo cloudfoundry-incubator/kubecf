@@ -10,10 +10,6 @@ PATCH=$(cat <<'EOT'
 <   cc_uploader_ip: <%= p("opi.cc_uploader_ip") %>
 ---
 >   cc_uploader_ip: <%= ENV["{{ .Values.deployment_name | upper }}_CC_UPLOADER_SERVICE_HOST"] %>
-12c12
-<   registry_address: <%= p("opi.registry_address") %>
----
->   registry_address: <%= ENV["{{ .Values.deployment_name | upper }}_EIRINI_REGISTRY_SERVICE_HOST"] %>
 EOT
 )
 
