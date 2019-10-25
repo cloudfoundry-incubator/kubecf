@@ -1,5 +1,3 @@
-.default_branch: &default_branch master
-
 image: thulioassis/bazel-docker-image:0.29.1
 
 stages:
@@ -13,11 +11,17 @@ stages:
 
 lint:
   stage: lint
+  only:
+  - external_pull_requests
+  - master
   script:
   - ./dev/linters/shellcheck.sh
 
 build:chart:
   stage: build
+  only:
+  - external_pull_requests
+  - master
   script:
   - .gitlab/pipelines/stages/build.sh
   artifacts:
@@ -28,30 +32,41 @@ build:chart:
 # Ensure the cluster is clean.
 cleanup:pre:
   stage: cleanup:pre
+  only:
+  - external_pull_requests
+  - master
   script:
   - .gitlab/pipelines/stages/cleanup.sh
 
 deploy:cf-operator:
   stage: deploy
+  only:
+  - external_pull_requests
+  - master
   script:
   - .gitlab/pipelines/stages/deploy/deploy_cf_operator.sh
 
 deploy:kubecf:
   stage: deploy
+  only:
+  - external_pull_requests
+  - master
   script:
   - .gitlab/pipelines/stages/deploy/deploy_kubecf.sh
   - .gitlab/pipelines/stages/deploy/wait.sh
 
 tests:smoke:
   stage: tests
+  only:
+  - external_pull_requests
+  - master
   script:
   - .gitlab/pipelines/stages/tests/smoke_tests.sh
 
 publish:chart:
   stage: publish
   only:
-    refs:
-    - *default_branch
+  - master
   image:
     name: minio/mc
     entrypoint: [""]
@@ -60,6 +75,9 @@ publish:chart:
 
 cleanup:post:
   stage: cleanup:post
+  only:
+  - external_pull_requests
+  - master
   when: always
   script:
   - .gitlab/pipelines/stages/cleanup.sh
