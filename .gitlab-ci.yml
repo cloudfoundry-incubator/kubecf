@@ -1,26 +1,51 @@
-.bazel_docker_image: &bazel_docker_image thulioassis/bazel-docker-image:0.29.1
 .default_branch: &default_branch master
+
+image: thulioassis/bazel-docker-image:0.29.1
 
 stages:
 - lint
 - build
+- cleanup:pre
+- deploy
+- tests
 - publish
+- cleanup:post
 
 lint:
   stage: lint
-  image: *bazel_docker_image
   script:
   - ./dev/linters/shellcheck.sh
 
 build:chart:
   stage: build
-  image: *bazel_docker_image
   script:
   - .gitlab/pipelines/stages/build.sh
   artifacts:
     paths:
     - output/scf-*.tgz
     expire_in: 1 week
+
+# Ensure the cluster is clean.
+cleanup:pre:
+  stage: cleanup:pre
+  script:
+  - .gitlab/pipelines/stages/cleanup.sh
+
+deploy:cf-operator:
+  stage: deploy
+  script:
+  - .gitlab/pipelines/stages/deploy/deploy_cf_operator.sh
+
+deploy:kubecf:
+  stage: deploy
+  script:
+  - .gitlab/pipelines/stages/deploy/deploy_kubecf.sh
+  - .gitlab/pipelines/stages/deploy/wait.sh
+
+tests:smoke:
+  stage: tests
+  script:
+  - .gitlab/pipelines/stages/tests/smoke_tests.sh
 
 publish:chart:
   stage: publish
@@ -32,3 +57,9 @@ publish:chart:
     entrypoint: [""]
   script:
   - .gitlab/pipelines/stages/publish.sh
+
+cleanup:post:
+  stage: cleanup:post
+  when: always
+  script:
+  - .gitlab/pipelines/stages/cleanup.sh
