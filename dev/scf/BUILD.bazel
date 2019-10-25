@@ -8,18 +8,18 @@ helm_template(
     name = "rendered_template",
     values = glob(["**/*values.yaml"]),
     install_name = "scf",
-    namespace = "${NAMESPACE}",
+    namespace = "${KUBECF_NAMESPACE}",
     chart_package = "//deploy/helm/scf:chart",
 )
 
 kubectl_apply_binary(
     name = "apply",
     resource = ":rendered_template",
-    namespace = "${NAMESPACE}",
+    namespace = "${KUBECF_NAMESPACE}",
 )
 
 kubectl_delete_binary(
     name = "delete",
     resource = ":rendered_template",
-    namespace = "${NAMESPACE}",
+    namespace = "${KUBECF_NAMESPACE}",
 )

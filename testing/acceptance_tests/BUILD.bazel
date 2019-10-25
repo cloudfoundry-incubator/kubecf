@@ -5,7 +5,7 @@ load("//:def.bzl", "project")
 
 kubectl_patch(
     name = "acceptance_tests",
-    namespace = "${NAMESPACE}",
+    namespace = "${KUBECF_NAMESPACE}",
     resource_type = "ejob",
     resource_name = "scf-acceptance-tests",
     patch_type = "merge",
