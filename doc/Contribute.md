@@ -164,16 +164,14 @@ provides two mechanisms:
 
      For example, `kubectl apply` the object below
 
-     ```yaml
-     ---
-     apiVersion: v1
-     kind: ConfigMap
-     metadata:
-       name: <configmap_name>
-     data:
-       ops: |-
-           <some_random_ops>
-     ```
+         ---
+         apiVersion: v1
+         kind: ConfigMap
+         metadata:
+           name: configmap_name
+         data:
+           ops: |-
+               some_random_ops
 
      and then use `--set .Values.operations.custom[0]=configmap_name`
      or equivalent as part of a kubecf deployment to include that ops
@@ -184,12 +182,10 @@ provides two mechanisms:
 
      Just specifying
 
-     ```
-     properties:
-       instance-group-name:
-         job-name:
-           some-property: some-value
-     ```
+         properties:
+           instance-group-name:
+             job-name:
+               some-property: some-value
 
      in the values.yaml for the kubecf chart causes the chart to
      generate and use an ops file which applies the assignment of
