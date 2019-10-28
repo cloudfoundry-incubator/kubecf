@@ -1,34 +1,77 @@
-.bazel_docker_image: &bazel_docker_image thulioassis/bazel-docker-image:0.29.1
-.default_branch: &default_branch master
+# Dockerfile source - https://github.com/f0rmiga/bazel-docker-image.
+image: thulioassis/bazel-docker-image:0.29.1
 
 stages:
 - lint
 - build
+- cleanup:pre
+- deploy
+- tests
 - publish
+- cleanup:post
 
 lint:
   stage: lint
-  image: *bazel_docker_image
+  only:
+  - external_pull_requests
+  - master
   script:
   - ./dev/linters/shellcheck.sh
 
 build:chart:
   stage: build
-  image: *bazel_docker_image
+  only:
+  - external_pull_requests
+  - master
   script:
-  - .gitlab/pipelines/stages/build.sh
+  - .gitlab/pipelines/stages/build/build.sh
   artifacts:
     paths:
     - output/scf-*.tgz
     expire_in: 1 week
 
+# Ensure the cluster is clean.
+cleanup:pre:
+  stage: cleanup:pre
+  only:
+  - external_pull_requests
+  - master
+  script:
+  - .gitlab/pipelines/stages/cleanup.sh
+
+deploy:
+  stage: deploy
+  only:
+  - external_pull_requests
+  - master
+  script:
+  - .gitlab/pipelines/stages/deploy/deploy_cf_operator.sh
+  - .gitlab/pipelines/stages/deploy/deploy_kubecf.sh
+  - .gitlab/pipelines/stages/deploy/wait.sh
+
+tests:smoke:
+  stage: tests
+  only:
+  - external_pull_requests
+  - master
+  script:
+  - .gitlab/pipelines/stages/tests/smoke_tests.sh
+
 publish:chart:
   stage: publish
   only:
-    refs:
-    - *default_branch
+  - master
   image:
     name: minio/mc
     entrypoint: [""]
   script:
   - .gitlab/pipelines/stages/publish.sh
+
+cleanup:post:
+  stage: cleanup:post
+  only:
+  - external_pull_requests
+  - master
+  when: always
+  script:
+  - .gitlab/pipelines/stages/cleanup.sh
