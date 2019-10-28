@@ -1,3 +1,4 @@
+# Dockerfile source - https://github.com/f0rmiga/bazel-docker-image.
 image: thulioassis/bazel-docker-image:0.29.1
 
 stages:
