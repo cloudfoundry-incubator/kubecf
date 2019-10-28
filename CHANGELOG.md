@@ -51,16 +51,16 @@
 - Bumped Java buildpack to 4.19.1
 
 ## Fixed
-- Fixed the diego-api readiness probe 
+- Fixed the diego-api readiness probe
 - Fixed autoscaler to not skip SSL validation
 - Reduced autoscaler database disk size
-- Fixed autoscaler to listen to cluster internal CF API endpoint 
+- Fixed autoscaler to listen to cluster internal CF API endpoint
 
 ## [2.16.0] - 2019-02-04
 
 ## Added
 - Added Eirini Tech Preview
-- Added SLE15 stack 
+- Added SLE15 stack
 - Added feature flags to enable roles such as autoscaler, credhub, cf-usb, eirini
 - Added SITS (Sync Integration Test Suite)
 - Added support for Ingress Controller
@@ -119,7 +119,7 @@
 ## Added
 - Enabled Ingress Controller
 - Added nginx buildpack
-- Set up default PSPs 
+- Set up default PSPs
 - Specify SYS_RESOURCE capabilities for roles that need it
 
 ## Changed
@@ -157,7 +157,7 @@
 - Using upstream credhub instead of our own fork
 - Metron replaces loggregator as a new sidecar for those pods where loggregator ran as a service internally before
 
-## Fixed  
+## Fixed
 - External URL for USB fixed whereby job name doesn't appear in service name anymore
 
 ## [2.14.5] - 2018-11-07
@@ -179,7 +179,7 @@
 
 ## Fixed
 - IP mappings are refreshed when pods are restarted in HA
- 
+
 ## [2.14.3] - 2018-11-02
 
 ### Added
@@ -225,7 +225,7 @@
 - Exposed SMTP_HOST & SMTP_FROM_ADDRESS variables to allow for account creation & password reset
 
 ### Changed
-- One Kubernetes service per job now, whereby the service names will include both the instance group (previously the role) and job name, which impacts the role manifest YAML 
+- One Kubernetes service per job now, whereby the service names will include both the instance group (previously the role) and job name, which impacts the role manifest YAML
 - Bumped python & Ruby buildpacks
 - Bumped SLE12 & openSUSE stacks
 
@@ -350,7 +350,7 @@
 - Fixed issue during upgrade whereby USB did not receive updated password info
 - Patched monit_rsyslogd timestamp
 
-## [2.10.1] - 2018-05-17 
+## [2.10.1] - 2018-05-17
 
 ### Changed
 - Disabled optional consul role
@@ -388,7 +388,7 @@
 ### Added
 - Enabled router.forwarded_client_cert variable for router
 - New syslog roles can have anti-affinity
-- mysql-proxy healthcheck timeouts are configurable 
+- mysql-proxy healthcheck timeouts are configurable
 
 ### Changed
 - Bumped UAA to v56.0
@@ -411,7 +411,7 @@
 - Variable kube.external_ip now changed to kube.external_ips
 
 ### Fixed
-- Addressed issue with how pods were indexed with invalid formatting 
+- Addressed issue with how pods were indexed with invalid formatting
 
 ## [2.7.3] - 2018-03-23
 ### Added
