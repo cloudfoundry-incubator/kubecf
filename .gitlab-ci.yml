@@ -39,20 +39,13 @@ cleanup:pre:
   script:
   - .gitlab/pipelines/stages/cleanup.sh
 
-deploy:cf-operator:
+deploy:
   stage: deploy
   only:
   - external_pull_requests
   - master
   script:
   - .gitlab/pipelines/stages/deploy/deploy_cf_operator.sh
-
-deploy:kubecf:
-  stage: deploy
-  only:
-  - external_pull_requests
-  - master
-  script:
   - .gitlab/pipelines/stages/deploy/deploy_kubecf.sh
   - .gitlab/pipelines/stages/deploy/wait.sh
 
