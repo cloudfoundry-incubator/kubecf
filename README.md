@@ -1,9 +1,14 @@
 [![pipeline status](https://gitlab.com/susecf/kubecf/badges/master/pipeline.svg)](https://gitlab.com/susecf/kubecf/pipelines)
 
-# Kube CF
+# Kubecf
 
-Cloud Foundry built for Kubernetes (formerly [SUSE/scf v3 branch](https://github.com/SUSE/scf/tree/v3).
-It makes use of the [Cloud Foundry Operator](https://github.com/cloudfoundry-incubator/cf-operator/), which is incubating under [Project Quarks](https://www.cloudfoundry.org/project-quarks/).
+Cloud Foundry built for Kubernetes (formerly [SUSE/scf v3 branch]).
+It makes use of the [Cloud Foundry Operator], which is incubating
+under [Project Quarks].
+
+[SUSE/scf v3 branch]:     https://github.com/SUSE/scf/tree/v3
+[Cloud Foundry Operator]: https://github.com/cloudfoundry-incubator/cf-operator/
+[Project Quarks]:         https://www.cloudfoundry.org/project-quarks/
 
 ## Useful Information
 
@@ -11,10 +16,9 @@ It makes use of the [Cloud Foundry Operator](https://github.com/cloudfoundry-inc
 | -------------------------- | ------------------------------------------------------------ |
 | GitLab Pipeline            | https://gitlab.com/susecf/kubecf/pipelines                   |
 | S3 Bucket with helm charts | https://scf-v3.s3.amazonaws.com/index.html                   |
-| Installation Instructions  | [dev/scf/docs/installing.md](dev/scf/docs/installing.md)     |
 | Cloud Foundry Operator     | https://github.com/cloudfoundry-incubator/cf-operator/       |
-| CF Operator builds         | https://cf-operators.s3.amazonaws.com/helm-charts/index.html |
+| CF Operator Charts         | https://cf-operators.s3.amazonaws.com/helm-charts/index.html |
 
-## Developing
+## Contributing to Kubecf development
 
-Refer to [dev/README.md](dev/README.md).
+See the [Guide to Contribution](doc/Contribute.md).

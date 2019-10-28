@@ -1,18 +1,32 @@
 # Minikube
 
-IMPORTANT! The `~/.kube/config` file will be edited by Minikube. Make a backup if you want to
-preserve the original configuration.
+## Attention
+
+Minikube edits the kubernetes configuration file referenced by the
+environment variable `KUBECONFIG`, or `~/.kube/config`.
+
+To preserve the original configuration either make a backup of the
+relevant file, or change `KUBECONFIG` to a different path specific to
+the intended deployment.
+
+## Deployment and teardown
 
 For developing with Minikube, start a local cluster by running the `start` target:
 
-```txt
+```sh
 bazel run //dev/minikube:start
+```
+
+And tear it down again via:
+
+```sh
+bazel run //dev/minikube:delete
 ```
 
 ## Managing system resources
 
-The following environment variables are used by the `start` target to allocate the resources used by
-Minikube:
+The following three environment variables are used by the `start`
+target to allocate the resources used by the deployed Minikube:
 
   - VM_CPUS - the number of CPUs Minikube will use.
   - VM_MEMORY - the amount of RAM Minikube will be allowed to use.
@@ -20,7 +34,7 @@ Minikube:
 
 E.g.:
 
-```txt
+```sh
 VM_CPUS=6 VM_MEMORY=$((1024 * 24)) VM_DISK_SIZE=180g bazel run //dev/minikube:start
 ```
 
