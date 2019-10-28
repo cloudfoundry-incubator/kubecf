@@ -3,6 +3,8 @@ package(default_visibility = ["//visibility:public"])
 load("//rules/kubectl:def.bzl", kubectl_patch = "patch")
 load("//:def.bzl", "project")
 
+# TODO: Make smoke_tests target also stream the logs. It'll need a new rule for it that takes the
+# kubectl_patch script as a dependency.
 kubectl_patch(
     name = "smoke_tests",
     namespace = "${KUBECF_NAMESPACE}",

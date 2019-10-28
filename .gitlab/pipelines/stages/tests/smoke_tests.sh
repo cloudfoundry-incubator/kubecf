@@ -8,11 +8,11 @@ source "$(bazel info workspace)/.gitlab/pipelines/config/config.sh"
 # Trigger smoke-tests.
 bazel run //testing/smoke_tests
 
-# Wait for smoke-tests to start.
 smoke_tests_pod_name() {
   bazel run @kubectl//:kubectl -- get pods --namespace "${KUBECF_NAMESPACE}" --output name 2> /dev/null | grep "smoke-tests"
 }
 
+# Wait for smoke-tests to start.
 wait_for_smoke_tests_pod() {
   local timeout="300"
   until bazel run @kubectl//:kubectl -- get pods --namespace "${KUBECF_NAMESPACE}" --output name 2> /dev/null | grep --quiet "smoke-tests" || [[ "$timeout" == "0" ]]; do sleep 1; timeout=$((timeout - 1)); done

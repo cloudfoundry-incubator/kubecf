@@ -23,7 +23,7 @@ build:chart:
   - external_pull_requests
   - master
   script:
-  - .gitlab/pipelines/stages/build.sh
+  - .gitlab/pipelines/stages/build/build.sh
   artifacts:
     paths:
     - output/scf-*.tgz
