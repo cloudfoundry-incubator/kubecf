@@ -12,6 +12,7 @@ specific details of that aspect.
   - [Deployment](#deployment)
   - [Pull Requests](#pull-requests)
   - [Source Organization](#source-organization)
+  - [Linting](#linting)
 
 ## Deployment
 
@@ -83,3 +84,20 @@ are:
 |				|local chart application				|
 |__top__/deploy/helm/scf	|Templates and assets wrapping a CF deployment		|
 |				|manifest into a helm chart				|
+|__top__/rules			|Supporting bazel definitions				|
+|__top__/testing		|Bazel targets to run CF smoke and acceptance tests	|
+
+## Linting
+
+Currently only one linter is available:
+
+  - `dev/linters/shellcheck.sh`
+
+Invoke this linter as
+
+```sh
+dev/linters/shellcheck.sh
+```
+
+to run shellcheck on all `.sh` files found in the entire checkout and
+report any issues found.
