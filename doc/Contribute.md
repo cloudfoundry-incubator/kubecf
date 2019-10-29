@@ -165,6 +165,7 @@ Kubecf provides two mechanisms for customization during development
 
      For example, `kubectl apply` the object below
 
+         ```yaml
          ---
          apiVersion: v1
          kind: ConfigMap
@@ -173,6 +174,7 @@ Kubecf provides two mechanisms for customization during development
          data:
            ops: |-
              some_random_ops
+         ```
 
      and then use `--set .Values.operations.custom[0]=configmap_name`
      or equivalent as part of a kubecf deployment to include that ops
@@ -183,10 +185,12 @@ Kubecf provides two mechanisms for customization during development
 
      Just specifying
 
+         ```yaml
          properties:
            instance-group-name:
              job-name:
                some-property: some-value
+         ```
 
      in the values.yaml for the kubecf chart causes the chart to
      generate and use an ops file which applies the assignment of
