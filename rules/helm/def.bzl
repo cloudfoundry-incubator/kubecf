@@ -68,29 +68,8 @@ PackageInfo = provider(
     ],
 )
 
-def _package_info_aspect_impl(target, ctx):
-    return [PackageInfo(
-        chart_name = ctx.rule.attr.chart_name,
-        chart_version = ctx.rule.attr.chart_version,
-    )]
-
-package_info_aspect = aspect(
-    implementation = _package_info_aspect_impl,
-    attr_aspects = [
-        "chart_name",
-        "chart_version",
-    ],
-)
-
 def _template_impl(ctx):
-    chart_package_chart_name = ctx.attr.chart_package[PackageInfo].chart_name
-    chart_package_chart_version = ctx.attr.chart_package[PackageInfo].chart_version
-    output_filename = "{}_{}-install_{}-namespace_{}.yaml".format(
-        chart_package_chart_name,
-        chart_package_chart_version,
-        ctx.attr.install_name,
-        ctx.attr.namespace,
-    )
+    output_filename = "{}.yaml".format(ctx.attr.name)
     output_yaml = ctx.actions.declare_file(output_filename)
     outputs = [output_yaml]
     arguments = ctx.actions.args()
@@ -102,10 +81,7 @@ def _template_impl(ctx):
         inputs = [ctx.file.chart_package] + ctx.files.values,
         outputs = outputs,
         tools = [ctx.executable._helm],
-        progress_message = "Rendering Helm package archive {chart_package} to {output}".format(
-            chart_package = chart_package_chart_name,
-            output = output_filename,
-        ),
+        progress_message = "Rendering Helm package to {}".format(output_filename),
         executable = ctx.executable._script,
         env = {
             "HELM": ctx.executable._helm.path,
@@ -137,7 +113,6 @@ template = rule(
         "chart_package": attr.label(
             mandatory = True,
             allow_single_file = True,
-            aspects = [package_info_aspect],
         ),
         "_helm": attr.label(
             allow_single_file = True,
