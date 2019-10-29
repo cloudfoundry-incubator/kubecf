@@ -176,9 +176,16 @@ Kubecf provides two mechanisms for customization during development
              some_random_ops
          ```
 
-     and then use `--set .Values.operations.custom[0]=configmap_name`
-     or equivalent as part of a kubecf deployment to include that ops
-     file in the deployment.
+     and then use
+
+         ```yaml
+         operations:
+           custom:
+           - configmap_name
+         ```
+
+     in the values.yaml (or an equivalent `--set` option) as part of a
+     kubecf deployment to include that ops file in the deployment.
 
   2. The second mechanism allows the specification of any custom BOSH
      property for any instancegroup and job therein.
