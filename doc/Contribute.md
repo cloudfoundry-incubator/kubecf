@@ -3,9 +3,9 @@
 The intended audience of this document are developers wishing to
 contribute to the Kubecf project.
 
-It provides a basic overview of various aspects of the project, from
-which it when launches to other documentation going deeper into
-specific details of that aspect.
+It provides a basic overview of various aspects of the project below,
+and uses these overviews as the launching points to other documents
+which go deeper into the details of each aspect.
 
 ## Table of Contents (Aspects)
 
