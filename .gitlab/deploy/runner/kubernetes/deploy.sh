@@ -33,6 +33,21 @@ if [ -z "${runner_registration_token}" ]; then
   exit 1
 fi
 
+kubectl apply -f - <<EOF
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitlab-runner:cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: ${namespace}
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+EOF
+
 helm upgrade "${installation_name}" gitlab/gitlab-runner \
   --install \
   --namespace "${namespace}" \
