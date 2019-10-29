@@ -3,11 +3,11 @@
 The intended audience of this document are developers wishing to
 contribute to the Kubecf project.
 
-Here we explain how to deploy Kubecf locally using
+Here we explain how to deploy Kubecf locally using:
 
   - Minikube to manage a local kubernetes cluster.
-  - Helm.
-  - A CF operator released as a helm chart.
+  - Helm for rendering kube templates.
+  - A cf-operator released as a helm chart.
   - Kubecf built and deployed from the sources in the current checkout.
 
 ## Minikube
@@ -51,16 +51,16 @@ complex deployments specified as Helm charts.
 [Installing and configuring Helm](helm.md) is the same regardless of
 the chosen foundation.
 
-## CF operator
+## cf-operator
 
-The [CF operator] is the underlying generic tool to deploy a (modified)
+The [cf-operator] is the underlying generic tool to deploy a (modified)
 BOSH deployment like Kubecf for use.
 
-[CF operator]: https://github.com/cloudfoundry-incubator/cf-operator
+[cf-operator]: https://github.com/cloudfoundry-incubator/cf-operator
 
 It has to be installed in the same kube cluster Kubecf will be deployed to.
 
-For simplicity it will be installed from a released helm chart:
+For simplicity, it will be installed from a released helm chart:
 
 ```shell
 helm install --name cf-operator \
@@ -109,7 +109,7 @@ uses the Diego scheduler.
 
 ### Access
 
-To access the clister after the CF operator has completed the
+To access the cluster after the cf-operator has completed the
 deployment and all pods are active invoke:
 
 ```sh

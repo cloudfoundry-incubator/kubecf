@@ -4,27 +4,14 @@ Install Helm with RBAC.
 Note that this requires creating the role first:
 
 ```
-kubectl create -f <( cat <<EOF
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: tiller
-  namespace: kube-system
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: tiller
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-  - kind: ServiceAccount
-    name: tiller
-    namespace: kube-system
-EOF
-)
+kubectl create serviceaccount tiller --namespace kube-system
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
 
 helm init --upgrade --service-account tiller --wait
 ```
+
+## Attention, Danger
+
+The above creates a cluster-admin role which has strong adverse
+security implications. As such this is not recommended to be done on
+production clusters.
