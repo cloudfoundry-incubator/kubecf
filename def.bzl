@@ -4,6 +4,12 @@ project = struct(
         version = "8.0.0",
         sha256 = "289f6c5a116eef4b16b228d07d55517dc20f76199c1476036fc0ade5a08a3e1b",
     ),
+    cf_operator = struct(
+        chart = struct(
+            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2%2B85.gc6d71da5.tgz",
+            sha256 = "17a31543825ad79f279f4de6e8362a1659c4c5374ed3e17834a13a5770728f0d",
+        ),
+    ),
     helm = struct(
         version = "2.14.1",
         platforms = [

@@ -1,6 +1,6 @@
 workspace(name = "kubecf")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("//dev/kind:binary.bzl", "kind_binary")
 load("//dev/minikube:binary.bzl", "minikube_binary")
 load("//rules/external_binary:def.bzl", "external_binary")
@@ -27,6 +27,12 @@ filegroup(
     sha256 = project.cf_deployment.sha256,
     strip_prefix = "cf-deployment-{}".format(project.cf_deployment.version),
     url = "https://github.com/cloudfoundry/cf-deployment/archive/v{}.tar.gz".format(project.cf_deployment.version),
+)
+
+http_file(
+    name = "cf_operator",
+    sha256 = project.cf_operator.chart.sha256,
+    urls = [project.cf_operator.chart.url],
 )
 
 helm_binary(

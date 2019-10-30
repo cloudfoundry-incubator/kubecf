@@ -1,0 +1,30 @@
+package(default_visibility = ["//visibility:public"])
+
+load("//rules/helm:def.bzl", helm_template = "template")
+load("//rules/kubectl:def.bzl", kubectl_apply_binary = "apply", kubectl_delete_binary = "delete")
+load("//:def.bzl", "project")
+
+CF_OPERATOR_NAMESPACE = "cfo"
+
+helm_template(
+    name = "rendered_template",
+    values = glob(["**/*values.yaml"]),
+    install_name = "cf-operator",
+    namespace = CF_OPERATOR_NAMESPACE,
+    set_values = {
+        "operator.watchNamespace": project.namespace,
+    },
+    chart_package = "@cf_operator//file",
+)
+
+kubectl_apply_binary(
+    name = "apply",
+    resource = ":rendered_template",
+    namespace = CF_OPERATOR_NAMESPACE,
+)
+
+kubectl_delete_binary(
+    name = "delete",
+    resource = ":rendered_template",
+    namespace = CF_OPERATOR_NAMESPACE,
+)
