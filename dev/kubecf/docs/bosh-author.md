@@ -1,12 +1,12 @@
 # Workflow for BOSH Release Authors
 
-This document describes how SCF and Quarks can be used for BOSH release development.
+This document describes how KUBECF and Quarks can be used for BOSH release development.
 
 ## Preparing the Release Image
 
 BOSH release authors, who want to test their development code with the Quarks operator, need to build a Docker image from their release.
 This can be done with fissile.
-Upload the image to a cluster and test it, e.g. with SCF.
+Upload the image to a cluster and test it, e.g. with KUBECF.
 
 ### Building a Docker Image with Fissile
 
@@ -32,7 +32,7 @@ With *kind*, you need to use `kind load docker-image` after building the image, 
 kind load docker-image docker.io/org/nats:0.1-dev
 ```
 
-### Modify SCF to Use the New Image
+### Modify KUBECF to Use the New Image
 
 Add an operations file to Kubernetes with the new image location:
 
@@ -55,17 +55,17 @@ data:
 EOF
 ```
 
-When running `helm install scf` refer to that image:
+When running `helm install kubecf` refer to that image:
 
 ```sh
 helm install ... --set 'operations.custom={nats-dev}'
 ```
 
-Note: You can also unpack the helm release and modify it directly. There is no need to zip the release again, `helm install scf/` can install the unpacked release.
+Note: You can also unpack the helm release and modify it directly. There is no need to zip the release again, `helm install kubecf/` can install the unpacked release.
 
-## Integrating the Release in SCF
+## Integrating the Release in KUBECF
 
-With Quarks and SCF BOSH releases can largely be used just the same as with a BOSH director. There are a few things Quarks offers to make adaption to the kubernetes environment easier, though.
+With Quarks and KUBECF BOSH releases can largely be used just the same as with a BOSH director. There are a few things Quarks offers to make adaption to the kubernetes environment easier, though.
 
 ### BPM
 
@@ -96,7 +96,7 @@ Note: See [ops files](#ops-files) for how this can be applied without the need t
 
 ### ops files
 
-[ops files](https://bosh.io/docs/cli-ops-files/) can be used to modify arbitrary parts of the deployment manifest before being applied. To do so, create a file in `deploy/helm/scf/assets/operations/instance_groups` and it will automagically be applied during installation.
+[ops files](https://bosh.io/docs/cli-ops-files/) can be used to modify arbitrary parts of the deployment manifest before being applied. To do so, create a file in `deploy/helm/kubecf/assets/operations/instance_groups` and it will automagically be applied during installation.
 
 The ops file for the example above could look like this:
 
@@ -114,6 +114,6 @@ The ops file for the example above could look like this:
 
 ```
 
-## Testing With SCFv3
+## Testing With KUBECF
 
-Afterwards you can build and deploy SCF according to the [SCFv3 docs](https://github.com/SUSE/kubecf/blob/master/dev/scf/docs/installing.md).
+Afterwards you can build and deploy KUBECF according to the [KUBECF docs](https://github.com/SUSE/kubecf/blob/master/dev/kubecf/docs/installing.md).

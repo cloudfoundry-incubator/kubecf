@@ -1,9 +1,9 @@
 {{- /*
-  Template "scf.implicit-var" generates the kube secret declaration for a
+  Template "kubecf.implicit-var" generates the kube secret declaration for a
   variable.  It takes a list of two arguments: the context, and the variable
   name.
 */ -}}
-{{- define "scf.implicit-var" }}
+{{- define "kubecf.implicit-var" }}
 {{- $variable_name := (last .) }}
 {{- with (first .) }}
 ---
@@ -14,17 +14,17 @@ metadata:
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ include "scf.fullname" . }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
     app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ include "scf.chart" . }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
 type: Opaque
 stringData:
-  value: {{ template "scf.dig" (list .Values ( splitList "." $variable_name )) }}
+  value: {{ template "kubecf.dig" (list .Values ( splitList "." $variable_name )) }}
 {{- end }}
 {{- end }}
 
-{{ include "scf.implicit-var" (list . "system_domain") }}
-{{ include "scf.implicit-var" (list . "k8s-host-url") }}
-{{ include "scf.implicit-var" (list . "k8s-service-token") }}
-{{ include "scf.implicit-var" (list . "k8s-service-username") }}
-{{ include "scf.implicit-var" (list . "k8s-node-ca") }}
+{{ include "kubecf.implicit-var" (list . "system_domain") }}
+{{ include "kubecf.implicit-var" (list . "k8s-host-url") }}
+{{ include "kubecf.implicit-var" (list . "k8s-service-token") }}
+{{ include "kubecf.implicit-var" (list . "k8s-service-username") }}
+{{ include "kubecf.implicit-var" (list . "k8s-node-ca") }}

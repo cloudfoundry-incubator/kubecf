@@ -78,14 +78,14 @@ are:
 |__top__/dev/cf_deployment/bump |Tools to support updating the cf deployment            |
 |                               |manifest used by kubecf.                               |
 |__top__/dev/cf_cli             |Deploy cf cli into a helper pod from which to then     |
-|                               |inspect the deployed CF .                              |
+|                               |inspect the deployed CF.                               |
 |__top__/dev/kube               |Tools to inspect kube clusters and kubecf deployments. |
 |__top__/dev/linters            |Tools for statically checking the kubecf sources.      |
 |__top__/dev/minikube           |Targets to manage a local kubernetes cluster.          |
 |                               |Minikube based.                                        |
-|__top__/dev/scf                |Kubecf chart configuration, and targets for            |
+|__top__/dev/kubecf             |Kubecf chart configuration, and targets for            |
 |                               |local chart application.                               |
-|__top__/deploy/helm/scf        |Templates and assets wrapping a CF deployment          |
+|__top__/deploy/helm/kubecf     |Templates and assets wrapping a CF deployment          |
 |                               |manifest into a helm chart.                            |
 |__top__/rules                  |Supporting bazel definitions.                          |
 |__top__/testing                |Bazel targets to run CF smoke and acceptance tests.    |

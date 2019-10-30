@@ -10,7 +10,7 @@ usage: $0 [-f] [-v] [INSTANCE_ID]
 
   -f  forces fetching of all logs even if a cache already exists
 
-  INSTANCE_ID defaults to "scf"
+  INSTANCE_ID defaults to "kubecf"
 EOF
   exit
 fi
@@ -21,7 +21,7 @@ if [ "$1" == "-f" ]; then
   FORCE=1
 fi
 
-NS=${1-scf}
+NS=${1-kubecf}
 DONE="${KLOG}/${NS}/done"
 
 # Prevent bail out.

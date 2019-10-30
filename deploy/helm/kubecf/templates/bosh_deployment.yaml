@@ -7,16 +7,16 @@ metadata:
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ include "scf.fullname" . }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
     app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ include "scf.chart" . }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
 spec:
   manifest:
     name: cf-deployment
     type: configmap
   ops:
 {{- if .Values.features.suse_buildpacks }}
-  - name: {{ include "scf.ops-name" "assets/operations/buildpacks/set_suse_buildpacks.yaml" }}
+  - name: {{ include "kubecf.ops-name" "assets/operations/buildpacks/set_suse_buildpacks.yaml" }}
     type: configmap
 {{- end }}
 {{- if .Values.features.eirini.enabled }}
@@ -24,11 +24,11 @@ spec:
     type: configmap
 {{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
-  - name: {{ include "scf.ops-name" $path }}
+  - name: {{ include "kubecf.ops-name" $path }}
     type: configmap
 {{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
-  - name: {{ include "scf.ops-name" $path }}
+  - name: {{ include "kubecf.ops-name" $path }}
     type: configmap
 {{- end }}
 {{- if not .Values.sizing.HA }}
@@ -36,7 +36,7 @@ spec:
     type: configmap
 {{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
-  - name: {{ include "scf.ops-name" $path }}
+  - name: {{ include "kubecf.ops-name" $path }}
     type: configmap
 {{- end }}
 {{- if .Values.features.eirini.enabled }}

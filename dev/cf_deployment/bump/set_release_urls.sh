@@ -2,8 +2,8 @@
 
 set -o errexit -o nounset
 
-cf_deployment_yaml="deploy/helm/scf/assets/cf-deployment.yml"
-dest="deploy/helm/scf/assets/operations/set_release_urls.yaml"
+cf_deployment_yaml="deploy/helm/kubecf/assets/cf-deployment.yml"
+dest="deploy/helm/kubecf/assets/operations/set_release_urls.yaml"
 
 printf '# This ops file sets the Quarks images for the releases.\n\n' > "${dest}"
 

@@ -18,4 +18,4 @@ properties:
 ```
 
 [`acceptance_tests.include`]:  https://github.com/SUSE/cf-acceptance-tests-release/blob/0.0.1/jobs/acceptance-tests/spec#L47-L54
-[`values.yaml`]: ../../dev/scf/values.yaml
+[`values.yaml`]: ../../dev/kubecf/values.yaml

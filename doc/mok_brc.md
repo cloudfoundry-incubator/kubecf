@@ -91,7 +91,7 @@ For the minikube foundation we have to specify it as:
 
 ```sh
 echo "system_domain: $(minikube ip).xip.io" \
-  > "$(bazel info workspace)/dev/scf/system_domain_values.yaml"
+  > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml"
 ```
 
 ### Deployment and Teardown
@@ -99,10 +99,10 @@ echo "system_domain: $(minikube ip).xip.io" \
 The Kubecf bazel workspace contains targets to deploy and/or tear down
 kubecf from the sources:
 
-|Operation	|Command			|
-|---		|---				|
-|Deployment	| `bazel run //dev/scf:apply`	|
-|Tear down	| `bazel run //dev/scf:delete`	|
+|Operation	|Command				|
+|---		|---					|
+|Deployment	| `bazel run //dev/kubecf:apply`	|
+|Tear down	| `bazel run //dev/kubecf:delete`	|
 
 In this default deployment kubecf is launched without Ingress, and
 uses the Diego scheduler.
@@ -117,7 +117,7 @@ cf api --skip-ssl-validation "https://api.$(minikube ip).xip.io"
 
 # Copy the admin cluster password.
 acp=$(kubectl get secret \
-	      --namespace scf scf.var-cf-admin-password \
+	      --namespace kubecf kubecf.var-cf-admin-password \
 	      -o jsonpath='{.data.password}' \
 	      | base64 --decode)
 
