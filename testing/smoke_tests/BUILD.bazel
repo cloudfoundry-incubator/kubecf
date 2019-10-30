@@ -7,7 +7,7 @@ load("//:def.bzl", "project")
 # kubectl_patch script as a dependency.
 kubectl_patch(
     name = "smoke_tests",
-    namespace = "${KUBECF_NAMESPACE}",
+    namespace = project.namespace,
     resource_type = "ejob",
     resource_name = "scf-smoke-tests",
     patch_type = "merge",
