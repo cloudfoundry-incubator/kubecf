@@ -1,5 +1,24 @@
 # Install SCFv3 release
 
+## Prerequisites
+
+### Diego
+
+### Eirini
+
+- Kube CA trusted on nodes
+
+ |             | v1.12 | v1.13 | v1.14 | v1.15 | v1.16 |
+ | ----------- | ----- | ----- | ----- | ----- | ----- |
+ | Google GKE  |       |       |       |       |       |
+ | Amazon EKS  |       |       |       |       |       |
+ | SUSE CaaSP  |       |       |       |       |       |
+ | IBM Bluemix |       |       |       |       |       |
+ | Azure AKS   |       |       |       |       |       |
+ | Minikube    |  ✔     |       |       |       |       |
+ | Kind        |  ✔   |       |       |       |       |
+
+
 ## Prepare the cluster
 
 ### minikube
