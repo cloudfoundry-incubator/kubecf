@@ -1,5 +1,24 @@
 # Install SCFv3 release
 
+## Prerequisites
+
+### Diego
+
+### Eirini
+
+- Kube CA trusted on nodes
+
+ |             | v1.12 | v1.13 | v1.14 | v1.15 | v1.16 |
+ | ----------- | ----- | ----- | ----- | ----- | ----- |
+ | Google GKE  |       |       |       |       |       |
+ | Amazon EKS  |       |       |       |       |       |
+ | SUSE CaaSP  |       |       |       |       |       |
+ | IBM Bluemix |       |       |       |       |       |
+ | Azure AKS   |       |       |       |       |       |
+ | Minikube    |  ✔     |       |       |       |       |
+ | Kind        |  ✔   |       |       |       |       |
+
+
 ## Prepare the cluster
 
 ### minikube
@@ -9,7 +28,6 @@ We need more disk space in minikube, otherwise pods will get evicted and the dep
 Create the cluster with:
 
     minikube start --memory=12000mb --cpus=4 --disk-size=40gb --kubernetes-version v1.14.1
-
 
 ### GKE
 
@@ -71,7 +89,7 @@ CF-Operator can be installed in a separate namespace:
 helm install --namespace cfo --name cf-operator --set "operator.watchNamespace=scf" https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.1%2B92.g77e53fda.tgz
 ```
 
-This allows us to restart the operator, because it's not affected by webhooks. We can also delete the SCF deployment namespace to start from scratch, without redeploying the operator.
+This allows us to restart the operator, because it is not affected by webhooks. We can also delete the SCF deployment namespace to start from scratch, without redeploying the operator.
 
 ## Install SCFv3
 
@@ -91,7 +109,7 @@ Make the CF router available via a load balancer:
 kubectl expose service -n scf scf-router-v1-0 --type=LoadBalancer --name=scf-router-lb
 ```
 
-The load balancers public IP should have these DNS records:
+The load balancer's public IP should have these DNS records:
 
 ```
 app1.scf.suse.dev
@@ -104,7 +122,7 @@ doppler.scf.suse.dev
 log-stream.scf.suse.dev
 ```
 
-If you are testing locally and have no control over a DNS zone, you can enter host aliases in you r `/etc/hosts`:
+If you are testing locally and have no control over a DNS zone, you can enter host aliases in your `/etc/hosts`:
 
 ```
 192.168.99.112 app1.scf.suse.dev app2.scf.suse.dev app3.scf.suse.dev login.scf.suse.dev api.scf.suse.dev uaa.scf.suse.dev doppler.scf.suse.dev log-stream.scf.suse.dev
