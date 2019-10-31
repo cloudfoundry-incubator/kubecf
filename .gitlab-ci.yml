@@ -27,7 +27,7 @@ build:chart:
   - .gitlab/pipelines/stages/build/build.sh
   artifacts:
     paths:
-    - output/scf-*.tgz
+    - output/kubecf-*.tgz
     expire_in: 1 week
 
 # Ensure the cluster is clean.

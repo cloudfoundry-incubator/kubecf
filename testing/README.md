@@ -2,7 +2,7 @@
 
 ## Smoke tests
 
-After the SCF deployment completed, run:
+After the Kubecf deployment completed, run:
 
 ```sh
 bazel run //testing/smoke_tests

@@ -10,7 +10,7 @@ bazel run //dev/kind:start
 Don't forget to also set your `KUBECONFIG`:
 
 ```shell
-export KUBECONFIG="$(bazel run @kind//:kind -- get kubeconfig-path --name="scf")"
+export KUBECONFIG="$(bazel run @kind//:kind -- get kubeconfig-path --name="kubecf")"
 ```
 
 ## Cleanup

@@ -7,7 +7,7 @@ kubectl_patch(
     name = "acceptance_tests",
     namespace = project.namespace,
     resource_type = "ejob",
-    resource_name = "scf-acceptance-tests",
+    resource_name = "kubecf-acceptance-tests",
     patch_type = "merge",
     patch_file = ":trigger.yaml",
 )

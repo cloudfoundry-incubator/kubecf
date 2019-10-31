@@ -73,9 +73,9 @@ metadata:
     app.kubernetes.io/component: operations
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ include "scf.fullname" . }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
     app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ include "scf.chart" . }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
 data:
   ops: |
     # Remove the whole diego-cell instance group.

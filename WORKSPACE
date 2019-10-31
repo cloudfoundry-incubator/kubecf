@@ -1,4 +1,4 @@
-workspace(name = "scf")
+workspace(name = "kubecf")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//dev/kind:binary.bzl", "kind_binary")

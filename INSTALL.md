@@ -1,4 +1,4 @@
-# Install SCFv3 release
+# Install Kubecf release
 
 ## Prerequisites
 
@@ -37,8 +37,8 @@ The `--image-type UBUNTU` selects an OS with XFS support.
 Create the cluster like this:
 
 ```
-project=scfv3
-clustername=scfv3-test
+project=kubecf
+clustername=kubecf-test
 gcloud beta container --project "$project" clusters create "$clustername" \
       --zone "europe-west4-a" --no-enable-basic-auth --cluster-version "1.12.8-gke.10" \
       --machine-type "custom-6-13312" --image-type "UBUNTU" --disk-type "pd-standard" \
@@ -86,44 +86,44 @@ helm init --upgrade --service-account tiller --wait
 CF-Operator can be installed in a separate namespace:
 
 ```
-helm install --namespace cfo --name cf-operator --set "operator.watchNamespace=scf" https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.1%2B92.g77e53fda.tgz
+helm install --namespace cfo --name cf-operator --set "operator.watchNamespace=kubecf" https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.1%2B92.g77e53fda.tgz
 ```
 
-This allows us to restart the operator, because it is not affected by webhooks. We can also delete the SCF deployment namespace to start from scratch, without redeploying the operator.
+This allows us to restart the operator, because it is not affected by webhooks. We can also delete the Kubecf deployment namespace to start from scratch, without redeploying the operator.
 
-## Install SCFv3
+## Install Kubecf
 
 Enable Eirini explicitly when installing. The `system_domain` DNS record needs to point to the IP of the external load balancer.
 
 ```
-helm install --namespace scf --name scf https://scf-v3.s3.amazonaws.com/scf-3.0.0-82165ef3.tgz --set "system_domain=scf.suse.dev" --set "features.eirini=true"
+helm install --namespace kubecf --name kubecf https://scf-v3.s3.amazonaws.com/scf-3.0.0-82165ef3.tgz --set "system_domain=kubecf.suse.dev" --set "features.eirini=true"
 ```
 
-## Expose SCFv3
+## Expose Kubecf
 
 ### GKE
 
 Make the CF router available via a load balancer:
 
 ```
-kubectl expose service -n scf scf-router-v1-0 --type=LoadBalancer --name=scf-router-lb
+kubectl expose service -n kubecf kubecf-router-v1-0 --type=LoadBalancer --name=kubecf-router-lb
 ```
 
 The load balancer's public IP should have these DNS records:
 
 ```
-app1.scf.suse.dev
-app2.scf.suse.dev
-app3.scf.suse.dev
-login.scf.suse.dev
-api.scf.suse.dev
-uaa.scf.suse.dev
-doppler.scf.suse.dev
-log-stream.scf.suse.dev
+app1.kubecf.suse.dev
+app2.kubecf.suse.dev
+app3.kubecf.suse.dev
+login.kubecf.suse.dev
+api.kubecf.suse.dev
+uaa.kubecf.suse.dev
+doppler.kubecf.suse.dev
+log-stream.kubecf.suse.dev
 ```
 
 If you are testing locally and have no control over a DNS zone, you can enter host aliases in your `/etc/hosts`:
 
 ```
-192.168.99.112 app1.scf.suse.dev app2.scf.suse.dev app3.scf.suse.dev login.scf.suse.dev api.scf.suse.dev uaa.scf.suse.dev doppler.scf.suse.dev log-stream.scf.suse.dev
+192.168.99.112 app1.kubecf.suse.dev app2.kubecf.suse.dev app3.kubecf.suse.dev login.kubecf.suse.dev api.kubecf.suse.dev uaa.kubecf.suse.dev doppler.kubecf.suse.dev log-stream.kubecf.suse.dev
 ```

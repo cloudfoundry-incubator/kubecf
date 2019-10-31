@@ -9,7 +9,7 @@ kubectl_patch(
     name = "smoke_tests",
     namespace = project.namespace,
     resource_type = "ejob",
-    resource_name = "scf-smoke-tests",
+    resource_name = "kubecf-smoke-tests",
     patch_type = "merge",
     patch_file = ":trigger.yaml",
 )

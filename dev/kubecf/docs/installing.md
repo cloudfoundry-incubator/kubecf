@@ -1,4 +1,4 @@
-# Installing SCF
+# Installing Kubecf
 
 ## Prerequisites
 
@@ -22,7 +22,7 @@ Load the cf-operator, depending on if you're using `kind` or `minikube`:
 #### When using `kind`
 
 ```sh
-kind load image-archive --name scf binaries/cf-operator-image.tgz
+kind load image-archive --name kubecf binaries/cf-operator-image.tgz
 ```
 
 #### When using `minikube`
@@ -37,7 +37,7 @@ Run the following commands to run `cf-operator` _locally_, taking to your
 kubernetes cluster:
 
 ```sh
-kubectl create namespace scf
+kubectl create namespace kubecf
 
 # Get the default network device, being the word after "dev".
 DEFAULT_NET_DEVICE="$(ip route list 0/0 | perl -n -e '/\bdev\s+(\S+)/ && print $1')"
@@ -46,7 +46,7 @@ DEFAULT_NET_DEVICE="$(ip route list 0/0 | perl -n -e '/\bdev\s+(\S+)/ && print $
 DEFAULT_NET_ADDR="$(ip -4 -o addr show dev "${DEFAULT_NET_DEVICE}" | perl -n -e '/\binet\s+([^\/]+)/ && print $1')"
 
 # Deploy cf-operator.
-CF_OPERATOR_WEBHOOK_SERVICE_HOST="${DEFAULT_NET_ADDR}" CF_OPERATOR_NAMESPACE=scf SKIP_IMAGE=true make up
+CF_OPERATOR_WEBHOOK_SERVICE_HOST="${DEFAULT_NET_ADDR}" CF_OPERATOR_NAMESPACE=kubecf SKIP_IMAGE=true make up
 ```
 
 ## Public access to the cluster
@@ -95,7 +95,7 @@ helm install stable/nginx-ingress \
 Pass the flag `--set "controller.service.externalIPs={$(minikube ip)}"` to the `helm install` in
 order to assign the external IP to the Ingress Controller service.
 
-## Install SCF
+## Install Kubecf
 
 ### Set the system_domain
 
@@ -103,14 +103,14 @@ order to assign the external IP to the Ingress Controller service.
 
 ```sh
 echo "system_domain: $(minikube ip).xip.io" \
-  > "$(bazel info workspace)/dev/scf/system_domain_values.yaml"
+  > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml"
 ```
 
 #### When using Kind
 
 ```sh
-echo "system_domain: scf.suse.dev" \
-  > "$(bazel info workspace)/dev/scf/system_domain_values.yaml"
+echo "system_domain: kubecf.suse.dev" \
+  > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml"
 ```
 
 ### Apply the chart
@@ -119,13 +119,13 @@ If you opted to use the NGINX Ingress Controller for the public access to the cl
 property `features.ingress.enabled` to `true`.
 
 ```sh
-bazel run //dev/scf:apply
+bazel run //dev/kubecf:apply
 ```
 
-Refer to [Accessing the SCF cluster](./accessing.md) for the next steps.
+Refer to [Accessing the Kubecf cluster](./accessing.md) for the next steps.
 
-## Delete SCF
+## Delete Kubecf
 
 ```sh
-bazel run //dev/scf:delete
+bazel run //dev/kubecf:delete
 ```

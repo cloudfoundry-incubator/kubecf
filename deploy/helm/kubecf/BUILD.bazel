@@ -28,7 +28,7 @@ helm_package(
         ":cf_deployment",
         "//bosh/releases:pre_render_scripts",
     ],
-    chart_name = "scf",
+    chart_name = "kubecf",
     chart_version = "3.0.0",
     app_version = "2.0",
 )

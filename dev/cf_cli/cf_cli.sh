@@ -2,8 +2,8 @@
 
 set -o errexit -o nounset
 
-namespace="scf"
-deployment_name="scf"
+namespace="kubecf"
+deployment_name="kubecf"
 pod_name="cf-terminal"
 router_endpoint=""
 echo "Waiting for endpoint..."

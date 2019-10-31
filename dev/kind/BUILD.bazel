@@ -2,7 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 load(":def.bzl", "kind_start_binary", "kind_delete_binary")
 
-CLUSTER_NAME = "scf"
+CLUSTER_NAME = "kubecf"
 
 kind_start_binary(
     name = "start",
