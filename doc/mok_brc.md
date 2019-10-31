@@ -36,8 +36,8 @@ the intended deployment.
 
 ### Advanced configuration
 
-The local [Minikube Documentation](../dev/minikube/README.md) explains
-the various environment variables which can be used to configure the
+The local [Minikube Documentation](kube_minikube.md) explains the
+various environment variables which can be used to configure the
 resources used by the cluster (CPUs, memory, disk size, etc.) in
 detail.
 
