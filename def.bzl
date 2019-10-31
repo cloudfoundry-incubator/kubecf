@@ -9,6 +9,7 @@ project = struct(
             url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2%2B85.gc6d71da5.tgz",
             sha256 = "17a31543825ad79f279f4de6e8362a1659c4c5374ed3e17834a13a5770728f0d",
         ),
+        namespace = "cfo",
     ),
     helm = struct(
         version = "2.14.1",
