@@ -89,7 +89,7 @@ CF-Operator can be installed in a separate namespace:
 helm install --namespace cfo --name cf-operator --set "operator.watchNamespace=kubecf" https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.1%2B92.g77e53fda.tgz
 ```
 
-This allows us to restart the operator, because it is not affected by webhooks. We can also delete the KUBECF deployment namespace to start from scratch, without redeploying the operator.
+This allows us to restart the operator, because it is not affected by webhooks. We can also delete the Kubecf deployment namespace to start from scratch, without redeploying the operator.
 
 ## Install Kubecf
 

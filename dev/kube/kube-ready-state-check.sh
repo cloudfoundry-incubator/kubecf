@@ -37,7 +37,6 @@ esac
 
 #Script to determine is the K8s host is "ready" for cf deployment
 FAILED=0
-SCF_DOMAIN=${SCF_DOMAIN:-cf-dev.io}
 
 function has_command() {
     type "${1}" &> /dev/null ;

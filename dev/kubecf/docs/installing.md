@@ -1,4 +1,4 @@
-# Installing KUBECF
+# Installing Kubecf
 
 ## Prerequisites
 
@@ -95,7 +95,7 @@ helm install stable/nginx-ingress \
 Pass the flag `--set "controller.service.externalIPs={$(minikube ip)}"` to the `helm install` in
 order to assign the external IP to the Ingress Controller service.
 
-## Install KUBECF
+## Install Kubecf
 
 ### Set the system_domain
 
@@ -122,9 +122,9 @@ property `features.ingress.enabled` to `true`.
 bazel run //dev/kubecf:apply
 ```
 
-Refer to [Accessing the KUBECF cluster](./accessing.md) for the next steps.
+Refer to [Accessing the Kubecf cluster](./accessing.md) for the next steps.
 
-## Delete KUBECF
+## Delete Kubecf
 
 ```sh
 bazel run //dev/kubecf:delete

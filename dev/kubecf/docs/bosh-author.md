@@ -1,12 +1,12 @@
 # Workflow for BOSH Release Authors
 
-This document describes how KUBECF and Quarks can be used for BOSH release development.
+This document describes how Kubecf and Quarks can be used for BOSH release development.
 
 ## Preparing the Release Image
 
 BOSH release authors, who want to test their development code with the Quarks operator, need to build a Docker image from their release.
 This can be done with fissile.
-Upload the image to a cluster and test it, e.g. with KUBECF.
+Upload the image to a cluster and test it, e.g. with Kubecf.
 
 ### Building a Docker Image with Fissile
 
@@ -32,7 +32,7 @@ With *kind*, you need to use `kind load docker-image` after building the image, 
 kind load docker-image docker.io/org/nats:0.1-dev
 ```
 
-### Modify KUBECF to Use the New Image
+### Modify Kubecf to Use the New Image
 
 Add an operations file to Kubernetes with the new image location:
 
@@ -63,9 +63,9 @@ helm install ... --set 'operations.custom={nats-dev}'
 
 Note: You can also unpack the helm release and modify it directly. There is no need to zip the release again, `helm install kubecf/` can install the unpacked release.
 
-## Integrating the Release in KUBECF
+## Integrating the Release in Kubecf
 
-With Quarks and KUBECF BOSH releases can largely be used just the same as with a BOSH director. There are a few things Quarks offers to make adaption to the kubernetes environment easier, though.
+With Quarks and Kubecf BOSH releases can largely be used just the same as with a BOSH director. There are a few things Quarks offers to make adaption to the kubernetes environment easier, though.
 
 ### BPM
 
@@ -114,6 +114,6 @@ The ops file for the example above could look like this:
 
 ```
 
-## Testing With KUBECF
+## Testing With Kubecf
 
-Afterwards you can build and deploy KUBECF according to the [KUBECF docs](https://github.com/SUSE/kubecf/blob/master/dev/kubecf/docs/installing.md).
+Afterwards you can build and deploy Kubecf according to the [Kubecf docs](https://github.com/SUSE/kubecf/blob/master/dev/kubecf/docs/installing.md).

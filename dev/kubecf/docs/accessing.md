@@ -1,8 +1,8 @@
-# Accessing the KUBECF cluster
+# Accessing the Kubecf cluster
 
 ## When using NGINX Ingress Controller
 
-NGINX Ingress Controller with Minikube enables the access from the host to the KUBECF cluster. Follow the
+NGINX Ingress Controller with Minikube enables the access from the host to the Kubecf cluster. Follow the
 commands below for a step-by-step guide.
 
 ```sh
