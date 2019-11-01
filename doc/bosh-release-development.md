@@ -13,9 +13,9 @@
 
 ## Preparing the Release Image
 
-BOSH release authors, who want to test their development code with the
-Quarks operator, need to build a Docker image from their release.
-This can be done with `fissile`.  Afterwards upload the image to a
+BOSH release authors who want to test their development code with the
+Quarks operator need to build a Docker image from their release.
+This can be done with `fissile`.  Afterwards, upload the image to a
 cluster for testing it, e.g. with Kubecf.
 
 ### Building a Docker Image with Fissile
@@ -76,7 +76,7 @@ data:
 EOF
 ```
 
-Then, when running `helm install scf` refer to that image:
+Then, when running `helm install kubecf`, refer to that image:
 
 ```sh
 helm install ... --set 'operations.custom={nats-dev}'
@@ -91,14 +91,14 @@ of customization feature noted in the main [README](Contribute.md#customization)
 
 ## Integrating the Release in Kubecf
 
-With Quarks and Kubecf BOSH releases can largely be used just the same
-as with a BOSH director. There are a few things Quarks offers however
-to make adaption to the kubernetes environment easier.
+With Quarks and Kubecf, BOSH releases can largely be used just the
+same as with a BOSH director. There are a few things Quarks offers,
+however, to make the adaptation to the Kubernetes environment easier.
 
 ### BPM
 
 BPM configurations for jobs are parsed from a rendered `bpm.yml`, as
-usual. But if need be, it is also possible to override BPM
+usual. But if need be, it is also possible to override the BPM
 configuration in the deployment manifest in the `quarks` field. See
 [the bpm documentation] for details on how to configure BPM.
 
@@ -132,7 +132,7 @@ manifest using ops files.
 ### Operation Files
 
 [ops files] can be used to modify arbitrary parts of the deployment
-manifest before being applied. To do so, create a file in the
+manifest before it is applied. To do so, create a file in the
 directory `deploy/helm/scf/assets/operations/instance_groups` and it
 will be automagically applied during installation, courtesy of the
 bazel machinery.
@@ -157,6 +157,6 @@ The ops file for the example above could look like this:
 
 ## Testing With Kubecf
 
-After upload and integration it is possible to build and deploy Kubecf
+After upload and integration, it is possible to build and deploy Kubecf
 according to any of the recipes listed by the main
 [README](Contribute.md#deployment).

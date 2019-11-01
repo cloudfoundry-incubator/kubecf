@@ -19,6 +19,6 @@ The scripts and their uses are:
   - __pod-status__:
 
     Run during or after kubecf is deployed, this script shows a table
-    of all pods in the deployment, and their state. Options exists to
-    restrict it to a specific namespace, and to watch continously.
+    of all pods in the deployment and their state. Options exists to
+    restrict it to a specific namespace and to watch continously.
 

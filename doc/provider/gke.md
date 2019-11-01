@@ -17,7 +17,7 @@ gcloud beta container --project "$project" clusters create "$clustername" \
       --enable-autoupgrade --enable-autorepair --no-shielded-integrity-monitoring
 ```
 
-After deployment of kubecf make the CF router available via a load
+After deployment of kubecf, make the CF router available via a load
 balancer:
 
 ```

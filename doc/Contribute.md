@@ -71,11 +71,11 @@ The important directories of the kubecf sources, and their contents
 are shown in the table below. Each directory entry links to the
 associated documentation, if we have any.
 
-|Directory                      |Content                                                |
-|---                            |---                                                    |
-|__top__                        |Documentation entrypoint, License,                     |
-|                               |Main workspace definitions.                            |
-|__top__/.../README.md          |Directory-specific local documentation.                |
+|Directory                                               |Content                                                |
+|---                                                     |---                                                    |
+|__top__                                                 |Documentation entrypoint, License,                     |
+|                                                        |Main workspace definitions.                            |
+|__top__/.../README.md                                   |Directory-specific local documentation.                |
 |[__top__/bosh/releases](pre-render-scripts.md)          |Support for runtime patches of a kubecf deployment.    |
 |__top__/doc                                             |Global documentation.                                  |
 |[__top__/dev/cf_deployment/bump](cf_deployment_bump.md) |Tools to support updating the cf deployment            |
@@ -89,11 +89,11 @@ associated documentation, if we have any.
 |[__top__/dev/kind](kube/kind.md)                        |Targets to manage a local kubernetes cluster.          |
 |                                                        |KinD based (Kube-in-Docker).                           |
 |[__top__/dev/kubecf](chart.md)                          |Kubecf chart configuration, and targets for            |
-|                               |local chart application.                               |
-|__top__/deploy/helm/kubecf     |Templates and assets wrapping a CF deployment          |
-|                               |manifest into a helm chart.                            |
-|__top__/rules                  |Supporting bazel definitions.                          |
-|[__top__/testing](tests.md)    |Bazel targets to run CF smoke and acceptance tests.    |
+|                                                        |local chart application.                               |
+|__top__/deploy/helm/kubecf                              |Templates and assets wrapping a CF deployment          |
+|                                                        |manifest into a helm chart.                            |
+|__top__/rules                                           |Supporting bazel definitions.                          |
+|[__top__/testing](tests.md)                             |Bazel targets to run CF smoke and acceptance tests.    |
 
 ## Linting
 
@@ -213,8 +213,8 @@ Kubecf provides two mechanisms for customization during development
      `some-value` to `some-property` to the specified instance group
      and job during deployment.
 
-     An example of its use in Kubecf is limiting the set of testsuites
-     executed by the [CF acceptance tests](tests_cat.md).
+     An example of its use in Kubecf is limiting the set of test
+     suites executed by the [CF acceptance tests](tests_cat.md).
 
 Both forms of customization assume a great deal of familiarity on the
 part of the developer and/or operator with the BOSH releases, instance

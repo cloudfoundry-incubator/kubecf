@@ -17,7 +17,7 @@ This type details the exact location of where the patch executes.
 [Pre render scripts] are kubecf's equivalent of its predecessors' (SCF
 v2) [patches] scripts. They, like them, enable developers and
 maintainers to apply general patches to the sources of a job
-(i.e. configuration templates, script sources, etc.) before that job
+(e.g. configuration templates, script sources, etc.) before that job
 was rendered and then executed.
 
 At the core, the feature allows the user to execute custom scripts

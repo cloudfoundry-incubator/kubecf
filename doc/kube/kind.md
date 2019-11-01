@@ -2,7 +2,7 @@
 
 ## Attention
 
-After starting a cluster it is necessary to retrieve the path of the
+After starting a cluster, it is necessary to retrieve the path of the
 kubernetes configuration file from KinD.
 
 The necessary command is:
@@ -21,7 +21,7 @@ For developing with [KinD], start a local cluster by running the `start` target:
 bazel run //dev/kind:start
 ```
 
-And tear it down again via:
+And tear it down via:
 
 ```shell
 bazel run //dev/kind:delete

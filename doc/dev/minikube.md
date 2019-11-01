@@ -111,10 +111,11 @@ cf auth -u admin -p "${acp}"
 #### Diego vs Eirini
 
 Diego is the standard scheduler used by kubecf to deploy CF
-applications. Eirini is an alternative talking more directly to the
-underlying Kube cluster.
+applications. Eirini is an alternative to Diego that follows a more
+Kubernetes native approach, deploying the CF apps directly to a
+Kubernetes namespace.
 
-To activate this alternative add a file matching the pattern
+To activate this alternative, add a file matching the pattern
 `*values.yaml` to the directory __dev/kubecf__ and containing
 
 ```yaml
@@ -127,12 +128,12 @@ before deploying kubecf.
 
 #### Ingress
 
-By default the cluster is exposed through its kubernetes services.
+By default, the cluster is exposed through its Kubernetes services.
 
 To use the NGINX ingress instead, it is necessary to:
 
-  - Install and configure the Nginx Ingress Controller.
-  - Configure kubecf to use ingress.
+  - Install and configure the NGINX Ingress Controller.
+  - Configure Kubecf to use the ingress controller.
 
 This has to happen before deploying kubecf.
 
@@ -145,8 +146,8 @@ helm install stable/nginx-ingress \
   --set "controller.service.externalIPs={$(minikube ip)}"
 ```
 
-The last option above assigns the external IP of the cluster to the
-Ingress Controller service.
+The last flag in the command above assigns the external IP of the
+cluster to the Ingress Controller service.
 
 ##### Configure kubecf
 
