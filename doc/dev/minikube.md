@@ -126,4 +126,34 @@ before deploying kubecf.
 
 #### Ingress
 
-todo
+By default the cluster is exposed through its kubernetes services.
+
+To use the NGINX ingress instead it is necessary to:
+
+  - Install and configure the Nginx Ingress Controller.
+  - Configure kubecf to use ingress.
+
+This has to happen before deploying kubecf.
+
+##### Installation of the NGINX Ingress Controller
+
+```sh
+helm install stable/nginx-ingress \
+  --name ingress \
+  --namespace ingress
+  --set "controller.service.externalIPs={$(minikube ip)}"
+```
+
+The last option above assigns the external IP of the cluster to the
+Ingress Controller service.
+
+##### Configure kubecf
+
+Place a file matching the pattern `*values.yaml` into the directory
+__dev/kubecf__ and containing
+
+```yaml
+features:
+  ingress:
+    enabled: true
+```
