@@ -20,14 +20,6 @@
 
 ## Prepare the cluster
 
-### minikube
-
-We need more disk space in minikube, otherwise pods will get evicted and the deployment will be in a constant loop.
-
-Create the cluster with:
-
-    minikube start --memory=12000mb --cpus=4 --disk-size=40gb --kubernetes-version v1.14.1
-
 ### GKE
 
 At least for Diego we need a node OS with XFS support.
@@ -49,20 +41,6 @@ gcloud beta container --project "$project" clusters create "$clustername" \
       --default-max-pods-per-node "110" --addons HorizontalPodAutoscaling,HttpLoadBalancing \
       --enable-autoupgrade --enable-autorepair --no-shielded-integrity-monitoring
 ```
-
-## Install Helm
-
-See [Helm Installation](doc/helm.md)
-
-## Install CF-Operator
-
-CF-Operator can be installed in a separate namespace:
-
-```
-helm install --namespace cfo --name cf-operator --set "operator.watchNamespace=kubecf" https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.1%2B92.g77e53fda.tgz
-```
-
-This allows us to restart the operator, because it is not affected by webhooks. We can also delete the Kubecf deployment namespace to start from scratch, without redeploying the operator.
 
 ## Install Kubecf
 
