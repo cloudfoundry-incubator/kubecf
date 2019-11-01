@@ -34,8 +34,8 @@ combinations of choices in detail, from the bottom up.
 
 |Document                          |Description                                    |
 |---                               |---                                            |
-|[Local Minikube](dev_minikube.md) |Minikube/Bazel + Operator/Bazel + Kubecf/Bazel |
-|[General Kube](dev_general.md)    |Any Kube + Operator/Helm + Kubecf/Helm         |
+|[Local Minikube](dev/minikube.md) |Minikube/Bazel + Operator/Bazel + Kubecf/Bazel |
+|[General Kube](dev/general.md)    |Any Kube + Operator/Helm + Kubecf/Helm         |
 
 ## Pull Requests
 
@@ -84,9 +84,9 @@ associated documentation, if we have any.
 |                                                        |inspect the deployed Kubecf                            |
 |[__top__/dev/kube](inspection.md)                       |Tools to inspect kube clusters and kubecf deployments. |
 |[__top__/dev/linters](linters.md)                       |Tools for statically checking the kubecf sources.      |
-|[__top__/dev/minikube](kube_minikube.md)                |Targets to manage a local kubernetes cluster.          |
+|[__top__/dev/minikube](kube/minikube.md)                |Targets to manage a local kubernetes cluster.          |
 |                                                        |Minikube based.                                        |
-|[__top__/dev/kind](kube_kind.md)                        |Targets to manage a local kubernetes cluster.          |
+|[__top__/dev/kind](kube/kind.md)                        |Targets to manage a local kubernetes cluster.          |
 |                                                        |KinD based (Kube-in-Docker).                           |
 |[__top__/dev/kubecf](chart.md)                          |Kubecf chart configuration, and targets for            |
 |                               |local chart application.                               |
