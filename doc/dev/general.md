@@ -116,7 +116,7 @@ applications. Eirini is an alternative talking more directly to the
 underlying Kube cluster.
 
 To activate this alternative use the option
-`--set features.eirini=true` when deploying kubecf from its chart.
+`--set features.eirini.enabled=true` when deploying kubecf from its chart.
 
 #### Ingress
 

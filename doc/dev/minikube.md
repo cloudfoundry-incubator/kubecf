@@ -119,7 +119,8 @@ To activate this alternative add a file matching the pattern
 
 ```yaml
 features:
-  eirini: true
+  eirini:
+    enabled: true
 ```
 
 before deploying kubecf.
