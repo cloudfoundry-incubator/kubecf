@@ -59,6 +59,17 @@ kind_binary(
     version = project.kind.version,
 )
 
+external_binary(
+    name = "k3s",
+    linux = project.k3s,
+)
+
+http_file(
+    name = "local_path_provisioner",
+    sha256 = project.local_path_provisioner.sha256,
+    urls = [project.local_path_provisioner.url],
+)
+
 http_archive(
     name = "bazel_skylib",
     sha256 = project.skylib.sha256,

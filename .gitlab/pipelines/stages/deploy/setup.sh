@@ -13,16 +13,18 @@ wait_for_file() {
   return 0
 }
 
-sudo curl -o /usr/local/bin/k3s -L https://github.com/rancher/k3s/releases/download/v0.9.1/k3s && sudo chmod +x /usr/local/bin/k3s
-sudo /usr/local/bin/k3s server 1> /tmp/k3s.out.log 2> /tmp/k3s.err.log &
-mkdir -p ~/.kube
-wait_for_file /etc/rancher/k3s/k3s.yaml || {
-  >&2 echo "/etc/rancher/k3s/k3s.yaml did not get created"
+printf "k3s: %s\n" "$(bazel run @k3s//executable -- --version 2> /dev/null)"
+sudo -E "$(command -v bazel)" run @k3s//executable -- server 1> /tmp/k3s.out.log 2> /tmp/k3s.err.log &
+k3s_kubeconfig="/etc/rancher/k3s/k3s.yaml"
+kubeconfig="${HOME}/.kube/config"
+wait_for_file "${k3s_kubeconfig}" || {
+  >&2 echo "${k3s_kubeconfig} did not get created"
 }
-sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-sudo chown "$(id -u)":"$(id -g)" ~/.kube/config
+mkdir -p "$(dirname "${kubeconfig}")"
+sudo cp "${k3s_kubeconfig}" "${kubeconfig}"
+sudo chown "$(id -u)":"$(id -g)" "${kubeconfig}"
 
-bazel run @kubectl//:kubectl -- apply --filename https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+bazel run //dev/kube/local_path_provisioner:apply
 bazel run @kubectl//:kubectl -- patch storageclass local-path \
   --patch '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true", "storageclass.beta.kubernetes.io/is-default-class":"true"}}}'
 
