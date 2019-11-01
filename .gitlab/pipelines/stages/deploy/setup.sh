@@ -22,4 +22,8 @@ wait_for_file /etc/rancher/k3s/k3s.yaml || {
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown "$(id -u)":"$(id -g)" ~/.kube/config
 
+bazel run @kubectl//:kubectl -- apply --filename https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+bazel run @kubectl//:kubectl -- patch storageclass local-path \
+  --patch '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true", "storageclass.beta.kubernetes.io/is-default-class":"true"}}}'
+
 bazel run @kubectl//:kubectl -- create namespace "${CF_OPERATOR_NAMESPACE}"
