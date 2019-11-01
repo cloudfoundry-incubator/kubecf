@@ -32,9 +32,10 @@ Instead of trying to document all the possibilities and all their
 interactions at once, supporting documents will describe specific
 combinations of choices in detail, from the bottom up.
 
-|Document		|Description						|
-|---			|---	   						|
-|[MOK_BRC](mok_brc.md)	|Minikube/Bazel + Operator/Release + Kubecf/Checkout	|
+|Document                          |Description                                    |
+|---                               |---                                            |
+|[Local Minikube](dev_minikube.md) |Minikube/Bazel + Operator/Bazel + Kubecf/Bazel |
+|[General Kube](dev_general.md)    |Any Kube + Operator/Helm + Kubecf/Helm         |
 
 ## Pull Requests
 

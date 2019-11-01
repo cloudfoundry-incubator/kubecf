@@ -1,4 +1,4 @@
-# Kubecf deployment via Minikube/Bazel + Operator/Release + Kubecf/Checkout
+# Kubecf deployment via Minikube/Bazel + Operator/Bazel + Kubecf/Bazel (Checkout)
 
 The intended audience of this document are developers wishing to
 contribute to the Kubecf project.
