@@ -1,7 +1,7 @@
 # Linters
 
-This directory contains tooling to statically check the sources of
-kubecf.
+The directory __dev/linters__ contains tooling to statically check the
+sources of kubecf.
 
 The following linters are available:
 

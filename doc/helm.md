@@ -1,4 +1,4 @@
-# Helm
+# Helm Installation
 
 Install Helm with RBAC.
 Note that this requires creating the role first:

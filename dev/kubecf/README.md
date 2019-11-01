@@ -1,8 +1,9 @@
 # Kubecf
 
-The targets under `kubecf` are used to apply the rendered Helm template to a Kubernetes cluster.
-Any `*values.yaml` files under this directory are ignored by git, but used by Bazel to render the
-Kubecf chart before applying to the cluster with kubectl.
+The target defined by directory __dev/kubecf__ are used to apply the
+rendered Helm template to a Kubernetes cluster.
 
-The [docs](./docs/) sub-directory contains more details. Start with
-[Installing Kubecf](./docs/installing.md).
+__Attention__: While any files matching the glob pattern
+`*values.yaml` and found in this directory are ignored by git, they
+are used by Bazel to render the SCF chart before applying to the
+cluster with kubectl.

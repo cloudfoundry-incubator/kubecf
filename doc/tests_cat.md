@@ -1,8 +1,10 @@
 # Acceptance tests
 
-This bazel target starts a run of the [Cloud Foundry Acceptance Tests].
+The bazel target __//testing/acceptance_tests__ starts a run of the
+[Cloud Foundry Acceptance Tests].
 
 [Cloud Foundry Acceptance Tests]: https://github.com/SUSE/cf-acceptance-tests-release
+
 ## Limiting test suites
 
 To limit the test groups to run, set the BOSH property
@@ -19,3 +21,7 @@ properties:
 
 [`acceptance_tests.include`]:  https://github.com/SUSE/cf-acceptance-tests-release/blob/0.0.1/jobs/acceptance-tests/spec#L47-L54
 [`values.yaml`]: ../../dev/kubecf/values.yaml
+
+Note that this is an example of how to use the second kind of
+customization feature noted in the main
+[README](Contribute.md#customization).
