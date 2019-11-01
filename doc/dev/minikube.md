@@ -129,7 +129,7 @@ before deploying kubecf.
 
 By default the cluster is exposed through its kubernetes services.
 
-To use the NGINX ingress instead it is necessary to:
+To use the NGINX ingress instead, it is necessary to:
 
   - Install and configure the Nginx Ingress Controller.
   - Configure kubecf to use ingress.
