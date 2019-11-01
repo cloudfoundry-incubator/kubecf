@@ -105,3 +105,25 @@ acp=$(kubectl get secret \
 # Use the password from the previous step when requested.
 cf auth -u admin -p "${acp}"
 ```
+
+### Advanced Topics
+
+#### Diego vs Eirini
+
+Diego is the standard scheduler used by kubecf to deploy CF
+applications. Eirini is an alternative talking more directly to the
+underlying Kube cluster.
+
+To activate this alternative add a file matching the pattern
+`*values.yaml` to the directory __dev/kubecf__ and containing
+
+```yaml
+features:
+  eirini: true
+```
+
+before deploying kubecf.
+
+#### Ingress
+
+todo
