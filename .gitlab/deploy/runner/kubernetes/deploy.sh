@@ -41,12 +41,14 @@ helm upgrade "${installation_name}" gitlab/gitlab-runner \
   --set "runners.namespace=${namespace}" \
   --set "runnerRegistrationToken=${runner_registration_token}"
 
+# This is a dump of the original configmap with the "# Add docker volumes" section patched in order
+# to make k3s working inside a pod.
 # shellcheck disable=SC1004,SC2016
 kubectl patch "configmap/${installation_name}-gitlab-runner" \
   --namespace "${namespace}" \
   --patch '
-"data":
-  "entrypoint": |
+data:
+  entrypoint: |
     #!/bin/bash
     set -e
     mkdir -p /home/gitlab-runner/.gitlab-runner/
@@ -92,4 +94,4 @@ kubectl patch "configmap/${installation_name}-gitlab-runner" \
       --working-directory=/home/gitlab-runner
 '
 
-kubectl get pods --namespace "${namespace}" --output name | grep "gitlab-runner" | xargs --no-run-if-empty kubectl delete --namespace "${namespace}"
+kubectl delete pods --namespace "${namespace}" --selector "release=${installation_name}"
