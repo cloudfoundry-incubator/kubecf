@@ -22,9 +22,6 @@
 
 ### GKE
 
-At least for Diego we need a node OS with XFS support.
-The `--image-type UBUNTU` selects an OS with XFS support.
-
 Create the cluster like this:
 
 ```

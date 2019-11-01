@@ -106,3 +106,42 @@ acp=$(kubectl get secret \
 # Use the password from the previous step when requested.
 cf auth -u admin -p "${acp}"
 ```
+
+### Advanced Topics
+
+#### Diego vs Eirini
+
+Diego is the standard scheduler used by kubecf to deploy CF
+applications. Eirini is an alternative talking more directly to the
+underlying Kube cluster.
+
+To activate this alternative use the option
+`--set features.eirini=true` when deploying kubecf from its chart.
+
+#### Ingress
+
+By default the cluster is exposed through its kubernetes services.
+
+To use the NGINX ingress instead it is necessary to:
+
+  - Install and configure the Nginx Ingress Controller.
+  - Configure kubecf to use ingress.
+
+This has to happen before deploying kubecf.
+
+##### Installation of the NGINX Ingress Controller
+
+```sh
+helm install stable/nginx-ingress \
+  --name ingress \
+  --namespace ingress
+  --set "controller.service.externalIPs={$(minikube ip)}"
+```
+
+The last option above assigns the external IP of the cluster to the
+Ingress Controller service.
+
+##### Configure kubecf
+
+Use the option `--set features.ingress.enabled=true` when deploying
+kubecf from its chart.
