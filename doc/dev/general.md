@@ -23,7 +23,13 @@ requirements are met:
       - For GKE using the option `--image-type UBUNTU` with the
         `gcloud beta container` command selects such an OS.
 
-This can be any of GKE, AKS, EKS, etc.
+This can be any of
+
+  - GKE ([Notes](../provider/gke.md))
+  - AKS
+  - EKS
+
+etc.
 
 Note that how to deploy and tear-down such a cluster is outside of the
 scope of this recipe.
