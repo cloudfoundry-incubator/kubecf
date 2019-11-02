@@ -14,6 +14,7 @@ which go deeper into the details of each aspect.
   - [Source Organization](#source-organization)
   - [Linting](#linting)
   - [Patching](#patching)
+  - [BOSH Development Workflow]
 
 ## Deployment
 
@@ -31,9 +32,10 @@ Instead of trying to document all the possibilities and all their
 interactions at once, supporting documents will describe specific
 combinations of choices in detail, from the bottom up.
 
-|Document		|Description						|
-|---			|---	   						|
-|[MOK_BRC](mok_brc.md)	|Minikube/Bazel + Operator/Release + Kubecf/Checkout	|
+|Document                          |Description                                    |
+|---                               |---                                            |
+|[Local Minikube](dev/minikube.md) |Minikube/Bazel + Operator/Bazel + Kubecf/Bazel |
+|[General Kube](dev/general.md)    |Any Kube + Operator/Helm + Kubecf/Helm         |
 
 ## Pull Requests
 
@@ -66,29 +68,32 @@ features, etc. is:
 ## Source Organization
 
 The important directories of the kubecf sources, and their contents
-are:
+are shown in the table below. Each directory entry links to the
+associated documentation, if we have any.
 
-|Directory                      |Content                                                |
-|---                            |---                                                    |
-|__top__                        |Documentation entrypoint, License,                     |
-|                               |Main workspace definitions.                            |
-|__top__/.../README.md          |Directory-specific local documentation.                |
-|__top__/bosh/releases          |Support for runtime patches of a kubecf deployment.    |
-|__top__/doc                    |Global documentation.                                  |
-|__top__/dev/cf_deployment/bump |Tools to support updating the cf deployment            |
-|                               |manifest used by kubecf.                               |
-|__top__/dev/cf_cli             |Deploy cf cli into a helper pod from which to then     |
-|                               |inspect the deployed CF.                               |
-|__top__/dev/kube               |Tools to inspect kube clusters and kubecf deployments. |
-|__top__/dev/linters            |Tools for statically checking the kubecf sources.      |
-|__top__/dev/minikube           |Targets to manage a local kubernetes cluster.          |
-|                               |Minikube based.                                        |
-|__top__/dev/kubecf             |Kubecf chart configuration, and targets for            |
-|                               |local chart application.                               |
-|__top__/deploy/helm/kubecf     |Templates and assets wrapping a CF deployment          |
-|                               |manifest into a helm chart.                            |
-|__top__/rules                  |Supporting bazel definitions.                          |
-|__top__/testing                |Bazel targets to run CF smoke and acceptance tests.    |
+|Directory                                                              |Content                                                |
+|---                                                                    |---                                                    |
+|__top__                                                                |Documentation entrypoint, License,                     |
+|                                                                       |Main workspace definitions.                            |
+|__top__/.../README.md                                                  |Directory-specific local documentation.                |
+|[__top__/bosh/releases](../bosh/releases/pre_render_scripts/README.md) |Support for runtime patches of a kubecf deployment.    |
+|__top__/doc                                                            |Global documentation.                                  |
+|[__top__/dev/cf_deployment/bump](cf_deployment/bump.md)                |Tools to support updating the cf deployment            |
+|                                                                       |manifest used by kubecf.                               |
+|[__top__/dev/cf_cli](cf_cli.md)                                        |Deploy cf cli into a helper pod from which to then     |
+|                                                                       |inspect the deployed Kubecf                            |
+|[__top__/dev/kube](inspection.md)                                      |Tools to inspect kube clusters and kubecf deployments. |
+|[__top__/dev/linters](linters.md)                                      |Tools for statically checking the kubecf sources.      |
+|[__top__/dev/minikube](kube/minikube.md)                               |Targets to manage a local kubernetes cluster.          |
+|                                                                       |Minikube based.                                        |
+|[__top__/dev/kind](kube/kind.md)                                       |Targets to manage a local kubernetes cluster.          |
+|                                                                       |KinD based (Kube-in-Docker).                           |
+|[__top__/dev/kubecf](../dev/kubecf/README.md)                          |Kubecf chart configuration, and targets for            |
+|                                                                       |local chart application.                               |
+|__top__/deploy/helm/kubecf                                             |Templates and assets wrapping a CF deployment          |
+|                                                                       |manifest into a helm chart.                            |
+|__top__/rules                                                          |Supporting bazel definitions.                          |
+|[__top__/testing](tests.md)                                            |Bazel targets to run CF smoke and acceptance tests.    |
 
 ## Linting
 
@@ -187,6 +192,10 @@ Kubecf provides two mechanisms for customization during development
      in the values.yaml (or an equivalent `--set` option) as part of a
      kubecf deployment to include that ops file in the deployment.
 
+     The [BOSH Development Workflow] is an example of its use.
+
+     [BOSH Development Workflow]: bosh-release-development.md
+
   2. The second mechanism allows the specification of any custom BOSH
      property for any instancegroup and job therein.
 
@@ -203,6 +212,9 @@ Kubecf provides two mechanisms for customization during development
      generate and use an ops file which applies the assignment of
      `some-value` to `some-property` to the specified instance group
      and job during deployment.
+
+     An example of its use in Kubecf is limiting the set of test
+     suites executed by the [CF acceptance tests](tests_cat.md).
 
 Both forms of customization assume a great deal of familiarity on the
 part of the developer and/or operator with the BOSH releases, instance
@@ -229,9 +241,9 @@ deployment. The relevant patch scripts are found under the directory
 `bosh/releases/pre_render_scripts`.
 
 When following the directory structure explained by the
-[README](../bosh/releases/pre_render_scripts/README.md), the bazel
-machinery for generating the helm chart will automatically convert
-them into the proper ops files for use by the CF operator.
+[README](pre-render-scripts.md), the bazel machinery for generating
+the kubecf helm chart will automatically convert these scripts into
+the proper ops files for use by the CF operator.
 
 __Attention__ All patch scripts must be idempotent. In other words, it
 must be possible to apply them multiple times without error and

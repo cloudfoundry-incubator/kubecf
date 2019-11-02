@@ -1,4 +1,4 @@
-# Kubecf deployment via Minikube/Bazel + Operator/Release + Kubecf/Checkout
+# Kubecf deployment via Minikube/Bazel + Operator/Bazel + Kubecf/Bazel (Checkout)
 
 The intended audience of this document are developers wishing to
 contribute to the Kubecf project.
@@ -36,8 +36,8 @@ the intended deployment.
 
 ### Advanced configuration
 
-The local [Minikube Documentation](../dev/minikube/README.md) explains
-the various environment variables which can be used to configure the
+The local [Minikube Documentation](kube_minikube.md) explains the
+various environment variables which can be used to configure the
 resources used by the cluster (CPUs, memory, disk size, etc.) in
 detail.
 
@@ -104,4 +104,58 @@ acp=$(kubectl get secret \
 
 # Use the password from the previous step when requested.
 cf auth -u admin -p "${acp}"
+```
+
+### Advanced Topics
+
+#### Diego vs Eirini
+
+Diego is the standard scheduler used by kubecf to deploy CF
+applications. Eirini is an alternative to Diego that follows a more
+Kubernetes native approach, deploying the CF apps directly to a
+Kubernetes namespace.
+
+To activate this alternative, add a file matching the pattern
+`*values.yaml` to the directory __dev/kubecf__ and containing
+
+```yaml
+features:
+  eirini:
+    enabled: true
+```
+
+before deploying kubecf.
+
+#### Ingress
+
+By default, the cluster is exposed through its Kubernetes services.
+
+To use the NGINX ingress instead, it is necessary to:
+
+  - Install and configure the NGINX Ingress Controller.
+  - Configure Kubecf to use the ingress controller.
+
+This has to happen before deploying kubecf.
+
+##### Installation of the NGINX Ingress Controller
+
+```sh
+helm install stable/nginx-ingress \
+  --name ingress \
+  --namespace ingress
+  --set "controller.service.externalIPs={$(minikube ip)}"
+```
+
+The last flag in the command above assigns the external IP of the
+cluster to the Ingress Controller service.
+
+##### Configure kubecf
+
+Place a file matching the pattern `*values.yaml` into the directory
+__dev/kubecf__ and containing
+
+```yaml
+features:
+  ingress:
+    enabled: true
 ```
