@@ -13,10 +13,14 @@ get_endpoint() {
 
 # Wait for kubecf to start.
 wait_for_router() {
-  local timeout="1800"
-  until [[ "$(get_endpoint)" != "" ]] || [[ "$timeout" == "0" ]]; do sleep 1; timeout=$((timeout - 1)); done
-  if [[ "${timeout}" == 0 ]]; then return 1; fi
-  return 0
+  local timeout
+  for (( timeout = 1800; timeout > 0; timeout -- )); do
+    if [[ "$(get_endpoint)" != "" ]]; then
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
 }
 
 echo "Waiting for the router pod to become available..."

@@ -23,6 +23,7 @@ k3s_kubeconfig="/etc/rancher/k3s/k3s.yaml"
 kubeconfig="${HOME}/.kube/config"
 if ! wait_for_file "${k3s_kubeconfig}"; then
   >&2 echo "${k3s_kubeconfig} did not get created"
+  exit 1
 fi
 mkdir -p "$(dirname "${kubeconfig}")"
 (sudo cat "${k3s_kubeconfig}") > "${kubeconfig}"
