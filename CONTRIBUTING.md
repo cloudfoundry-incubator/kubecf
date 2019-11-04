@@ -22,7 +22,7 @@ Start by searching [bugs][1] for some similiar issues and/or extra information. 
 
 ### How to suggest a feature/enhancement
 
-If you find yourself wishing for a feature/enhancement that does not exist yet in KubeCF start by run a quick [search][2] - you may not be alone! If you ain't any luck, then go ahead and open a new issue, by selecting the "Feature" issue type and answer some needed questions.
+If you find yourself wishing for a feature/enhancement that does not exist yet in KubeCF start by run a quick [search][2] - you may not be alone! If you ain't any luck, then go ahead and open a new issue by selecting the "Feature" issue type and answer some needed questions.
 
 ## Code review process
 
@@ -30,7 +30,7 @@ The core team looks to Pull Requests on a regular basis and in a best effort.
 
 ## Community
 
-You can chat with the core team on 
+You can chat with the core team on Slack channel #kubecf-dev.
 
 ## Code of conduct
 
