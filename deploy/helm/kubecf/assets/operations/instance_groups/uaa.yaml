@@ -31,6 +31,14 @@
   path: /instance_groups/name=uaa/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
   value: [/bin/sh, -c, ss -nlu src localhost:8125 | grep :8125]
 
+{{- if .Values.features.ingress.enabled -}}
+# If ingress is enabled, the ingress terminates the ssl connection. Therefore, uaa needs to understand plain HTTP.
+# Setting require_https to true will result in a redirect from HTTP to HTTPS. The client will retry the request with HTTPS
+# which will be terminated by the ingress again.
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/require_https?
+  value: false
+{{- end }}
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/uaa_*" }}
