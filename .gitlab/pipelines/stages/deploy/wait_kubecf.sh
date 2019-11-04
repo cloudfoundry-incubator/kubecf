@@ -6,7 +6,7 @@ set -o errexit -o nounset
 source "$(bazel info workspace)/.gitlab/pipelines/config/config.sh"
 
 get_endpoint() {
-  bazel run @kubectl//:kubectl -- get endpoint kubecf-router-public \
+  bazel run @kubectl//:kubectl -- get endpoints kubecf-router-public \
     --namespace "${KUBECF_NAMESPACE}" \
     --output jsonpath='{.subsets[0].addresses[0].ip}' 2> /dev/null
 }
