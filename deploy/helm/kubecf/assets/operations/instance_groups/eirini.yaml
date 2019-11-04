@@ -116,6 +116,7 @@
           cc_cert: ((cc_bridge_tps.certificate))
           cc_key: ((cc_bridge_tps.private_key))
           cc_ca: ((service_cf_internal_ca.certificate))
+          cc_uploader_ip: "" # TODO: remove once we bump Eirini to a version that doesn't require this.
         quarks:
           ports:
           - name: https
