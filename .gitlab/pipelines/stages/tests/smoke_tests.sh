@@ -33,4 +33,4 @@ wait_for_smoke_tests_pod || {
 
 # Follow the logs. If the tests fail, the logs command will also fail.
 pod_name="$(smoke_tests_pod_name)"
-"${KUBECTL}" logs --follow "${pod_name}" --namespace "${KUBECF_NAMESPACE}" smoke-tests-smoke-tests
+"${KUBECTL}" logs --follow "${pod_name}" --namespace "${KUBECF_NAMESPACE}" --container smoke-tests-smoke-tests
