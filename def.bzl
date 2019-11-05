@@ -79,6 +79,14 @@ project = struct(
             },
         ],
     ),
+    k3s = {
+        "url": "https://github.com/rancher/k3s/releases/download/v0.9.1/k3s",
+        "sha256": "9f8bea3fa6f88066ca51cc896000aab2794e3f585d6fc982dd5aa7da8ee9fe85",
+    },
+    local_path_provisioner = struct(
+        url = "https://raw.githubusercontent.com/rancher/local-path-provisioner/58cafaccef6645e135664053545ff94cb4bc4224/deploy/local-path-storage.yaml",
+        sha256 = "df88b9a38420bb6d286953e06766abbc587e57f1f4eb5cb1c749fa53488cb4f7",
+    ),
     skylib = struct(
         version = "0.8.0",
         sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",

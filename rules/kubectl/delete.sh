@@ -4,4 +4,4 @@ set -o errexit -o nounset
 
 "${KUBECTL}" delete \
   --filename "${RESOURCE}" \
-  --namespace "${NAMESPACE}"
+  ${NAMESPACE:+--namespace "${NAMESPACE}"}
