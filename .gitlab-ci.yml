@@ -7,19 +7,20 @@ stages:
 - test
 - publish
 
+.common_refs: &common_refs
+- external_pull_requests
+- /^test\/pr\/.*$/
+- master
+
 lint:
   stage: lint
-  only:
-  - external_pull_requests
-  - master
+  only: *common_refs
   script:
   - ./dev/linters/shellcheck.sh
 
 build:chart:
   stage: build
-  only:
-  - external_pull_requests
-  - master
+  only: *common_refs
   script:
   - .gitlab/pipelines/stages/build/build.sh
   artifacts:
@@ -29,9 +30,7 @@ build:chart:
 
 smoke-tests:
   stage: test
-  only:
-  - external_pull_requests
-  - master
+  only: *common_refs
   script:
   - .gitlab/pipelines/stages/deploy/setup_k8s.sh
   - .gitlab/pipelines/stages/deploy/deploy_cf_operator.sh
