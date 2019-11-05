@@ -2,7 +2,4 @@
 
 set -o errexit -o nounset
 
-# shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
-
-sudo kill "$(cat "${K3S_PID_FILE}")"
+ps ax | awk '/[k]3s server/{ print $1 }' | xargs --max-line=1 --no-run-if-empty sudo kill

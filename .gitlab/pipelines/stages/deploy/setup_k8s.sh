@@ -22,7 +22,6 @@ wait_for_file() {
 "${K3S}" --version 2> /dev/null
 
 sudo "${K3S}" server --log /dev/null &
-echo "$!" > "${K3S_PID_FILE}"
 
 k3s_kubeconfig="/etc/rancher/k3s/k3s.yaml"
 kubeconfig="${HOME}/.kube/config"
