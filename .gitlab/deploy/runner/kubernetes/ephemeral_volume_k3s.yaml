@@ -1,0 +1,16 @@
+# This PodPreset is required to get around issues with running k3s on onverlayfs provided by k8s.
+---
+apiVersion: settings.k8s.io/v1alpha1
+kind: PodPreset
+metadata:
+  name: ephemeral-volume-k3s
+spec:
+  selector:
+    matchLabels:
+      role: gitlab-job-runner
+  volumeMounts:
+    - mountPath: /var/lib/rancher/k3s
+      name: k3s
+  volumes:
+    - name: k3s
+      emptyDir: {}
