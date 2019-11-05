@@ -2,4 +2,4 @@
 
 set -o errexit -o nounset
 
-ps ax | awk '/[k]3s server/{ print $1 }' | xargs --max-line=1 --no-run-if-empty sudo kill
+pgrep --full 'k3s server' | xargs --no-run-if-empty sudo kill
