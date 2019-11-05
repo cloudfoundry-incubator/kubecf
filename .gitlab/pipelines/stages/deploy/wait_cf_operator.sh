@@ -7,10 +7,14 @@ source "$(bazel info workspace)/.gitlab/pipelines/config/config.sh"
 
 # Wait for cf-operator to start.
 wait_for_crd() {
-  local timeout="300"
-  until bazel run @kubectl//:kubectl -- get crd "${BOSHDEPLOYMENT_CRD}" 2> /dev/null || [[ "$timeout" == "0" ]]; do sleep 1; timeout=$((timeout - 1)); done
-  if [[ "${timeout}" == 0 ]]; then return 1; fi
-  return 0
+  local timeout
+  for (( timeout = 300; timeout > 0; timeout -- )); do
+    if bazel run @kubectl//:kubectl -- get crd "${BOSHDEPLOYMENT_CRD}" 2> /dev/null; then
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
 }
 
 echo "Waiting for the cf-operator pod to become available..."
