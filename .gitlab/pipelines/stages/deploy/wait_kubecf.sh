@@ -3,10 +3,12 @@
 set -o errexit -o nounset
 
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/config/config.sh"
+source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
+# shellcheck disable=SC1090
+source "$(bazel info workspace)/.gitlab/pipelines/runtime/binaries.sh"
 
 get_endpoint() {
-  bazel run @kubectl//:kubectl -- get endpoints kubecf-router-public \
+  "${KUBECTL}" get endpoints kubecf-router-public \
     --namespace "${KUBECF_NAMESPACE}" \
     --output jsonpath='{.subsets[0].addresses[0].ip}' 2> /dev/null
 }

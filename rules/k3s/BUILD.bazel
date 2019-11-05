@@ -2,13 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 load("//rules/external_binary:def.bzl", "binary_location")
 
-exports_files([
-    "apply.sh",
-    "delete.sh",
-    "patch.sh",
-])
-
 binary_location(
     name = "binary_location",
-    binary = "@kubectl//kubectl",
+    binary = "@k3s//k3s",
 )

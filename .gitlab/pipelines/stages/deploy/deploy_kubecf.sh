@@ -3,7 +3,9 @@
 set -o errexit -o nounset
 
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/config/config.sh"
+source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
+# shellcheck disable=SC1090
+source "$(bazel info workspace)/.gitlab/pipelines/runtime/binaries.sh"
 # shellcheck disable=SC1090
 source "$(bazel info workspace)/.gitlab/pipelines/stages/build/output_chart.sh"
 
@@ -25,4 +27,4 @@ EOF
 chart="$(output_chart)"
 
 # Render and apply the kubecf chart.
-bazel run @helm//:helm -- template "${chart}" --name kubecf --namespace "${KUBECF_NAMESPACE}" --values "${values}" | bazel run @kubectl//:kubectl -- apply -f - --namespace "${KUBECF_NAMESPACE}"
+bazel run @helm//:helm -- template "${chart}" --name kubecf --namespace "${KUBECF_NAMESPACE}" --values "${values}" | "${KUBECTL}" apply -f - --namespace "${KUBECF_NAMESPACE}"

@@ -8,3 +8,4 @@ export SYSTEM_DOMAIN="${CLUSTER_IP}.nip.io"
 export EIRINI_ENABLED
 export KUBECF_CHART_TARGET="//deploy/helm/kubecf:chart"
 export BOSHDEPLOYMENT_CRD="boshdeployments.fissile.cloudfoundry.org"
+export K3S_PID_FILE="/tmp/k3s.pid"
