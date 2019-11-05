@@ -9,7 +9,7 @@ stages:
 
 .common_refs: &common_refs
 - external_pull_requests
-- /^test\/pr\/.*$/
+- /^test\//
 - master
 
 lint:
