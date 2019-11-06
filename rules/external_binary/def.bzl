@@ -15,7 +15,7 @@ def _external_binary_impl(ctx):
     args = {
         "url": info.get("url"),
         "sha256": info.get("sha256", ""),
-        "output": "executable/executable",
+        "output": "{name}/{name}".format(name = ctx.attr.name),
     }
     if info.get("is_compressed", False):
         ctx.download_and_extract(**args)
@@ -24,8 +24,8 @@ def _external_binary_impl(ctx):
         ctx.download(**args)
 
     build_contents = 'package(default_visibility = ["//visibility:public"])\n'
-    build_contents += 'exports_files(["executable"])\n'
-    ctx.file("executable/BUILD.bazel", build_contents)
+    build_contents += 'exports_files(["{name}"])\n'.format(name = ctx.attr.name)
+    ctx.file("{name}/BUILD.bazel".format(name = ctx.attr.name), build_contents)
 
 external_binary = repository_rule(
     implementation = _external_binary_impl,
@@ -39,3 +39,25 @@ external_binary = repository_rule(
 def _validade_platform_info(platform, info):
     if not "url" in info:
         fail("missing attr 'url' in '{}'".format(platform))
+
+
+def _binary_location_impl(ctx):
+    script = ctx.actions.declare_file(ctx.attr.name)
+    contents = "echo \"$(pwd)/{}\"".format(ctx.executable.binary.path)
+    ctx.actions.write(script, contents, is_executable = True)
+    return [DefaultInfo(
+        executable = script,
+        runfiles = ctx.runfiles(files = [ctx.executable.binary]),
+    )]
+
+binary_location = rule(
+    implementation = _binary_location_impl,
+    attrs = {
+        "binary": attr.label(
+            allow_single_file = True,
+            cfg = "host",
+            executable = True,
+        ),
+    },
+    executable = True,
+)

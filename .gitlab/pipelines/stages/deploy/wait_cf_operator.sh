@@ -3,13 +3,15 @@
 set -o errexit -o nounset
 
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/config/config.sh"
+source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
+# shellcheck disable=SC1090
+source "$(bazel info workspace)/.gitlab/pipelines/runtime/binaries.sh"
 
 # Wait for cf-operator to start.
 wait_for_crd() {
   local timeout
   for (( timeout = 300; timeout > 0; timeout -- )); do
-    if bazel run @kubectl//:kubectl -- get crd "${BOSHDEPLOYMENT_CRD}" 2> /dev/null; then
+    if "${KUBECTL}" get crd "${BOSHDEPLOYMENT_CRD}" 2> /dev/null; then
       return 0
     fi
     sleep 1

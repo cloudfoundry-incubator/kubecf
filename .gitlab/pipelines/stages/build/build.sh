@@ -3,7 +3,7 @@
 set -o errexit -o nounset
 
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/config/config.sh"
+source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
 
 bazel build "${KUBECF_CHART_TARGET}"
 built_file="$(bazel aquery "${KUBECF_CHART_TARGET}" 2> /dev/null | awk 'match($0, /Outputs: \[(.*)\]/, output){ print output[1] }')"
