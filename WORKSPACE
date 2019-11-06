@@ -5,7 +5,6 @@ load("//dev/kind:binary.bzl", "kind_binary")
 load("//dev/minikube:binary.bzl", "minikube_binary")
 load("//rules/external_binary:def.bzl", "external_binary")
 load("//rules/helm:binary.bzl", "helm_binary")
-load("//rules/kubectl:binary.bzl", "kubectl_binary")
 load(":def.bzl", "project")
 
 external_binary(
@@ -41,10 +40,11 @@ helm_binary(
     version = project.helm.version,
 )
 
-kubectl_binary(
+external_binary(
     name = "kubectl",
-    platforms = project.kubernetes.platforms,
-    version = project.kubernetes.version,
+    darwin = project.kubernetes.kubectl.platforms.darwin,
+    linux = project.kubernetes.kubectl.platforms.linux,
+    windows = project.kubernetes.kubectl.platforms.windows,
 )
 
 minikube_binary(
