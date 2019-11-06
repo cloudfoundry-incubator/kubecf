@@ -34,3 +34,6 @@ wait_for_smoke_tests_pod || {
 # Follow the logs. If the tests fail, the logs command will also fail.
 pod_name="$(smoke_tests_pod_name)"
 "${KUBECTL}" logs --follow "${pod_name}" --namespace "${KUBECF_NAMESPACE}" --container smoke-tests-smoke-tests
+
+exit_code="$("${KUBECTL}" get pod "${pod_name}" --namespace "${KUBECF_NAMESPACE}" --output jsonpath='{.status.containerStatuses[?(@.name == "smoke-tests-smoke-tests")].state.terminated.exitCode}')"
+exit "${exit_code}"
