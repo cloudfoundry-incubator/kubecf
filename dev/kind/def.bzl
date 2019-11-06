@@ -44,7 +44,7 @@ attrs = {
     "_kind": attr.label(
         allow_single_file = True,
         cfg = "host",
-        default = "@kind//:kind",
+        default = "@kind//kind",
         executable = True,
     ),
     "_kubectl": attr.label(
