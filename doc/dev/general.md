@@ -140,7 +140,7 @@ This has to happen before deploying kubecf.
 ```sh
 helm install stable/nginx-ingress \
   --name ingress \
-  --namespace ingress
+  --namespace ingress \
   --set "controller.service.externalIPs={$(minikube ip)}"
 ```
 
