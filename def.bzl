@@ -30,20 +30,22 @@ project = struct(
     ),
     kubernetes = struct(
         version = "1.14.6",
-        platforms = [
-            {
-                "platform": "linux",
-                "sha256": "5f8e8d8de929f64b8f779d0428854285e1a1c53a02cc2ad6b1ce5d32eefad25c",
-            },
-            {
-                "platform": "darwin",
-                "sha256": "de42dd22f67c135b749c75f389c70084c3fe840e3d89a03804edd255ac6ee829",
-            },
-            {
-                "platform": "windows",
-                "sha256": "3aa2d64f5eb9564622ddabe5f0a6c12d13d9dda90125f5a56ce41779395fa6f5",
-            },
-        ],
+        kubectl = struct(
+            platforms = struct(
+                darwin = {
+                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/linux/amd64/kubectl",
+                    "sha256": "de42dd22f67c135b749c75f389c70084c3fe840e3d89a03804edd255ac6ee829",
+                },
+                linux = {
+                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/linux/amd64/kubectl",
+                    "sha256": "5f8e8d8de929f64b8f779d0428854285e1a1c53a02cc2ad6b1ce5d32eefad25c",
+                },
+                windows = {
+                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/linux/amd64/kubectl",
+                    "sha256": "3aa2d64f5eb9564622ddabe5f0a6c12d13d9dda90125f5a56ce41779395fa6f5",
+                },
+            ),
+        ),
     ),
     minikube = struct(
         version = "1.3.0",
@@ -78,6 +80,14 @@ project = struct(
                 "sha256": "58add85c8c1a2d5df7564f814076db5f334b6164098e899bba0c6176d11c9940",
             },
         ],
+    ),
+    k3s = {
+        "url": "https://github.com/rancher/k3s/releases/download/v0.9.1/k3s",
+        "sha256": "9f8bea3fa6f88066ca51cc896000aab2794e3f585d6fc982dd5aa7da8ee9fe85",
+    },
+    local_path_provisioner = struct(
+        url = "https://raw.githubusercontent.com/rancher/local-path-provisioner/58cafaccef6645e135664053545ff94cb4bc4224/deploy/local-path-storage.yaml",
+        sha256 = "df88b9a38420bb6d286953e06766abbc587e57f1f4eb5cb1c749fa53488cb4f7",
     ),
     skylib = struct(
         version = "0.8.0",

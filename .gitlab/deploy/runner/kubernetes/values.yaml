@@ -8,3 +8,5 @@ runners:
   image: opensuse/leap:15.1
   privileged: true
   runUntagged: false
+  podLabels:
+    role: gitlab-job-runner

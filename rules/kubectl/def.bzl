@@ -27,14 +27,14 @@ _kubectl_attr = {
     "_kubectl": attr.label(
         allow_single_file = True,
         cfg = "host",
-        default = "@kubectl//:kubectl",
+        default = "@kubectl//kubectl",
         executable = True,
     ),
 }
 
 _attrs = dict({
     "namespace": attr.string(
-        mandatory = True,
+        mandatory = False,
     ),
     "resource": attr.label(
         mandatory = True,
@@ -103,7 +103,7 @@ patch = rule(
     implementation = _kubectl_patch_impl,
     attrs = dict({
         "namespace": attr.string(
-            mandatory = True,
+            mandatory = False,
         ),
         "resource_type": attr.string(
             mandatory = True,
