@@ -54,7 +54,7 @@ with Helm Tiller pre-installed.
 ```shell
 helm install --name cf-operator \
      --namespace cfo \
-     --set "operator.watchNamespace=kubecf" \
+     --set "global.operator.watchNamespace=kubecf" \
      https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.1%2B92.g77e53fda.tgz
 ```
 
@@ -140,7 +140,7 @@ This has to happen before deploying kubecf.
 ```sh
 helm install stable/nginx-ingress \
   --name ingress \
-  --namespace ingress
+  --namespace ingress \
   --set "controller.service.externalIPs={$(minikube ip)}"
 ```
 
