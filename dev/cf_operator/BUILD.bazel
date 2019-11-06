@@ -10,7 +10,7 @@ helm_template(
     install_name = "cf-operator",
     namespace = project.cf_operator.namespace,
     set_values = {
-        "operator.watchNamespace": project.namespace,
+        "global.operator.watchNamespace": project.namespace,
     },
     chart_package = "@cf_operator//file",
 )
