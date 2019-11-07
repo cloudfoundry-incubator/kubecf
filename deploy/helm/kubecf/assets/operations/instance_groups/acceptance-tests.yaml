@@ -3,7 +3,7 @@
   value:
     name: cf-acceptance-tests
     url: {{ .Values.releases.defaults.url | quote }}
-    version: 0.0.1
+    version: 0.0.2
 - path: /instance_groups/-
   type: replace
   value:
