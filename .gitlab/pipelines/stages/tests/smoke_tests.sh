@@ -34,3 +34,13 @@ wait_for_smoke_tests_pod || {
 # Follow the logs. If the tests fail, the logs command will also fail.
 pod_name="$(smoke_tests_pod_name)"
 "${KUBECTL}" logs --follow "${pod_name}" --namespace "${KUBECF_NAMESPACE}" --container smoke-tests-smoke-tests
+
+# Wait for the container to terminate and then exit the script with the container's exit code.
+jsonpath='{.status.containerStatuses[?(@.name == "smoke-tests-smoke-tests")].state.terminated.exitCode}'
+while true; do
+  exit_code="$("${KUBECTL}" get "${pod_name}" --namespace "${KUBECF_NAMESPACE}" --output "jsonpath=${jsonpath}")"
+  if [[ -n "${exit_code}" ]]; then
+    exit "${exit_code}"
+  fi
+  sleep 1
+done
