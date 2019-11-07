@@ -44,13 +44,13 @@ attrs = {
     "_kind": attr.label(
         allow_single_file = True,
         cfg = "host",
-        default = "@kind//:kind",
+        default = "@kind//kind",
         executable = True,
     ),
     "_kubectl": attr.label(
         allow_single_file = True,
         cfg = "host",
-        default = "@kubectl//:kubectl",
+        default = "@kubectl//kubectl",
         executable = True,
     ),
     "_metrics_server": attr.label(

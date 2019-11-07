@@ -1,11 +1,9 @@
 workspace(name = "kubecf")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
-load("//dev/kind:binary.bzl", "kind_binary")
 load("//dev/minikube:binary.bzl", "minikube_binary")
 load("//rules/external_binary:def.bzl", "external_binary")
 load("//rules/helm:binary.bzl", "helm_binary")
-load("//rules/kubectl:binary.bzl", "kubectl_binary")
 load(":def.bzl", "project")
 
 external_binary(
@@ -41,10 +39,11 @@ helm_binary(
     version = project.helm.version,
 )
 
-kubectl_binary(
+external_binary(
     name = "kubectl",
-    platforms = project.kubernetes.platforms,
-    version = project.kubernetes.version,
+    darwin = project.kubernetes.kubectl.platforms.darwin,
+    linux = project.kubernetes.kubectl.platforms.linux,
+    windows = project.kubernetes.kubectl.platforms.windows,
 )
 
 minikube_binary(
@@ -53,10 +52,22 @@ minikube_binary(
     version = project.minikube.version,
 )
 
-kind_binary(
+external_binary(
     name = "kind",
-    platforms = project.kind.platforms,
-    version = project.kind.version,
+    darwin = project.kind.platforms.darwin,
+    linux = project.kind.platforms.linux,
+    windows = project.kind.platforms.windows,
+)
+
+external_binary(
+    name = "k3s",
+    linux = project.k3s,
+)
+
+http_file(
+    name = "local_path_provisioner",
+    sha256 = project.local_path_provisioner.sha256,
+    urls = [project.local_path_provisioner.url],
 )
 
 http_archive(

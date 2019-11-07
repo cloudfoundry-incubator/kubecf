@@ -8,7 +8,7 @@ kubernetes configuration file from KinD.
 The necessary command is:
 
 ```shell
-export KUBECONFIG="$(bazel run @kind//:kind -- get kubeconfig-path --name="kubecf")"
+export KUBECONFIG="$(bazel run @kind//kind -- get kubeconfig-path --name="kubecf")"
 ```
 
 ## Deployment and teardown

@@ -2,25 +2,18 @@
 
 set -o errexit -o nounset
 
-default_installation_name="gitlab-runner"
+default_installation_name="gitlab-ci-runner"
 printf "Installation name (%s): " "${default_installation_name}"
 read -r installation_name
 if [ -z "${installation_name}" ]; then
   installation_name="${default_installation_name}"
 fi
 
-default_namespace="gitlab-runner"
+default_namespace="gitlab"
 printf "Namespace (%s): " "${default_namespace}"
 read -r namespace
 if [ -z "${namespace}" ]; then
   namespace="${default_namespace}"
-fi
-
-default_personal_id="$(whoami)"
-printf "Personal ID (%s): " "${default_personal_id}"
-read -r personal_id
-if [ -z "${personal_id}" ]; then
-  personal_id="${default_personal_id}"
 fi
 
 stty -echo
@@ -33,24 +26,16 @@ if [ -z "${runner_registration_token}" ]; then
   exit 1
 fi
 
-kubectl apply -f - <<EOF
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: gitlab-runner:cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: ${namespace}
-roleRef:
-  kind: ClusterRole
-  name: cluster-admin
-  apiGroup: rbac.authorization.k8s.io
-EOF
+workspace="$(bazel info workspace)"
+
+kubectl create namespace "${namespace}" 2> /dev/null || true
+
+kubectl apply --namespace "${namespace}" -f "${workspace}/.gitlab/deploy/runner/kubernetes/ephemeral_volume_k3s.yaml"
 
 helm upgrade "${installation_name}" gitlab/gitlab-runner \
   --install \
+  --wait \
   --namespace "${namespace}" \
-  --values .gitlab/deploy/runner/kubernetes/values.yaml \
+  --values "${workspace}/.gitlab/deploy/runner/kubernetes/values.yaml" \
   --set "runners.namespace=${namespace}" \
   --set "runnerRegistrationToken=${runner_registration_token}"
