@@ -16,7 +16,7 @@
         acceptance_tests:
           admin_password: ((cf_admin_password))
           admin_user: admin
-          api: https://api.((system_domain))
+          api: api.((system_domain))
           apps_domain: ((system_domain))
           skip_ssl_validation: true
         bpm:
