@@ -8,7 +8,15 @@ source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
 source "$(bazel info workspace)/.gitlab/pipelines/runtime/binaries.sh"
 
 wait_kubecf() {
-  timeout 1800 bash <<EOF
+  timeout 900 bash <<EOF
+while true; do
+  if '${KUBECTL}' get pods --namespace ${KUBECF_NAMESPACE} --no-headers --ignore-not-found | grep "router"; then
+    exit 0
+  fi
+  sleep 1
+done
+EOF
+  timeout 900 bash <<EOF
 pod_count() {
   '${KUBECTL}' get pods --namespace ${KUBECF_NAMESPACE} --no-headers --ignore-not-found \
     | wc --lines
