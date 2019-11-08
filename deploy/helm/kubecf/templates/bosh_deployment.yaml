@@ -16,8 +16,10 @@ spec:
     type: configmap
   ops:
 {{- if .Values.features.suse_buildpacks }}
-  - name: {{ include "kubecf.ops-name" "assets/operations/buildpacks/set_suse_buildpacks.yaml" }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/buildpacks/*" }}
+  - name: {{ include "kubecf.ops-name" $path }}
     type: configmap
+{{- end }}
 {{- end }}
 {{- if .Values.features.eirini.enabled }}
   - name: ops-use-bits-service

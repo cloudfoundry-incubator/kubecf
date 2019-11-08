@@ -19,7 +19,9 @@ data:
 
 {{- $root := . -}}
 {{- if .Values.features.suse_buildpacks }}
-{{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/buildpacks/*" }}
+{{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
+{{- end }}
 {{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}

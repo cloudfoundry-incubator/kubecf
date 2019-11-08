@@ -1,0 +1,9 @@
+- type: replace
+  path: /instance_groups/name=api/jobs/-
+  value:
+    name: suse-binary-buildpack
+    release: suse-binary-buildpack
+    properties:
+      quarks:
+        pre_render_scripts:
+          jobs: []
