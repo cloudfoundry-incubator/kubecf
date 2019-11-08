@@ -33,7 +33,7 @@ project = struct(
         kubectl = struct(
             platforms = struct(
                 darwin = {
-                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/linux/amd64/kubectl",
+                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/darwin/amd64/kubectl",
                     "sha256": "de42dd22f67c135b749c75f389c70084c3fe840e3d89a03804edd255ac6ee829",
                 },
                 linux = {
@@ -41,7 +41,7 @@ project = struct(
                     "sha256": "5f8e8d8de929f64b8f779d0428854285e1a1c53a02cc2ad6b1ce5d32eefad25c",
                 },
                 windows = {
-                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/linux/amd64/kubectl",
+                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/windows/amd64/kubectl.exe",
                     "sha256": "3aa2d64f5eb9564622ddabe5f0a6c12d13d9dda90125f5a56ce41779395fa6f5",
                 },
             ),
