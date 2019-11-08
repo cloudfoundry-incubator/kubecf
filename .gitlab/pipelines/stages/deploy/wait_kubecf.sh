@@ -8,23 +8,29 @@ source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
 source "$(bazel info workspace)/.gitlab/pipelines/runtime/binaries.sh"
 
 wait_kubecf() {
-  timeout 1800 bash -c "
-    pod_count() {
-      '${KUBECTL}' get pods --namespace ${KUBECF_NAMESPACE} --no-headers \
-        | wc -l
-    }
-    ready_pod_count() {
-      '${KUBECTL}' get pods --namespace ${KUBECF_NAMESPACE} --no-headers \
-        | awk '{ printf \"%s-%s\n\", \$2, \$3 }' | grep -x '\(.*\)\/\1-Running' \
-        | wc -l
-    }
-    while true; do
-      if [[ \"\$(pod_count)\" != \"0\" ]] && [[ \"\$(pod_count)\" == \"\$(ready_pod_count)\" ]]; then
-        exit 0
-      fi
-      sleep 1
-    done
-  "
+  timeout 1800 bash <<EOF
+pod_count() {
+  '${KUBECTL}' get pods --namespace ${KUBECF_NAMESPACE} --no-headers --ignore-not-found \
+    | wc --lines
+}
+
+ready_pod_count() {
+  '${KUBECTL}' get pods --namespace ${KUBECF_NAMESPACE} --no-headers --ignore-not-found \
+    | awk '{ printf "%s-%s\n", \$2, \$3 }' | grep --line-regexp '\(.*\)\/\1-Running' \
+    | wc --lines
+}
+
+while true; do
+  total="\$(pod_count)"
+  ready="\$(ready_pod_count)"
+  if [[ "\${total}" > "0" ]] && [[ "\${total}" == "\${ready}" ]]; then
+    printf "\r%d of %d pods ready." "\${ready}" "\${total}"
+    exit 0
+  fi
+  printf "\r%d of %d pods ready." "\${ready}" "\${total}"
+  sleep 1
+done
+EOF
 }
 
 echo "Waiting for kubecf to be ready..."
