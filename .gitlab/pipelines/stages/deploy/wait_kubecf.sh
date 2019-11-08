@@ -20,6 +20,7 @@ ready_pod_count() {
     | wc --lines
 }
 
+i=0
 while true; do
   total="\$(pod_count)"
   ready="\$(ready_pod_count)"
@@ -27,8 +28,11 @@ while true; do
     printf "\r%d of %d pods ready." "\${ready}" "\${total}"
     exit 0
   fi
-  printf "\r%d of %d pods ready." "\${ready}" "\${total}"
+  if (( i % 60 == 0 )); then
+    printf "\r%d of %d pods ready." "\${ready}" "\${total}"
+  fi
   sleep 1
+  i=\$((i + 1))
 done
 EOF
 }
