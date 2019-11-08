@@ -20,16 +20,21 @@ ready_pod_count() {
     | wc --lines
 }
 
+print_status() {
+  timestamp="\$(date +"%T")"
+  printf "%s - %d of %d pods ready.\n" "\${timestamp}" "\${1}" "\${2}"
+}
+
 i=0
 while true; do
   total="\$(pod_count)"
   ready="\$(ready_pod_count)"
   if [[ "\${total}" > "0" ]] && [[ "\${total}" == "\${ready}" ]]; then
-    printf "\r%d of %d pods ready." "\${ready}" "\${total}"
+    print_status "\${ready}" "\${total}"
     exit 0
   fi
   if (( i % 60 == 0 )); then
-    printf "\r%d of %d pods ready." "\${ready}" "\${total}"
+    print_status "\${ready}" "\${total}"
   fi
   sleep 1
   i=\$((i + 1))
