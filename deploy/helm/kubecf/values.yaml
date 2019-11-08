@@ -19,6 +19,12 @@ releases:
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_340.g2b599a90
+    
+  sle:
+    url: registry.suse.com/cap-staging
+    stemcell:
+      os: SLE-12SP4
+      version: 5.g4792c5a-0.230-7.0.0_360.g0ec8d681
 
 sizing:
   HA: false

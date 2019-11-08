@@ -179,3 +179,9 @@
   value: {{ .Values.releases.defaults.url | quote }}
 - type: remove
   path: /releases/name=cf-cli/sha1
+
+- type: replace
+  path: /releases/name=suse-binary-buildpack/url
+  value: {{ .Values.releases.sle.url | quote }}
+- type: remove
+  path: /releases/name=suse-binary-buildpack/sha1

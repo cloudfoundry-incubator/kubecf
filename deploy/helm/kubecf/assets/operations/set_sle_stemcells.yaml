@@ -1,0 +1,8 @@
+# This ops file sets the SLE image and stemcell for SUSE buildpacks.
+
+- type: replace
+  path: /releases/name=suse-binary-buildpack/stemcell?
+  value:
+    alias: sle
+    os: {{ .Values.releases.sle.stemcell.os | quote }}
+    version: {{ .Values.releases.sle.stemcell.version | quote }}
