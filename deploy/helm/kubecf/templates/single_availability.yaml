@@ -93,4 +93,30 @@ data:
       path: /instance_groups/name=eirini/azs?
     {{- end }}
 
+    {{- if .Values.features.autoscaler.enabled }}
+    - type: remove
+      path: /instance_groups/name=postgres_autoscaler/azs
+    - type: remove
+      path: /instance_groups/name=asactors/azs
+    - type: remove
+      path: /instance_groups/name=asmetrics/azs
+    - type: remove
+      path: /instance_groups/name=asapi/azs
+    - type: remove
+      path: /instance_groups/name=asnozzle/azs
+
+    - type: replace
+      path: /instance_groups/name=asactors/instances?
+      value: 1
+    - type: replace
+      path: /instance_groups/name=asmetrics/instances?
+      value: 1
+    - type: replace
+      path: /instance_groups/name=asapi/instances?
+      value: 1
+    - type: replace
+      path: /instance_groups/name=asnozzle/instances?
+      value: 1
+    {{- end }}
+
 {{- end }}

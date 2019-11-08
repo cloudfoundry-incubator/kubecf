@@ -1,0 +1,36 @@
+{{- if .Values.features.autoscaler.enabled -}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.deployment_name }}.var-cf-client-id
+type: Opaque
+stringData:
+  value: app_autoscaler
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ops-uaa-autoscaler-client
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+data:
+  ops: |
+    - type: replace
+      path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients?/app_autoscaler
+      value:
+        authorities: cloud_controller.read,cloud_controller.admin,uaa.resource
+        authorized-grant-types: client_credentials
+        scope: cloud_controller.read,cloud_controller.write,openid,scim.read
+        secret: ((cf_client_secret))
+    - type: replace
+      path: /variables/-
+      value: 
+        name: cf_client_secret
+        type: password
+        
+{{- end -}}  
