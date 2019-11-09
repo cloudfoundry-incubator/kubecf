@@ -20,6 +20,14 @@
     post_start:
       condition: *uaa_readiness
 
+# Use TLS for router to UAA traffic
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/route_registrar/routes/name=uaa/tls_port?
+  value: 8443
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/route_registrar/routes/name=uaa/server_cert_domain_san?
+  value: uaa.service.cf.internal
+
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
   value:

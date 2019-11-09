@@ -29,6 +29,14 @@
       exec:
         command: [sh, -c, 'ss -nlu sport = 3457 | grep :3457']
 
+# Add UAA CA cert to the router so the router -> UAA traffic can be encrypted
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/ca_certs
+  value: |
+    ((application_ca.certificate))
+    ((service_cf_internal_ca.certificate))
+    ((uaa_ca.certificate))
+
 # Add necessary labels to the router instance group so that the service can select it to create the
 # endpoint.
 - type: replace
