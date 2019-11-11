@@ -103,9 +103,9 @@
           certs_secret_name: eirini-staging-secret
           cc_internal_api: https://cloud-controller-ng.service.cf.internal:9023
           eirini_address: https://{{ .Values.deployment_name }}-eirini.{{ .Release.Namespace }}:8484
-          downloader_image: "eirini/recipe-downloader:0.3.0"
-          uploader_image: "eirini/recipe-uploader:0.3.0"
-          executor_image: "eirini/recipe-executor:0.3.0"
+          downloader_image: "gcr.io/peripli/recipe-downloader:0.3.0-ca-fix"
+          uploader_image: "gcr.io/peripli/recipe-uploader:0.3.0-ca-fix"
+          executor_image: "gcr.io/peripli/recipe-executor:0.3.0-ca-fix"
           # TODO: make this configurable
           metrics_source_address: ""
           loggregator_address: localhost:3458
@@ -138,6 +138,7 @@
     stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "eirini") }}
 
 # Set the correct addresses to be reached by the Eirini apps namespace.
+{{- if eq .Values.features.blobstore.provider "singleton" }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config/private_endpoint
   value: &blobstore_url "https://{{ .Values.deployment_name }}-singleton-blobstore.{{ .Release.Namespace }}:4443"
@@ -156,6 +157,7 @@
 - type: replace
   path: /variables/name=blobstore_tls/options/alternative_names?/-
   value: "{{ .Values.deployment_name }}-singleton-blobstore.{{ .Release.Namespace }}"
+{{- end }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
   value: "{{ .Values.deployment_name }}-api.{{ .Release.Namespace }}"

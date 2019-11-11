@@ -28,9 +28,11 @@ data:
     - type: replace
       path: /instance_groups/name=uaa/instances
       value: 1
+    {{- if eq .Values.features.blobstore.provider "singleton" }}
     - type: replace
       path: /instance_groups/name=singleton-blobstore/instances
       value: 1
+    {{- end }}
     - type: replace
       path: /instance_groups/name=api/instances
       value: 1
@@ -62,8 +64,10 @@ data:
       path: /instance_groups/name=diego-api/azs?
     - type: remove
       path: /instance_groups/name=uaa/azs?
+    {{- if eq .Values.features.blobstore.provider "singleton" }}
     - type: remove
       path: /instance_groups/name=singleton-blobstore/azs?
+    {{- end }}
     - type: remove
       path: /instance_groups/name=api/azs?
     - type: remove

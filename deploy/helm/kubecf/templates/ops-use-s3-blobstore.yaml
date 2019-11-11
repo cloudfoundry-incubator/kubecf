@@ -1,0 +1,152 @@
+{{- if eq .Values.features.blobstore.provider "s3" -}}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ops-use-s3-blobstore
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+data:
+  ops: |-
+    {{- .Files.Get "assets/use-s3-blobstore.yml" | nindent 4 }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ops-configure-bits-service-s3
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+data:
+  ops: |-
+    {{- .Files.Get "assets/configure-bits-service-s3.yml" | nindent 4 }}
+---
+apiVersion: "v1"
+kind: "Secret"
+type: Opaque
+metadata:
+  name: {{ .Values.deployment_name }}.var-blobstore-access-key-id
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+stringData:
+  value: "{{ .Values.features.blobstore.s3.blobstore_access_key_id }}"
+---
+apiVersion: "v1"
+kind: "Secret"
+type: Opaque
+metadata:
+  name: {{ .Values.deployment_name }}.var-blobstore-secret-access-key
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+stringData:
+  value: "{{ .Values.features.blobstore.s3.blobstore_secret_access_key }}"
+---
+apiVersion: "v1"
+kind: "Secret"
+type: Opaque
+metadata:
+  name: {{ .Values.deployment_name }}.var-app-package-directory-key
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+stringData:
+  value: "{{ .Values.features.blobstore.s3.app_package_directory_key }}"
+---
+apiVersion: "v1"
+kind: "Secret"
+type: Opaque
+metadata:
+  name: {{ .Values.deployment_name }}.var-buildpack-directory-key
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+stringData:
+  value: "{{ .Values.features.blobstore.s3.buildpack_directory_key }}"
+---
+apiVersion: "v1"
+kind: "Secret"
+type: Opaque
+metadata:
+  name: {{ .Values.deployment_name }}.var-droplet-directory-key
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+stringData:
+  value: "{{ .Values.features.blobstore.s3.droplet_directory_key }}"
+---
+apiVersion: "v1"
+kind: "Secret"
+type: Opaque
+metadata:
+  name: {{ .Values.deployment_name }}.var-resource-directory-key
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+stringData:
+  value: "{{ .Values.features.blobstore.s3.resource_directory_key }}"
+---
+apiVersion: "v1"
+kind: "Secret"
+type: Opaque
+metadata:
+  name: {{ .Values.deployment_name }}.var-blobstore-admin-users-password
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+stringData:
+  value: "{{ .Values.features.blobstore.s3.blobstore_admin_users_password }}"
+---
+apiVersion: "v1"
+kind: "Secret"
+type: Opaque
+metadata:
+  name: {{ .Values.deployment_name }}.var-aws-region
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+stringData:
+  value: "{{ .Values.features.blobstore.s3.aws_region }}"
+{{- end -}}

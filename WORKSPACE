@@ -19,7 +19,13 @@ http_archive(
 package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "cf_deployment",
-    srcs = ["cf-deployment.yml", "operations/bits-service/use-bits-service.yml"],
+    srcs = [
+        "cf-deployment.yml",
+        "operations/bits-service/use-bits-service.yml",
+        "operations/use-external-blobstore.yml",
+        "operations/use-s3-blobstore.yml",
+        "operations/bits-service/configure-bits-service-s3.yml"
+    ],
 )
 """,
     sha256 = project.cf_deployment.sha256,

@@ -15,12 +15,20 @@ spec:
     name: cf-deployment
     type: configmap
   ops:
-{{- if .Values.features.suse_buildpacks }}
-  - name: {{ include "kubecf.ops-name" "assets/operations/buildpacks/set_suse_buildpacks.yaml" }}
-    type: configmap
-{{- end }}
 {{- if .Values.features.eirini.enabled }}
   - name: ops-use-bits-service
+    type: configmap
+{{- end }}
+{{- if eq .Values.features.blobstore.provider "s3" }}
+  - name: ops-use-external-blobstore
+    type: configmap
+  - name: ops-use-s3-blobstore
+    type: configmap
+  - name: ops-configure-bits-service-s3
+    type: configmap
+{{- end }}
+{{- if .Values.features.suse_buildpacks }}
+  - name: {{ include "kubecf.ops-name" "assets/operations/buildpacks/set_suse_buildpacks.yaml" }}
     type: configmap
 {{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}

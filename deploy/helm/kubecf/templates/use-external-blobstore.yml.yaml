@@ -1,0 +1,17 @@
+{{- if eq .Values.features.blobstore.provider "s3" -}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ops-use-external-blobstore
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+data:
+  ops: |-
+    {{- .Files.Get "assets/use-external-blobstore.yml" | nindent 4 }}
+
+{{- end }}

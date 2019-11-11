@@ -51,6 +51,16 @@ features:
       key: ~
     annotations: {}
     labels: {}
+  blobstore:
+    provider: singleton
+    s3:
+      aws_region: "eu-central-1"
+      blobstore_access_key_id: ""
+      blobstore_secret_access_key: ""
+      app_package_directory_key: "apps-cf"
+      buildpack_directory_key: "buildpacks-cf"
+      droplet_directory_key: "droplets-cf"
+      resource_directory_key: "resources-cf"
   # TODO: suse_buildpacks should be default to true after the opensuse-stemcell-based images are
   # published to docker.io.
   suse_buildpacks: false

@@ -1,3 +1,4 @@
+{{ if eq  .Values.features.blobstore.provider "singleton" }}
 # Configure the persistent disk in the way that cf-operator can provision.
 - type: remove
   path: /instance_groups/name=singleton-blobstore/persistent_disk_type
@@ -44,4 +45,5 @@
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/singleton-blobstore_*" }}
 {{ $root.Files.Get $path }}
+{{- end }}
 {{- end }}
