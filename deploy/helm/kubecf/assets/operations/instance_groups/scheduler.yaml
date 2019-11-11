@@ -95,7 +95,7 @@
     valueFrom:
       fieldRef:
         apiVersion: v1
-        fieldPath: metadata.labels['fissile.cloudfoundry.org/pod-ordinal']
+        fieldPath: metadata.labels['quarks.cloudfoundry.org/pod-ordinal']
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/run/healthcheck/log-cache-expvar-forwarder
