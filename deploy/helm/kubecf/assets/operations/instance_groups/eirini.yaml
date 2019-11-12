@@ -138,10 +138,7 @@
     name: eirini
     version: 0.0.22
     url: {{ .Values.releases.defaults.url | quote }}
-    stemcell:
-      alias: default
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "eirini") }}
 
 # Set the correct addresses to be reached by the Eirini apps namespace.
 - type: replace
