@@ -43,9 +43,6 @@
             mutual_tls:
               server_cert: "((cc_bridge_cc_uploader_server.certificate))"
               server_key: "((cc_bridge_cc_uploader_server.private_key))"
-        eirini:
-          run_cert_copier: ~
-          cert_copier_image: ""
         opi:
           registry_address: 127.0.0.1:{{ .Values.features.eirini.registry.service.nodePort }}
           kube_namespace: {{ .Values.deployment_name }}-eirini
