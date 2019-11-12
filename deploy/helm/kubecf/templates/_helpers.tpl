@@ -77,3 +77,27 @@ flattened and separated by `separator`.
     {{- $_ := set $flattened $key $value }}
   {{- end }}
 {{- end -}}
+
+{{/*
+Returns a JSON map with the stemcell information based on the defaults
+and possible overrides for the respective release.
+*/}}
+{{- define "kubecf.stemcellLookup" -}}
+  {{- $releasesMap := index . 0 }}
+  {{- $releaseName := index . 1 }}
+  {{- $result := dict  "os" (index $releasesMap "defaults" "stemcell" "os")  "version" (index $releasesMap "defaults" "stemcell" "version") }}
+
+  {{- if index $releasesMap $releaseName }}
+    {{- if index $releasesMap $releaseName "stemcell" }}
+      {{- if index $releasesMap $releaseName "stemcell" "os" }}
+        {{- $_ := set $result "os" (index $releasesMap $releaseName "stemcell" "os") }}
+      {{- end }}
+
+      {{- if index $releasesMap $releaseName "stemcell" "version" }}
+        {{- $_ := set $result "version" (index $releasesMap $releaseName "stemcell" "version") }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- toJson $result }}
+{{- end -}}

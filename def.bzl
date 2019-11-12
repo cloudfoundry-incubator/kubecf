@@ -6,8 +6,8 @@ project = struct(
     ),
     cf_operator = struct(
         chart = struct(
-            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2%2B121.g0be7cf70.tgz",
-            sha256 = "ba0736de70b3ca4c91d3404e9ec0c3f23c1da322ee3cd71bb9a2f60a0afabef8",
+            url = "https://cf-operators.s3.amazonaws.com/helm-charts/cf-operator-v0.4.2%2B128.g79ec4885.tgz",
+            sha256 = "06c07a198fab6cd0db60b8543bfb3c9a53e026a102bf34847fda1a28f27dd9c0",
         ),
         namespace = "cfo",
     ),
@@ -33,7 +33,7 @@ project = struct(
         kubectl = struct(
             platforms = struct(
                 darwin = {
-                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/linux/amd64/kubectl",
+                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/darwin/amd64/kubectl",
                     "sha256": "de42dd22f67c135b749c75f389c70084c3fe840e3d89a03804edd255ac6ee829",
                 },
                 linux = {
@@ -41,7 +41,7 @@ project = struct(
                     "sha256": "5f8e8d8de929f64b8f779d0428854285e1a1c53a02cc2ad6b1ce5d32eefad25c",
                 },
                 windows = {
-                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/linux/amd64/kubectl",
+                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/windows/amd64/kubectl.exe",
                     "sha256": "3aa2d64f5eb9564622ddabe5f0a6c12d13d9dda90125f5a56ce41779395fa6f5",
                 },
             ),

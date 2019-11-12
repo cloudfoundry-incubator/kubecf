@@ -3,7 +3,7 @@
   value:
     name: cf-acceptance-tests
     url: {{ .Values.releases.defaults.url | quote }}
-    version: 0.0.2
+    version: 0.0.3
 - path: /instance_groups/-
   type: replace
   value:
@@ -16,7 +16,7 @@
         acceptance_tests:
           admin_password: ((cf_admin_password))
           admin_user: admin
-          api: https://api.((system_domain))
+          api: api.((system_domain))
           apps_domain: ((system_domain))
           skip_ssl_validation: true
         bpm:
