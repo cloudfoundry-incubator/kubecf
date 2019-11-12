@@ -1,4 +1,5 @@
 {{- if .Values.features.ingress.enabled -}}
+{{- if and .Values.features.ingress.tls.crt .Values.features.ingress.tls.key -}}
 ---
 # The certificate and key for the TLS secret are passed through ingress.tls.crt and ingress.tls.key
 # respectively. If the operator does not provide these values at installation time, the TLS secret
@@ -19,8 +20,9 @@ metadata:
     app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
     helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
 data:
-  tls.crt: {{ .Values.features.ingress.tls.crt | default "" | b64enc | quote }}
-  tls.key: {{ .Values.features.ingress.tls.key | default "" | b64enc | quote }}
+  tls.crt: {{ .Values.features.ingress.tls.crt | b64enc | quote }}
+  tls.key: {{ .Values.features.ingress.tls.key | b64enc | quote }}
+{{- end -}}
 ---
 # This ingress specifies routing and access for the cloud controller public Kubecf service, e.g.
 # "api.<domain>" and other services in that domain hierarchy.
