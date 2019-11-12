@@ -13,7 +13,7 @@
       query: '*'
 
 - type: replace
-  path: /instance_groups/0:before
+  path: /instance_groups/name=nats:after
   value:
     name: configure-eirini
     lifecycle: auto-errand
@@ -60,12 +60,14 @@
 
 # Add eirini
 - type: replace
-  path: /instance_groups/0:after
+  path: /instance_groups/name=configure-eirini:after
   value:
     name: eirini
     release: eirini
     instances: 1
     stemcell: default
+    update:
+      serial: true
     env:
       bosh:
         agent:
