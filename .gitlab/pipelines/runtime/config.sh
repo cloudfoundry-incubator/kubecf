@@ -7,4 +7,4 @@ export SYSTEM_DOMAIN="${CLUSTER_IP}.nip.io"
 : "${EIRINI_ENABLED:=false}"
 export EIRINI_ENABLED
 export KUBECF_CHART_TARGET="//deploy/helm/kubecf:chart"
-export BOSHDEPLOYMENT_CRD="boshdeployments.fissile.cloudfoundry.org"
+export BOSHDEPLOYMENT_CRD="boshdeployments.quarks.cloudfoundry.org"
