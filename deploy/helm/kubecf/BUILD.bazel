@@ -2,12 +2,23 @@ package(default_visibility = ["//visibility:public"])
 
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("//rules/helm:def.bzl", helm_package = "package")
+load("//:def.bzl", "project")
+load("//deploy/helm/kubecf:defs.bzl", "metadata_file_generator")
+
+metadata_file_generator(
+    name = "metadata",
+    file = "Metadata.yaml",
+    operator_chart = project.cf_operator.chart.url
+)
 
 filegroup(
     name = "chart_files_static",
     srcs = glob(
         ["**/*"],
-        exclude = ["**/BUILD.bazel"],
+        exclude = [
+            "**/BUILD.bazel",
+            "**/defs.bzl",
+        ],
     ),
 )
 
@@ -23,6 +34,9 @@ helm_package(
     name = "chart",
     srcs = [
         ":chart_files_static",
+    ],
+    generated = [
+        ":metadata",
     ],
     tars = [
         ":cf_deployment",
