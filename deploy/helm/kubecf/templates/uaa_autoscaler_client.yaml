@@ -29,8 +29,7 @@ data:
         secret: ((cf_client_secret))
     - type: replace
       path: /variables/-
-      value: 
+      value:
         name: cf_client_secret
         type: password
-        
-{{- end -}}  
+{{- end }}

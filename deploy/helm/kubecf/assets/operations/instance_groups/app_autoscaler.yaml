@@ -5,7 +5,7 @@
   value:
     domain: autoscalerpostgres.service.cf.internal
     targets:
-    - deployment: cf
+    - deployment: {{ .Values.deployment_name | quote }}
       domain: bosh
       instance_group: postgres_autoscaler
       network: default
@@ -15,7 +15,7 @@
   value:
     domain: apiserver.service.cf.internal
     targets:
-    - deployment: cf
+    - deployment: {{ .Values.deployment_name | quote }}
       domain: bosh
       instance_group: asapi
       network: default
@@ -25,7 +25,7 @@
   value:
     domain: autoscalerscheduler.service.cf.internal
     targets:
-    - deployment: cf
+    - deployment: {{ .Values.deployment_name | quote }}
       domain: bosh
       instance_group: asactors
       network: default
@@ -35,7 +35,7 @@
   value:
     domain: servicebroker.service.cf.internal
     targets:
-    - deployment: cf
+    - deployment: {{ .Values.deployment_name | quote }}
       domain: bosh
       instance_group: asapi
       network: default
@@ -45,7 +45,7 @@
   value:
     domain: eventgenerator.service.cf.internal
     targets:
-    - deployment: cf
+    - deployment: {{ .Values.deployment_name | quote }}
       domain: bosh
       instance_group: asmetrics
       network: default
@@ -55,7 +55,7 @@
   value:
     domain: scalingengine.service.cf.internal
     targets:
-    - deployment: cf
+    - deployment: {{ .Values.deployment_name | quote }}
       domain: bosh
       instance_group: asactors
       network: default
@@ -65,7 +65,7 @@
   value:
     domain: metricsgateway.service.cf.internal
     targets:
-    - deployment: cf
+    - deployment: {{ .Values.deployment_name | quote }}
       domain: bosh
       instance_group: asnozzle
       network: default
@@ -75,7 +75,7 @@
   value:
     domain: metricsserver.service.cf.internal
     targets:
-    - deployment: cf
+    - deployment: {{ .Values.deployment_name | quote }}
       domain: bosh
       instance_group: asmetrics
       network: default
@@ -108,7 +108,6 @@
     update:
       serial: true
     stemcell: default
-    vm_type: small
     networks:
     - name: default
     jobs:
@@ -118,7 +117,7 @@
         databases: &database
           sslmode: &sslmode verify-full
           tls: &database_tls
-            ca: ((postgres_ca.ca))
+            ca: ((postgres_ca.certificate))
             certificate: ((postgres_server.certificate))
             private_key: ((postgres_server.private_key))
           databases:
@@ -144,7 +143,6 @@
     networks:
     - name: default
     stemcell: default
-    vm_type: minimal
     update:
       max_in_flight: 1
       serial: true
@@ -175,7 +173,7 @@
               port: &scalingEngineHealthPort 6204
             defaultCoolDownSecs: 300
             lockSize: 32
-            ca_cert: ((scalingengine_ca.ca))
+            ca_cert: ((scalingengine_ca.certificate))
             server_cert: ((scalingengine_server.certificate))
             server_key: ((scalingengine_server.private_key))
     - name: scheduler
@@ -190,11 +188,11 @@
             job_reschedule_interval_millisecond: 10000
             job_reschedule_maxcount: 6
             notification_reschedule_maxcount: 3
-            ca_cert: ((scheduler_ca.ca))
+            ca_cert: ((scheduler_ca.certificate))
             server_cert: ((scheduler_server.certificate))
             server_key: ((scheduler_server.private_key))
             scaling_engine:
-              ca_cert: ((scalingengine_ca.ca))
+              ca_cert: ((scalingengine_ca.certificate))
               client_cert: ((scalingengine_client.certificate))
               client_key: ((scalingengine_client.private_key))
           scheduler_db: *database
@@ -218,12 +216,12 @@
             app_sync_interval: 24h
             scaling_engine:
               port: *scalingEnginePort
-              ca_cert: ((scalingengine_ca.ca))
+              ca_cert: ((scalingengine_ca.certificate))
               client_cert: ((scalingengine_client.certificate))
               client_key: ((scalingengine_client.private_key))                
             scheduler:
               port: *schedulerPort
-              ca_cert: ((scheduler_ca.ca))
+              ca_cert: ((scheduler_ca.certificate))
               client_cert: ((scheduler_client.certificate))
               client_key: ((scheduler_client.private_key))        
             db_lock: 
@@ -244,7 +242,6 @@
     networks:
     - name: default
     stemcell: default
-    vm_type: small
     update:
       max_in_flight: 1
       serial: true
@@ -295,7 +292,7 @@
               port: &eventGeneratorPort 6105
             health:
               port: &eventGeneratorHealthPort 6205
-            ca_cert: ((eventgenerator_ca.ca))
+            ca_cert: ((eventgenerator_ca.certificate))
             server_cert: ((eventgenerator_server.certificate))
             server_key: ((eventgenerator_server.private_key))
             aggregator:
@@ -318,13 +315,13 @@
             scaling_engine:
               host: scalingengine.service.cf.internal
               port: *scalingEnginePort
-              ca_cert: ((scalingengine_ca.ca))
+              ca_cert: ((scalingengine_ca.certificate))
               client_cert: ((scalingengine_client.certificate))
               client_key: ((scalingengine_client.private_key))
             metricscollector:
               host: metricsserver.service.cf.internal
               port: *metricsserverPort
-              ca_cert: ((metricsserver_ca.ca))
+              ca_cert: ((metricsserver_ca.certificate))
               client_cert: ((metricsserver_client.certificate))
               client_key: ((metricsserver_client.private_key))
 - type: replace
@@ -337,7 +334,6 @@
     networks:
     - name: default
     stemcell: default
-    vm_type: small
     update:
       max_in_flight: 1
       serial: true  
@@ -385,7 +381,6 @@
     networks:
     - name: default
     stemcell: default
-    vm_type: minimal
     update:
       max_in_flight: 1
       serial: true
@@ -397,7 +392,7 @@
           api_server:
             cache_ttl: 600
             http_client_timeout: 60000
-            service_offering_enabled: true
+            service_offering_enabled: false
             db_config: &db_config
               idle_timeout: 60000
               max_connections: 10
@@ -406,29 +401,29 @@
             publicPort: &apiServerPublicPort 6106
             health:
               port: 6200
-            ca_cert: ((apiserver_ca.ca))
+            ca_cert: ((apiserver_ca.certificate))
             server_cert: ((apiserver_server.certificate))
             server_key:  ((apiserver_server.private_key))
             scheduler:
-              ca_cert: ((scheduler_ca.ca))
+              ca_cert: ((scheduler_ca.certificate))
               client_cert: ((scheduler_client.certificate))
               client_key: ((scheduler_client.private_key))
             scaling_engine:
-              ca_cert: ((scalingengine_ca.ca))
+              ca_cert: ((scalingengine_ca.certificate))
               client_cert: ((scalingengine_client.certificate))
               client_key: ((scalingengine_client.private_key))
             metrics_collector:
               host: metricsserver.service.cf.internal
               port: *metricsserverPort
-              ca_cert: ((metricsserver_ca.ca))
+              ca_cert: ((metricsserver_ca.certificate))
               client_cert: ((metricsserver_client.certificate))
               client_key: ((metricsserver_client.private_key))
             eventgenerator:
-              ca_cert: ((eventgenerator_ca.ca))
+              ca_cert: ((eventgenerator_ca.certificate))
               client_cert: ((eventgenerator_client.certificate))
               client_key: ((eventgenerator_client.private_key))               
             service_broker:
-              ca_cert: ((servicebroker_ca.ca))
+              ca_cert: ((servicebroker_ca.certificate))
               client_cert: ((servicebroker_client.certificate))
               client_key: ((servicebroker_client.private_key))
           policy_db: *database
@@ -444,10 +439,10 @@
             port: 6107
             health:
               port: 6201
-            ca_cert: ((servicebroker_ca.ca))
+            ca_cert: ((servicebroker_ca.certificate))
             server_cert: ((servicebroker_server.certificate))
             server_key: ((servicebroker_server.private_key))
-            public_ca_cert: ((servicebroker_public_ca.ca))
+            public_ca_cert: ((servicebroker_public_ca.certificate))
             public_server_cert: ((servicebroker_public_server.certificate))
             public_server_key: ((servicebroker_public_server.private_key))
             username: autoscaler_service_broker_user
@@ -465,14 +460,16 @@
                   name: autoscaler-free-plan
                   description: This is the free service plan for the Auto-Scaling service.
             api_server:
-              ca_cert: ((apiserver_ca.ca))
+              ca_cert: ((apiserver_ca.certificate))
               client_cert: ((apiserver_client.certificate))
               client_key: ((apiserver_client.private_key))
           binding_db: *database
     - name: route_registrar
       release: routing
       consumes:
-        nats: {from: nats, deployment: cf}
+        nats:
+          from: nats
+          deployment: {{ .Values.deployment_name | quote }}
       properties:
         route_registrar:
           routes:
@@ -741,34 +738,35 @@
   path: /instance_groups/name=asnozzle/jobs/name=metricsgateway/properties/autoscaler/metricsgateway/nozzle/rlp_addr?
   value: {{ .Values.deployment_name }}-log-api:8082
 - type: replace
-  path: /variables/name=eventgenerator_server/options?/alternative_names
-  value: ["{{ .Values.deployment_name }}-asmetrics","*.{{ .Values.deployment_name }}-asmetrics","{{ .Values.deployment_name }}-asmetrics-0","{{ .Values.deployment_name }}-asmetrics-1"]
-- type: replace
   path: /variables/name=metricsserver_server/options?/alternative_names
-  value: ["{{ .Values.deployment_name }}-asmetrics","*.{{ .Values.deployment_name }}-asmetrics","{{ .Values.deployment_name }}-asmetrics-0","{{ .Values.deployment_name }}-asmetrics-1"] 
+  value: 
+    - '{{ .Values.deployment_name }}-asmetrics'
+    - '*.{{ .Values.deployment_name }}-asmetrics'
+    - '*.{{ .Release.Namespace }}.svc.cluster.local'
 
-- type: remove
-  path: /releases/name=app-autoscaler
-- type: remove
-  path: /releases/name=postgres
 - type: replace
-  path: /releases/-
-  value:
-    name: app-autoscaler
-    version: "2.0.0"
-    url: docker.io/aqan
-    stemcell:
-      os: opensuse-42.3
-      version: 38.g82067a9-30.95-7.0.0_346.ge9dd9ff3
+  path: /releases/name=app-autoscaler/version
+  value: 2.0.0
 - type: replace
-  path: /releases/-
-  value:
-    name: postgres
-    version: "25"
-    url: docker.io/aqan
-    stemcell:
-      os: opensuse-42.3
-      version: 38.g82067a9-30.95-7.0.0_346.ge9dd9ff3
+  path: /releases/name=app-autoscaler/url
+  value: {{ .Values.releases.defaults.url | quote }}
+- type: remove
+  path: /releases/name=app-autoscaler/sha1
+- type: replace
+  path: /releases/name=app-autoscaler/stemcell?
+  value: {{ include "kubecf.stemcellLookup" (list .Values.releases "autoscaler") }}
+
+- type: replace
+  path: /releases/name=postgres/version
+  value: 25
+- type: replace
+  path: /releases/name=postgres/url
+  value: {{ .Values.releases.defaults.url | quote }}
+- type: remove
+  path: /releases/name=postgres/sha1
+- type: replace
+  path: /releases/name=postgres/stemcell?
+  value: {{ include "kubecf.stemcellLookup" (list .Values.releases "autoscaler") }}
 
 # add persistent_disk to postgres
 - type: replace
@@ -923,6 +921,12 @@
     - name: mghealthport
       portocol: TCP
       internal: 6503
+    pre_render_scripts:
+      jobs:
+      - |
+        #!/usr/bin/env bash
+        namespace='{{ .Release.Namespace }}'
+        sed -i "s/wss:\/\/#{i.address}/wss:\/\/#{i.address}.${namespace}.svc.cluster.local/g" /var/vcap/all-releases/jobs-src/app-autoscaler/metricsgateway/templates/metricsgateway.yml.erb
     bpm:
       processes:
         - name: metricsgateway
@@ -1030,113 +1034,6 @@
               --pid $(cat "${pid_file}") \
               --follow "${log_file}"
 
-#replace .ca to .certificate
-- type: replace
-  path: /instance_groups/name=postgres_autoscaler/jobs/name=postgres/properties/databases/tls/ca?
-  value: ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/scalingengine/ca_cert?
-  value: ((scalingengine_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=scheduler/properties/autoscaler/scheduler/ca_cert?
-  value: ((scheduler_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=scheduler/properties/autoscaler/scheduler/scaling_engine/ca_cert?
-  value: ((scalingengine_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/operator/scaling_engine/ca_cert?
-  value: ((scalingengine_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/operator/scheduler/ca_cert?
-  value: ((scheduler_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/autoscaler/eventgenerator/ca_cert?
-  value: ((eventgenerator_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/autoscaler/eventgenerator/scaling_engine/ca_cert?
-  value: ((scalingengine_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/autoscaler/eventgenerator/metricscollector/ca_cert?
-  value: ((metricsserver_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/api_server/scaling_engine/ca_cert?
-  value: ((scalingengine_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/api_server/scheduler/ca_cert?
-  value: ((scheduler_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/api_server/metrics_collector/ca_cert?
-  value: ((metricsserver_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/api_server/eventgenerator/ca_cert?
-  value: ((eventgenerator_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/api_server/service_broker/ca_cert?
-  value: ((servicebroker_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/api_server/ca_cert?
-  value: ((apiserver_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=servicebroker/properties/autoscaler/service_broker/api_server/ca_cert?
-  value: ((apiserver_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=servicebroker/properties/autoscaler/service_broker/ca_cert?
-  value: ((servicebroker_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=servicebroker/properties/autoscaler/service_broker/public_ca_cert?
-  value: ((servicebroker_public_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/policy_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/scalingengine_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/scheduler_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=scheduler/properties/autoscaler/policy_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=scheduler/properties/autoscaler/scheduler_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/policy_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/appmetrics_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/instancemetrics_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/scalingengine_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/lock_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asmetrics/jobs/name=metricsserver/properties/autoscaler/instancemetrics_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asmetrics/jobs/name=metricsserver/properties/autoscaler/policy_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/autoscaler/appmetrics_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/autoscaler/policy_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asnozzle/jobs/name=metricsgateway/properties/autoscaler/policy_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/policy_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=servicebroker/properties/autoscaler/binding_db/tls/ca?
-  value:  ((postgres_ca.certificate))
-
 - type: replace
   path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/cf/skip_ssl_validation?
   value: true
@@ -1146,5 +1043,4 @@
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/cf/skip_ssl_validation?
   value: true
-
 {{- end }}
