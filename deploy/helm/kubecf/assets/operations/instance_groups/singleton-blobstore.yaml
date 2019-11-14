@@ -1,9 +1,11 @@
-# Configure the persistent disk in the way that cf-operator can provision.
-- type: remove
-  path: /instance_groups/name=singleton-blobstore/persistent_disk_type
 - type: replace
   path: /instance_groups/name=singleton-blobstore/persistent_disk?
   value: 102400 # 100GB
+{{- if .Values.kube.storage_class }}
+- type: replace
+  path: /instance_groups/name=singleton-blobstore/persistent_disk_type
+  value: {{ .Values.kube.storage_class }}
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/blobstore/internal_access_rules?
