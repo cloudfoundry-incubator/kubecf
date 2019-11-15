@@ -1,6 +1,6 @@
 [![pipeline status](https://gitlab.com/susecf/kubecf/badges/master/pipeline.svg)](https://gitlab.com/susecf/kubecf/pipelines)
 
-# Kubecf
+# Kubecf (k4f)
 
 Cloud Foundry built for Kubernetes (formerly [SUSE/scf v3 branch]).
 It makes use of the [Cloud Foundry Operator], which is incubating
