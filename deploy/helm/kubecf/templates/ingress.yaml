@@ -22,7 +22,7 @@ metadata:
 data:
   tls.crt: {{ .Values.features.ingress.tls.crt | b64enc | quote }}
   tls.key: {{ .Values.features.ingress.tls.key | b64enc | quote }}
-{{- end -}}
+{{- end }}
 ---
 # This ingress specifies routing and access for the cloud controller public Kubecf service, e.g.
 # "api.<domain>" and other services in that domain hierarchy.
