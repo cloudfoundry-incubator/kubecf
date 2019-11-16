@@ -6,8 +6,8 @@ project = struct(
     ),
     cf_operator = struct(
         chart = struct(
-            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-147.gb88e4296.tgz",
-            sha256 = "7cc0c23df3aa5fb7f2075e3dbd77d2dc51c1ee283060ae9cb46ed680b1deb1d0",
+            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-167.g34209e10.tgz",
+            sha256 = "9ecdb9b452d41dd83a070179b14333054b558daec923d58e29f96ced4af4e208",
         ),
         namespace = "cfo",
     ),
