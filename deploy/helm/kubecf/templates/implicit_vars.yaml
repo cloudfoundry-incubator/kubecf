@@ -1,30 +1,5 @@
-{{- /*
-  Template "kubecf.implicit-var" generates the kube secret declaration for a
-  variable.  It takes a list of two arguments: the context, and the variable
-  name.
-*/ -}}
-{{- define "kubecf.implicit-var" }}
-{{- $variable_name := (last .) }}
-{{- with (first .) }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Values.deployment_name }}.var-{{ $variable_name | replace "_" "-" | replace "." "-" }}
-  labels:
-    app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ include "kubecf.chart" . }}
-type: Opaque
-stringData:
-  value: {{ template "kubecf.dig" (list .Values ( splitList "." $variable_name )) }}
-{{- end }}
-{{- end }}
-
-{{ include "kubecf.implicit-var" (list . "system_domain") }}
-{{ include "kubecf.implicit-var" (list . "k8s-host-url") }}
-{{ include "kubecf.implicit-var" (list . "k8s-service-token") }}
-{{ include "kubecf.implicit-var" (list . "k8s-service-username") }}
-{{ include "kubecf.implicit-var" (list . "k8s-node-ca") }}
+{{ include "kubecf.implicit-var" (list . "system_domain" "system_domain") }}
+{{ include "kubecf.implicit-var" (list . "k8s-host-url" "k8s-host-url") }}
+{{ include "kubecf.implicit-var" (list . "k8s-service-token" "k8s-service-token") }}
+{{ include "kubecf.implicit-var" (list . "k8s-service-username" "k8s-service-username") }}
+{{ include "kubecf.implicit-var" (list . "k8s-node-ca" "k8s-node-ca") }}
