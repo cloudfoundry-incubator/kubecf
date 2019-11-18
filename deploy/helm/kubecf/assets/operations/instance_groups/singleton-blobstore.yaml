@@ -5,6 +5,9 @@
 - type: replace
   path: /instance_groups/name=singleton-blobstore/persistent_disk_type
   value: {{ .Values.kube.storage_class }}
+{{- else }}
+- type: remove
+  path: /instance_groups/name=singleton-blobstore/persistent_disk_type
 {{- end }}
 
 - type: replace
