@@ -43,9 +43,6 @@ def _external_binary_impl(ctx):
     else:
         args["executable"] = True
         ctx.download(**args)
-        res = ctx.execute(["find", "."])
-        print(res.stdout)
-        print(res.stderr)
 
     build_contents = 'package(default_visibility = ["//visibility:public"])\n'
     build_contents += 'exports_files(glob(["**/*"]))\n'

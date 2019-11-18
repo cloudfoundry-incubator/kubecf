@@ -3,7 +3,6 @@ workspace(name = "kubecf")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("//dev/minikube:binary.bzl", "minikube_binary")
 load("//rules/external_binary:def.bzl", "external_binary")
-load("//rules/helm:binary.bzl", "helm_binary")
 load(":def.bzl", "project")
 
 external_binary(
@@ -31,10 +30,9 @@ http_file(
     urls = [project.cf_operator.chart.url],
 )
 
-helm_binary(
+external_binary(
     name = "helm",
     platforms = project.helm.platforms,
-    version = project.helm.version,
 )
 
 external_binary(
