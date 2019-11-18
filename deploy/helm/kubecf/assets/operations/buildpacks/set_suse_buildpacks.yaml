@@ -2,9 +2,9 @@
   path: /releases/name=binary-buildpack
   value:
     name: suse-binary-buildpack
-    url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.33.1.tgz"
-    version: "1.0.33.1"
-    sha1: "efc52da5fdeccfc407bd9bcf1139d222bac394b2"
+    url: "https://s3.amazonaws.com/suse-final-releases/binary-buildpack-release-1.0.35.1.tgz"
+    version: "1.0.35.1"
+    sha1: "34ac16f089d79282f12855c45ee0bdc2e2767504"
 
 - type: replace
   path: /releases/name=go-buildpack
