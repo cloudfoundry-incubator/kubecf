@@ -35,6 +35,8 @@ releases:
 sizing:
   HA: false
 
+replicas: "1"
+
 # Service is only valid to set an external endpoint for the router if features.ingress.enabled is
 # false.
 service:

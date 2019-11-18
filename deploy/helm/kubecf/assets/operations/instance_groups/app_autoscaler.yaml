@@ -742,7 +742,13 @@
   value: 
     - '{{ .Values.deployment_name }}-asmetrics'
     - '*.{{ .Values.deployment_name }}-asmetrics'
-    - '*.{{ .Release.Namespace }}.svc.cluster.local'
+
+{{- $root := . -}}
+{{- range $index, $val := until (int .Values.replicas ) }}
+- type: replace
+  path: /variables/name=metricsserver_server/options?/alternative_names?/-
+  value: "{{$root.Values.deployment_name}}-asmetrics-{{$val}}"
+{{- end }}
 
 - type: replace
   path: /releases/name=app-autoscaler/version
@@ -921,12 +927,6 @@
     - name: mghealthport
       portocol: TCP
       internal: 6503
-    pre_render_scripts:
-      jobs:
-      - |
-        #!/usr/bin/env bash
-        namespace='{{ .Release.Namespace }}'
-        sed -i "s/wss:\/\/#{i.address}/wss:\/\/#{i.address}.${namespace}.svc.cluster.local/g" /var/vcap/all-releases/jobs-src/app-autoscaler/metricsgateway/templates/metricsgateway.yml.erb
     bpm:
       processes:
         - name: metricsgateway
@@ -1034,6 +1034,7 @@
               --pid $(cat "${pid_file}") \
               --follow "${log_file}"
 
+#TODO: set these skip_ssl_validation to false if the cf API (api.((system_domain))) public cert is provided by the user.
 - type: replace
   path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/cf/skip_ssl_validation?
   value: true
