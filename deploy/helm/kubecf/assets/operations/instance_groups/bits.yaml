@@ -50,13 +50,14 @@
   value: local
 
 # Attach a persistent disk to bits-service VM to store eirinifs
-# TODO: storage class type should be configurable
-# - type: replace
-#   path: /instance_groups/name=bits/persistent_disk_type?
-#   value: ???
 - type: replace
   path: /instance_groups/name=bits/persistent_disk?
   value: 20480 # 20GB
+{{- if .Values.kube.storage_class }}
+- type: replace
+  path: /instance_groups/name=bits/persistent_disk_type?
+  value: {{ .Values.kube.storage_class }}
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/bits_service?/enabled?
