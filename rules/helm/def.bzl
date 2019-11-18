@@ -3,7 +3,7 @@ def _package_impl(ctx):
     output_tgz = ctx.actions.declare_file(output_filename)
     outputs = [output_tgz]
     ctx.actions.run(
-        inputs = [] + ctx.files.srcs + ctx.files.tars,
+        inputs = [] + ctx.files.srcs + ctx.files.tars + ctx.files.generated,
         outputs = outputs,
         tools = [ctx.executable._helm],
         progress_message = "Generating Helm package archive {}".format(output_filename),
@@ -12,6 +12,8 @@ def _package_impl(ctx):
             "PACKAGE_DIR": ctx.attr.package_dir,
             # TODO(f0rmiga): Figure out a way of working with paths that contain spaces.
             "TARS": " ".join([f.path for f in ctx.files.tars]),
+            # TODO(mudler): Support also nested folders and paths with spaces
+            "GENERATED": " ".join([f.path for f in ctx.files.generated]),
             "HELM": ctx.executable._helm.path,
             "CHART_VERSION": ctx.attr.chart_version,
             "APP_VERSION": ctx.attr.app_version,
@@ -27,6 +29,7 @@ _package = rule(
         "srcs": attr.label_list(
             mandatory = True,
         ),
+        "generated": attr.label_list(),
         "tars": attr.label_list(),
         "package_dir": attr.string(
             mandatory = True,
