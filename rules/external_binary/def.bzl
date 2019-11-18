@@ -12,22 +12,46 @@ def _external_binary_impl(ctx):
     else:
         fail("Unsupported operating system: {}".format(ctx.os.name))
 
+    url = info.get("url")
     args = {
-        "url": info.get("url"),
+        "url": url,
         "sha256": info.get("sha256", ""),
         "output": "{name}/{name}".format(name = ctx.attr.name),
     }
-    if info.get("is_compressed", False):
+    if url.endswith(".zip") or url.endswith(".tar.gz") or url.endswith(".tgz"):
         ctx.download_and_extract(**args)
+        flatten = [
+            "sh", "-c",
+            """
+            set -o errexit -o pipefail
+            mkdir '{name}_tmp'
+            find '{name}' -mindepth 2 -type f -print0 \
+                | xargs -0 -L50 mv --target-directory '{name}_tmp'
+            rm -rf '{name}'
+            mv '{name}_tmp' '{name}'
+            """.format(
+                name = ctx.attr.name,
+            )
+        ]
+        res = ctx.execute(flatten)
+        if res.stdout != "":
+            print("STDOUT:")
+            print(res.stdout)
+        if res.stderr != "":
+            print("STDERR:")
+            print(res.stderr)
     else:
         args["executable"] = True
         ctx.download(**args)
+        res = ctx.execute(["find", "."])
+        print(res.stdout)
+        print(res.stderr)
 
     build_contents = 'package(default_visibility = ["//visibility:public"])\n'
-    build_contents += 'exports_files(["{name}"])\n'.format(name = ctx.attr.name)
+    build_contents += 'exports_files(glob(["**/*"]))\n'
     ctx.file("{name}/BUILD.bazel".format(name = ctx.attr.name), build_contents)
 
-external_binary = repository_rule(
+_external_binary = repository_rule(
     implementation = _external_binary_impl,
     attrs = {
         "darwin": attr.string_dict(),
@@ -35,6 +59,14 @@ external_binary = repository_rule(
         "windows": attr.string_dict(),
     },
 )
+
+def external_binary(name, platforms):
+    _external_binary(
+        name = name,
+        darwin = platforms.get("darwin"),
+        linux = platforms.get("linux"),
+        windows = platforms.get("windows"),
+    )
 
 def _validade_platform_info(platform, info):
     if not "url" in info:

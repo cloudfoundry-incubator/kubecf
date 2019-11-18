@@ -8,9 +8,7 @@ load(":def.bzl", "project")
 
 external_binary(
     name = "shellcheck",
-    darwin = project.shellcheck.platforms.darwin,
-    linux = project.shellcheck.platforms.linux,
-    windows = project.shellcheck.platforms.windows,
+    platforms = project.shellcheck.platforms,
 )
 
 http_archive(
@@ -41,9 +39,7 @@ helm_binary(
 
 external_binary(
     name = "kubectl",
-    darwin = project.kubernetes.kubectl.platforms.darwin,
-    linux = project.kubernetes.kubectl.platforms.linux,
-    windows = project.kubernetes.kubectl.platforms.windows,
+    platforms = project.kubernetes.kubectl.platforms
 )
 
 minikube_binary(
@@ -54,14 +50,12 @@ minikube_binary(
 
 external_binary(
     name = "kind",
-    darwin = project.kind.platforms.darwin,
-    linux = project.kind.platforms.linux,
-    windows = project.kind.platforms.windows,
+    platforms = project.kind.platforms,
 )
 
 external_binary(
     name = "k3s",
-    linux = project.k3s,
+    platforms = project.k3s.platforms,
 )
 
 http_file(
