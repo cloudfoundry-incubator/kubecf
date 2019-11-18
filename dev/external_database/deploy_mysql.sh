@@ -57,9 +57,10 @@ until echo "SELECT 'Ready!'" | "{KUBECTL}" run mysql-client --rm -i --restart='N
       sleep 1
 done
 
-cat <(
-for database in ${databases[*]}; do
-  echo "CREATE DATABASE IF NOT EXISTS \`${database}\`;"
-done
-) | "{KUBECTL}" run mysql-client --rm -i --restart='Never' --image docker.io/mysql --namespace "${namespace}" --command -- \
-    mysql --host="${name}.${namespace}.svc" --user=root --password="${root_password}"
+"{KUBECTL}" run mysql-client --rm -i --restart='Never' --image docker.io/mysql --namespace "${namespace}" --command -- \
+    mysql --host="${name}.${namespace}.svc" --user=root --password="${root_password}" \
+    < <(
+      for database in ${databases[*]}; do
+        echo "CREATE DATABASE IF NOT EXISTS \`${database}\`;"
+      done
+    )
