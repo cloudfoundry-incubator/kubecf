@@ -151,3 +151,60 @@ cluster to the Ingress Controller service.
 
 Use the Helm option `--set features.ingress.enabled=true` when
 deploying kubecf.
+
+#### External Database
+
+By default, kubecf includes a single-availability database provided by the
+cf-mysql-release. Kubecf also exposes a way to use an external database via the
+Helm property `features.external_database`. Check the [values.yaml] for more
+details.
+
+[values.yaml]: ../../deploy/helm/kubecf/values.yaml
+
+For local development with an external database, the
+`bazel run //dev/external_database:deploy_mysql` command will bring a mysql database up and running
+ready to be consumed by kubecf.
+
+An example for the additional values to be provided to `//dev/kubecf:apply`:
+
+```yaml
+features:
+  external_database:
+    enabled: true
+    type: mysql
+    host: kubecf-mysql.kubecf-mysql.svc
+    port: 3306
+    databases:
+      uaa:
+        name: uaa
+        password: <root_password>
+        username: root
+      cc:
+        name: cloud_controller
+        password: <root_password>
+        username: root
+      bbs:
+        name: diego
+        password: <root_password>
+        username: root
+      routing_api:
+        name: routing-api
+        password: <root_password>
+        username: root
+      policy_server:
+        name: network_policy
+        password: <root_password>
+        username: root
+      silk_controller:
+        name: network_connectivity
+        password: <root_password>
+        username: root
+      locket:
+        name: locket
+        password: <root_password>
+        username: root
+      credhub:
+        name: credhub
+        password: <root_password>
+        username: root
+```
