@@ -52,11 +52,13 @@ features:
     annotations: {}
     labels: {}
   blobstore:
+    # possible values for provider: singleton and s3
     provider: singleton
     s3:
       aws_region: "eu-central-1"
       blobstore_access_key_id: ""
       blobstore_secret_access_key: ""
+      # The following values are used as S3 bucket names
       app_package_directory_key: "apps-cf"
       buildpack_directory_key: "buildpacks-cf"
       droplet_directory_key: "droplets-cf"
