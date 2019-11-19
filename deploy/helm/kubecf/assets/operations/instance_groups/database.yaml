@@ -23,6 +23,9 @@
 - type: replace
   path: /instance_groups/name=database/persistent_disk_type
   value: {{ .Values.kube.storage_class }}
+{{- else }}
+- type: remove
+  path: /instance_groups/name=database/persistent_disk_type
 {{- end }}
 
 # Replace the jobs using the cf-mysql-release.
