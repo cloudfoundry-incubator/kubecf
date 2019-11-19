@@ -49,7 +49,11 @@ fi
   | "{KUBECTL}" apply -f - \
     --namespace "${namespace}"
 
-"{KUBECTL}" wait --for condition=ready --namespace "${namespace}" pod --selector "app=${name}"
+"{KUBECTL}" wait pod \
+  --for condition=ready \
+  --namespace "${namespace}" \
+  --selector "app=${name}" \
+  --timeout 300s
 
 # Ensure the database is fully functional.
 until echo "SELECT 'Ready!'" | "{KUBECTL}" run mysql-client --rm -i --restart='Never' --image docker.io/mysql --namespace "${namespace}" --command -- \
