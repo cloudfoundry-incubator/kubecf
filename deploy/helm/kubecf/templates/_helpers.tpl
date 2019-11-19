@@ -101,29 +101,3 @@ and possible overrides for the respective release.
 
   {{- toJson $result }}
 {{- end -}}
-
-{{- /*
-  Template "kubecf.implicit-var" generates the kube secret declaration for a
-  variable.  It takes a list of two arguments: the context, and the variable
-  name.
-*/ -}}
-{{- define "kubecf.implicit-var" }}
-{{- $variable_name := (index . 1) }}
-{{- $variable_path := (index . 2) }}
-{{- with (first .) }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Values.deployment_name }}.var-{{ $variable_name | replace "_" "-" | replace "." "-" }}
-  labels:
-    app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ include "kubecf.chart" . }}
-type: Opaque
-stringData:
-  value: {{ template "kubecf.dig" (list .Values ( splitList "." $variable_path )) }}
-{{- end }}
-{{- end }}
