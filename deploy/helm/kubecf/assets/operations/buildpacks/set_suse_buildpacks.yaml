@@ -10,9 +10,9 @@
   path: /releases/name=go-buildpack
   value:
     name: suse-go-buildpack
-    url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.8.42.1.tgz"
-    version: "1.8.42.1"
-    sha1: "f811bef86bfba4532d6a7f9653444c7901c59989"
+    url: "https://s3.amazonaws.com/suse-final-releases/go-buildpack-release-1.9.2.2.tgz"
+    version: "1.9.2.2"
+    sha1: "078d0541e56534e88892f501b5b7fde75953746b"
 
 - type: replace
   path: /releases/name=java-buildpack
