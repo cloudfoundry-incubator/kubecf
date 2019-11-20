@@ -55,13 +55,27 @@ with Helm Tiller pre-installed.
 helm install --name cf-operator \
      --namespace cfo \
      --set "global.operator.watchNamespace=kubecf" \
-     https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.1%2B92.g77e53fda.tgz
+     https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-147.gb88e4296.tgz
 ```
 
 In the example above, version 0.4.1 of the operator was used. Look
 into the `cf_operator` section of the top-level `def.bzl` file to find
 the version of the operator validated against the current kubecf
 master.
+
+**Note:**
+> The above `helm install` will generate many controllers spread over multiple pods inside the `cfo` namespace.
+> Most of these controllers run inside the `cf-operator` pod.
+>
+> The `global.operator.watchNamespace=kubecf` path tells the
+controllers to watch for CRD´s instances into the `kubecf` namespace.
+>
+> The cf-operator helm chart will generate the `kubecf` namespace during installation, and eventually one of the
+controllers will use a webhook to label this namespace with the `cf-operator-ns` key.
+>
+> If the `kubecf` namespace is deleted, but the operators are still running, they will no longer
+know which namespace to watch. This can lead to problems, so make sure you also delete the pods
+inside the `cfo` namespace, after deleting the `kubecf` namespace.
 
 Note how the namespace the operator is installed into (`cfo`) differs
 from the namespace the operator is watching for deployments (`kubecf`).
@@ -82,7 +96,7 @@ This again uses helm and a released helm chart.
 
 ### Deployment and Tear-down
 
-```
+```shell
 helm install --name kubecf \
      --namespace kubecf \
      https://scf-v3.s3.amazonaws.com/scf-3.0.0-82165ef3.tgz \
@@ -104,9 +118,9 @@ cf api --skip-ssl-validation "https://api.$(minikube ip).xip.io"
 
 # Copy the admin cluster password.
 admin_pass=$(kubectl get secret \
-	      --namespace kubecf kubecf.var-cf-admin-password \
-	      -o jsonpath='{.data.password}' \
-	      | base64 --decode)
+        --namespace kubecf kubecf.var-cf-admin-password \
+        -o jsonpath='{.data.password}' \
+        | base64 --decode)
 
 # Use the password from the previous step when requested.
 cf auth -u admin -p "${admin_pass}"
@@ -130,8 +144,8 @@ By default, the cluster is exposed through its Kubernetes services.
 
 To use the NGINX ingress instead, it is necessary to:
 
-  - Install and configure the NGINX Ingress Controller.
-  - Configure Kubecf to use the ingress controller.
+- Install and configure the NGINX Ingress Controller.
+- Configure Kubecf to use the ingress controller.
 
 This has to happen before deploying kubecf.
 
