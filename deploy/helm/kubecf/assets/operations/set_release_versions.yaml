@@ -3,3 +3,8 @@
 - type: replace
   path: /releases/name=capi/version
   value: 1.83.0
+- type: replace
+  path: /releases/name=capi/stemcell?
+  value:
+    os: opensuse-42.3
+    version: 36.g03b4653-30.80-7.0.0_340.g2b599a90
