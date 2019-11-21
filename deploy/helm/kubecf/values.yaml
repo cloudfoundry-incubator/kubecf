@@ -12,18 +12,29 @@ deployment_name: kubecf
 #              addr: kubecf-log-api:8082
 properties: {}
 
+# The the storage class to be used for the instance groups that need it (e.g. bits, database and singleton-blobstore)
+# If it's not set, the default storage class will be used.
+kube:
+  storage_class: ~
+
 releases:
   # The defaults for all releases, where we do not otherwise override them.
   defaults:
     url: docker.io/cfcontainerization
     stemcell:
       os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_340.g2b599a90
-
+      version: 36.g03b4653-30.80-7.0.0_362.g9610e90b
   bits-service:
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
-
+  capi:
+    version: 1.83.0
+    stemcell:
+      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+  database:
+    version: 36.19.0
+    stemcell:
+      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
   eirini:
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681

@@ -12,15 +12,23 @@
   value:
     name: cf-mysql
     url: {{ .Values.releases.defaults.url | quote }}
-    version: 36.19.0
-    sha1: ~
+    version: {{ .Values.releases.database.version | quote }}
+    stemcell:
+      os: {{ .Values.releases.defaults.stemcell.os | quote }}
+      version: {{ .Values.releases.database.stemcell.version | quote }}
 
 # Configure the persistent disk in the way that cf-operator can provision.
-- type: remove
-  path: /instance_groups/name=database/persistent_disk_type
 - type: replace
   path: /instance_groups/name=database/persistent_disk?
   value: 20480 # 20GB
+{{- if .Values.kube.storage_class }}
+- type: replace
+  path: /instance_groups/name=database/persistent_disk_type
+  value: {{ .Values.kube.storage_class }}
+{{- else }}
+- type: remove
+  path: /instance_groups/name=database/persistent_disk_type
+{{- end }}
 
 # Replace the jobs using the cf-mysql-release.
 - type: replace
