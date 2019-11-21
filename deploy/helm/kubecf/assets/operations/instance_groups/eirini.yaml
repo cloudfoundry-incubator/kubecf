@@ -260,6 +260,9 @@
   value:
     - localhost
     - metron
+- type: replace
+  path: /variables/name=loggregator_tls_doppler/options/alternative_names?/-
+  value: metron
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/eirini_*" }}
