@@ -21,6 +21,11 @@
         exec:
           command: [curl, --fail, --head, http://127.0.0.1:8080/health]
 
+# Disable tuning /proc/sys kernel parameters as things are running on a container.
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router?/set_kernel_parameters
+  value: false
+
 - type: replace
   path: /instance_groups/name=router/jobs/name=loggr-udp-forwarder/properties/quarks?/run/healthcheck/loggr-udp-forwarder
   value:

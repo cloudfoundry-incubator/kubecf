@@ -83,13 +83,8 @@
   value: {{ default .Chart.Version .Chart.AppVersion | quote }}
 
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=log-cache-scheduler/properties?/quarks/run/healthcheck/log-cache-scheduler/readiness/exec/command
-  value: [curl, --fail, --silent, http://localhost:6064/debug/pprof/cmdline]
-
-- type: replace
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []
-
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs
   value:

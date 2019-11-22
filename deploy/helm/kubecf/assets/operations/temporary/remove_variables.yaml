@@ -3,5 +3,3 @@
 
 - type: remove
   path: /variables/name=credhub_encryption_password
-- type: remove
-  path: /variables/name=credhub_tls

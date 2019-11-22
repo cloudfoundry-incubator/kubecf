@@ -6,39 +6,20 @@ target="/var/vcap/all-releases/jobs-src/uaa/uaa/templates/bin/pre-start.erb"
 
 # Patch bin/pre-start.erb for the certificates to work with SUSE.
 PATCH=$(cat <<'EOT'
---- pre-start.erb	2019-11-05 10:53:19.000000000 +0100
-+++ -	2019-11-05 10:59:27.000000000 +0100
-@@ -21,11 +21,29 @@
+--- pre-start.erb  2019-11-20 13:49:33.170401410 +0000
++++ - 2019-11-20 13:52:56.530728553 +0000
+@@ -32,9 +32,8 @@
+     <% end %>
+
+     log "Trying to run update-ca-certificates..."
+-    # --certbundle is an undocumented flag in the update-ca-certificates script
+-    # https://salsa.debian.org/debian/ca-certificates/blob/master/sbin/update-ca-certificates#L53
+-    timeout --signal=KILL 180s /usr/sbin/update-ca-certificates -f -v --certbundle "$(basename "${OS_CERTS_FILE}")"
++    timeout --signal=KILL 180s /usr/sbin/update-ca-certificates -f -v
++    mv /var/lib/ca-certificates/ca-bundle.pem /etc/ssl/certs/"$(basename "${OS_CERTS_FILE}")"
  }
 
- # add certs from manifest to OS certs
--rm -f /usr/local/share/ca-certificates/uaa_*
-+source /etc/os-release
-+case "${ID}" in
-+  *ubuntu*)
-+    rm -f /usr/local/share/ca-certificates/uaa_*
- <% p('uaa.ca_certs', []).each_with_index do |cert, i| %>
-     echo "Adding certificate from manifest to OS certs /usr/local/share/ca-certificates/uaa_<%= i %>.crt"
-     echo -n '<%= cert %>' >> "/usr/local/share/ca-certificates/uaa_<%= i %>.crt"
- <% end %>
-+  ;;
-+
-+  *suse*)
-+    rm -f /etc/pki/trust/anchors/uaa_*
-+<% p('uaa.ca_certs', []).each_with_index do |cert, i| %>
-+    echo "Adding certificate from manifest to OS certs /etc/pki/trust/anchors/uaa_<%= i %>.crt"
-+    echo -n '<%= cert %>' >> "/etc/pki/trust/anchors/uaa_<%= i %>.crt"
-+<% end %>
-+  ;;
-+
-+  *)
-+  echo "Unsupported operating system: ${PRETTY_NAME}"
-+  exit 42
-+  ;;
-+esac
-
- update_ca_certificate
-
+ function new_cache_files_are_identical {
 EOT
 )
 

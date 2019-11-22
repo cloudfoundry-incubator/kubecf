@@ -1,8 +1,0 @@
-# Set capi-release version explicitly to get the fix for yaml_escape.
-# https://github.com/cloudfoundry/capi-release/issues/141
-- type: replace
-  path: /releases/name=capi/version
-  value: {{ .Values.releases.capi.version | quote }}
-- type: replace
-  path: /releases/name=capi/stemcell?
-  value: {{ include "kubecf.stemcellLookup" (list .Values.releases "capi") }}

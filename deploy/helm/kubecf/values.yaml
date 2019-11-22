@@ -21,27 +21,29 @@ releases:
   defaults:
     url: docker.io/cfcontainerization
     stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_362.g9610e90b
+      os: sle15-15SP1
+      version: 5.g4792c5a-0.2-7.0.0_362.g9610e90b
+
   bits-service:
     stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
   brain-tests:
     stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
-  capi:
-    version: 1.83.0
-    stemcell:
-      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
   cf-acceptance-tests:
     stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   cf-mysql:
     version: 36.19.0
     stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
   eirini:
     stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
 
 multi_az: false

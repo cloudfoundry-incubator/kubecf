@@ -1,8 +1,3 @@
-# Disable BOSH DNS and set the logs addr manually.
-- type: replace
-  path: /instance_groups/name=adapter/jobs/name=adapter/properties/scalablesyslog/adapter/bosh_dns?
-  value: false
-
 # Add quarks properties.
 - type: replace
   path: /instance_groups/name=adapter/jobs/name=adapter/properties/quarks?

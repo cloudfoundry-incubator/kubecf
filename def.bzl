@@ -2,8 +2,8 @@ project = struct(
     deployment_name = "kubecf",
     namespace = "kubecf",
     cf_deployment = struct(
-        version = "8.0.0",
-        sha256 = "289f6c5a116eef4b16b228d07d55517dc20f76199c1476036fc0ade5a08a3e1b",
+        version = "12.4.0",
+        sha256 = "067d12b47c6c4c6206ec5aceb9eb602ca558ebd72c1001263fd732ee1562fe77",
     ),
     cf_operator = struct(
         chart = struct(
