@@ -5,6 +5,4 @@
   value: {{ .Values.releases.capi.version | quote }}
 - type: replace
   path: /releases/name=capi/stemcell?
-  value:
-    os: {{ .Values.releases.defaults.stemcell.os | quote }}
-    version: {{ .Values.releases.capi.stemcell.version | quote }}
+  value: {{ include "kubecf.stemcellLookup" (list .Values.releases "capi") }}

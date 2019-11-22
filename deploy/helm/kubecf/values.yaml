@@ -31,7 +31,10 @@ releases:
     version: 1.83.0
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
-  database:
+  cf-acceptance-tests:
+    stemcell:
+      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
+  cf-mysql:
     version: 36.19.0
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
