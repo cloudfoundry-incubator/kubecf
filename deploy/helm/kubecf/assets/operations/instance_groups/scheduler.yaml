@@ -78,6 +78,18 @@
             httpGet:
               port: 2223
 
+# Add necessary labels to the scheduler instance group so that the service can select it to create
+# the endpoint.
+- type: replace
+  path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1component
+  value: "ssh-proxy"
+- type: replace
+  path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1instance
+  value: {{ .Release.Name | quote }}
+- type: replace
+  path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1version
+  value: {{ default .Chart.Version .Chart.AppVersion | quote }}
+
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=log-cache-scheduler/properties?/quarks/run/healthcheck/log-cache-scheduler/readiness/exec/command
   value: [curl, --fail, --silent, http://localhost:6064/debug/pprof/cmdline]

@@ -45,12 +45,31 @@ releases:
 sizing:
   HA: false
 
-# Service is only valid to set an external endpoint for the router if features.ingress.enabled is
-# false.
-service:
-  type: LoadBalancer
-  externalIPs: []
-  clusterIP: ~
+# Service is only valid to set a external endpoints for the instance groups if
+# features.ingress.enabled is false.
+services:
+  router:
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~
+    ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8000
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
+  ssh-proxy:
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~
+    ports:
+    - name: ssh
+      protocol: TCP
+      port: 2222
+      targetPort: 2222
 
 features:
   eirini:
