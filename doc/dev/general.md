@@ -114,7 +114,7 @@ To access the cluster after the cf-operator has completed the
 deployment and all pods are active invoke:
 
 ```sh
-cf api --skip-ssl-validation "https://api.$(minikube ip).xip.io"
+cf api --skip-ssl-validation "https://api.<domain>"
 
 # Copy the admin cluster password.
 admin_pass=$(kubectl get secret \
@@ -155,7 +155,6 @@ This has to happen before deploying kubecf.
 helm install stable/nginx-ingress \
   --name ingress \
   --namespace ingress \
-  --set "controller.service.externalIPs={$(minikube ip)}" \
   --set "tcp.2222=kubecf/kubecf-scheduler:2222"
 ```
 
