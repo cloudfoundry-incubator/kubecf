@@ -332,8 +332,8 @@
   value:
     name: cf-mysql
     url: {{ .Values.releases.defaults.url | quote }}
-    version: 36.19.0
-    sha1: ~
+    version: {{ index .Values.releases "cf-mysql" "version" | quote }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "cf-mysql") }}
 
 # Configure the persistent disk in the way that cf-operator can provision.
 - type: replace
