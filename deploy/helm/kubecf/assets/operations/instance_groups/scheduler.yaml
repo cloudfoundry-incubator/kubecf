@@ -1,11 +1,3 @@
-# Override the addresses for the jobs under the scheduler instance group.
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
-  value: sql-db.service.cf.internal
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/address
-  value: sql-db.service.cf.internal
-
 # Add quarks properties for the scheduler job.
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/quarks?/run/healthcheck/scheduler

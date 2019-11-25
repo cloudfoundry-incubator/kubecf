@@ -69,6 +69,48 @@ features:
   # published to docker.io.
   suse_buildpacks: false
 
+  # external_database disables the embedded database and allows using an external, already seeded,
+  # database.
+  # The database type can be either 'mysql' or 'postgres'.
+  external_database:
+    enabled: false
+    type: ~
+    host: ~
+    port: ~
+    databases:
+      uaa:
+        name: uaa
+        password: ~
+        username: ~
+      cc:
+        name: cloud_controller
+        password: ~
+        username: ~
+      bbs:
+        name: diego
+        password: ~
+        username: ~
+      routing_api:
+        name: routing-api
+        password: ~
+        username: ~
+      policy_server:
+        name: network_policy
+        password: ~
+        username: ~
+      silk_controller:
+        name: network_connectivity
+        password: ~
+        username: ~
+      locket:
+        name: locket
+        password: ~
+        username: ~
+      credhub:
+        name: credhub
+        password: ~
+        username: ~
+
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.
   custom: []
