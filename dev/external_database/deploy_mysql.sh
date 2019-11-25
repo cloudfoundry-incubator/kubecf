@@ -56,12 +56,12 @@ fi
   --timeout 300s
 
 # Ensure the database is fully functional.
-until echo "SELECT 'Ready!'" | "{KUBECTL}" run mysql-client --rm -i --restart='Never' --image docker.io/mysql --namespace "${namespace}" --command -- \
+until echo "SELECT 'Ready!'" | "{KUBECTL}" run mysql-client --rm -i --restart='Never' --image mysql --namespace "${namespace}" --command -- \
     mysql --host="${name}.${namespace}.svc" --user=root --password="${root_password}"; do
       sleep 1
 done
 
-"{KUBECTL}" run mysql-client --rm -i --restart='Never' --image docker.io/mysql --namespace "${namespace}" --command -- \
+"{KUBECTL}" run mysql-client --rm -i --restart='Never' --image mysql --namespace "${namespace}" --command -- \
     mysql --host="${name}.${namespace}.svc" --user=root --password="${root_password}" \
     < <(
       for database in ${databases[*]}; do
