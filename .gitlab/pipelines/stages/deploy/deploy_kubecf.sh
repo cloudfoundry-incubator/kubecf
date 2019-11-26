@@ -14,9 +14,13 @@ values="$(mktemp -t values_XXXXXXXX.yaml)"
 cat > "${values}" <<EOF
 system_domain: "${SYSTEM_DOMAIN}"
 
-service:
-  type: ClusterIP
-  clusterIP: "${CLUSTER_IP}"
+services:
+  router:
+    type: ClusterIP
+    clusterIP: ${ROUTER_CLUSTER_IP}
+  ssh-proxy:
+    type: ClusterIP
+    clusterIP: ${SSH_PROXY_CLUSTER_IP}
 
 features:
   eirini:
