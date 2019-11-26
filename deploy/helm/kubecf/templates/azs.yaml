@@ -18,8 +18,6 @@ data:
     - type: remove
       path: /instance_groups/name=adapter/azs?
     - type: remove
-      path: /instance_groups/name=database/azs?
-    - type: remove
       path: /instance_groups/name=diego-api/azs?
     - type: remove
       path: /instance_groups/name=uaa/azs?
@@ -45,5 +43,10 @@ data:
       path: /instance_groups/name=bits/azs?
     - type: remove
       path: /instance_groups/name=eirini/azs?
+    {{- end }}
+
+    {{- if not .Values.features.external_database.enabled }}
+    - type: remove
+      path: /instance_groups/name=database/azs?
     {{- end }}
 {{- end }}

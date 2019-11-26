@@ -63,6 +63,7 @@ data:
       value: 1
 {{- end }}
 
+{{- if not .Values.features.external_database.enabled }}
 {{- if .Values.sizing.database.instances }}
     - type: replace
       path: /instance_groups/name=database/instances
@@ -71,6 +72,7 @@ data:
     - type: replace
       path: /instance_groups/name=database/instances
       value: 1
+{{- end }}
 {{- end }}
 
 {{- if .Values.sizing.diego_api.instances }}
