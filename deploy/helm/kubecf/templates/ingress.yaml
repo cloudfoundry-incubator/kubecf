@@ -1,3 +1,4 @@
+{{- $root := . -}}
 {{- if .Values.features.ingress.enabled -}}
 {{- if and .Values.features.ingress.tls.crt .Values.features.ingress.tls.key -}}
 ---
@@ -99,36 +100,69 @@ spec:
               servicePort: 443
 {{- else }}
 ---
+{{- with $service := .Values.services.router }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ .Values.deployment_name }}-router-public"
+  name: "{{ $root.Values.deployment_name }}-router-public"
   labels:
-    app.kubernetes.io/component: "router"
-    app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+    app.kubernetes.io/component: router
+    app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service | quote }}
+    app.kubernetes.io/name: {{ default $root.Chart.Name $root.Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" $root.Chart.Name ($root.Chart.Version | replace "+" "_") | quote }}
 spec:
   selector:
-    app.kubernetes.io/component: "router"
-    app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: router
+    app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
+    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
   ports:
-    - name: http
-      protocol: TCP
-      port: 80
-      targetPort: 8000
-    - name: https
-      protocol: TCP
-      port: 443
-      targetPort: 443
-  type: {{ .Values.service.type | quote }}
-  {{- if gt (len .Values.service.externalIPs) 0 }}
-  externalIPs: {{ .Values.service.externalIPs | toJson }}
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8000
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+  type: {{ $service.type | quote }}
+  {{- if gt (len $service.externalIPs) 0 }}
+  externalIPs: {{ $service.externalIPs | toJson }}
   {{- end }}
-  {{- if .Values.service.clusterIP }}
-  clusterIP: {{ .Values.service.clusterIP | quote }}
+  {{- if $service.clusterIP }}
+  clusterIP: {{ $service.clusterIP | quote }}
   {{- end }}
+{{- end }}
+---
+{{- with $service := index .Values.services "ssh-proxy" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ $root.Values.deployment_name }}-ssh-proxy-public"
+  labels:
+    app.kubernetes.io/component: ssh-proxy
+    app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service | quote }}
+    app.kubernetes.io/name: {{ default $root.Chart.Name $root.Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" $root.Chart.Name ($root.Chart.Version | replace "+" "_") | quote }}
+spec:
+  selector:
+    app.kubernetes.io/component: ssh-proxy
+    app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
+    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
+  ports:
+  - name: ssh
+    protocol: TCP
+    port: 2222
+    targetPort: 2222
+  type: {{ $service.type | quote }}
+  {{- if gt (len $service.externalIPs) 0 }}
+  externalIPs: {{ $service.externalIPs | toJson }}
+  {{- end }}
+  {{- if $service.clusterIP }}
+  clusterIP: {{ $service.clusterIP | quote }}
+  {{- end }}
+{{- end }}
 {{- end }}
