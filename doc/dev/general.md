@@ -123,7 +123,7 @@ admin_pass=$(kubectl get secret \
         | base64 --decode)
 
 # Use the password from the previous step when requested.
-cf auth -u admin -p "${admin_pass}"
+cf auth admin "${admin_pass}"
 ```
 
 ### Advanced Topics
