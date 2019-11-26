@@ -160,6 +160,7 @@ data:
 {{- end }}
 
     # singleton-blobstore
+{{- if .Values.features.blobstore }}
 {{- if eq .Values.features.blobstore.provider "singleton" }}
 {{- if .Values.sizing.singleton_blobstore.instances }}
     - type: replace
@@ -169,6 +170,7 @@ data:
      - type: replace
        path: /instance_groups/name=singleton-blobstore/instances
        value: 1
+{{- end }}
 {{- end }}
 {{- end }}
 
