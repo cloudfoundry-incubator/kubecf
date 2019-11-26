@@ -12,7 +12,7 @@ deployment_name: kubecf
 #              addr: kubecf-log-api:8082
 properties: {}
 
-# The the storage class to be used for the instance groups that need it (e.g. bits, database and singleton-blobstore)
+# The storage class to be used for the instance groups that need it (e.g. bits, database and singleton-blobstore)
 # If it's not set, the default storage class will be used.
 kube:
   storage_class: ~
