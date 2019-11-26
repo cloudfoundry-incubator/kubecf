@@ -100,14 +100,13 @@ spec:
               servicePort: 443
 {{- else }}
 ---
-{{- with $service := index .Values.services "router" }}
-{{ $_ := set $service "name" "router" }}
+{{- with $service := .Values.services.router }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ $root.Values.deployment_name }}-{{ $service.name }}-public"
+  name: "{{ $root.Values.deployment_name }}-router-public"
   labels:
-    app.kubernetes.io/component: {{ $service.name | quote }}
+    app.kubernetes.io/component: router
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ $root.Release.Service | quote }}
     app.kubernetes.io/name: {{ default $root.Chart.Name $root.Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
@@ -115,7 +114,7 @@ metadata:
     helm.sh/chart: {{ printf "%s-%s" $root.Chart.Name ($root.Chart.Version | replace "+" "_") | quote }}
 spec:
   selector:
-    app.kubernetes.io/component: {{ $service.name | quote }}
+    app.kubernetes.io/component: router
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
     app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
   ports:
@@ -137,13 +136,12 @@ spec:
 {{- end }}
 ---
 {{- with $service := index .Values.services "ssh-proxy" }}
-{{ $_ := set $service "name" "ssh-proxy" }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ $root.Values.deployment_name }}-{{ $service.name }}-public"
+  name: "{{ $root.Values.deployment_name }}-ssh-proxy-public"
   labels:
-    app.kubernetes.io/component: {{ $service.name | quote }}
+    app.kubernetes.io/component: ssh-proxy
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ $root.Release.Service | quote }}
     app.kubernetes.io/name: {{ default $root.Chart.Name $root.Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
@@ -151,7 +149,7 @@ metadata:
     helm.sh/chart: {{ printf "%s-%s" $root.Chart.Name ($root.Chart.Version | replace "+" "_") | quote }}
 spec:
   selector:
-    app.kubernetes.io/component: {{ $service.name | quote }}
+    app.kubernetes.io/component: ssh-proxy
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
     app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
   ports:
