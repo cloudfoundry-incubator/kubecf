@@ -12,7 +12,6 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 data:
   ops: |
-    # adapter
 {{- if .Values.sizing.adapter.instances }}
     - type: replace
       path: /instance_groups/name=adapter/instances
@@ -23,7 +22,6 @@ data:
       value: 1
 {{- end }}
 
-    # api
 {{- if .Values.sizing.api.instances }}
     - type: replace
       path: /instance_groups/name=api/instances
@@ -35,7 +33,6 @@ data:
 {{- end }}
 
 {{- if .Values.features.eirini.enabled }}
-    # bits
 {{- if .Values.sizing.bits.instances }}
     - type: replace
       path: /instance_groups/name=bits/instances
@@ -45,8 +42,6 @@ data:
       path: /instance_groups/name=bits/instances
       value: 1
 {{- end }}
-
-    # eirini
 {{- if .Values.sizing.eirini.instances }}
     - type: replace
       path: /instance_groups/name=eirini/instances
@@ -58,7 +53,6 @@ data:
 {{- end }}
 {{- end }}
 
-    # cc-worker
 {{- if .Values.sizing.cc_worker.instances }}
     - type: replace
       path: /instance_groups/name=cc-worker/instances
@@ -69,7 +63,6 @@ data:
       value: 1
 {{- end }}
 
-    # database
 {{- if .Values.sizing.database.instances }}
     - type: replace
       path: /instance_groups/name=database/instances
@@ -80,7 +73,6 @@ data:
       value: 1
 {{- end }}
 
-    # diego-api
 {{- if .Values.sizing.diego_api.instances }}
     - type: replace
       path: /instance_groups/name=diego-api/instances
@@ -92,7 +84,6 @@ data:
 {{- end }}
 
 {{- if not .Values.features.eirini.enabled -}}
-    # diego-cell
 {{- if .Values.sizing.diego_cell.instances }}
     - type: replace
       path: /instance_groups/name=diego-cell/instances
@@ -104,7 +95,6 @@ data:
 {{- end }}
 {{- end }}
 
-    # doppler
 {{- if .Values.sizing.doppler.instances }}
     - type: replace
       path: /instance_groups/name=doppler/instances
@@ -115,7 +105,6 @@ data:
       value: 1
 {{- end }}
 
-    # log-api
 {{- if .Values.sizing.log_api.instances }}
     - type: replace
       path: /instance_groups/name=log-api/instances
@@ -126,7 +115,6 @@ data:
       value: 1
 {{- end }}
 
-    # nats
 {{- if .Values.sizing.nats.instances }}
     - type: replace
       path: /instance_groups/name=nats/instances
@@ -137,7 +125,6 @@ data:
       value: 1
 {{- end }}
 
-    # router
 {{- if .Values.sizing.router.instances }}
     - type: replace
       path: /instance_groups/name=router/instances
@@ -148,7 +135,6 @@ data:
       value: 1
 {{- end }}
 
-    # scheduler
 {{- if .Values.sizing.scheduler.instances }}
     - type: replace
       path: /instance_groups/name=scheduler/instances
@@ -159,7 +145,6 @@ data:
       value: 1
 {{- end }}
 
-    # singleton-blobstore
 {{- if .Values.sizing.singleton_blobstore.instances }}
     - type: replace
       path: /instance_groups/name=singleton-blobstore/instances
@@ -170,7 +155,6 @@ data:
       value: 1
 {{- end }}
 
-    # uaa
 {{- if .Values.sizing.uaa.instances }}
     - type: replace
       path: /instance_groups/name=uaa/instances
