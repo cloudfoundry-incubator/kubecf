@@ -18,9 +18,9 @@ data:
       path: /instance_groups/name=adapter/instances
       value: {{.Values.sizing.adapter.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=adapter/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=adapter/instances
+      value: 1
 {{- end }}
 
     # api
@@ -29,9 +29,9 @@ data:
       path: /instance_groups/name=api/instances
       value: {{.Values.sizing.api.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=api/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=api/instances
+      value: 1
 {{- end }}
 
 {{- if .Values.features.eirini.enabled }}
@@ -52,9 +52,9 @@ data:
       path: /instance_groups/name=eirini/instances
       value: {{.Values.sizing.eirini.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=eirini/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=eirini/instances
+      value: 1
 {{- end }}
 {{- end }}
 
@@ -64,9 +64,9 @@ data:
       path: /instance_groups/name=cc-worker/instances
       value: {{.Values.sizing.cc_worker.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=cc-worker/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=cc-worker/instances
+      value: 1
 {{- end }}
 
     # database
@@ -75,9 +75,9 @@ data:
       path: /instance_groups/name=database/instances
       value: {{.Values.sizing.database.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=database/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=database/instances
+      value: 1
 {{- end }}
 
     # diego-api
@@ -86,9 +86,9 @@ data:
       path: /instance_groups/name=diego-api/instances
       value: {{.Values.sizing.diego_api.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=diego-api/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=diego-api/instances
+      value: 1
 {{- end }}
 
 {{- if not .Values.features.eirini.enabled -}}
@@ -98,9 +98,9 @@ data:
       path: /instance_groups/name=diego-cell/instances
       value: {{.Values.sizing.diego_cell.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=diego-cell/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=diego-cell/instances
+      value: 1
 {{- end }}
 {{- end }}
 
@@ -112,7 +112,7 @@ data:
 {{- else if not .Values.high_availability }}
     - type: replace
       path: /instance_groups/name=doppler/instances
-          value: 1
+      value: 1
 {{- end }}
 
     # log-api
@@ -121,9 +121,9 @@ data:
       path: /instance_groups/name=log-api/instances
       value: {{.Values.sizing.log_api.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=log-api/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=log-api/instances
+      value: 1
 {{- end }}
 
     # nats
@@ -132,9 +132,9 @@ data:
       path: /instance_groups/name=nats/instances
       value: {{.Values.sizing.nats.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=nats/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=nats/instances
+      value: 1
 {{- end }}
 
     # router
@@ -143,9 +143,9 @@ data:
       path: /instance_groups/name=router/instances
       value: {{.Values.sizing.router.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=router/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=router/instances
+      value: 1
 {{- end }}
 
     # scheduler
@@ -154,9 +154,9 @@ data:
       path: /instance_groups/name=scheduler/instances
       value: {{.Values.sizing.scheduler.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
+    - type: replace
       path: /instance_groups/name=scheduler/instances
-       value: 1
+      value: 1
 {{- end }}
 
     # singleton-blobstore
@@ -167,9 +167,9 @@ data:
       path: /instance_groups/name=singleton-blobstore/instances
       value: {{.Values.sizing.singleton_blobstore.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=singleton-blobstore/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=singleton-blobstore/instances
+      value: 1
 {{- end }}
 {{- end }}
 {{- end }}
@@ -180,7 +180,7 @@ data:
       path: /instance_groups/name=uaa/instances
       value: {{.Values.sizing.uaa.instances}}
 {{- else if not .Values.high_availability }}
-     - type: replace
-       path: /instance_groups/name=uaa/instances
-       value: 1
+    - type: replace
+      path: /instance_groups/name=uaa/instances
+      value: 1
 {{- end }}
