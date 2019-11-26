@@ -158,8 +158,7 @@ helm install stable/nginx-ingress \
   --set "tcp.2222=kubecf/kubecf-scheduler:2222"
 ```
 
-The last option in the command above assigns the external IP of the
-cluster to the Ingress Controller service.
+The `tcp.<port>` option uses the NGINX TCP pass-through.
 
 ##### Configure kubecf
 

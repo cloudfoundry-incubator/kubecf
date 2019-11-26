@@ -143,9 +143,11 @@ This has to happen before deploying kubecf.
 helm install stable/nginx-ingress \
   --name ingress \
   --namespace ingress
-  --set "controller.service.externalIPs={$(minikube ip)}" \
-  --set "tcp.2222=kubecf/kubecf-scheduler:2222"
+  --set "tcp.2222=kubecf/kubecf-scheduler:2222" \
+  --set "controller.service.externalIPs={$(minikube ip)}"
 ```
+
+The `tcp.<port>` option uses the NGINX TCP pass-through.
 
 The last flag in the command above assigns the external IP of the
 cluster to the Ingress Controller service.
