@@ -97,18 +97,20 @@ associated documentation, if we have any.
 
 ## Linting
 
-Currently only one linter is available:
+Currently, 2 linters are available:
 
   - `dev/linters/shellcheck.sh`
+  - `dev/linters/yamllint.sh`
 
-Invoke this linter as
+Invoke these linters as
 
 ```sh
 dev/linters/shellcheck.sh
+dev/linters/yamllint.sh
 ```
 
-to run shellcheck on all `.sh` files found in the entire checkout and
-report any issues found.
+to run shellcheck on all `.sh` files found in the entire checkout, or yamllint
+on all `.yaml` or `.yml` files respectively, and report any issues found.
 
 ## Patching
 

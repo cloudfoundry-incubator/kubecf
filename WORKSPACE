@@ -13,6 +13,27 @@ external_binary(
     windows = project.shellcheck.platforms.windows,
 )
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
+    name = "rules_python",
+    remote = "https://github.com/bazelbuild/rules_python.git",
+    commit = project.rules_python.commit,
+)
+
+load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
+
+pip_repositories()
+
+pip3_import(
+    name = "yamllint",
+    requirements = "//dev/linters:requirements.txt",
+)
+
+load("@yamllint//:requirements.bzl", "pip_install")
+
+pip_install()
+
 http_archive(
     name = "cf_deployment",
     build_file_content = """
