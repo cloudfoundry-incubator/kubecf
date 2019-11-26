@@ -33,6 +33,8 @@ spec:
 {{- end }}
   - name: ops-sizing
     type: configmap
+  - name: ops-azs
+    type: configmap
 {{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
   - name: {{ include "kubecf.ops-name" $path }}
     type: configmap
