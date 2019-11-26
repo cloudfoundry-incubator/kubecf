@@ -21,6 +21,19 @@ git_repository(
     commit = project.rules_python.commit,
 )
 
+load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
+
+pip_repositories()
+
+pip3_import(
+    name = "yamllint",
+    requirements = "//dev/linters:requirements.txt",
+)
+
+load("@yamllint//:requirements.bzl", "pip_install")
+
+pip_install()
+
 http_archive(
     name = "cf_deployment",
     build_file_content = """
