@@ -20,9 +20,6 @@ data:
       path: /instance_groups/name=adapter/instances
       value: 1
     - type: replace
-      path: /instance_groups/name=database/instances
-      value: 1
-    - type: replace
       path: /instance_groups/name=diego-api/instances
       value: 1
     - type: replace
@@ -57,8 +54,6 @@ data:
     - type: remove
       path: /instance_groups/name=adapter/azs?
     - type: remove
-      path: /instance_groups/name=database/azs?
-    - type: remove
       path: /instance_groups/name=diego-api/azs?
     - type: remove
       path: /instance_groups/name=uaa/azs?
@@ -91,6 +86,14 @@ data:
       value: 1
     - type: remove
       path: /instance_groups/name=eirini/azs?
+    {{- end }}
+
+    {{- if not .Values.features.external_database.enabled }}
+    - type: replace
+      path: /instance_groups/name=database/instances
+      value: 1
+    - type: remove
+      path: /instance_groups/name=database/azs?
     {{- end }}
 
 {{- end }}

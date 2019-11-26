@@ -89,3 +89,9 @@ filegroup(
     strip_prefix = "metrics-server-{}".format(project.metrics_server.version),
     url = "https://github.com/kubernetes-incubator/metrics-server/archive/v{}.tar.gz".format(project.metrics_server.version),
 )
+
+http_file(
+    name = "mysql_chart",
+    sha256 = project.mysql_chart.sha256,
+    urls = ["https://kubernetes-charts.storage.googleapis.com/mysql-{}.tgz".format(project.mysql_chart.version)],
+)
