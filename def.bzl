@@ -112,6 +112,9 @@ project = struct(
             },
         ),
     ),
+    rules_python = struct(
+        commit = "94677401bc56ed5d756f50b441a6a5c7f735a6d4"
+    ),
     mysql_chart = struct(
         version = "1.3.3",
         sha256 = "9ef4ce3693eb2a7428598f9dae833ee546eac9c105b4005c6d7375c55e33bdff",

@@ -9,3 +9,8 @@ The following linters are available:
 
     Runs shellcheck on all `.sh` files found in the entire checkout
     and reports any issues found.
+
+  - `yamllint.sh`:
+
+    Runs yamllint on all `.{yaml,yml}` files found in the entire checkout
+    and reports any issues found.

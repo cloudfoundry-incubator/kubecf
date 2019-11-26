@@ -1,0 +1,11 @@
+load("@yamllint//:requirements.bzl","all_requirements")
+
+load("@rules_python//python:defs.bzl", "py_binary")
+
+py_binary(
+    name = "yamllint",
+    srcs = ["//dev/linters:run_yamllint.py"],
+    main = "run_yamllint.py",
+    python_version = "PY3",
+    deps = all_requirements,
+)
