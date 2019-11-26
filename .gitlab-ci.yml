@@ -17,6 +17,7 @@ lint:
   only: *common_refs
   script:
   - ./dev/linters/shellcheck.sh
+  - ./dev/linters/yamllint.sh
 
 build:chart:
   stage: build
