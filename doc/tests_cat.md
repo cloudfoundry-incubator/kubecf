@@ -5,6 +5,8 @@ The bazel target __//testing/acceptance_tests__ starts a run of the
 
 [Cloud Foundry Acceptance Tests]: https://github.com/SUSE/cf-acceptance-tests-release
 
+See also the [entire set of available tests](tests.md).
+
 ## Limiting test suites
 
 To limit the test groups to run, set the BOSH property
