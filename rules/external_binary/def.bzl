@@ -16,36 +16,33 @@ def _external_binary_impl(ctx):
     args = {
         "url": url,
         "sha256": info.get("sha256", ""),
-        "output": "{name}/{name}".format(name = ctx.attr.name),
     }
-    if url.endswith(".zip") or url.endswith(".tar.gz") or url.endswith(".tgz"):
-        ctx.download_and_extract(**args)
-        flatten = [
-            "sh", "-c",
-            """
-            set -o errexit -o pipefail
-            mkdir '{name}_tmp'
-            find '{name}' -mindepth 2 -type f -print0 \
-                | xargs -0 -L50 mv --target-directory '{name}_tmp'
-            rm -rf '{name}'
-            mv '{name}_tmp' '{name}'
-            """.format(
-                name = ctx.attr.name,
-            )
-        ]
-        res = ctx.execute(flatten)
-        if res.stdout != "":
-            print("STDOUT:")
-            print(res.stdout)
-        if res.stderr != "":
-            print("STDERR:")
-            print(res.stderr)
+    if any([url.endswith(suffix) for suffix in [".zip", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz"]]):
+        ctx.download_and_extract(output="{name}/{name}_out".format(name = ctx.attr.name), **args)
+        build_contents = """
+        package(default_visibility = ["//visibility:public"])
+        filegroup(
+            name = "{name}_filegroup",
+            srcs = glob(["**/{name}*"]),
+        )
+        genrule(
+            name = "{name}",
+            srcs = [":{name}_filegroup"],
+            outs = ["executable"],
+            cmd_bash = "cp $(location :{name}_filegroup) $@", # Runs on *nix.
+            cmd_bat = "copy $(location :{name}_filegroup) $@", # Runs on Windows.
+            executable = True,
+        )
+        """.format(name = ctx.attr.name)
     else:
         args["executable"] = True
-        ctx.download(**args)
+        ctx.download(output="{name}/{name}".format(name = ctx.attr.name), **args)
+        build_contents = """
+        package(default_visibility = ["//visibility:public"])
+        exports_files(glob(["**/*"]))
+        """.format(name = ctx.attr.name)
 
-    build_contents = 'package(default_visibility = ["//visibility:public"])\n'
-    build_contents += 'exports_files(glob(["**/*"]))\n'
+    build_contents = '\n'.join([x.lstrip(' ') for x in build_contents.splitlines()])
     ctx.file("{name}/BUILD.bazel".format(name = ctx.attr.name), build_contents)
 
 _external_binary = repository_rule(
