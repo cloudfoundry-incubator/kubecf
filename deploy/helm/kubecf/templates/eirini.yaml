@@ -43,23 +43,31 @@ kind: Namespace
 metadata:
   name: {{ .Values.deployment_name }}-eirini
 ---
-# A godlike ServiceAccount for Eirini
-# TODO: this can be restricted
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.deployment_name }}-eirini
   namespace: {{ .Release.Namespace | quote }}
 ---
-# A godlike Role for Eirini
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: Role
 metadata:
-  name: {{ .Values.deployment_name }}-eirini
+  name: eirini:all
+  namespace: {{ .Values.deployment_name }}-eirini
+rules:
+  - apiGroups: ['*']
+    resources: ['*']
+    verbs:     ['*']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: eirini:all
+  namespace: {{ .Values.deployment_name }}-eirini
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
+  kind: Role
+  name: eirini:all
 subjects:
   - kind: ServiceAccount
     name: {{ .Values.deployment_name }}-eirini
