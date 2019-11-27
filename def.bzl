@@ -6,8 +6,8 @@ project = struct(
     ),
     cf_operator = struct(
         chart = struct(
-            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-147.gb88e4296.tgz",
-            sha256 = "7cc0c23df3aa5fb7f2075e3dbd77d2dc51c1ee283060ae9cb46ed680b1deb1d0",
+            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-167.g34209e10.tgz",
+            sha256 = "9ecdb9b452d41dd83a070179b14333054b558daec923d58e29f96ced4af4e208",
         ),
         namespace = "cfo",
     ),
@@ -28,20 +28,20 @@ project = struct(
         },
     ),
     kubernetes = struct(
-        version = "1.14.6",
+        version = "1.15.6",
         kubectl = struct(
             platforms = {
                 "darwin": {
-                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/darwin/amd64/kubectl",
-                    "sha256": "de42dd22f67c135b749c75f389c70084c3fe840e3d89a03804edd255ac6ee829",
+                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/darwin/amd64/kubectl",
+                    "sha256": "1b8e747984ae3f9aa5a199bd444823d703dcd4dbf0617347b3b3aea254ada7b1",
                 },
                 "linux": {
-                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/linux/amd64/kubectl",
-                    "sha256": "5f8e8d8de929f64b8f779d0428854285e1a1c53a02cc2ad6b1ce5d32eefad25c",
+                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/linux/amd64/kubectl",
+                    "sha256": "522115e0f11d83c08435a05e76120c89ea320782ccaff8e301bd14588ec50145",
                 },
                 "windows": {
-                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.14.6/bin/windows/amd64/kubectl.exe",
-                    "sha256": "3aa2d64f5eb9564622ddabe5f0a6c12d13d9dda90125f5a56ce41779395fa6f5",
+                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/windows/amd64/kubectl.exe",
+                    "sha256": "cd134c5746e39b985df979a944876c0d61ae88e79d954f8534a66bc84cd8a7fb",
                 },
             },
         ),
@@ -114,5 +114,12 @@ project = struct(
                 "sha256": "8aafdeff31095613308e92ce6a13e3c41249b51e757fd4fcdfdfc7a81d29286a",
             },
         },
+    ),
+    rules_python = struct(
+        commit = "94677401bc56ed5d756f50b441a6a5c7f735a6d4"
+    ),
+    mysql_chart = struct(
+        version = "1.3.3",
+        sha256 = "9ef4ce3693eb2a7428598f9dae833ee546eac9c105b4005c6d7375c55e33bdff",
     ),
 )

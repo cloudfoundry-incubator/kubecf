@@ -12,31 +12,84 @@ deployment_name: kubecf
 #              addr: kubecf-log-api:8082
 properties: {}
 
+# The the storage class to be used for the instance groups that need it (e.g. bits, database and singleton-blobstore)
+# If it's not set, the default storage class will be used.
+kube:
+  storage_class: ~
+
 releases:
   # The defaults for all releases, where we do not otherwise override them.
   defaults:
     url: docker.io/cfcontainerization
     stemcell:
       os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_340.g2b599a90
-
+      version: 36.g03b4653-30.80-7.0.0_362.g9610e90b
   bits-service:
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
-
+  capi:
+    version: 1.83.0
+    stemcell:
+      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+  cf-acceptance-tests:
+    stemcell:
+      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
+  cf-mysql:
+    version: 36.19.0
+    stemcell:
+      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
   eirini:
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
 
-sizing:
-  HA: false
+multi_az: false
+high_availability: false
 
-# Service is only valid to set an external endpoint for the router if features.ingress.enabled is
-# false.
-service:
-  type: LoadBalancer
-  externalIPs: []
-  clusterIP: ~
+# Sizing takes precedence over the high_availability property. I.e. setting the instance count
+# for an instance group greater than 1 will make it highly available.
+sizing:
+  adapter:
+    instances: ~
+  api:
+    instances: ~
+  bits:
+    instances: ~
+  cc_worker:
+    instances: ~
+  database:
+    instances: 1
+  diego_api:
+    instances: ~
+  diego_cell:
+    instances: ~
+  doppler:
+    instances: ~
+  eirini:
+    instances: ~
+  log_api:
+    instances: ~
+  nats:
+    instances: ~
+  router:
+    instances: ~
+  scheduler:
+    instances: ~
+  singleton_blobstore:
+    instances: ~
+  uaa:
+    instances: ~
+
+# Service is only valid to set a external endpoints for the instance groups if
+# features.ingress.enabled is false.
+services:
+  router:
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~
+  ssh-proxy:
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~
 
 features:
   eirini:
@@ -54,6 +107,48 @@ features:
   # TODO: suse_buildpacks should be default to true after the opensuse-stemcell-based images are
   # published to docker.io.
   suse_buildpacks: false
+
+  # external_database disables the embedded database and allows using an external, already seeded,
+  # database.
+  # The database type can be either 'mysql' or 'postgres'.
+  external_database:
+    enabled: false
+    type: ~
+    host: ~
+    port: ~
+    databases:
+      uaa:
+        name: uaa
+        password: ~
+        username: ~
+      cc:
+        name: cloud_controller
+        password: ~
+        username: ~
+      bbs:
+        name: diego
+        password: ~
+        username: ~
+      routing_api:
+        name: routing-api
+        password: ~
+        username: ~
+      policy_server:
+        name: network_policy
+        password: ~
+        username: ~
+      silk_controller:
+        name: network_connectivity
+        password: ~
+        username: ~
+      locket:
+        name: locket
+        password: ~
+        username: ~
+      credhub:
+        name: credhub
+        password: ~
+        username: ~
 
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.

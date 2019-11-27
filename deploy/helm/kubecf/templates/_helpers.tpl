@@ -101,3 +101,18 @@ and possible overrides for the respective release.
 
   {{- toJson $result }}
 {{- end -}}
+
+{{/*
+Returns the release URL to use; if there is an override, use that, otherwise
+use the default.
+
+Usage:
+  - path: /releases/name=foo/url
+    type: replace
+    value: {{ include "kubecf.releaseURLLookup" (list .Values.releases "foo") }}
+*/}}
+{{- define "kubecf.releaseURLLookup" -}}
+  {{- $releasesMap := index . 0 -}}
+  {{- $releaseName := index . 1 }}
+  {{- (default (index $releasesMap "defaults" "url") (index (default (dict) (index $releasesMap $releaseName)) "url")) }}
+{{- end -}}

@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ops-azs
+  labels:
+    app.kubernetes.io/component: operations
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+data:
+  ops: |
+{{- if not .Values.multi_az }}
+    - type: remove
+      path: /instance_groups/name=nats/azs?
+    - type: remove
+      path: /instance_groups/name=adapter/azs?
+    - type: remove
+      path: /instance_groups/name=diego-api/azs?
+    - type: remove
+      path: /instance_groups/name=uaa/azs?
+    - type: remove
+      path: /instance_groups/name=singleton-blobstore/azs?
+    - type: remove
+      path: /instance_groups/name=api/azs?
+    - type: remove
+      path: /instance_groups/name=cc-worker/azs?
+    - type: remove
+      path: /instance_groups/name=scheduler/azs?
+    - type: remove
+      path: /instance_groups/name=router/azs?
+    - type: remove
+      path: /instance_groups/name=doppler/azs?
+    - type: remove
+      path: /instance_groups/name=diego-cell/azs?
+    - type: remove
+      path: /instance_groups/name=log-api/azs?
+
+    {{- if .Values.features.eirini.enabled }}
+    - type: remove
+      path: /instance_groups/name=bits/azs?
+    - type: remove
+      path: /instance_groups/name=eirini/azs?
+    {{- end }}
+
+    {{- if not .Values.features.external_database.enabled }}
+    - type: remove
+      path: /instance_groups/name=database/azs?
+    {{- end }}
+{{- end }}
