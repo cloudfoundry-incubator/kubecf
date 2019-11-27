@@ -42,8 +42,42 @@ releases:
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
 
+multi_az: false
+high_availability: false
+
+# Sizing takes precedence over the high_availability property. I.e. setting the instance count
+# for an instance group greater than 1 will make it highly available.
 sizing:
-  HA: false
+  adapter:
+    instances: ~
+  api:
+    instances: ~
+  bits:
+    instances: ~
+  cc_worker:
+    instances: ~
+  database:
+    instances: 1
+  diego_api:
+    instances: ~
+  diego_cell:
+    instances: ~
+  doppler:
+    instances: ~
+  eirini:
+    instances: ~
+  log_api:
+    instances: ~
+  nats:
+    instances: ~
+  router:
+    instances: ~
+  scheduler:
+    instances: ~
+  singleton_blobstore:
+    instances: ~
+  uaa:
+    instances: ~
 
 # Service is only valid to set a external endpoints for the instance groups if
 # features.ingress.enabled is false.
