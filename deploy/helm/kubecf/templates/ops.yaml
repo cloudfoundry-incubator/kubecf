@@ -5,6 +5,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "kubecf.ops-name" .Path }}
+  namespace: {{ .Root.Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: operations
     app.kubernetes.io/instance: {{ .Root.Release.Name | quote }}

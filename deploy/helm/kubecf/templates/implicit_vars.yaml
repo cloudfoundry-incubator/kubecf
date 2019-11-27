@@ -12,6 +12,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.deployment_name }}.var-{{ $variable_name | replace "_" "-" | replace "." "-" }}
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
