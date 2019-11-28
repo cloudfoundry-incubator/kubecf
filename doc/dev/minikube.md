@@ -145,7 +145,7 @@ This has to happen before deploying kubecf.
 ```sh
 helm install stable/nginx-ingress \
   --name ingress \
-  --namespace ingress
+  --namespace ingress \
   --set "tcp.2222=kubecf/kubecf-scheduler:2222" \
   --set "controller.service.externalIPs={$(minikube ip)}"
 ```
