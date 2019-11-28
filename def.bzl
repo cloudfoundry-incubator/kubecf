@@ -90,8 +90,8 @@ project = struct(
         sha256 = "df88b9a38420bb6d286953e06766abbc587e57f1f4eb5cb1c749fa53488cb4f7",
     ),
     skylib = struct(
-        version = "0.8.0",
-        sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+        version = "0.9.0",
+        sha256 = "1dde365491125a3db70731e25658dfdd3bc5dbdfd11b840b3e987ecf043c7ca0",
     ),
     metrics_server = struct(
         version = "0.3.3",

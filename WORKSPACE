@@ -94,7 +94,7 @@ http_file(
 http_archive(
     name = "bazel_skylib",
     sha256 = project.skylib.sha256,
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel-skylib.{version}.tar.gz".format(version = project.skylib.version),
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel_skylib-{version}.tar.gz".format(version = project.skylib.version),
 )
 
 http_archive(
