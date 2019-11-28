@@ -28,9 +28,11 @@ bazel run //dev/minikube:delete
 The following three environment variables are used by the `start`
 target to allocate the resources used by the deployed Minikube:
 
-  - VM_CPUS - the number of CPUs Minikube will use.
-  - VM_MEMORY - the amount of RAM Minikube will be allowed to use.
-  - VM_DISK_SIZE - the disk size Minikube will be allowed to use.
+| Variable | Setting |
+| --- | --- |
+| `VM_CPUS` | the number of CPUs Minikube will use. |
+| `VM_MEMORY` | the amount of RAM Minikube will be allowed to use. |
+| `VM_DISK_SIZE` | the disk size Minikube will be allowed to use. |
 
 E.g.:
 
