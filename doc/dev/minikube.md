@@ -36,7 +36,7 @@ the intended deployment.
 
 ### Advanced configuration
 
-The local [Minikube Documentation](kube_minikube.md) explains the
+The local [Minikube Documentation](../kube/minikube.md) explains the
 various environment variables which can be used to configure the
 resources used by the cluster (CPUs, memory, disk size, etc.) in
 detail.
@@ -89,6 +89,9 @@ In this default deployment kubecf is launched without Ingress, and
 uses the Diego scheduler.
 
 ### Access
+
+Accessing the cluster from outside of the minikube VM requires
+[ingress](#ingress) to be set up correctly.
 
 To access the cluster after the cf-operator has completed the
 deployment and all pods are active invoke:

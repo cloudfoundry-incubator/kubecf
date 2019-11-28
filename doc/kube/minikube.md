@@ -28,9 +28,11 @@ bazel run //dev/minikube:delete
 The following three environment variables are used by the `start`
 target to allocate the resources used by the deployed Minikube:
 
-  - VM_CPUS - the number of CPUs Minikube will use.
-  - VM_MEMORY - the amount of RAM Minikube will be allowed to use.
-  - VM_DISK_SIZE - the disk size Minikube will be allowed to use.
+| Variable | Setting |
+| --- | --- |
+| `VM_CPUS` | the number of CPUs Minikube will use. |
+| `VM_MEMORY` | the amount of RAM Minikube will be allowed to use. |
+| `VM_DISK_SIZE` | the disk size Minikube will be allowed to use. |
 
 E.g.:
 
@@ -46,3 +48,11 @@ Set the `K8S_VERSION` environment variable to override the default version.
 
 At the moment, only the VirtualBox and KVM2 drivers are working correctly. Set the `VM_DRIVER`
 environment variable to override the default. E.g. `VM_DRIVER=kvm2`.
+
+## Extra minikube options
+
+It is possible to set extra minikube options (e.g. to set a docker registry
+mirror) via the environment variable `MINIKUBE_EXTRA_OPTIONS`.  For example:
+```sh
+export MINIKUBE_EXTRA_OPTIONS="--registry-mirror http://registry.mirror.example:5000/"
+```
