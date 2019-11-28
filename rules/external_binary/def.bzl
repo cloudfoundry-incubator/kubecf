@@ -21,17 +21,19 @@ def _external_binary_impl(ctx):
         ctx.download_and_extract(output="{name}/{name}_out".format(name = ctx.attr.name), **args)
         build_contents = """
         package(default_visibility = ["//visibility:public"])
+
+        load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+
         filegroup(
             name = "{name}_filegroup",
             srcs = glob(["**/{name}*"]),
         )
-        genrule(
+
+        copy_file(
             name = "{name}",
-            srcs = [":{name}_filegroup"],
-            outs = ["executable"],
-            cmd_bash = "cp $(location :{name}_filegroup) $@", # Runs on *nix.
-            cmd_bat = "copy $(location :{name}_filegroup) $@", # Runs on Windows.
-            executable = True,
+            src = ":{name}_filegroup",
+            out = "executable",
+            is_executable = True,
         )
         """.format(name = ctx.attr.name)
     else:
