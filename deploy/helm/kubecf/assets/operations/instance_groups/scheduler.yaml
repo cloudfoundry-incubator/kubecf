@@ -1,11 +1,3 @@
-# Override the addresses for the jobs under the scheduler instance group.
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
-  value: sql-db.service.cf.internal
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/address
-  value: sql-db.service.cf.internal
-
 # Add quarks properties for the scheduler job.
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/quarks?/run/healthcheck/scheduler
@@ -77,6 +69,18 @@
           readiness:
             httpGet:
               port: 2223
+
+# Add necessary labels to the scheduler instance group so that the service can select it to create
+# the endpoint.
+- type: replace
+  path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1component
+  value: "ssh-proxy"
+- type: replace
+  path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1instance
+  value: {{ .Release.Name | quote }}
+- type: replace
+  path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1version
+  value: {{ default .Chart.Version .Chart.AppVersion | quote }}
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=log-cache-scheduler/properties?/quarks/run/healthcheck/log-cache-scheduler/readiness/exec/command

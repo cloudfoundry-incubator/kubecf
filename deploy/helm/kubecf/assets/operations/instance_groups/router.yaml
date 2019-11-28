@@ -6,7 +6,6 @@
     - name: router
       protocol: TCP
       internal: 8000
-      public: true
     - name: router-ssl
       protocol: TCP
       internal: 443

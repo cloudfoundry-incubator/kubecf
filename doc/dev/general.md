@@ -55,13 +55,27 @@ with Helm Tiller pre-installed.
 helm install --name cf-operator \
      --namespace cfo \
      --set "global.operator.watchNamespace=kubecf" \
-     https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.1%2B92.g77e53fda.tgz
+     https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-147.gb88e4296.tgz
 ```
 
 In the example above, version 0.4.1 of the operator was used. Look
 into the `cf_operator` section of the top-level `def.bzl` file to find
 the version of the operator validated against the current kubecf
 master.
+
+**Note:**
+> The above `helm install` will generate many controllers spread over multiple pods inside the `cfo` namespace.
+> Most of these controllers run inside the `cf-operator` pod.
+>
+> The `global.operator.watchNamespace=kubecf` path tells the
+controllers to watch for CRD´s instances into the `kubecf` namespace.
+>
+> The cf-operator helm chart will generate the `kubecf` namespace during installation, and eventually one of the
+controllers will use a webhook to label this namespace with the `cf-operator-ns` key.
+>
+> If the `kubecf` namespace is deleted, but the operators are still running, they will no longer
+know which namespace to watch. This can lead to problems, so make sure you also delete the pods
+inside the `cfo` namespace, after deleting the `kubecf` namespace.
 
 Note how the namespace the operator is installed into (`cfo`) differs
 from the namespace the operator is watching for deployments (`kubecf`).
@@ -82,7 +96,7 @@ This again uses helm and a released helm chart.
 
 ### Deployment and Tear-down
 
-```
+```shell
 helm install --name kubecf \
      --namespace kubecf \
      https://scf-v3.s3.amazonaws.com/scf-3.0.0-82165ef3.tgz \
@@ -100,16 +114,16 @@ To access the cluster after the cf-operator has completed the
 deployment and all pods are active invoke:
 
 ```sh
-cf api --skip-ssl-validation "https://api.$(minikube ip).xip.io"
+cf api --skip-ssl-validation "https://api.<domain>"
 
 # Copy the admin cluster password.
 admin_pass=$(kubectl get secret \
-	      --namespace kubecf kubecf.var-cf-admin-password \
-	      -o jsonpath='{.data.password}' \
-	      | base64 --decode)
+        --namespace kubecf kubecf.var-cf-admin-password \
+        -o jsonpath='{.data.password}' \
+        | base64 --decode)
 
 # Use the password from the previous step when requested.
-cf auth -u admin -p "${admin_pass}"
+cf auth admin "${admin_pass}"
 ```
 
 ### Advanced Topics
@@ -130,8 +144,8 @@ By default, the cluster is exposed through its Kubernetes services.
 
 To use the NGINX ingress instead, it is necessary to:
 
-  - Install and configure the NGINX Ingress Controller.
-  - Configure Kubecf to use the ingress controller.
+- Install and configure the NGINX Ingress Controller.
+- Configure Kubecf to use the ingress controller.
 
 This has to happen before deploying kubecf.
 
@@ -141,13 +155,69 @@ This has to happen before deploying kubecf.
 helm install stable/nginx-ingress \
   --name ingress \
   --namespace ingress \
-  --set "controller.service.externalIPs={$(minikube ip)}"
+  --set "tcp.2222=kubecf/kubecf-scheduler:2222"
 ```
 
-The last option in the command above assigns the external IP of the
-cluster to the Ingress Controller service.
+The `tcp.<port>` option uses the NGINX TCP pass-through.
 
 ##### Configure kubecf
 
 Use the Helm option `--set features.ingress.enabled=true` when
 deploying kubecf.
+
+#### External Database
+
+By default, kubecf includes a single-availability database provided by the
+cf-mysql-release. Kubecf also exposes a way to use an external database via the
+Helm property `features.external_database`. Check the [values.yaml] for more
+details.
+
+[values.yaml]: ../../deploy/helm/kubecf/values.yaml
+
+For local development with an external database, the
+`bazel run //dev/external_database:deploy_mysql` command will bring a mysql database up and running
+ready to be consumed by kubecf.
+
+An example for the additional values to be provided to `//dev/kubecf:apply`:
+
+```yaml
+features:
+  external_database:
+    enabled: true
+    type: mysql
+    host: kubecf-mysql.kubecf-mysql.svc
+    port: 3306
+    databases:
+      uaa:
+        name: uaa
+        password: <root_password>
+        username: root
+      cc:
+        name: cloud_controller
+        password: <root_password>
+        username: root
+      bbs:
+        name: diego
+        password: <root_password>
+        username: root
+      routing_api:
+        name: routing-api
+        password: <root_password>
+        username: root
+      policy_server:
+        name: network_policy
+        password: <root_password>
+        username: root
+      silk_controller:
+        name: network_connectivity
+        password: <root_password>
+        username: root
+      locket:
+        name: locket
+        password: <root_password>
+        username: root
+      credhub:
+        name: credhub
+        password: <root_password>
+        username: root
+```

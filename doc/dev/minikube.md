@@ -98,12 +98,12 @@ cf api --skip-ssl-validation "https://api.$(minikube ip).xip.io"
 
 # Copy the admin cluster password.
 acp=$(kubectl get secret \
-	      --namespace kubecf kubecf.var-cf-admin-password \
-	      -o jsonpath='{.data.password}' \
-	      | base64 --decode)
+        --namespace kubecf kubecf.var-cf-admin-password \
+        -o jsonpath='{.data.password}' \
+        | base64 --decode)
 
 # Use the password from the previous step when requested.
-cf auth -u admin -p "${acp}"
+cf auth admin "${acp}"
 ```
 
 ### Advanced Topics
@@ -143,8 +143,11 @@ This has to happen before deploying kubecf.
 helm install stable/nginx-ingress \
   --name ingress \
   --namespace ingress
+  --set "tcp.2222=kubecf/kubecf-scheduler:2222" \
   --set "controller.service.externalIPs={$(minikube ip)}"
 ```
+
+The `tcp.<port>` option uses the NGINX TCP pass-through.
 
 The last flag in the command above assigns the external IP of the
 cluster to the Ingress Controller service.

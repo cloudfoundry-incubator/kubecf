@@ -2,8 +2,9 @@
 
 export KUBECF_NAMESPACE="kubecf"
 export CF_OPERATOR_NAMESPACE="cfo"
-export CLUSTER_IP="10.43.0.255"
-export SYSTEM_DOMAIN="${CLUSTER_IP}.nip.io"
+export ROUTER_CLUSTER_IP="10.43.0.231"
+export SSH_PROXY_CLUSTER_IP="10.43.0.232"
+export SYSTEM_DOMAIN="k3s-ci.kubecf.aws.howdoi.website"
 : "${EIRINI_ENABLED:=false}"
 export EIRINI_ENABLED
 export KUBECF_CHART_TARGET="//deploy/helm/kubecf:chart"

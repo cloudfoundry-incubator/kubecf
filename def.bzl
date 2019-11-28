@@ -6,8 +6,8 @@ project = struct(
     ),
     cf_operator = struct(
         chart = struct(
-            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-147.gb88e4296.tgz",
-            sha256 = "7cc0c23df3aa5fb7f2075e3dbd77d2dc51c1ee283060ae9cb46ed680b1deb1d0",
+            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-167.g34209e10.tgz",
+            sha256 = "9ecdb9b452d41dd83a070179b14333054b558daec923d58e29f96ced4af4e208",
         ),
         namespace = "cfo",
     ),
@@ -111,5 +111,12 @@ project = struct(
                 "sha256": "8aafdeff31095613308e92ce6a13e3c41249b51e757fd4fcdfdfc7a81d29286a",
             },
         ),
+    ),
+    rules_python = struct(
+        commit = "94677401bc56ed5d756f50b441a6a5c7f735a6d4"
+    ),
+    mysql_chart = struct(
+        version = "1.3.3",
+        sha256 = "9ef4ce3693eb2a7428598f9dae833ee546eac9c105b4005c6d7375c55e33bdff",
     ),
 )

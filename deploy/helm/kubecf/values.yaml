@@ -31,29 +31,78 @@ releases:
     version: 1.83.0
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
-  database:
+  cf-acceptance-tests:
+    stemcell:
+      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
+  cf-mysql:
     version: 36.19.0
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
   eirini:
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
-
   autoscaler:
     stemcell:
       version: 38.g82067a9-30.95-7.0.0_346.ge9dd9ff3
 
+multi_az: false
+high_availability: false
+
+# Sizing takes precedence over the high_availability property. I.e. setting the instance count
+# for an instance group greater than 1 will make it highly available.
 sizing:
-  HA: false
+  adapter:
+    instances: ~
+  api:
+    instances: ~
+  asactors:
+    instances: ~
+  asapi:
+    instances: ~
+  asmetrics:
+    instances: ~
+  asnozzle:
+    instances: ~
+  bits:
+    instances: ~
+  cc_worker:
+    instances: ~
+  database:
+    instances: 1
+  diego_api:
+    instances: ~
+  diego_cell:
+    instances: ~
+  doppler:
+    instances: ~
+  eirini:
+    instances: ~
+  log_api:
+    instances: ~
+  nats:
+    instances: ~
+  postgres_autoscaler:
+    instances: 1
+  router:
+    instances: ~
+  scheduler:
+    instances: ~
+  singleton_blobstore:
+    instances: ~
+  uaa:
+    instances: ~
 
-replicas: "1"
-
-# Service is only valid to set an external endpoint for the router if features.ingress.enabled is
-# false.
-service:
-  type: LoadBalancer
-  externalIPs: []
-  clusterIP: ~
+# Service is only valid to set a external endpoints for the instance groups if
+# features.ingress.enabled is false.
+services:
+  router:
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~
+  ssh-proxy:
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~
 
 features:
   eirini:
@@ -74,6 +123,48 @@ features:
   # add autoscaler
   autoscaler:
     enabled: false
+
+  # external_database disables the embedded database and allows using an external, already seeded,
+  # database.
+  # The database type can be either 'mysql' or 'postgres'.
+  external_database:
+    enabled: false
+    type: ~
+    host: ~
+    port: ~
+    databases:
+      uaa:
+        name: uaa
+        password: ~
+        username: ~
+      cc:
+        name: cloud_controller
+        password: ~
+        username: ~
+      bbs:
+        name: diego
+        password: ~
+        username: ~
+      routing_api:
+        name: routing-api
+        password: ~
+        username: ~
+      policy_server:
+        name: network_policy
+        password: ~
+        username: ~
+      silk_controller:
+        name: network_connectivity
+        password: ~
+        username: ~
+      locket:
+        name: locket
+        password: ~
+        username: ~
+      credhub:
+        name: credhub
+        password: ~
+        username: ~
 
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.

@@ -2,8 +2,9 @@
   type: replace
   value:
     name: cf-acceptance-tests
-    url: {{ .Values.releases.defaults.url | quote }}
-    version: 0.0.5
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "cf-acceptance-tests") }}
+    version: 0.0.7
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "cf-acceptance-tests") }}
 
 - path: /instance_groups/-
   type: replace

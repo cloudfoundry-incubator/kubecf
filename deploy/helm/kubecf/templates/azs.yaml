@@ -1,9 +1,8 @@
-{{ if not .Values.sizing.HA -}}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ops-single-availability
+  name: ops-azs
   labels:
     app.kubernetes.io/component: operations
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -13,51 +12,11 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 data:
   ops: |
-    - type: replace
-      path: /instance_groups/name=nats/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=adapter/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=database/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=diego-api/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=uaa/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=singleton-blobstore/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=api/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=cc-worker/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=scheduler/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=router/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=doppler/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=diego-cell/instances
-      value: 1
-    - type: replace
-      path: /instance_groups/name=log-api/instances
-      value: 1
+{{- if not .Values.multi_az }}
     - type: remove
       path: /instance_groups/name=nats/azs?
     - type: remove
       path: /instance_groups/name=adapter/azs?
-    - type: remove
-      path: /instance_groups/name=database/azs?
     - type: remove
       path: /instance_groups/name=diego-api/azs?
     - type: remove
@@ -80,15 +39,8 @@ data:
       path: /instance_groups/name=log-api/azs?
 
     {{- if .Values.features.eirini.enabled }}
-    - type: replace
-      path: /instance_groups/name=bits/instances
-      value: 1
     - type: remove
       path: /instance_groups/name=bits/azs?
-
-    - type: replace
-      path: /instance_groups/name=eirini/instances
-      value: 1
     - type: remove
       path: /instance_groups/name=eirini/azs?
     {{- end }}
@@ -104,19 +56,10 @@ data:
       path: /instance_groups/name=asapi/azs
     - type: remove
       path: /instance_groups/name=asnozzle/azs
-
-    - type: replace
-      path: /instance_groups/name=asactors/instances?
-      value: 1
-    - type: replace
-      path: /instance_groups/name=asmetrics/instances?
-      value: 1
-    - type: replace
-      path: /instance_groups/name=asapi/instances?
-      value: 1
-    - type: replace
-      path: /instance_groups/name=asnozzle/instances?
-      value: 1
     {{- end }}
 
+    {{- if not .Values.features.external_database.enabled }}
+    - type: remove
+      path: /instance_groups/name=database/azs?
+    {{- end }}
 {{- end }}
