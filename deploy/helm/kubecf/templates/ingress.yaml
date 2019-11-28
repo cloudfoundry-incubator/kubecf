@@ -167,4 +167,40 @@ spec:
   clusterIP: {{ $service.clusterIP | quote }}
   {{- end }}
 {{- end }}
+---
+{{- with $service := index .Values.services "tcp-router" }}
+{{ $_ := set $service "name" "tcp-router" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ $root.Release.Name }}-{{ $service.name }}-public"
+  namespace: {{ $root.Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: {{ $service.name | quote }}
+    app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service | quote }}
+    app.kubernetes.io/name: {{ default $root.Chart.Name $root.Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
+    helm.sh/chart: {{ printf "%s-%s" $root.Chart.Name ($root.Chart.Version | replace "+" "_") | quote }}
+spec:
+  selector:
+    app.kubernetes.io/component: {{ $service.name | quote }}
+    app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
+    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
+  ports:
+  {{- range $port := until (int (add 1 (sub $service.port_range.end $service.port_range.start))) }}
+  {{- $port = add $port $service.port_range.start }}
+  - name: "tcp-route-{{ $port }}"
+    protocol: TCP
+    port: {{ $port }}
+    targetPort: {{ $port }}
+  {{- end }}
+  type: {{ $service.type | quote }}
+  {{- if gt (len $service.externalIPs) 0 }}
+  externalIPs: {{ $service.externalIPs | toJson }}
+  {{- end }}
+  {{- if $service.clusterIP }}
+  clusterIP: {{ $service.clusterIP | quote }}
+  {{- end }}
+{{- end }}
 {{- end }}
