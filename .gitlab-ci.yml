@@ -29,7 +29,7 @@ build:chart:
     - output/kubecf-*.tgz
     expire_in: 1 week
 
-smoke-tests:
+tests:
   stage: test
   only: *common_refs
   script:
@@ -39,6 +39,7 @@ smoke-tests:
   - .gitlab/pipelines/stages/deploy/deploy_kubecf.sh
   - .gitlab/pipelines/stages/deploy/wait_kubecf.sh
   - .gitlab/pipelines/stages/tests/smoke_tests.sh
+  - .gitlab/pipelines/stages/tests/cf_acceptance_tests.sh
   - .gitlab/pipelines/stages/deploy/stop_k8s.sh
 
 publish:chart:
