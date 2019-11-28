@@ -744,7 +744,7 @@
     - '*.{{ .Values.deployment_name }}-asmetrics'
 
 {{- $root := . -}}
-{{- range $index, $val := until (int .Values.replicas ) }}
+{{- range $index, $val := until (int .Values.sizing.asmetrics.instances |default 1) }}
 - type: replace
   path: /variables/name=metricsserver_server/options?/alternative_names?/-
   value: "{{$root.Values.deployment_name}}-asmetrics-{{$val}}"
