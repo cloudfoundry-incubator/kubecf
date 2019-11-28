@@ -9,3 +9,4 @@ export SYSTEM_DOMAIN="k3s-ci.kubecf.aws.howdoi.website"
 export EIRINI_ENABLED
 export KUBECF_CHART_TARGET="//deploy/helm/kubecf:chart"
 export BOSHDEPLOYMENT_CRD="boshdeployments.quarks.cloudfoundry.org"
+export CATS_INCLUDE="+tcp_routing"

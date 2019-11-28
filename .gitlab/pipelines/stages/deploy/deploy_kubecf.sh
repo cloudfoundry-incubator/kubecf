@@ -25,6 +25,12 @@ services:
 features:
   eirini:
     enabled: ${EIRINI_ENABLED}
+
+properties:
+  acceptance-tests:
+    acceptance-tests:
+      acceptance_tests:
+        include: '${CATS_INCLUDE}'
 EOF
 
 # Locate the built kubecf chart.
