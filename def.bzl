@@ -68,16 +68,16 @@ project = struct(
     kind = struct(
         platforms = struct(
             darwin = {
-                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.5.1/kind-darwin-amd64",
-                "sha256": "b6a8fe2b3b53930a1afa4f91b033cdc24b0f6c628d993abaa9e40b57d261162a",
+                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.6.0/kind-darwin-amd64",
+                "sha256": "eba1480b335f1fd091bf3635dba3f901f9ebd9dc1fb32199ca8a6aaacf69691e",
             },
             linux = {
-                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.5.1/kind-linux-amd64",
-                "sha256": "9a64f1774cdf24dad5f92e1299058b371c4e3f09d2f9eb281e91ed0777bd1e13",
+                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.6.0/kind-linux-amd64",
+                "sha256": "b68e758f5532db408d139fed6ceae9c1400b5137182587fc8da73a5dcdb950ae",
             },
             windows = {
-                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.5.1/kind-windows-amd64",
-                "sha256": "df327d1e7f8bb41dfd5b1a69c5bc7a8d4bad95bb933562ca367a3a45b6c6ca04",
+                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.6.0/kind-windows-amd64",
+                "sha256": "f022a4800363bd4a0c17ee84b58d3e5f654a945dcaf5f66e2c1c230e417b05fb",
             },
         ),
     ),
