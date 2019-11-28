@@ -1,5 +1,4 @@
 system_domain: ~
-deployment_name: kubecf
 
 # Set or override job properties. The first level of the map is the instance group name. The second
 # level of the map is the job name. E.g.:
