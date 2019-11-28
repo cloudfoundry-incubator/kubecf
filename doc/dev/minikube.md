@@ -90,6 +90,9 @@ uses the Diego scheduler.
 
 ### Access
 
+Accessing the cluster from outside of the minikube VM requires
+[ingress](#ingress) to be set up correctly.
+
 To access the cluster after the cf-operator has completed the
 deployment and all pods are active invoke:
 
