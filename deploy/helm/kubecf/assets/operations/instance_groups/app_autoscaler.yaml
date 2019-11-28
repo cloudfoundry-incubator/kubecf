@@ -5,7 +5,7 @@
   value:
     domain: autoscalerpostgres.service.cf.internal
     targets:
-    - deployment: {{ .Values.deployment_name | quote }}
+    - deployment: {{ .Release.Name | quote }}
       domain: bosh
       instance_group: postgres_autoscaler
       network: default
@@ -15,7 +15,7 @@
   value:
     domain: apiserver.service.cf.internal
     targets:
-    - deployment: {{ .Values.deployment_name | quote }}
+    - deployment: {{ .Release.Name | quote }}
       domain: bosh
       instance_group: asapi
       network: default
@@ -25,7 +25,7 @@
   value:
     domain: autoscalerscheduler.service.cf.internal
     targets:
-    - deployment: {{ .Values.deployment_name | quote }}
+    - deployment: {{ .Release.Name | quote }}
       domain: bosh
       instance_group: asactors
       network: default
@@ -35,7 +35,7 @@
   value:
     domain: servicebroker.service.cf.internal
     targets:
-    - deployment: {{ .Values.deployment_name | quote }}
+    - deployment: {{ .Release.Name | quote }}
       domain: bosh
       instance_group: asapi
       network: default
@@ -45,7 +45,7 @@
   value:
     domain: eventgenerator.service.cf.internal
     targets:
-    - deployment: {{ .Values.deployment_name | quote }}
+    - deployment: {{ .Release.Name | quote }}
       domain: bosh
       instance_group: asmetrics
       network: default
@@ -55,7 +55,7 @@
   value:
     domain: scalingengine.service.cf.internal
     targets:
-    - deployment: {{ .Values.deployment_name | quote }}
+    - deployment: {{ .Release.Name | quote }}
       domain: bosh
       instance_group: asactors
       network: default
@@ -65,7 +65,7 @@
   value:
     domain: metricsgateway.service.cf.internal
     targets:
-    - deployment: {{ .Values.deployment_name | quote }}
+    - deployment: {{ .Release.Name | quote }}
       domain: bosh
       instance_group: asnozzle
       network: default
@@ -75,7 +75,7 @@
   value:
     domain: metricsserver.service.cf.internal
     targets:
-    - deployment: {{ .Values.deployment_name | quote }}
+    - deployment: {{ .Release.Name | quote }}
       domain: bosh
       instance_group: asmetrics
       network: default
@@ -469,7 +469,7 @@
       consumes:
         nats:
           from: nats
-          deployment: {{ .Values.deployment_name | quote }}
+          deployment: {{ .Release.Name | quote }}
       properties:
         route_registrar:
           routes:
@@ -736,18 +736,18 @@
 # Set the correct kube addresses
 - type: replace
   path: /instance_groups/name=asnozzle/jobs/name=metricsgateway/properties/autoscaler/metricsgateway/nozzle/rlp_addr?
-  value: {{ .Values.deployment_name }}-log-api:8082
+  value: {{ .Release.Name }}-log-api:8082
 - type: replace
   path: /variables/name=metricsserver_server/options?/alternative_names
   value: 
-    - '{{ .Values.deployment_name }}-asmetrics'
-    - '*.{{ .Values.deployment_name }}-asmetrics'
+    - '{{ .Release.Name }}-asmetrics'
+    - '*.{{ .Release.Name }}-asmetrics'
 
 {{- $root := . -}}
 {{- range $index, $val := until (int .Values.sizing.asmetrics.instances |default 1) }}
 - type: replace
   path: /variables/name=metricsserver_server/options?/alternative_names?/-
-  value: "{{$root.Values.deployment_name}}-asmetrics-{{$val}}"
+  value: "{{$root.Release.Name}}-asmetrics-{{$val}}"
 {{- end }}
 
 - type: replace

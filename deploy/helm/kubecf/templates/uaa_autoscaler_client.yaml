@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ .Values.deployment_name }}.var-cf-client-id
+  name: {{ .Release.Name }}.var-cf-client-id
 type: Opaque
 stringData:
   value: app_autoscaler
