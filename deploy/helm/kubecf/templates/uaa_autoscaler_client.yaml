@@ -4,6 +4,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Release.Name }}.var-cf-client-id
+  namespace: {{ .Release.Namespace | quote }}
 type: Opaque
 stringData:
   value: app_autoscaler
@@ -12,6 +13,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ops-uaa-autoscaler-client
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
