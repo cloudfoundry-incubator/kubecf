@@ -12,10 +12,11 @@ external_binary(
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-git_repository(
+http_archive(
     name = "rules_python",
-    remote = "https://github.com/bazelbuild/rules_python.git",
-    commit = project.rules_python.commit,
+    sha256 = project.rules_python.sha256,
+    strip_prefix = "rules_python-{commit}".format(commit = project.rules_python.commit),
+    url = "https://github.com/bazelbuild/rules_python/archive/{commit}.tar.gz".format(commit = project.rules_python.commit),
 )
 
 load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
@@ -24,7 +25,7 @@ pip_repositories()
 
 pip3_import(
     name = "yamllint",
-    requirements = "//dev/linters:requirements.txt",
+    requirements = "//dev/linters/yamllint:requirements.txt",
 )
 
 load("@yamllint//:requirements.bzl", "pip_install")
@@ -86,7 +87,7 @@ http_file(
 http_archive(
     name = "bazel_skylib",
     sha256 = project.skylib.sha256,
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel-skylib.{version}.tar.gz".format(version = project.skylib.version),
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel_skylib-{version}.tar.gz".format(version = project.skylib.version),
 )
 
 http_archive(

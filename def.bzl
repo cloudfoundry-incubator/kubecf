@@ -15,16 +15,16 @@ project = struct(
     helm = struct(
         platforms = {
             "darwin": {
-                "url": "https://get.helm.sh/helm-v2.14.1-darwin-amd64.tar.gz",
-                "sha256": "392ec847ecc5870a48a39cb0b8d13c8aa72aaf4365e0315c4d7a2553019a451c",
+                "url": "https://get.helm.sh/helm-v2.16.1-darwin-amd64.tar.gz",
+                "sha256": "34fc397ec4a992a451d130a962944315ca782242bbd05a8d732a2e74ca2b9153",
             },
             "linux": {
-                "url": "https://get.helm.sh/helm-v2.14.1-linux-amd64.tar.gz",
-                "sha256": "804f745e6884435ef1343f4de8940f9db64f935cd9a55ad3d9153d064b7f5896",
+                "url": "https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz",
+                "sha256": "7eebaaa2da4734242bbcdced62cc32ba8c7164a18792c8acdf16c77abffce202",
             },
             "windows": {
-                "url": "https://get.helm.sh/helm-v2.14.1-windows-amd64.zip",
-                "sha256": "2c833d9625d3713b625255043151e82969382ef05b48d1ac270f876eb774f325",
+                "url": "https://get.helm.sh/helm-v2.16.1-windows-amd64.zip",
+                "sha256": "414d09b2559316c3dcb81cc448ba44cbbbf54a08a475998211d8dbe7217dd138",
             },
         },
     ),
@@ -67,16 +67,16 @@ project = struct(
     kind = struct(
         platforms = {
             "darwin": {
-                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.5.1/kind-darwin-amd64",
-                "sha256": "b6a8fe2b3b53930a1afa4f91b033cdc24b0f6c628d993abaa9e40b57d261162a",
+                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.6.0/kind-darwin-amd64",
+                "sha256": "eba1480b335f1fd091bf3635dba3f901f9ebd9dc1fb32199ca8a6aaacf69691e",
             },
             "linux": {
-                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.5.1/kind-linux-amd64",
-                "sha256": "9a64f1774cdf24dad5f92e1299058b371c4e3f09d2f9eb281e91ed0777bd1e13",
+                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.6.0/kind-linux-amd64",
+                "sha256": "b68e758f5532db408d139fed6ceae9c1400b5137182587fc8da73a5dcdb950ae",
             },
             "windows": {
-                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.5.1/kind-windows-amd64",
-                "sha256": "df327d1e7f8bb41dfd5b1a69c5bc7a8d4bad95bb933562ca367a3a45b6c6ca04",
+                "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.6.0/kind-windows-amd64",
+                "sha256": "f022a4800363bd4a0c17ee84b58d3e5f654a945dcaf5f66e2c1c230e417b05fb",
             },
         },
     ),
@@ -93,12 +93,12 @@ project = struct(
         sha256 = "df88b9a38420bb6d286953e06766abbc587e57f1f4eb5cb1c749fa53488cb4f7",
     ),
     skylib = struct(
-        version = "0.8.0",
-        sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+        version = "0.9.0",
+        sha256 = "1dde365491125a3db70731e25658dfdd3bc5dbdfd11b840b3e987ecf043c7ca0",
     ),
     metrics_server = struct(
-        version = "0.3.3",
-        sha256 = "9a8a204a46a4159f5a6bcb508cc51b49cdfb15aa5a034c7910ddca5a435097d4",
+        version = "0.3.6",
+        sha256 = "cb0626b297eeb14be20f53896bc0cd68b32d20a4e4b6c8becdef625e322a54ed",
     ),
     shellcheck = struct(
         platforms = {
@@ -117,7 +117,8 @@ project = struct(
         },
     ),
     rules_python = struct(
-        commit = "94677401bc56ed5d756f50b441a6a5c7f735a6d4"
+        commit = "94677401bc56ed5d756f50b441a6a5c7f735a6d4",
+        sha256 = "acbd018f11355ead06b250b352e59824fbb9e77f4874d250d230138231182c1c",
     ),
     mysql_chart = struct(
         version = "1.3.3",
