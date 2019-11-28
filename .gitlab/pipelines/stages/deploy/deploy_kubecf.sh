@@ -31,4 +31,4 @@ EOF
 chart="$(output_chart)"
 
 # Render and apply the kubecf chart.
-bazel run @helm//helm -- template "${chart}" --name kubecf --namespace "${KUBECF_NAMESPACE}" --values "${values}" | "${KUBECTL}" apply -f - --namespace "${KUBECF_NAMESPACE}"
+bazel run @helm//helm -- template "${chart}" --name kubecf --namespace "${KUBECF_NAMESPACE}" --values "${values}" | "${KUBECTL}" apply -f -
