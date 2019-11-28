@@ -11,7 +11,7 @@ function cluster_exists {
 if ! cluster_exists; then
   "${KIND}" create cluster \
     --name "${CLUSTER_NAME}" \
-    --image "kindest/node:${KUBERNETES_VERSION}"
+    --image "kindest/node:${K8S_VERSION}"
 else
   echo "Kind is already started"
 fi
