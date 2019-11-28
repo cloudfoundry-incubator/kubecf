@@ -2,10 +2,12 @@
 
 set -o errexit -o nounset
 
+workspace=$(bazel info workspace)
+
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
+source "${workspace}/.gitlab/pipelines/runtime/config.sh"
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/runtime/binaries.sh"
+source "${workspace}/.gitlab/pipelines/runtime/binaries.sh"
 
 # Wait for cf-operator to start.
 wait_for_crd() {

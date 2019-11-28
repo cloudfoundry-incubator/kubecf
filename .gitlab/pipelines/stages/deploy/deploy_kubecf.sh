@@ -2,12 +2,14 @@
 
 set -o errexit -o nounset
 
+workspace=$(bazel info workspace)
+
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
+source "${workspace}/.gitlab/pipelines/runtime/config.sh"
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/runtime/binaries.sh"
+source "${workspace}/.gitlab/pipelines/runtime/binaries.sh"
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/stages/build/output_chart.sh"
+source "${workspace}/.gitlab/pipelines/stages/build/output_chart.sh"
 
 # Create a values.yaml for the test.
 values="$(mktemp -t values_XXXXXXXX.yaml)"
