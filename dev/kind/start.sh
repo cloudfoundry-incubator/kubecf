@@ -36,4 +36,4 @@ docker exec "${CLUSTER_NAME}-control-plane" bash -c "cp /etc/kubernetes/pki/ca.c
 
 echo ""
 echo "Set your KUBECONFIG by running:"
-echo "export KUBECONFIG=\"\$(bazel run @kind//kind -- get kubeconfig-path --name=\"kubecf\")\""
+echo "export KUBECONFIG=\"\$(bazel run @kind//kind -- get kubeconfig-path --name=\"${CLUSTER_NAME}\")\""

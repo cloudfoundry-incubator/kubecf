@@ -1,8 +1,9 @@
 package(default_visibility = ["//visibility:public"])
 
 load(":def.bzl", "kind_start_binary", "kind_delete_binary")
+load("//:def.bzl", "project")
 
-CLUSTER_NAME = "kubecf"
+CLUSTER_NAME = project.deployment_name
 
 kind_start_binary(
     name = "start",

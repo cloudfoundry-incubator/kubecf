@@ -1,4 +1,5 @@
 project = struct(
+    deployment_name = "kubecf",
     namespace = "kubecf",
     cf_deployment = struct(
         version = "8.0.0",
