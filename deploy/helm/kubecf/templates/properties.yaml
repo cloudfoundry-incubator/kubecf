@@ -4,6 +4,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: user-provided-properties
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: operations
     app.kubernetes.io/instance: {{ .Release.Name | quote }}

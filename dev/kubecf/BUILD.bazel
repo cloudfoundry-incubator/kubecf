@@ -15,11 +15,9 @@ helm_template(
 kubectl_apply_binary(
     name = "apply",
     resource = ":rendered_template",
-    namespace = project.namespace,
 )
 
 kubectl_delete_binary(
     name = "delete",
     resource = ":rendered_template",
-    namespace = project.namespace,
 )
