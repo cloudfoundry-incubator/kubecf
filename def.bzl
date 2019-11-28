@@ -94,8 +94,8 @@ project = struct(
         sha256 = "1dde365491125a3db70731e25658dfdd3bc5dbdfd11b840b3e987ecf043c7ca0",
     ),
     metrics_server = struct(
-        version = "0.3.3",
-        sha256 = "9a8a204a46a4159f5a6bcb508cc51b49cdfb15aa5a034c7910ddca5a435097d4",
+        version = "0.3.6",
+        sha256 = "cb0626b297eeb14be20f53896bc0cd68b32d20a4e4b6c8becdef625e322a54ed",
     ),
     shellcheck = struct(
         platforms = struct(
