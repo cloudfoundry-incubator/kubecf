@@ -1,4 +1,5 @@
 load("@bazel_skylib//lib:paths.bzl", "paths")
+load("//:def.bzl", "project")
 
 def _kind_impl(ctx):
     metrics_server_dir = None
@@ -18,12 +19,14 @@ def _kind_impl(ctx):
         export CLUSTER_NAME="{cluster_name}"
         export KUBECTL="{kubectl}"
         export METRICS_SERVER="{metrics_server}"
+        export KUBERNETES_VERSION="{kubernetes_version}"
         "{script}"
     """.format(
         kind = ctx.executable._kind.path,
         cluster_name = ctx.attr.cluster_name,
         kubectl = ctx.executable._kubectl.path,
         metrics_server = metrics_server_dir,
+        kubernetes_version = ctx.attr.kubernetes_version,
         script = ctx.executable._script.path,
     )
     ctx.actions.write(executable, contents, is_executable = True)
@@ -40,6 +43,9 @@ def _kind_impl(ctx):
 attrs = {
     "cluster_name": attr.string(
         mandatory = True,
+    ),
+    "kubernetes_version": attr.string(
+        default = "v{}".format(project.kubernetes.version),
     ),
     "_kind": attr.label(
         allow_single_file = True,
