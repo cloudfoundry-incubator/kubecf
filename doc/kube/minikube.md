@@ -46,3 +46,11 @@ Set the `K8S_VERSION` environment variable to override the default version.
 
 At the moment, only the VirtualBox and KVM2 drivers are working correctly. Set the `VM_DRIVER`
 environment variable to override the default. E.g. `VM_DRIVER=kvm2`.
+
+## Extra minikube options
+
+It is possible to set extra minikube options (e.g. to set a docker registry
+mirror) via the environment variable `MINIKUBE_EXTRA_OPTIONS`.  For example:
+```sh
+export MINIKUBE_EXTRA_OPTIONS="--registry-mirror http://registry.mirror.example:5000/"
+```
