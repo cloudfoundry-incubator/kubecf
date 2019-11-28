@@ -3,7 +3,7 @@
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: BOSHDeployment
 metadata:
-  name: {{ .Values.deployment_name }}
+  name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}

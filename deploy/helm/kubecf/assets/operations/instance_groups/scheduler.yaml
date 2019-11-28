@@ -94,7 +94,7 @@
   path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs
   value:
   - name: INSTANCE_ADDR
-    value: {{ .Values.deployment_name }}-scheduler:8080
+    value: {{ .Release.Name }}-scheduler:8080
   - name: INSTANCE_ID
     valueFrom:
       fieldRef:
