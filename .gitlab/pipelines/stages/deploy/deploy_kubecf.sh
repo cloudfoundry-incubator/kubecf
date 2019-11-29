@@ -23,6 +23,9 @@ services:
   ssh-proxy:
     type: ClusterIP
     clusterIP: ${SSH_PROXY_CLUSTER_IP}
+  tcp-router:
+    type: ClusterIP
+    clusterIP: ${TCP_ROUTER_CLUSTER_IP}
 
 features:
   eirini:
