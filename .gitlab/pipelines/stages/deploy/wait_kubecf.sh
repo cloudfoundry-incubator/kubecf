@@ -34,7 +34,7 @@ for instance_group in $instance_groups; do
     --selector "quarks.cloudfoundry.org/instance-group-name=${instance_group}" \
     --namespace "${KUBECF_NAMESPACE}" \
     --output json \
-    | "${JQ}" -r '.items | length') == 0 ]]; do
+    | "${JQ}" -r '.items | length') -gt 0 ]]; do
       sleep 1
   done
 
