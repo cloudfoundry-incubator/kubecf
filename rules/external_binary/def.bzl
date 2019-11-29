@@ -12,22 +12,42 @@ def _external_binary_impl(ctx):
     else:
         fail("Unsupported operating system: {}".format(ctx.os.name))
 
+    url = info.get("url")
     args = {
-        "url": info.get("url"),
+        "url": url,
         "sha256": info.get("sha256", ""),
-        "output": "{name}/{name}".format(name = ctx.attr.name),
     }
-    if info.get("is_compressed", False):
-        ctx.download_and_extract(**args)
+    if any([url.endswith(suffix) for suffix in [".zip", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz"]]):
+        ctx.download_and_extract(output="{name}/{name}_out".format(name = ctx.attr.name), **args)
+        build_contents = """
+        package(default_visibility = ["//visibility:public"])
+
+        load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+
+        filegroup(
+            name = "{name}_filegroup",
+            srcs = glob(["**/{name}*"]),
+        )
+
+        copy_file(
+            name = "{name}",
+            src = ":{name}_filegroup",
+            out = "executable",
+            is_executable = True,
+        )
+        """.format(name = ctx.attr.name)
     else:
         args["executable"] = True
-        ctx.download(**args)
+        ctx.download(output="{name}/{name}".format(name = ctx.attr.name), **args)
+        build_contents = """
+        package(default_visibility = ["//visibility:public"])
+        exports_files(glob(["**/*"]))
+        """.format(name = ctx.attr.name)
 
-    build_contents = 'package(default_visibility = ["//visibility:public"])\n'
-    build_contents += 'exports_files(["{name}"])\n'.format(name = ctx.attr.name)
+    build_contents = '\n'.join([x.lstrip(' ') for x in build_contents.splitlines()])
     ctx.file("{name}/BUILD.bazel".format(name = ctx.attr.name), build_contents)
 
-external_binary = repository_rule(
+_external_binary = repository_rule(
     implementation = _external_binary_impl,
     attrs = {
         "darwin": attr.string_dict(),
@@ -35,6 +55,14 @@ external_binary = repository_rule(
         "windows": attr.string_dict(),
     },
 )
+
+def external_binary(name, platforms):
+    _external_binary(
+        name = name,
+        darwin = platforms.get("darwin"),
+        linux = platforms.get("linux"),
+        windows = platforms.get("windows"),
+    )
 
 def _validade_platform_info(platform, info):
     if not "url" in info:

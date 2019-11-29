@@ -13,39 +13,38 @@ project = struct(
         namespace = "cfo",
     ),
     helm = struct(
-        version = "2.16.1",
-        platforms = [
-            {
-                "platform": "linux",
-                "sha256": "7eebaaa2da4734242bbcdced62cc32ba8c7164a18792c8acdf16c77abffce202",
-            },
-            {
-                "platform": "darwin",
+        platforms = {
+            "darwin": {
+                "url": "https://get.helm.sh/helm-v2.16.1-darwin-amd64.tar.gz",
                 "sha256": "34fc397ec4a992a451d130a962944315ca782242bbd05a8d732a2e74ca2b9153",
             },
-            {
-                "platform": "windows",
-                "sha256": "7ab28696e2f5a5b56001aacbe7156aae83c8fbd05946164efa3a2707aac33255",
+            "linux": {
+                "url": "https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz",
+                "sha256": "7eebaaa2da4734242bbcdced62cc32ba8c7164a18792c8acdf16c77abffce202",
             },
-        ],
+            "windows": {
+                "url": "https://get.helm.sh/helm-v2.16.1-windows-amd64.zip",
+                "sha256": "414d09b2559316c3dcb81cc448ba44cbbbf54a08a475998211d8dbe7217dd138",
+            },
+        },
     ),
     kubernetes = struct(
         version = "1.15.6",
         kubectl = struct(
-            platforms = struct(
-                darwin = {
+            platforms = {
+                "darwin": {
                     "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/darwin/amd64/kubectl",
                     "sha256": "1b8e747984ae3f9aa5a199bd444823d703dcd4dbf0617347b3b3aea254ada7b1",
                 },
-                linux = {
+                "linux": {
                     "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/linux/amd64/kubectl",
                     "sha256": "522115e0f11d83c08435a05e76120c89ea320782ccaff8e301bd14588ec50145",
                 },
-                windows = {
+                "windows": {
                     "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/windows/amd64/kubectl.exe",
                     "sha256": "cd134c5746e39b985df979a944876c0d61ae88e79d954f8534a66bc84cd8a7fb",
                 },
-            ),
+            },
         ),
     ),
     minikube = struct(
@@ -66,25 +65,29 @@ project = struct(
         ],
     ),
     kind = struct(
-        platforms = struct(
-            darwin = {
+        platforms = {
+            "darwin": {
                 "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.6.0/kind-darwin-amd64",
                 "sha256": "eba1480b335f1fd091bf3635dba3f901f9ebd9dc1fb32199ca8a6aaacf69691e",
             },
-            linux = {
+            "linux": {
                 "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.6.0/kind-linux-amd64",
                 "sha256": "b68e758f5532db408d139fed6ceae9c1400b5137182587fc8da73a5dcdb950ae",
             },
-            windows = {
+            "windows": {
                 "url": "https://github.com/kubernetes-sigs/kind/releases/download/v0.6.0/kind-windows-amd64",
                 "sha256": "f022a4800363bd4a0c17ee84b58d3e5f654a945dcaf5f66e2c1c230e417b05fb",
             },
-        ),
+        },
     ),
-    k3s = {
-        "url": "https://github.com/rancher/k3s/releases/download/v0.9.1/k3s",
-        "sha256": "9f8bea3fa6f88066ca51cc896000aab2794e3f585d6fc982dd5aa7da8ee9fe85",
-    },
+    k3s = struct(
+        platforms = {
+            "linux": {
+                "url": "https://github.com/rancher/k3s/releases/download/v0.9.1/k3s",
+                "sha256": "9f8bea3fa6f88066ca51cc896000aab2794e3f585d6fc982dd5aa7da8ee9fe85",
+            }
+        },
+    ),
     local_path_provisioner = struct(
         url = "https://raw.githubusercontent.com/rancher/local-path-provisioner/58cafaccef6645e135664053545ff94cb4bc4224/deploy/local-path-storage.yaml",
         sha256 = "df88b9a38420bb6d286953e06766abbc587e57f1f4eb5cb1c749fa53488cb4f7",
@@ -98,20 +101,20 @@ project = struct(
         sha256 = "cb0626b297eeb14be20f53896bc0cd68b32d20a4e4b6c8becdef625e322a54ed",
     ),
     shellcheck = struct(
-        platforms = struct(
-            darwin = {
+        platforms = {
+            "darwin": {
                 "url": "https://storage.googleapis.com/shellcheck/shellcheck-v0.7.0.darwin-x86_64",
                 "sha256": "a5d77cbe4c3e92916bce712b959f6d54392f94bcf8ea84f80ba425a9e72e2afe",
             },
-            linux = {
+            "linux": {
                 "url": "https://storage.googleapis.com/shellcheck/shellcheck-v0.7.0.linux-x86_64",
                 "sha256": "c37d4f51e26ec8ab96b03d84af8c050548d7288a47f755ffb57706c6c458e027",
             },
-            windows = {
+            "windows": {
                 "url": "https://storage.googleapis.com/shellcheck/shellcheck-v0.7.0.exe",
                 "sha256": "8aafdeff31095613308e92ce6a13e3c41249b51e757fd4fcdfdfc7a81d29286a",
             },
-        ),
+        },
     ),
     rules_python = struct(
         commit = "94677401bc56ed5d756f50b441a6a5c7f735a6d4",
