@@ -2,8 +2,10 @@
 
 set -o errexit -o nounset
 
+workspace=$(bazel info workspace)
+
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
+source "${workspace}/.gitlab/pipelines/runtime/config.sh"
 
 bazel build "${KUBECF_CHART_TARGET}"
 built_file="$(bazel aquery "${KUBECF_CHART_TARGET}" 2> /dev/null | awk 'match($0, /Outputs: \[(.*)\]/, output){ print output[1] }')"
@@ -15,4 +17,4 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 mkdir -p output
-cp "${built_file}" "output/${release_filename}.${extension}"
+cp "${built_file}" "${workspace}/output/${release_filename}.${extension}"
