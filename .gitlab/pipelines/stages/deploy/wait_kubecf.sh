@@ -7,51 +7,31 @@ source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
 # shellcheck disable=SC1090
 source "$(bazel info workspace)/.gitlab/pipelines/runtime/binaries.sh"
 
-wait_kubecf() {
-  timeout 900 bash <<EOF
-while true; do
-  if '${KUBECTL}' get pods --namespace ${KUBECF_NAMESPACE} --no-headers --ignore-not-found | grep "router"; then
-    exit 0
-  fi
+echo "Waiting for the kubecf pods to be ready..."
+
+secret_name="${KUBECF_INSTALL_NAME}.with-ops"
+
+until "${KUBECTL}" get secret "${secret_name}" --namespace "${KUBECF_NAMESPACE}" 1> /dev/null 2> /dev/null; do
   sleep 1
 done
-EOF
-  timeout 900 bash <<EOF
-pod_count() {
-  '${KUBECTL}' get pods --namespace ${KUBECF_NAMESPACE} --no-headers --ignore-not-found \
-    | wc --lines
-}
 
-ready_pod_count() {
-  '${KUBECTL}' get pods --namespace ${KUBECF_NAMESPACE} --no-headers --ignore-not-found \
-    | awk '{ printf "%s-%s\n", \$2, \$3 }' | grep --line-regexp '\(.*\)\/\1-Running' \
-    | wc --lines
-}
+instance_groups=$(
+  "${KUBECTL}" get secret "${secret_name}" \
+    --namespace "${KUBECF_NAMESPACE}" \
+    -o jsonpath='{ .data.manifest\.yaml }' \
+    | base64 --decode \
+    | "${YAML2JSON}" \
+    | "${JQ}" -r '.instance_groups[] | select(.lifecycle != "errand") | select (.lifecycle != "auto-errand") | .name'
+)
 
-print_status() {
-  timestamp="\$(date +"%T")"
-  printf "%s - %d of %d pods ready.\n" "\${timestamp}" "\${1}" "\${2}"
-}
+for instance_group in $instance_groups; do
+  until "${KUBECTL}" get pod --selector "quarks.cloudfoundry.org/instance-group-name=${instance_group}" 1> /dev/null 2> /dev/null; do
+    sleep 1
+  done
 
-i=0
-while true; do
-  total="\$(pod_count)"
-  ready="\$(ready_pod_count)"
-  if [[ "\${total}" > "0" ]] && [[ "\${total}" == "\${ready}" ]]; then
-    print_status "\${ready}" "\${total}"
-    exit 0
-  fi
-  if (( i % 60 == 0 )); then
-    print_status "\${ready}" "\${total}"
-  fi
-  sleep 1
-  i=\$((i + 1))
+  "${KUBECTL}" wait pods \
+    --selector "quarks.cloudfoundry.org/instance-group-name=${instance_group}" \
+    --for condition=Ready \
+    --timeout=1800s \
+    --namespace "${KUBECF_NAMESPACE}"
 done
-EOF
-}
-
-echo "Waiting for kubecf to be ready..."
-wait_kubecf || {
-  >&2 echo "Timed out waiting for kubecf to be ready"
-  exit 1
-}

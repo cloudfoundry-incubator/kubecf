@@ -86,6 +86,20 @@ external_binary(
     linux = project.k3s,
 )
 
+external_binary(
+    name = "jq",
+    darwin = project.jq.platforms.darwin,
+    linux = project.jq.platforms.linux,
+    windows = project.jq.platforms.windows,
+)
+
+external_binary(
+    name = "yaml2json",
+    darwin = project.yaml2json.platforms.darwin,
+    linux = project.yaml2json.platforms.linux,
+    windows = project.yaml2json.platforms.windows,
+)
+
 http_file(
     name = "local_path_provisioner",
     sha256 = project.local_path_provisioner.sha256,

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+export KUBECF_INSTALL_NAME="kubecf"
 export KUBECF_NAMESPACE="kubecf"
 export CF_OPERATOR_NAMESPACE="cfo"
 export ROUTER_CLUSTER_IP="10.43.0.231"
