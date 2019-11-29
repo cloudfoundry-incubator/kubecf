@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This script waits for kubecf initial deployment. It does not currently cover upgrades or config
+# changes.
+
 set -o errexit -o nounset
 
 workspace=$(bazel info workspace)
@@ -20,7 +23,8 @@ until "${KUBECTL}" get secret "${secret_name}" \
   sleep 1
 done
 
-instance_groups=$(
+instance_groups=()
+while IFS='' read -r line; do instance_groups+=("${line}"); done < <(
   "${KUBECTL}" get secret "${secret_name}" \
     --namespace "${KUBECF_NAMESPACE}" \
     --output jsonpath='{ .data.manifest\.yaml }' \
@@ -29,7 +33,7 @@ instance_groups=$(
     | "${JQ}" -r '.instance_groups[] | select(.lifecycle != "errand") | select (.lifecycle != "auto-errand") | .name'
 )
 
-for instance_group in $instance_groups; do
+for instance_group in "${instance_groups[@]}"; do
   until [[ $("${KUBECTL}" get pod \
     --selector "quarks.cloudfoundry.org/instance-group-name=${instance_group}" \
     --namespace "${KUBECF_NAMESPACE}" \
