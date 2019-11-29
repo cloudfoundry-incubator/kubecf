@@ -20,17 +20,18 @@ done
 instance_groups=$(
   "${KUBECTL}" get secret "${secret_name}" \
     --namespace "${KUBECF_NAMESPACE}" \
-    -o jsonpath='{ .data.manifest\.yaml }' \
+    --output jsonpath='{ .data.manifest\.yaml }' \
     | base64 --decode \
     | "${YAML2JSON}" \
     | "${JQ}" -r '.instance_groups[] | select(.lifecycle != "errand") | select (.lifecycle != "auto-errand") | .name'
 )
 
 for instance_group in $instance_groups; do
-  until "${KUBECTL}" get pod \
+  until [[ $("${KUBECTL}" get pod \
     --selector "quarks.cloudfoundry.org/instance-group-name=${instance_group}" \
     --namespace "${KUBECF_NAMESPACE}" \
-    1> /dev/null 2> /dev/null; do
+    --output json \
+    | "${JQ}" -r '.items | length') == 0 ]]; do
       sleep 1
   done
 
