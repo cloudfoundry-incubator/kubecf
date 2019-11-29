@@ -13,7 +13,10 @@ echo "Waiting for the kubecf pods to be ready..."
 
 secret_name="${KUBECF_INSTALL_NAME}.with-ops"
 
-until "${KUBECTL}" get secret "${secret_name}" --namespace "${KUBECF_NAMESPACE}" 1> /dev/null 2> /dev/null; do
+until "${KUBECTL}" get secret "${secret_name}" \
+  --namespace "${KUBECF_NAMESPACE}" \
+  --output jsonpath='{ .data.manifest\.yaml }' \
+  1> /dev/null 2> /dev/null; do
   sleep 1
 done
 
