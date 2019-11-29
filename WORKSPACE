@@ -80,16 +80,12 @@ external_binary(
 
 external_binary(
     name = "jq",
-    darwin = project.jq.platforms.darwin,
-    linux = project.jq.platforms.linux,
-    windows = project.jq.platforms.windows,
+    platforms = project.jq.platforms,
 )
 
 external_binary(
     name = "yaml2json",
-    darwin = project.yaml2json.platforms.darwin,
-    linux = project.yaml2json.platforms.linux,
-    windows = project.yaml2json.platforms.windows,
+    platforms = project.yaml2json.platforms,
 )
 
 http_file(

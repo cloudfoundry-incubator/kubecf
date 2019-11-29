@@ -125,35 +125,35 @@ project = struct(
         sha256 = "9ef4ce3693eb2a7428598f9dae833ee546eac9c105b4005c6d7375c55e33bdff",
     ),
     jq = struct(
-        platforms = struct(
-            darwin = {
+        platforms = {
+            "darwin": {
                 "url": "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64",
                 "sha256": "5c0a0a3ea600f302ee458b30317425dd9632d1ad8882259fcaf4e9b868b2b1ef",
             },
-            linux = {
+            "linux": {
                 "url": "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64",
                 "sha256": "af986793a515d500ab2d35f8d2aecd656e764504b789b66d7e1a0b727a124c44",
             },
-            windows = {
+            "windows": {
                 "url": "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-win64.exe",
                 "sha256": "a51d36968dcbdeabb3142c6f5cf9b401a65dc3a095f3144bd0c118d5bb192753",
             },
-        ),
+        },
     ),
     yaml2json = struct(
-        platforms = struct(
-            darwin = {
+        platforms = {
+            "darwin": {
                 "url": "https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_darwin_amd64",
                 "sha256": "5ea7e2bddf13721e68ae38b81093e8d539456af2cd22c7a1b0923e45a765c636",
             },
-            linux = {
+            "linux": {
                 "url": "https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_linux_amd64",
                 "sha256": "e792647dd757c974351ea4ad35030852af97ef9bbbfb9594f0c94317e6738e55",
             },
-            windows = {
+            "windows": {
                 "url": "https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_windows_amd64.exe",
                 "sha256": "a73fb27e36e30062c48dc0979c96afbbe25163e0899f6f259b654d56fda5cc26",
             },
-        ),
+        },
     ),
 )
