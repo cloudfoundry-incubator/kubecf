@@ -11,6 +11,11 @@
   value:
     azs:
     - z1
+    env:
+      bosh:
+        agent:
+          settings:
+            serviceAccountName: {{ .Values.deployment_name }}-tests-brain
     instances: 1
     jobs:
     - name: acceptance-tests-brain
