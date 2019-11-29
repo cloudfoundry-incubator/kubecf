@@ -1,0 +1,8 @@
+package(default_visibility = ["//visibility:public"])
+
+load("//rules/external_binary:def.bzl", "binary_location")
+
+binary_location(
+    name = "binary_location",
+    binary = "@jq//jq",
+)

@@ -147,10 +147,17 @@ helm install stable/nginx-ingress \
   --name ingress \
   --namespace ingress \
   --set "tcp.2222=kubecf/kubecf-scheduler:2222" \
+  --set "tcp.<services.tcp-router.port_range.start>=kubecf/kubecf-tcp-router:<services.tcp-router.port_range.start>" \
+  ...
+  --set "tcp.<services.tcp-router.port_range.end>=kubecf/kubecf-tcp-router:<services.tcp-router.port_range.end>" \
   --set "controller.service.externalIPs={$(minikube ip)}"
 ```
 
 The `tcp.<port>` option uses the NGINX TCP pass-through.
+
+In the case of the `tcp-router` ports, one `--set` for each port is required, starting with
+`services.tcp-router.port_range.start` and ending with `services.tcp-router.port_range.end`. Those
+values are defined on the `values.yaml` file with default values.
 
 The last flag in the command above assigns the external IP of the
 cluster to the Ingress Controller service.

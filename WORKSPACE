@@ -78,6 +78,16 @@ external_binary(
     platforms = project.k3s.platforms,
 )
 
+external_binary(
+    name = "jq",
+    platforms = project.jq.platforms,
+)
+
+external_binary(
+    name = "yaml2json",
+    platforms = project.yaml2json.platforms,
+)
+
 http_file(
     name = "local_path_provisioner",
     sha256 = project.local_path_provisioner.sha256,

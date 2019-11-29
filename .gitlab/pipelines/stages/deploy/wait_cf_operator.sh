@@ -9,20 +9,12 @@ source "${workspace}/.gitlab/pipelines/runtime/config.sh"
 # shellcheck disable=SC1090
 source "${workspace}/.gitlab/pipelines/runtime/binaries.sh"
 
-# Wait for cf-operator to start.
-wait_for_crd() {
-  local timeout
-  for (( timeout = 300; timeout > 0; timeout -- )); do
-    if "${KUBECTL}" get crd "${BOSHDEPLOYMENT_CRD}" 2> /dev/null; then
-      return 0
-    fi
-    sleep 1
-  done
-  return 1
-}
+deployments=$("${KUBECTL}" get --namespace "${CF_OPERATOR_NAMESPACE}" deployments --output name)
 
-echo "Waiting for the cf-operator pod to become available..."
-wait_for_crd || {
-  >&2 echo "Timed out waiting for the cf-operator pod"
-  exit 1
-}
+echo "Waiting for the cf-operator deployments to be available..."
+for deployment in $deployments; do
+  "${KUBECTL}" wait "${deployment}" \
+    --for condition=Available \
+    --timeout=300s \
+    --namespace "${CF_OPERATOR_NAMESPACE}"
+done

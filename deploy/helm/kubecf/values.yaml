@@ -77,6 +77,8 @@ sizing:
     instances: ~
   uaa:
     instances: ~
+  tcp_router:
+    instances: ~
 
 # Service is only valid to set a external endpoints for the instance groups if
 # features.ingress.enabled is false.
@@ -89,6 +91,13 @@ services:
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~
+  tcp-router:
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~
+    port_range:
+      start: 20000
+      end: 20008
 
 features:
   eirini:
