@@ -87,22 +87,6 @@
         command: [curl, --fail, --head, --silent, http://localhost:6061/debug/pprof/cmdline]
 
 - type: replace
-  path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs
-  value:
-  - name: INSTANCE_ADDR
-    value: {{ .Release.Name }}-doppler:8080
-  - name: INSTANCE_ID
-    valueFrom:
-      fieldRef:
-        apiVersion: v1
-        fieldPath: metadata.labels['quarks.cloudfoundry.org/pod-ordinal']
-- type: replace
-  path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/run/healthcheck/log-cache-expvar-forwarder
-  value:
-    readiness: ~
-      # We do not have a good thing to use as a readiness probe
-
-- type: replace
   path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
   value:
     readiness: ~
