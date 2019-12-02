@@ -96,6 +96,14 @@ associated documentation, if we have any.
 |__top__/rules                                                          |Supporting bazel definitions.                          |
 |[__top__/testing](tests.md)                                            |Bazel targets to run CF smoke and acceptance tests.    |
 
+## Docker Images
+
+The docker images used by kubecf to run jobs in container use a
+moderately complex naming scheme.
+
+This scheme is explained in a separate document:
+[The Naming Of Docker Images in kubecf](dev/image-naming.md).
+
 ## Linting
 
 Currently, 3 linters are available:
