@@ -15,7 +15,7 @@
       bosh:
         agent:
           settings:
-            serviceAccountName: {{ .Values.deployment_name }}-tests-brain
+            serviceAccountName: {{ .Release.Name }}-tests-brain
     instances: 1
     jobs:
     - name: acceptance-tests-brain

@@ -1,6 +1,3 @@
-# psp-role       | predefined ? -> scf default account
-# configgin-role | predefined ? -> scf default account
-
 # Service account, roles, and cluster role for the brain tests.
 # Raw kube objects going into the chart.
 # TODO: Make this conditional.
@@ -10,10 +7,10 @@
 apiVersion: "v1"
 kind: "ServiceAccount"
 metadata:
-  name: "{{ .Values.deployment_name }}-tests-brain"
+  name: "{{ .Release.Name }}-tests-brain"
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    app.kubernetes.io/component: "{{ .Values.deployment_name }}-tests-brain"
+    app.kubernetes.io/component: "{{ .Release.Name }}-tests-brain"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -21,15 +18,13 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 
 # Role "test-role-brain" only used by account "tests-brain"
-# The permissions are a combination of the SCF roles
-# configgin-role, psp-role, and test-brain-role.
 ---
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "Role"
 metadata:
-  name: "{{ .Values.deployment_name }}-test-role-brain"
+  name: "{{ .Release.Name }}-test-role-brain"
   labels:
-    app.kubernetes.io/component: "{{ .Values.deployment_name }}-test-role-brain"
+    app.kubernetes.io/component: "{{ .Release.Name }}-test-role-brain"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -117,9 +112,9 @@ rules:
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "RoleBinding"
 metadata:
-  name: "{{ .Values.deployment_name }}-tests-brain-test-role-brain-binding"
+  name: "{{ .Release.Name }}-tests-brain-test-role-brain-binding"
   labels:
-    app.kubernetes.io/component: "{{ .Values.deployment_name }}-tests-brain-test-role-brain-binding"
+    app.kubernetes.io/component: "{{ .Release.Name }}-tests-brain-test-role-brain-binding"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -127,20 +122,20 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 subjects:
 - kind: "ServiceAccount"
-  name: "{{ .Values.deployment_name }}-tests-brain"
+  name: "{{ .Release.Name }}-tests-brain"
 roleRef:
   apiGroup: "rbac.authorization.k8s.io"
   kind: "Role"
-  name: "{{ .Values.deployment_name }}-test-role-brain"
+  name: "{{ .Release.Name }}-test-role-brain"
 
 # Cluster role "test-cluster-role" only used by account "tests-brain"
 ---
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "ClusterRole"
 metadata:
-  name: "{{ .Release.Namespace }}-{{ .Values.deployment_name }}-test-cluster-role"
+  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
   labels:
-    app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Values.deployment_name }}-test-cluster-role"
+    app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -205,9 +200,9 @@ rules:
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "ClusterRoleBinding"
 metadata:
-  name: "{{ .Release.Namespace }}-{{ .Values.deployment_name }}-tests-brain-test-cluster-role-cluster-binding"
+  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-brain-test-cluster-role-cluster-binding"
   labels:
-    app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Values.deployment_name }}-tests-brain-test-cluster-role-cluster-binding"
+    app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-brain-test-cluster-role-cluster-binding"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -215,9 +210,9 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 subjects:
 - kind: "ServiceAccount"
-  name: "{{ .Values.deployment_name }}-tests-brain"
+  name: "{{ .Release.Name }}-tests-brain"
   namespace: {{ .Release.Namespace | quote }}
 roleRef:
   kind: "ClusterRole"
   apiGroup: "rbac.authorization.k8s.io"
-  name: "{{ .Release.Namespace }}-{{ .Values.deployment_name }}-test-cluster-role"
+  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
