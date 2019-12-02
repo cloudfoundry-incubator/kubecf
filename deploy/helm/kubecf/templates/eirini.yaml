@@ -5,12 +5,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.deployment_name }}-cc-uploader
+  name: {{ .Release.Name }}-cc-uploader
+  namespace: {{ .Release.Namespace | quote }}
 spec:
   type: ClusterIP
   selector:
     quarks.cloudfoundry.org/instance-group-name: api
-    quarks.cloudfoundry.org/deployment-name: {{ .Values.deployment_name }}
+    quarks.cloudfoundry.org/deployment-name: {{ .Release.Name }}
   ports:
     - protocol: TCP
       name: "http"
@@ -25,12 +26,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.deployment_name }}-eirini-registry
+  name: {{ .Release.Name }}-eirini-registry
+  namespace: {{ .Release.Namespace | quote }}
 spec:
   type: NodePort
   selector:
     quarks.cloudfoundry.org/instance-group-name: bits
-    quarks.cloudfoundry.org/deployment-name: {{ .Values.deployment_name }}
+    quarks.cloudfoundry.org/deployment-name: {{ .Release.Name }}
   ports:
     - protocol: TCP
       port: 443
@@ -41,34 +43,43 @@ spec:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ .Values.deployment_name }}-eirini
+  name: {{ .Release.Name }}-eirini
 ---
-# A godlike ServiceAccount for Eirini
-# TODO: this can be restricted
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ .Values.deployment_name }}-eirini
+  name: {{ .Release.Name }}-eirini
   namespace: {{ .Release.Namespace | quote }}
 ---
-# A godlike Role for Eirini
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: Role
 metadata:
-  name: {{ .Values.deployment_name }}-eirini
+  name: eirini:all
+  namespace: {{ .Release.Name }}-eirini
+rules:
+  - apiGroups: ['*']
+    resources: ['*']
+    verbs:     ['*']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: eirini:all
+  namespace: {{ .Release.Name }}-eirini
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
+  kind: Role
+  name: eirini:all
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.deployment_name }}-eirini
+    name: {{ .Release.Name }}-eirini
     namespace: {{ .Release.Namespace | quote }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ops-remove-diego
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: operations
     app.kubernetes.io/instance: {{ .Release.Name | quote }}

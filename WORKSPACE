@@ -3,15 +3,34 @@ workspace(name = "kubecf")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("//dev/minikube:binary.bzl", "minikube_binary")
 load("//rules/external_binary:def.bzl", "external_binary")
-load("//rules/helm:binary.bzl", "helm_binary")
 load(":def.bzl", "project")
 
 external_binary(
     name = "shellcheck",
-    darwin = project.shellcheck.platforms.darwin,
-    linux = project.shellcheck.platforms.linux,
-    windows = project.shellcheck.platforms.windows,
+    platforms = project.shellcheck.platforms,
 )
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+http_archive(
+    name = "rules_python",
+    sha256 = project.rules_python.sha256,
+    strip_prefix = "rules_python-{commit}".format(commit = project.rules_python.commit),
+    url = "https://github.com/bazelbuild/rules_python/archive/{commit}.tar.gz".format(commit = project.rules_python.commit),
+)
+
+load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
+
+pip_repositories()
+
+pip3_import(
+    name = "yamllint",
+    requirements = "//dev/linters/yamllint:requirements.txt",
+)
+
+load("@yamllint//:requirements.bzl", "pip_install")
+
+pip_install()
 
 http_archive(
     name = "cf_deployment",
@@ -33,17 +52,14 @@ http_file(
     urls = [project.cf_operator.chart.url],
 )
 
-helm_binary(
+external_binary(
     name = "helm",
     platforms = project.helm.platforms,
-    version = project.helm.version,
 )
 
 external_binary(
     name = "kubectl",
-    darwin = project.kubernetes.kubectl.platforms.darwin,
-    linux = project.kubernetes.kubectl.platforms.linux,
-    windows = project.kubernetes.kubectl.platforms.windows,
+    platforms = project.kubernetes.kubectl.platforms
 )
 
 minikube_binary(
@@ -54,14 +70,22 @@ minikube_binary(
 
 external_binary(
     name = "kind",
-    darwin = project.kind.platforms.darwin,
-    linux = project.kind.platforms.linux,
-    windows = project.kind.platforms.windows,
+    platforms = project.kind.platforms,
 )
 
 external_binary(
     name = "k3s",
-    linux = project.k3s,
+    platforms = project.k3s.platforms,
+)
+
+external_binary(
+    name = "jq",
+    platforms = project.jq.platforms,
+)
+
+external_binary(
+    name = "yaml2json",
+    platforms = project.yaml2json.platforms,
 )
 
 http_file(
@@ -73,7 +97,7 @@ http_file(
 http_archive(
     name = "bazel_skylib",
     sha256 = project.skylib.sha256,
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel-skylib.{version}.tar.gz".format(version = project.skylib.version),
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel_skylib-{version}.tar.gz".format(version = project.skylib.version),
 )
 
 http_archive(
@@ -88,4 +112,10 @@ filegroup(
     sha256 = project.metrics_server.sha256,
     strip_prefix = "metrics-server-{}".format(project.metrics_server.version),
     url = "https://github.com/kubernetes-incubator/metrics-server/archive/v{}.tar.gz".format(project.metrics_server.version),
+)
+
+http_file(
+    name = "mysql_chart",
+    sha256 = project.mysql_chart.sha256,
+    urls = ["https://kubernetes-charts.storage.googleapis.com/mysql-{}.tgz".format(project.mysql_chart.version)],
 )

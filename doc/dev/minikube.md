@@ -36,7 +36,7 @@ the intended deployment.
 
 ### Advanced configuration
 
-The local [Minikube Documentation](kube_minikube.md) explains the
+The local [Minikube Documentation](../kube/minikube.md) explains the
 various environment variables which can be used to configure the
 resources used by the cluster (CPUs, memory, disk size, etc.) in
 detail.
@@ -90,6 +90,9 @@ uses the Diego scheduler.
 
 ### Access
 
+Accessing the cluster from outside of the minikube VM requires
+[ingress](#ingress) to be set up correctly.
+
 To access the cluster after the cf-operator has completed the
 deployment and all pods are active invoke:
 
@@ -98,9 +101,9 @@ cf api --skip-ssl-validation "https://api.$(minikube ip).xip.io"
 
 # Copy the admin cluster password.
 acp=$(kubectl get secret \
-	      --namespace kubecf kubecf.var-cf-admin-password \
-	      -o jsonpath='{.data.password}' \
-	      | base64 --decode)
+        --namespace kubecf kubecf.var-cf-admin-password \
+        -o jsonpath='{.data.password}' \
+        | base64 --decode)
 
 # Use the password from the previous step when requested.
 cf auth admin "${acp}"
@@ -142,9 +145,19 @@ This has to happen before deploying kubecf.
 ```sh
 helm install stable/nginx-ingress \
   --name ingress \
-  --namespace ingress
+  --namespace ingress \
+  --set "tcp.2222=kubecf/kubecf-scheduler:2222" \
+  --set "tcp.<services.tcp-router.port_range.start>=kubecf/kubecf-tcp-router:<services.tcp-router.port_range.start>" \
+  ...
+  --set "tcp.<services.tcp-router.port_range.end>=kubecf/kubecf-tcp-router:<services.tcp-router.port_range.end>" \
   --set "controller.service.externalIPs={$(minikube ip)}"
 ```
+
+The `tcp.<port>` option uses the NGINX TCP pass-through.
+
+In the case of the `tcp-router` ports, one `--set` for each port is required, starting with
+`services.tcp-router.port_range.start` and ending with `services.tcp-router.port_range.end`. Those
+values are defined on the `values.yaml` file with default values.
 
 The last flag in the command above assigns the external IP of the
 cluster to the Ingress Controller service.

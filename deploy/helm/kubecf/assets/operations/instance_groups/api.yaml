@@ -155,6 +155,12 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=routing-api/properties/quarks?
   value:
+    envs:
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
     ports:
     - name: routing-api
       protocol: TCP

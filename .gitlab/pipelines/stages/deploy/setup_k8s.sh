@@ -2,10 +2,12 @@
 
 set -o errexit -o nounset -o pipefail
 
+workspace=$(bazel info workspace)
+
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/runtime/config.sh"
+source "${workspace}/.gitlab/pipelines/runtime/config.sh"
 # shellcheck disable=SC1090
-source "$(bazel info workspace)/.gitlab/pipelines/runtime/binaries.sh"
+source "${workspace}/.gitlab/pipelines/runtime/binaries.sh"
 
 wait_for_file() {
   local file_path="$1"
