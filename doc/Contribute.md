@@ -12,6 +12,7 @@ which go deeper into the details of each aspect.
   - [Deployment](#deployment)
   - [Pull Requests](#pull-requests)
   - [Source Organization](#source-organization)
+  - [Docker Images](#docker-images)
   - [Linting](#linting)
   - [Patching](#patching)
   - [BOSH Development Workflow]
