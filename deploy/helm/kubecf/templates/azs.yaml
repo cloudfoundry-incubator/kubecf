@@ -38,6 +38,8 @@ data:
       path: /instance_groups/name=diego-cell/azs?
     - type: remove
       path: /instance_groups/name=log-api/azs?
+    - type: remove
+      path: /instance_groups/name=tcp-router/azs?
 
     {{- if .Values.features.eirini.enabled }}
     - type: remove
