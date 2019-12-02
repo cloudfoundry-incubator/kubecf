@@ -98,20 +98,23 @@ associated documentation, if we have any.
 
 ## Linting
 
-Currently, 2 linters are available:
+Currently, 3 linters are available:
 
   - `dev/linters/shellcheck.sh`
   - `dev/linters/yamllint.sh`
+  - `dev/linters/helmlint.sh`
 
 Invoke these linters as
 
 ```sh
 dev/linters/shellcheck.sh
 dev/linters/yamllint.sh
+dev/linters/helmlint.sh
 ```
 
 to run shellcheck on all `.sh` files found in the entire checkout, or yamllint
-on all `.yaml` or `.yml` files respectively, and report any issues found.
+on all `.yaml` or `.yml` files respectively, and report any issues found.  The
+last option runs `helm lint` (without `--strict`) on the generated helm chart.
 
 ## Patching
 

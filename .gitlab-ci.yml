@@ -18,6 +18,7 @@ lint:
   script:
   - ./dev/linters/shellcheck.sh
   - ./dev/linters/yamllint.sh
+  - ./dev/linters/helmlint.sh
 
 build:chart:
   stage: build
