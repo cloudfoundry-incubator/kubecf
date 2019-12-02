@@ -27,7 +27,7 @@
           org:           test-brain-org
           password:      ((cf_admin_password))
           space:         test-space-org
-          storage_class: {{ default "hostpath" .Values.kube.storage_class | quote }}
+          storage_class: {{ default "" .Values.kube.storage_class | quote }}
           tcp_domain:    tcp.((system_domain))
           user:          admin
         smoke_tests:
