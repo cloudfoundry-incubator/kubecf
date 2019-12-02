@@ -1,0 +1,12 @@
+sh_library(
+    name = "chart",
+    data = ["//deploy/helm/kubecf:chart"],
+)
+
+sh_test(
+    name = "helm",
+    srcs = ["@helm//helm"],
+    deps = [":chart"],
+    args = ["lint", "$(rootpath :chart)"],
+    size = "small",
+)
