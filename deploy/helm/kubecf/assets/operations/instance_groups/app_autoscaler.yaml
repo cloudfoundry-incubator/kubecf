@@ -86,16 +86,16 @@
   path: /releases/-
   value:
     name: app-autoscaler
-    version: "2.0.0"
-    url: "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=2.0.0"
-    sha1: "b2bda4bd9ff9b902fa6a6f3d37c13b681b3402b0"
+    version: {{ (index .Values.releases "app-autoscaler").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "app-autoscaler") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "app-autoscaler") }}
 - type: replace
   path: /releases/-
   value:
     name: postgres
-    version: "25"
-    url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=25"
-    sha1: "20929ee4b0c64fd97072a266311a6d00714124a7"
+    version: {{ .Values.releases.postgres.version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "postgres") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "postgres") }}
 
 # add autoscaler instance group
 - type: replace
@@ -749,30 +749,6 @@
   path: /variables/name=metricsserver_server/options?/alternative_names?/-
   value: "{{$root.Release.Name}}-asmetrics-{{$val}}"
 {{- end }}
-
-- type: replace
-  path: /releases/name=app-autoscaler/version
-  value: 2.0.0
-- type: replace
-  path: /releases/name=app-autoscaler/url
-  value: {{ .Values.releases.defaults.url | quote }}
-- type: remove
-  path: /releases/name=app-autoscaler/sha1
-- type: replace
-  path: /releases/name=app-autoscaler/stemcell?
-  value: {{ include "kubecf.stemcellLookup" (list .Values.releases "autoscaler") }}
-
-- type: replace
-  path: /releases/name=postgres/version
-  value: 25
-- type: replace
-  path: /releases/name=postgres/url
-  value: {{ .Values.releases.defaults.url | quote }}
-- type: remove
-  path: /releases/name=postgres/sha1
-- type: replace
-  path: /releases/name=postgres/stemcell?
-  value: {{ include "kubecf.stemcellLookup" (list .Values.releases "autoscaler") }}
 
 # add persistent_disk to postgres
 - type: replace
