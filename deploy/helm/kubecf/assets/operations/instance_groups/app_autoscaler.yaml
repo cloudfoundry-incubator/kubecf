@@ -751,10 +751,10 @@
     - '*.{{ .Release.Name }}-asmetrics'
 
 {{- $root := . -}}
-{{- range $index, $val := until (int .Values.sizing.asmetrics.instances |default 1) }}
+{{- range $index := until (int .Values.sizing.asmetrics.instances | default 1) }}
 - type: replace
   path: /variables/name=metricsserver_server/options?/alternative_names?/-
-  value: "{{$root.Release.Name}}-asmetrics-{{$val}}"
+  value: "{{ $root.Release.Name }}-asmetrics-{{ $index }}"
 {{- end }}
 
 # add autoscaler bpm ops
