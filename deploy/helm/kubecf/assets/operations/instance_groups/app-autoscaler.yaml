@@ -1,4 +1,5 @@
 {{- if .Values.features.autoscaler.enabled -}}
+{{- $root := . -}}
 
 # Add autoscaler BOSH DNS aliases.
 - type: replace
@@ -706,7 +707,11 @@
     options:
       alternative_names:
       - metricsserver.service.cf.internal
-      - '*.asmetrics.default.app-autoscaler.bosh'
+      - '{{ .Release.Name }}-asmetrics'
+      - '*.{{ .Release.Name }}-asmetrics'
+      {{- range $index := until (int .Values.sizing.asmetrics.instances | default 1) }}
+      - "{{ $root.Release.Name }}-asmetrics-{{ $index }}"
+      {{- end }}
       ca: metricsserver_ca
       common_name: metricsserver.service.cf.internal
       extended_key_usage:
@@ -741,19 +746,6 @@
       extended_key_usage:
       - client_auth
       - server_auth
-
-- type: replace
-  path: /variables/name=metricsserver_server/options?/alternative_names
-  value:
-    - '{{ .Release.Name }}-asmetrics'
-    - '*.{{ .Release.Name }}-asmetrics'
-
-{{- $root := . -}}
-{{- range $index := until (int .Values.sizing.asmetrics.instances | default 1) }}
-- type: replace
-  path: /variables/name=metricsserver_server/options?/alternative_names?/-
-  value: "{{ $root.Release.Name }}-asmetrics-{{ $index }}"
-{{- end }}
 
 # Add autoscaler bpm ops.
 - type: replace
