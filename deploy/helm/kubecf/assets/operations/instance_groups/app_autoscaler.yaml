@@ -103,6 +103,9 @@
   value:
     name: postgres_autoscaler
     persistent_disk: 20480 # 20GB
+    {{- if .Values.kube.storage_class }}
+    persistent_disk_type: {{ .Values.kube.storage_class }}
+    {{- end }}
     azs:
     - z1
     instances: 1
