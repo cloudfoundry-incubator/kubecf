@@ -102,6 +102,7 @@
   path: /instance_groups/-
   value:
     name: postgres_autoscaler
+    persistent_disk: 20480 # 20GB
     azs:
     - z1
     instances: 1
@@ -749,11 +750,6 @@
   path: /variables/name=metricsserver_server/options?/alternative_names?/-
   value: "{{$root.Release.Name}}-asmetrics-{{$val}}"
 {{- end }}
-
-# add persistent_disk to postgres
-- type: replace
-  path: /instance_groups/name=postgres_autoscaler?/persistent_disk
-  value: 20480
 
 # add autoscaler bpm ops
 - type: replace
