@@ -1000,9 +1000,6 @@
           }
           cp /var/vcap/jobs/postgres/config/postgresql.conf /var/vcap/jobs/postgres/config/pg_hba.conf /var/vcap/jobs/postgres/config/pg_ident.conf /var/vcap/store/postgres/postgres-11.5
           su - vcap -c "/var/vcap/packages/postgres-11.5/bin/pg_ctl -D /var/vcap/store/postgres/postgres-11.5 -l /var/vcap/sys/log/postgres/postgres.log start"
-          sleep 300
-          /var/vcap/packages/postgres-11.5/bin/psql -U vcap -d postgres -f /var/vcap/jobs/postgres/config/roles.sql
-          /var/vcap/packages/postgres-11.5/bin/psql -U vcap -d postgres -c 'create database autoscaler;'
           pid_file="/var/vcap/sys/run/postgres/postgres.pid"
           log_file="/var/vcap/sys/log/postgres/postgres.log"
           wait_for_file "${pid_file}" || {
@@ -1013,8 +1010,10 @@
             echo "${log_file} did not get created"
             exit 1
           }
+          /var/vcap/packages/postgres-11.5/bin/psql -U vcap -d postgres -f /var/vcap/jobs/postgres/config/roles.sql
+          /var/vcap/packages/postgres-11.5/bin/psql -U vcap -d postgres -c 'create database autoscaler;'
           tail \
-            --pid $(cat "${pid_file}") \
+            --pid "$(cat "${pid_file}")" \
             --follow "${log_file}"
 
 # TODO: set these skip_ssl_validation to false if the cf API (api.((system_domain))) public cert is provided by the user.
