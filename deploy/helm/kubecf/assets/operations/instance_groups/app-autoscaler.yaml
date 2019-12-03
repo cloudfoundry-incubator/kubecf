@@ -976,6 +976,13 @@
     - name: "postgres"
       protocol: "TCP"
       internal: 5432
+    run:
+      healthcheck:
+        postgres:
+          readiness:
+            exec:
+              command:
+              - /var/vcap/packages/postgres-11.5/bin/pg_isready
     pre_render_scripts:
       jobs:
       - |
