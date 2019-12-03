@@ -415,7 +415,7 @@
             public_api:
               server:
                 port: &apiServerPublicPort 6101
-            use_buildin_mode: false
+            use_buildin_mode: true
             scheduler:
               ca_cert: ((scheduler_ca.certificate))
               client_cert: ((scheduler_client.certificate))
@@ -473,7 +473,7 @@
       properties:
         route_registrar:
           routes:
-          - name: api_server_public_api
+          - name: api_server
             registration_interval: 20s
             port: *apiServerPublicPort
             tags:
@@ -932,6 +932,9 @@
     - name: apihealthport
       portocol: TCP
       internal: 1080
+    - name: brokerport
+      portocol: TCP
+      internal: 6102
     bpm:
       processes:
       - name: golangapiserver
@@ -953,6 +956,13 @@
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=metricsforwarder/properties/quarks?
   value:
+    ports:
+    - name: metricsforwarder
+      protocol: TCP
+      internal: 6201
+    - name: mgfdhealthport
+      portocol: TCP
+      internal: 6403
     bpm:
       processes:
       - name: metricsforwarder
@@ -970,7 +980,7 @@
               - curl
               - --fail
               - --head
-              - http://127.0.0.1:1080
+              - http://127.0.0.1:6403
 - type: replace
   path: /instance_groups/name=postgres_autoscaler/jobs/name=postgres/properties/quarks?
   value:
