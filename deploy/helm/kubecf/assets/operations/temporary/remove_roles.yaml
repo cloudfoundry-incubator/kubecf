@@ -2,6 +2,4 @@
 # development. It should go away once all instance_groups work properly with cf-operator.
 
 - type: remove
-  path: /instance_groups/name=credhub
-- type: remove
   path: /instance_groups/name=rotate-cc-database-key

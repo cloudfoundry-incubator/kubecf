@@ -19,6 +19,8 @@ data:
     - type: remove
       path: /instance_groups/name=adapter/azs?
     - type: remove
+      path: /instance_groups/name=credhub/azs?
+    - type: remove
       path: /instance_groups/name=diego-api/azs?
     - type: remove
       path: /instance_groups/name=uaa/azs?

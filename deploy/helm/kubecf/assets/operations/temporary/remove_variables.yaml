@@ -1,5 +1,0 @@
-# This is a temporary file used for selectively removing variables during the initial development.
-# It should go away once all instance_groups work properly with cf-operator.
-
-- type: remove
-  path: /variables/name=credhub_encryption_password
