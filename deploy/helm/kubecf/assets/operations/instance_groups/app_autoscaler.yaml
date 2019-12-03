@@ -222,17 +222,17 @@
               port: *scalingEnginePort
               ca_cert: ((scalingengine_ca.certificate))
               client_cert: ((scalingengine_client.certificate))
-              client_key: ((scalingengine_client.private_key))                
+              client_key: ((scalingengine_client.private_key))
             scheduler:
               port: *schedulerPort
               ca_cert: ((scheduler_ca.certificate))
               client_cert: ((scheduler_client.certificate))
-              client_key: ((scheduler_client.private_key))        
-            db_lock: 
+              client_key: ((scheduler_client.private_key))
+            db_lock:
               ttl: 15s
               retry_interval: 5s
             logging:
-              level: info 
+              level: info
             http_client_timeout: 60s
             health:
               port: &operatorHealthPort 6208
@@ -340,7 +340,7 @@
     stemcell: default
     update:
       max_in_flight: 1
-      serial: true  
+      serial: true
     jobs:
     - name: metricsgateway
       release: app-autoscaler
@@ -483,14 +483,14 @@
             tags:
               component: api_server
             uris:
-              - autoscaler.((system_domain))
+            - autoscaler.((system_domain))
           - name: autoscaler_service_broker
             registration_interval: 20s
             port: *servicebrokerPort
             tags:
               component: autoscaler_service_broker
             uris:
-              - autoscalerservicebroker.((system_domain))
+            - autoscalerservicebroker.((system_domain))
 # add autoscaler variables
 - type: replace
   path: /variables/-
@@ -508,8 +508,8 @@
     name: scalingengine_ca
     type: certificate
     options:
-      is_ca: true 
-      common_name: scalingengineCA  
+      is_ca: true
+      common_name: scalingengineCA
 - type: replace
   path: /variables/-
   value:
@@ -735,7 +735,7 @@
       common_name: autoscalerpostgres.service.cf.internal
       extended_key_usage:
       - client_auth
-      - server_auth   
+      - server_auth
 
 # Set the correct kube addresses
 - type: replace
@@ -743,7 +743,7 @@
   value: {{ .Release.Name }}-log-api:8082
 - type: replace
   path: /variables/name=metricsserver_server/options?/alternative_names
-  value: 
+  value:
     - '{{ .Release.Name }}-asmetrics'
     - '*.{{ .Release.Name }}-asmetrics'
 
@@ -767,12 +767,12 @@
       internal: 6204
     bpm:
       processes:
-        - name: scalingengine
-          executable: /bin/bash
-          args:
-          - -c
-          - |
-            /var/vcap/jobs/scalingengine/bin/scalingengine_ctl start
+      - name: scalingengine
+        executable: /bin/bash
+        args:
+        - -c
+        - |
+          /var/vcap/jobs/scalingengine/bin/scalingengine_ctl start
     run:
       healthcheck:
         scalingengine:
@@ -795,12 +795,12 @@
       internal: 6202
     bpm:
       processes:
-        - name: scheduler
-          executable: /bin/bash
-          args:
-          - -c
-          - |
-            /var/vcap/jobs/scheduler/bin/scheduler start
+      - name: scheduler
+        executable: /bin/bash
+        args:
+        - -c
+        - |
+          /var/vcap/jobs/scheduler/bin/scheduler start
     run:
       healthcheck:
         scheduler:
@@ -820,12 +820,12 @@
       internal: 6208
     bpm:
       processes:
-        - name: operator
-          executable: /bin/bash
-          args:
-          - -c
-          - |
-            /var/vcap/jobs/operator/bin/operator_ctl start
+      - name: operator
+        executable: /bin/bash
+        args:
+        - -c
+        - |
+          /var/vcap/jobs/operator/bin/operator_ctl start
     run:
       healthcheck:
         operator:
@@ -851,12 +851,12 @@
       internal: 6303
     bpm:
       processes:
-        - name: metricsserver
-          executable: /bin/bash
-          args:
-          - -c
-          - |
-            /var/vcap/jobs/metricsserver/bin/metricsserver_ctl start
+      - name: metricsserver
+        executable: /bin/bash
+        args:
+        - -c
+        - |
+          /var/vcap/jobs/metricsserver/bin/metricsserver_ctl start
     run:
       healthcheck:
         metricsserver:
@@ -879,12 +879,12 @@
       internal: 6205
     bpm:
       processes:
-        - name: eventgenerator
-          executable: /bin/bash
-          args:
-          - -c
-          - |
-            /var/vcap/jobs/eventgenerator/bin/eventgenerator_ctl start
+      - name: eventgenerator
+        executable: /bin/bash
+        args:
+        - -c
+        - |
+          /var/vcap/jobs/eventgenerator/bin/eventgenerator_ctl start
     run:
       healthcheck:
         eventgenerator:
@@ -894,7 +894,7 @@
               - curl
               - --fail
               - --head
-              - http://127.0.0.1:6205    
+              - http://127.0.0.1:6205
 - type: replace
   path: /instance_groups/name=asnozzle/jobs/name=metricsgateway/properties/quarks?
   value:
@@ -904,11 +904,11 @@
       internal: 6503
     bpm:
       processes:
-        - name: metricsgateway
-          executable: /var/vcap/packages/metricsgateway/metricsgateway
-          args:
-          - -c 
-          - /var/vcap/jobs/metricsgateway/config/metricsgateway.yml
+      - name: metricsgateway
+        executable: /var/vcap/packages/metricsgateway/metricsgateway
+        args:
+        - -c
+        - /var/vcap/jobs/metricsgateway/config/metricsgateway.yml
     run:
       healthcheck:
         metricsgateway:
