@@ -988,7 +988,7 @@
         args:
         - -c
         - |
-          # set -x
+          set -o errexit -o nounset
           source /var/vcap/jobs/postgres/bin/pgconfig.sh
           source /var/vcap/jobs/postgres/bin/utils.sh
           wait_for_file() {
