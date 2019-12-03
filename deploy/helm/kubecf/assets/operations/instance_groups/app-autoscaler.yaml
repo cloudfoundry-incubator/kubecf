@@ -101,7 +101,7 @@
 
 # Add autoscaler instance groups.
 - type: replace
-  path: /instance_groups/-
+  path: /instance_groups/0:before
   value:
     name: postgres_autoscaler
     persistent_disk: 20480 # 20GB
@@ -111,8 +111,6 @@
     azs:
     - z1
     instances: 1
-    update:
-      serial: true
     stemcell: default
     networks:
     - name: default
