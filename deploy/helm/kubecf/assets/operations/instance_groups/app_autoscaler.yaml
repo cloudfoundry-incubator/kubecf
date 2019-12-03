@@ -389,25 +389,33 @@
       max_in_flight: 1
       serial: true
     jobs:
-    - name: apiserver
+    - name: golangapiserver
       release: app-autoscaler
       properties:
         autoscaler:
-          api_server:
-            cache_ttl: 600
-            http_client_timeout: 60000
-            service_offering_enabled: false
-            db_config: &db_config
-              idle_timeout: 60000
-              max_connections: 10
-              min_connections: 0
-            port: 6100
-            publicPort: &apiServerPublicPort 6106
-            health:
-              port: 6200
-            ca_cert: ((apiserver_ca.certificate))
-            server_cert: ((apiserver_server.certificate))
-            server_key:  ((apiserver_server.private_key))
+          apiserver:
+            logging:
+              level: info
+            broker:
+              server:
+                port: &servicebrokerPort 6102
+                catalog:
+                  services:
+                  - id: autoscaler-guid
+                    name: autoscaler
+                    description: Automatically increase or decrease the number of application instances based on a policy you define.
+                    bindable: true
+                    plans:
+                    - id: autoscaler-free-plan-id
+                      name: autoscaler-free-plan
+                      description: This is the free service plan for the Auto-Scaling service.
+                dashboard_redirect_uri: ""
+              username: autoscaler_service_broker_user
+              password: ((autoscaler_service_broker_password))
+            public_api:
+              server:
+                port: &apiServerPublicPort 6101
+            use_buildin_mode: false
             scheduler:
               ca_cert: ((scheduler_ca.certificate))
               client_cert: ((scheduler_client.certificate))
@@ -422,52 +430,40 @@
               ca_cert: ((metricsserver_ca.certificate))
               client_cert: ((metricsserver_client.certificate))
               client_key: ((metricsserver_client.private_key))
-            eventgenerator:
+            event_generator:
               ca_cert: ((eventgenerator_ca.certificate))
               client_cert: ((eventgenerator_client.certificate))
-              client_key: ((eventgenerator_client.private_key))               
-            service_broker:
-              ca_cert: ((servicebroker_ca.certificate))
-              client_cert: ((servicebroker_client.certificate))
-              client_key: ((servicebroker_client.private_key))
+              client_key: ((eventgenerator_client.private_key))
+            metrics_forwarder:
+              host: autoscalermetrics.((system_domain))
           policy_db: *database
+          policy_db_connection_config: *databaseConnectionConfig
+          binding_db: *database
+          binding_db_connection_config: *databaseConnectionConfig
           cf: *cf_credentials
-    - name: servicebroker
+    - name: metricsforwarder
       release: app-autoscaler
       properties:
         autoscaler:
-          service_broker: 
-            enable_custom_metrics: true
-            db_config: *db_config
-            publicPort : &servicebrokerPort 6101
-            port: 6107
-            health:
+          metricsforwarder:
+            logging:
+              level: info
+            server:
               port: 6201
-            ca_cert: ((servicebroker_ca.certificate))
-            server_cert: ((servicebroker_server.certificate))
-            server_key: ((servicebroker_server.private_key))
-            public_ca_cert: ((servicebroker_public_ca.certificate))
-            public_server_cert: ((servicebroker_public_server.certificate))
-            public_server_key: ((servicebroker_public_server.private_key))
-            username: autoscaler_service_broker_user
-            password: ((autoscaler_service_broker_password))
-            http_request_timeout: 5000
-            dashboard_redirect_uri: ""
-            catalog: 
-              services:
-              - id: autoscaler-guid
-                name: autoscaler
-                description: Automatically increase or decrease the number of application instances based on a policy you define.
-                bindable: true
-                plans:
-                - id: autoscaler-free-plan-id
-                  name: autoscaler-free-plan
-                  description: This is the free service plan for the Auto-Scaling service.
-            api_server:
-              ca_cert: ((apiserver_ca.certificate))
-              client_cert: ((apiserver_client.certificate))
-              client_key: ((apiserver_client.private_key))
-          binding_db: *database
+            loggregator:
+              metron_address: "127.0.0.1:3458"
+              tls:
+                ca_cert: ((loggregator_tls_agent.ca))
+                cert: ((loggregator_tls_agent.certificate))
+                key: ((loggregator_tls_agent.private_key))
+            require_consule: false
+            cache_ttl: 900s
+            cache_cleanup_interval: 6h
+            policy_poller_interval: 60s
+            health:
+              port: 6403
+          policy_db: *database
+          policy_db_connection_config: *databaseConnectionConfig
     - name: route_registrar
       release: routing
       consumes:
@@ -491,6 +487,13 @@
               component: autoscaler_service_broker
             uris:
             - autoscalerservicebroker.((system_domain))
+          - name: autoscaler_metrics_forwarder
+            registration_interval: 20s
+            port: *apiServerPublicPort
+            tags:
+              component: autoscaler_metrics_forwarder
+            uris:
+            - autoscalermetrics.((system_domain))
 # add autoscaler variables
 - type: replace
   path: /variables/-
@@ -920,47 +923,54 @@
               - --head
               - http://127.0.0.1:6503
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/quarks?
+  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/quarks?
   value:
     ports:
-    - name: apiserver
+    - name: golangapiserver
       protocol: TCP
-      internal: 6100
+      internal: *apiServerPublicPort
     - name: apihealthport
       portocol: TCP
-      internal: 6200
-    - name: apipubport
-      portocol: TCP
-      internal: 6106
+      internal: 1080
     bpm:
       processes:
-        - name: apiserver
-          executable: /bin/bash
-          args:
-          - -c
-          - |
-            /var/vcap/jobs/apiserver/bin/apiserver start
+      - name: golangapiserver
+        executable: /bin/bash
+        args:
+        - -c
+        - |
+          /var/vcap/jobs/golangapiserver/bin/apiserver_ctl start
     run:
       healthcheck:
-        apiserver:
+        golangapiserver:
           readiness:
             exec:
               command:
               - curl
               - --fail
               - --head
-              - http://127.0.0.1:6200
+              - http://127.0.0.1:1080
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=servicebroker/properties/quarks?
+  path: /instance_groups/name=asapi/jobs/name=metricsforwarder/properties/quarks?
   value:
     bpm:
       processes:
-        - name: servicebroker
-          executable: /bin/bash
-          args:
-          - -c
-          - |
-            /var/vcap/jobs/servicebroker/bin/servicebroker start      
+      - name: metricsforwarder
+        executable: /bin/bash
+        args:
+        - -c
+        - |
+          /var/vcap/jobs/metricsforwarder/bin/metricsforwarder_ctl start
+    run:
+      healthcheck:
+        metricsforwarder:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --fail
+              - --head
+              - http://127.0.0.1:1080
 - type: replace
   path: /instance_groups/name=postgres_autoscaler/jobs/name=postgres/properties/quarks?
   value:
@@ -974,40 +984,40 @@
         sed -i "s/sysctl/#sysctl/g" /var/vcap/all-releases/jobs-src/postgres/postgres/templates/pre-start.sh.erb
     bpm:
       processes:
-        - name: postgres
-          persistent_disk: true
-          executable: /bin/sh
-          args:
-          - -c
-          - | 
-            # set -x
-            source /var/vcap/jobs/postgres/bin/pgconfig.sh
-            source /var/vcap/jobs/postgres/bin/utils.sh
-            wait_for_file() {
-              local file_path="$1"
-              local timeout="${2:-30}"
-              until [[ -f "${file_path}" ]] || [[ "$timeout" == "0" ]]; do sleep 1; timeout=$(expr $timeout - 1); done
-              if [[ "${timeout}" == 0 ]]; then return 1; fi
-                return 0
-            }
-            cp /var/vcap/jobs/postgres/config/postgresql.conf /var/vcap/jobs/postgres/config/pg_hba.conf /var/vcap/jobs/postgres/config/pg_ident.conf /var/vcap/store/postgres/postgres-9.6.6
-            su - vcap -c "/var/vcap/packages/postgres-9.6.6/bin/pg_ctl -D /var/vcap/store/postgres/postgres-9.6.6 -l /var/vcap/sys/log/postgres/postgres.log start"
-            sleep 300
-            /var/vcap/packages/postgres-9.6.6/bin/psql -U vcap -d postgres -f /var/vcap/jobs/postgres/config/roles.sql
-            /var/vcap/packages/postgres-9.6.6/bin/psql -U vcap -d postgres -c 'create database autoscaler;'
-            pid_file="/var/vcap/sys/run/postgres/postgres.pid"
-            log_file="/var/vcap/sys/log/postgres/postgres.log"
-            wait_for_file "${pid_file}" || {
-              echo "${pid_file} did not get created"
-              exit 1
-            }
-            wait_for_file "${log_file}" || {
-              echo "${log_file} did not get created"
-              exit 1
-            }
-            tail \
-              --pid $(cat "${pid_file}") \
-              --follow "${log_file}"
+      - name: postgres
+        persistent_disk: true
+        executable: /bin/sh
+        args:
+        - -c
+        - |
+          # set -x
+          source /var/vcap/jobs/postgres/bin/pgconfig.sh
+          source /var/vcap/jobs/postgres/bin/utils.sh
+          wait_for_file() {
+            local file_path="$1"
+            local timeout="${2:-30}"
+            until [[ -f "${file_path}" ]] || [[ "$timeout" == "0" ]]; do sleep 1; timeout=$(expr $timeout - 1); done
+            if [[ "${timeout}" == 0 ]]; then return 1; fi
+              return 0
+          }
+          cp /var/vcap/jobs/postgres/config/postgresql.conf /var/vcap/jobs/postgres/config/pg_hba.conf /var/vcap/jobs/postgres/config/pg_ident.conf /var/vcap/store/postgres/postgres-11.5
+          su - vcap -c "/var/vcap/packages/postgres-11.5/bin/pg_ctl -D /var/vcap/store/postgres/postgres-11.5 -l /var/vcap/sys/log/postgres/postgres.log start"
+          sleep 300
+          /var/vcap/packages/postgres-11.5/bin/psql -U vcap -d postgres -f /var/vcap/jobs/postgres/config/roles.sql
+          /var/vcap/packages/postgres-11.5/bin/psql -U vcap -d postgres -c 'create database autoscaler;'
+          pid_file="/var/vcap/sys/run/postgres/postgres.pid"
+          log_file="/var/vcap/sys/log/postgres/postgres.log"
+          wait_for_file "${pid_file}" || {
+            echo "${pid_file} did not get created"
+            exit 1
+          }
+          wait_for_file "${log_file}" || {
+            echo "${log_file} did not get created"
+            exit 1
+          }
+          tail \
+            --pid $(cat "${pid_file}") \
+            --follow "${log_file}"
 
 #TODO: set these skip_ssl_validation to false if the cf API (api.((system_domain))) public cert is provided by the user.
 - type: replace
@@ -1017,6 +1027,6 @@
   path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/cf/skip_ssl_validation?
   value: true
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=apiserver/properties/autoscaler/cf/skip_ssl_validation?
+  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/cf/skip_ssl_validation?
   value: true
 {{- end }}

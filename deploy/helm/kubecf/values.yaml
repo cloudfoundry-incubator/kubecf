@@ -23,6 +23,10 @@ releases:
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_362.g9610e90b
+  app-autoscaler:
+    version: 3.0.0
+    stemcell:
+      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   bits-service:
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
@@ -40,9 +44,10 @@ releases:
   eirini:
     stemcell:
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
-  autoscaler:
+  postgres:
+    version: "39"
     stemcell:
-      version: 38.g82067a9-30.95-7.0.0_346.ge9dd9ff3
+      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
 
 multi_az: false
 high_availability: false
