@@ -996,8 +996,10 @@
         - -c
         - |
           set -o errexit -o nounset
+
           source /var/vcap/jobs/postgres/bin/pgconfig.sh
           source /var/vcap/jobs/postgres/bin/utils.sh
+
           wait_for_file() {
             local file_path="$1"
             local timeout="${2:-30}"
@@ -1005,20 +1007,27 @@
             if [[ "${timeout}" == 0 ]]; then return 1; fi
               return 0
           }
+
           cp /var/vcap/jobs/postgres/config/postgresql.conf /var/vcap/jobs/postgres/config/pg_hba.conf /var/vcap/jobs/postgres/config/pg_ident.conf /var/vcap/store/postgres/postgres-11.5
           su - vcap -c "/var/vcap/packages/postgres-11.5/bin/pg_ctl -D /var/vcap/store/postgres/postgres-11.5 -l /var/vcap/sys/log/postgres/postgres.log start"
+
           pid_file="/var/vcap/sys/run/postgres/postgres.pid"
           log_file="/var/vcap/sys/log/postgres/postgres.log"
+
           wait_for_file "${pid_file}" || {
             echo "${pid_file} did not get created"
             exit 1
           }
+
           wait_for_file "${log_file}" || {
             echo "${log_file} did not get created"
             exit 1
           }
+
           /var/vcap/packages/postgres-11.5/bin/psql -U vcap -d postgres -f /var/vcap/jobs/postgres/config/roles.sql
-          /var/vcap/packages/postgres-11.5/bin/psql -U vcap -d postgres -c 'create database autoscaler;'
+          echo "SELECT 'CREATE DATABASE autoscaler' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'autoscaler')\gexec" \
+            | /var/vcap/packages/postgres-11.5/bin/psql -U vcap -d postgres
+
           tail \
             --pid "$(cat "${pid_file}")" \
             --follow "${log_file}"
