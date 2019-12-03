@@ -12,6 +12,7 @@ which go deeper into the details of each aspect.
   - [Deployment](#deployment)
   - [Pull Requests](#pull-requests)
   - [Source Organization](#source-organization)
+  - [Docker Images](#docker-images)
   - [Linting](#linting)
   - [Patching](#patching)
   - [BOSH Development Workflow]
@@ -95,22 +96,33 @@ associated documentation, if we have any.
 |__top__/rules                                                          |Supporting bazel definitions.                          |
 |[__top__/testing](tests.md)                                            |Bazel targets to run CF smoke and acceptance tests.    |
 
+## Docker Images
+
+The docker images used by kubecf to run jobs in container use a
+moderately complex naming scheme.
+
+This scheme is explained in a separate document:
+[The Naming Of Docker Images in kubecf](dev/image-naming.md).
+
 ## Linting
 
-Currently, 2 linters are available:
+Currently, 3 linters are available:
 
   - `dev/linters/shellcheck.sh`
   - `dev/linters/yamllint.sh`
+  - `dev/linters/helmlint.sh`
 
 Invoke these linters as
 
 ```sh
 dev/linters/shellcheck.sh
 dev/linters/yamllint.sh
+dev/linters/helmlint.sh
 ```
 
 to run shellcheck on all `.sh` files found in the entire checkout, or yamllint
-on all `.yaml` or `.yml` files respectively, and report any issues found.
+on all `.yaml` or `.yml` files respectively, and report any issues found.  The
+last option runs `helm lint` (without `--strict`) on the generated helm chart.
 
 ## Patching
 
