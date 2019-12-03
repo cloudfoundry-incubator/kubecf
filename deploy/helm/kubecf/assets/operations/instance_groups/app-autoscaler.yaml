@@ -1,5 +1,6 @@
 {{- if .Values.features.autoscaler.enabled -}}
-# add autoscaler BOSH DNS alias
+
+# Add autoscaler BOSH DNS aliases.
 - type: replace
   path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
   value:
@@ -81,7 +82,7 @@
       network: default
       query: '*'
 
-# add autoscaler related releases
+# Add autoscaler related releases.
 - type: replace
   path: /releases/-
   value:
@@ -97,7 +98,7 @@
     url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "postgres") }}
     stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "postgres") }}
 
-# add autoscaler instance group
+# Add autoscaler instance groups.
 - type: replace
   path: /instance_groups/-
   value:
@@ -494,7 +495,8 @@
               component: autoscaler_metrics_forwarder
             uris:
             - autoscalermetrics.((system_domain))
-# add autoscaler variables
+
+# Add autoscaler variables.
 - type: replace
   path: /variables/-
   value:
@@ -757,7 +759,7 @@
   value: "{{ $root.Release.Name }}-asmetrics-{{ $index }}"
 {{- end }}
 
-# add autoscaler bpm ops
+# Add autoscaler bpm ops.
 - type: replace
   path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/quarks?
   value:
@@ -1029,7 +1031,7 @@
             --pid $(cat "${pid_file}") \
             --follow "${log_file}"
 
-#TODO: set these skip_ssl_validation to false if the cf API (api.((system_domain))) public cert is provided by the user.
+# TODO: set these skip_ssl_validation to false if the cf API (api.((system_domain))) public cert is provided by the user.
 - type: replace
   path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/cf/skip_ssl_validation?
   value: true
