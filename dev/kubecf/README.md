@@ -1,6 +1,6 @@
 # Kubecf
 
-The target defined by directory __dev/kubecf__ are used to apply the
+The target defined in directory __dev/kubecf__ is used to apply the
 rendered Helm template to a Kubernetes cluster.
 
 __Attention__: While any files matching the glob pattern

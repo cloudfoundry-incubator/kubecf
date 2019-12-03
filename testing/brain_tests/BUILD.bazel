@@ -1,0 +1,15 @@
+package(default_visibility = ["//visibility:public"])
+
+load("//rules/kubectl:def.bzl", kubectl_patch = "patch")
+load("//:def.bzl", "project")
+
+# TODO: Make brain_tests target also stream the logs. It'll need a new rule for it that takes the
+# kubectl_patch script as a dependency.
+kubectl_patch(
+    name = "brain_tests",
+    namespace = project.namespace,
+    resource_type = "ejob",
+    resource_name = "kubecf-brain-tests",
+    patch_type = "merge",
+    patch_file = ":trigger.yaml",
+)

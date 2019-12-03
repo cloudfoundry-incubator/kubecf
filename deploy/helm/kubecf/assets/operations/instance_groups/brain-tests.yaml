@@ -1,0 +1,48 @@
+- path: /releases/-
+  type: replace
+  value:
+    name: brain-tests
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "brain-tests") }}
+    version: v0.0.5
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "brain-tests") }}
+
+- path: /instance_groups/-
+  type: replace
+  value:
+    azs:
+    - z1
+    env:
+      bosh:
+        agent:
+          settings:
+            serviceAccountName: {{ .Release.Name }}-tests-brain
+    instances: 1
+    jobs:
+    - name: acceptance-tests-brain
+      properties:
+        acceptance_tests_brain:
+          domain:        ((system_domain))
+          apps_domain:   ((system_domain))
+          namespace:     {{ .Release.Namespace }}
+          org:           test-brain-org
+          password:      ((cf_admin_password))
+          space:         test-space-org
+          storage_class: {{ default "" .Values.kube.storage_class | quote }}
+          tcp_domain:    tcp.((system_domain))
+          user:          admin
+        smoke_tests:
+          api:                 api.((system_domain))
+          apps_domain:         ((system_domain))
+          autoscaler_endpoint: https://autoscaler.((system_domain))
+          password:            ((cf_admin_password))
+          skip_ssl_validation: true
+          user:                admin
+      release: brain-tests
+    lifecycle: errand
+    name: brain-tests
+    networks:
+    - name: default
+    stemcell: default
+    update:
+      serial: true
+    vm_type: minimal
