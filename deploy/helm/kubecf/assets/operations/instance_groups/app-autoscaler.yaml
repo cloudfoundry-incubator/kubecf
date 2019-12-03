@@ -742,10 +742,6 @@
       - client_auth
       - server_auth
 
-# Set the correct kube addresses
-- type: replace
-  path: /instance_groups/name=asnozzle/jobs/name=metricsgateway/properties/autoscaler/metricsgateway/nozzle/rlp_addr?
-  value: {{ .Release.Name }}-log-api:8082
 - type: replace
   path: /variables/name=metricsserver_server/options?/alternative_names
   value:
