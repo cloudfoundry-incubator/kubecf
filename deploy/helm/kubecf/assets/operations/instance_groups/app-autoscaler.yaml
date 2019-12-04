@@ -990,6 +990,8 @@
     bpm:
       processes:
       - name: postgres
+        limits:
+          open_files: 1048576
         persistent_disk: true
         executable: /usr/bin/su
         args:
