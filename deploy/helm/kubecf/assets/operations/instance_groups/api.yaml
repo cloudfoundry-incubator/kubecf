@@ -230,7 +230,7 @@
       condition:
         exec:
           # policy-server doesn't support HTTP HEAD requests
-          command: [curl, -k, --fail, --silent, https://localhost:4002/]
+          command: [curl, --insecure, --fail, --silent, https://localhost:4002/]
 
 # Add quarks properties for policy-server-internal.
 - type: replace
