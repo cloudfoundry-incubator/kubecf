@@ -54,6 +54,3 @@
     ((cc_tls.ca))
     ((uaa_ssl.ca))
     ((network_policy_server_external.ca))
-    # TODO: ((diego_instance_identity_ca.certificate)) needs to be included as a workaround for
-    # https://www.pivotaltracker.com/story/show/170044974. Remove it once this story is done.
-    ((diego_instance_identity_ca.certificate))
