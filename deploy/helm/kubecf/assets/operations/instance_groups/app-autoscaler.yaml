@@ -128,7 +128,7 @@
           - name: autoscaler
             tag: default
           db_scheme: postgres
-          port: 5432
+          port: &postgresPort 5432
           roles:
           - name: postgres
             password: "((database_password))"
@@ -973,9 +973,9 @@
   path: /instance_groups/name=postgres_autoscaler/jobs/name=postgres/properties/quarks?
   value:
     ports:
-    - name: "postgres"
-      protocol: "TCP"
-      internal: 5432
+    - name: postgres
+      protocol: TCP
+      internal: *postgresPort
     run:
       healthcheck:
         postgres:
