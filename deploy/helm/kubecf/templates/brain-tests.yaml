@@ -23,6 +23,7 @@ apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "Role"
 metadata:
   name: "{{ .Release.Name }}-test-role-brain"
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Name }}-test-role-brain"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -113,6 +114,7 @@ apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "RoleBinding"
 metadata:
   name: "{{ .Release.Name }}-tests-brain-test-role-brain-binding"
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Name }}-tests-brain-test-role-brain-binding"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -123,6 +125,7 @@ metadata:
 subjects:
 - kind: "ServiceAccount"
   name: "{{ .Release.Name }}-tests-brain"
+  namespace: {{ .Release.Namespace | quote }}
 roleRef:
   apiGroup: "rbac.authorization.k8s.io"
   kind: "Role"
