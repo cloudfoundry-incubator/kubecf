@@ -21,8 +21,8 @@ releases:
   defaults:
     url: docker.io/cfcontainerization
     stemcell:
-      os: sle15-15SP1
-      version: 5.g4792c5a-0.2-7.0.0_362.g9610e90b
+      os: SLE_15_SP1
+      version: 15.1-7.0.0_367.g6b06e343
 
   bits-service:
     stemcell:
