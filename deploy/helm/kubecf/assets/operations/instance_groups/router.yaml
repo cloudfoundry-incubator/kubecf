@@ -46,7 +46,7 @@
   value: {{ default .Chart.Version .Chart.AppVersion | quote }}
 
 # Trust the diego_instance_identity_ca certificate - trusting its CA
-# is insufficient with the cf-operator 
+# is insufficient with the cf-operator
 - type: replace
   path: /instance_groups/name=router/jobs/name=gorouter/properties/router/ca_certs
   value: |
@@ -54,4 +54,6 @@
     ((cc_tls.ca))
     ((uaa_ssl.ca))
     ((network_policy_server_external.ca))
+    # TODO: ((diego_instance_identity_ca.certificate)) needs to be included as a workaround for
+    # https://www.pivotaltracker.com/story/show/170044974. Remove it once this story is done.
     ((diego_instance_identity_ca.certificate))
