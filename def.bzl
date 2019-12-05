@@ -2,13 +2,13 @@ project = struct(
     deployment_name = "kubecf",
     namespace = "kubecf",
     cf_deployment = struct(
-        version = "8.0.0",
-        sha256 = "289f6c5a116eef4b16b228d07d55517dc20f76199c1476036fc0ade5a08a3e1b",
+        version = "12.4.0",
+        sha256 = "067d12b47c6c4c6206ec5aceb9eb602ca558ebd72c1001263fd732ee1562fe77",
     ),
     cf_operator = struct(
         chart = struct(
-            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-167.g34209e10.tgz",
-            sha256 = "9ecdb9b452d41dd83a070179b14333054b558daec923d58e29f96ced4af4e208",
+            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-201.gc4ad274e.tgz",
+            sha256 = "e1d1dde435379498ac939f9f28bde6eb8c96fa06307a52c99c7539d1f18cef2b",
         ),
         namespace = "cfo",
     ),
