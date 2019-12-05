@@ -8,7 +8,7 @@ load("//:def.bzl", "project")
 kubectl_patch(
     name = "smoke_tests",
     namespace = project.namespace,
-    resource_type = "ejob",
+    resource_type = "qjob",
     resource_name = "{deployment_name}-smoke-tests".format(deployment_name = project.deployment_name),
     patch_type = "merge",
     patch_file = ":trigger.yaml",

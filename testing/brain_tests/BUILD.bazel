@@ -8,7 +8,7 @@ load("//:def.bzl", "project")
 kubectl_patch(
     name = "brain_tests",
     namespace = project.namespace,
-    resource_type = "ejob",
+    resource_type = "qjob",
     resource_name = "kubecf-brain-tests",
     patch_type = "merge",
     patch_file = ":trigger.yaml",
