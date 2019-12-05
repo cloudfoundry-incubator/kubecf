@@ -40,11 +40,6 @@
   path: /instance_groups/name=api/jobs/name=file_server/properties/diego?/file_server/static_directory
   value: "/var/vcap/packages/"
 
-# TODO: Figure out the DB encryption validation.
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/database_encryption?/skip_validation?
-  value: true
-
 # Don't run migrations in pre-start, it seems flaky.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/run_prestart_migrations?
