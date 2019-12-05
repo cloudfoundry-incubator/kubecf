@@ -16,10 +16,6 @@ spec:
     name: cf-deployment
     type: configmap
   ops:
-{{- if .Values.features.autoscaler.enabled }}
-  - name: ops-uaa-autoscaler-client
-    type: configmap
-{{- end }}
 {{- if .Values.features.suse_buildpacks }}
   - name: {{ include "kubecf.ops-name" "assets/operations/buildpacks/set_suse_buildpacks.yaml" }}
     type: configmap

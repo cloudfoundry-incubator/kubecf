@@ -1,6 +1,15 @@
 {{- if .Values.features.autoscaler.enabled -}}
 {{- $root := . -}}
 
+# Add autoscaler uaa client id and secret
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients?/app_autoscaler
+  value:
+    authorities: cloud_controller.read,cloud_controller.admin,uaa.resource
+    authorized-grant-types: client_credentials
+    scope: cloud_controller.read,cloud_controller.write,openid,scim.read
+    secret: ((uaa_clients_app_autoscaler_secret))
+
 # Add autoscaler BOSH DNS aliases.
 - type: replace
   path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
@@ -118,25 +127,19 @@
     - name: postgres
       release: postgres
       properties:
-        databases: &database
-          sslmode: &sslmode verify-full
-          tls: &database_tls
+        databases:
+          tls:
             ca: ((postgres_ca.certificate))
             certificate: ((postgres_server.certificate))
             private_key: ((postgres_server.private_key))
           databases:
           - name: autoscaler
             tag: default
-          db_scheme: postgres
           port: &postgresPort 5432
           roles:
           - name: postgres
-            password: "((database_password))"
+            password: "((autoscaler_database_password))"
             tag: default
-          connection_config: &databaseConnectionConfig
-            max_open_connections: 100
-            max_idle_connections: 10
-            connection_max_lifetime: 60s
 - type: replace
   path: /instance_groups/-
   value:
@@ -155,17 +158,32 @@
       release: app-autoscaler
       properties:
         autoscaler:
-          scalingengine_db: *database
+          scalingengine_db: &database
+            databases:
+            - name: autoscaler
+              tag: default
+            db_scheme: postgres
+            port: 5432
+            roles:
+            - name: postgres
+              password: ((autoscaler_database_password))
+              tag: default
+            sslmode: verify-full
+            tls:
+              ca: ((postgres_ca.certificate))
           scheduler_db: *database
           policy_db: *database
-          scalingengine_db_connection_config: *databaseConnectionConfig
+          scalingengine_db_connection_config: &databaseConnectionConfig
+            max_open_connections: 100
+            max_idle_connections: 10
+            connection_max_lifetime: 60s
           scheduler_db_connection_config: *databaseConnectionConfig
           policy_db_connection_config: *databaseConnectionConfig
           cf: &cf_credentials
             api: "https://api.((system_domain))"
             grant_type: client_credentials
-            client_id: "((cf_client_id))"
-            secret: "((cf_client_secret))"
+            client_id: "app_autoscaler"
+            secret: "((uaa_clients_app_autoscaler_secret))"
             skip_ssl_validation: "((skip_ssl_validation))"
           scalingengine:
             logging:
@@ -177,9 +195,9 @@
               port: &scalingEngineHealthPort 6204
             defaultCoolDownSecs: 300
             lockSize: 32
-            ca_cert: ((scalingengine_ca.certificate))
-            server_cert: ((scalingengine_server.certificate))
-            server_key: ((scalingengine_server.private_key))
+            ca_cert: ((autoscaler_scalingengine_ca.certificate))
+            server_cert: ((autoscaler_scalingengine_server.certificate))
+            server_key: ((autoscaler_scalingengine_server.private_key))
     - name: scheduler
       release: app-autoscaler
       properties:
@@ -192,13 +210,13 @@
             job_reschedule_interval_millisecond: 10000
             job_reschedule_maxcount: 6
             notification_reschedule_maxcount: 3
-            ca_cert: ((scheduler_ca.certificate))
-            server_cert: ((scheduler_server.certificate))
-            server_key: ((scheduler_server.private_key))
+            ca_cert: ((autoscaler_scheduler_ca.certificate))
+            server_cert: ((autoscaler_scheduler_server.certificate))
+            server_key: ((autoscaler_scheduler_server.private_key))
             scaling_engine:
-              ca_cert: ((scalingengine_ca.certificate))
-              client_cert: ((scalingengine_client.certificate))
-              client_key: ((scalingengine_client.private_key))
+              ca_cert: ((autoscaler_scalingengine_ca.certificate))
+              client_cert: ((autoscaler_scalingengine_client.certificate))
+              client_key: ((autoscaler_scalingengine_client.private_key))
           scheduler_db: *database
           policy_db: *database
     - name: operator
@@ -220,14 +238,14 @@
             app_sync_interval: 24h
             scaling_engine:
               port: *scalingEnginePort
-              ca_cert: ((scalingengine_ca.certificate))
-              client_cert: ((scalingengine_client.certificate))
-              client_key: ((scalingengine_client.private_key))
+              ca_cert: ((autoscaler_scalingengine_ca.certificate))
+              client_cert: ((autoscaler_scalingengine_client.certificate))
+              client_key: ((autoscaler_scalingengine_client.private_key))
             scheduler:
               port: *schedulerPort
-              ca_cert: ((scheduler_ca.certificate))
-              client_cert: ((scheduler_client.certificate))
-              client_key: ((scheduler_client.private_key))
+              ca_cert: ((autoscaler_scheduler_ca.certificate))
+              client_cert: ((autoscaler_scheduler_client.certificate))
+              client_key: ((autoscaler_scheduler_client.private_key))
             db_lock:
               ttl: 15s
               retry_interval: 5s
@@ -264,9 +282,9 @@
             server:
               port: &metricsserverPort 6103
             http_client_timeout: 60s
-            ca_cert: ((metricsserver_server.ca))
-            server_cert: ((metricsserver_server.certificate))
-            server_key: ((metricsserver_server.private_key))
+            ca_cert: ((autoscaler_metricsserver_server.ca))
+            server_cert: ((autoscaler_metricsserver_server.certificate))
+            server_key: ((autoscaler_metricsserver_server.private_key))
             collector:
               port: 7103
               keep_alive_time: 60s
@@ -296,9 +314,9 @@
               port: &eventGeneratorPort 6105
             health:
               port: &eventGeneratorHealthPort 6205
-            ca_cert: ((eventgenerator_ca.certificate))
-            server_cert: ((eventgenerator_server.certificate))
-            server_key: ((eventgenerator_server.private_key))
+            ca_cert: ((autoscaler_eventgenerator_ca.certificate))
+            server_cert: ((autoscaler_eventgenerator_server.certificate))
+            server_key: ((autoscaler_eventgenerator_server.private_key))
             aggregator:
               aggregator_execute_interval: 40s
               policy_poller_interval: 60s
@@ -319,15 +337,15 @@
             scaling_engine:
               host: scalingengine.service.cf.internal
               port: *scalingEnginePort
-              ca_cert: ((scalingengine_ca.certificate))
-              client_cert: ((scalingengine_client.certificate))
-              client_key: ((scalingengine_client.private_key))
+              ca_cert: ((autoscaler_scalingengine_ca.certificate))
+              client_cert: ((autoscaler_scalingengine_client.certificate))
+              client_key: ((autoscaler_scalingengine_client.private_key))
             metricscollector:
               host: metricsserver.service.cf.internal
               port: *metricsserverPort
-              ca_cert: ((metricsserver_ca.certificate))
-              client_cert: ((metricsserver_client.certificate))
-              client_key: ((metricsserver_client.private_key))
+              ca_cert: ((autoscaler_metricsserver_ca.certificate))
+              client_cert: ((autoscaler_metricsserver_client.certificate))
+              client_key: ((autoscaler_metricsserver_client.private_key))
 - type: replace
   path: /instance_groups/-
   value:
@@ -363,9 +381,9 @@
               max_close_retry_count: 3
               retry_delay: 1s
               metricsserver_client:
-                cert: ((metricsserver_client.certificate))
-                key: ((metricsserver_client.private_key))
-                ca_cert: ((metricsserver_client.ca))
+                cert: ((autoscaler_metricsserver_client.certificate))
+                key: ((autoscaler_metricsserver_client.private_key))
+                ca_cert: ((autoscaler_metricsserver_client.ca))
             nozzle:
               rlp_addr: "reverse-log-proxy.service.cf.internal:8082"
               shard_id: "CF_AUTOSCALER"
@@ -417,23 +435,23 @@
                 port: &apiServerPublicPort 6101
             use_buildin_mode: true
             scheduler:
-              ca_cert: ((scheduler_ca.certificate))
-              client_cert: ((scheduler_client.certificate))
-              client_key: ((scheduler_client.private_key))
+              ca_cert: ((autoscaler_scheduler_ca.certificate))
+              client_cert: ((autoscaler_scheduler_client.certificate))
+              client_key: ((autoscaler_scheduler_client.private_key))
             scaling_engine:
-              ca_cert: ((scalingengine_ca.certificate))
-              client_cert: ((scalingengine_client.certificate))
-              client_key: ((scalingengine_client.private_key))
+              ca_cert: ((autoscaler_scalingengine_ca.certificate))
+              client_cert: ((autoscaler_scalingengine_client.certificate))
+              client_key: ((autoscaler_scalingengine_client.private_key))
             metrics_collector:
               host: metricsserver.service.cf.internal
               port: *metricsserverPort
-              ca_cert: ((metricsserver_ca.certificate))
-              client_cert: ((metricsserver_client.certificate))
-              client_key: ((metricsserver_client.private_key))
+              ca_cert: ((autoscaler_metricsserver_ca.certificate))
+              client_cert: ((autoscaler_metricsserver_client.certificate))
+              client_key: ((autoscaler_metricsserver_client.private_key))
             event_generator:
-              ca_cert: ((eventgenerator_ca.certificate))
-              client_cert: ((eventgenerator_client.certificate))
-              client_key: ((eventgenerator_client.private_key))
+              ca_cert: ((autoscaler_eventgenerator_ca.certificate))
+              client_cert: ((autoscaler_eventgenerator_client.certificate))
+              client_key: ((autoscaler_eventgenerator_client.private_key))
             metrics_forwarder:
               host: autoscalermetrics.((system_domain))
           policy_db: *database
@@ -499,7 +517,12 @@
 - type: replace
   path: /variables/-
   value:
-    name: database_password
+    name: uaa_clients_app_autoscaler_secret
+    type: password
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_database_password
     type: password
 - type: replace
   path: /variables/-
@@ -509,7 +532,7 @@
 - type: replace
   path: /variables/-
   value:
-    name: scalingengine_ca
+    name: autoscaler_scalingengine_ca
     type: certificate
     options:
       is_ca: true
@@ -517,10 +540,10 @@
 - type: replace
   path: /variables/-
   value:
-    name: scalingengine_server
+    name: autoscaler_scalingengine_server
     type: certificate
     options:
-      ca: scalingengine_ca
+      ca: autoscaler_scalingengine_ca
       common_name: scalingengine.service.cf.internal
       extended_key_usage:
       - client_auth
@@ -528,17 +551,17 @@
 - type: replace
   path: /variables/-
   value:
-    name: scalingengine_client
+    name: autoscaler_scalingengine_client
     type: certificate
     options:
-      ca: scalingengine_ca
+      ca: autoscaler_scalingengine_ca
       common_name: scalingengine client
       extended_key_usage:
       - client_auth
 - type: replace
   path: /variables/-
   value:
-    name: eventgenerator_ca
+    name: autoscaler_eventgenerator_ca
     type: certificate
     options:
       common_name: eventgeneratorCA
@@ -546,10 +569,10 @@
 - type: replace
   path: /variables/-
   value:
-    name: eventgenerator_server
+    name: autoscaler_eventgenerator_server
     type: certificate
     options:
-      ca: eventgenerator_ca
+      ca: autoscaler_eventgenerator_ca
       common_name: eventgenerator.service.cf.internal
       extended_key_usage:
       - client_auth
@@ -557,17 +580,17 @@
 - type: replace
   path: /variables/-
   value:
-    name: eventgenerator_client
+    name: autoscaler_eventgenerator_client
     type: certificate
     options:
-      ca: eventgenerator_ca
+      ca: autoscaler_eventgenerator_ca
       common_name: eventgenerator client
       extended_key_usage:
       - client_auth
 - type: replace
   path: /variables/-
   value:
-    name: apiserver_ca
+    name: autoscaler_apiserver_ca
     type: certificate
     options:
       common_name: apiserverCA
@@ -575,10 +598,10 @@
 - type: replace
   path: /variables/-
   value:
-    name: apiserver_server
+    name: autoscaler_apiserver_server
     type: certificate
     options:
-      ca: apiserver_ca
+      ca: autoscaler_apiserver_ca
       common_name: apiserver.service.cf.internal
       extended_key_usage:
       - client_auth
@@ -586,7 +609,7 @@
 - type: replace
   path: /variables/-
   value:
-    name: apiserver_public_ca
+    name: autoscaler_apiserver_public_ca
     type: certificate
     options:
       common_name: apiserverpublicCA
@@ -594,10 +617,10 @@
 - type: replace
   path: /variables/-
   value:
-    name: apiserver_public_server
+    name: autoscaler_apiserver_public_server
     type: certificate
     options:
-      ca: apiserver_public_ca
+      ca: autoscaler_apiserver_public_ca
       common_name: autoscaler.((system_domain))
       extended_key_usage:
       - client_auth
@@ -605,17 +628,17 @@
 - type: replace
   path: /variables/-
   value:
-    name: apiserver_client
+    name: autoscaler_apiserver_client
     type: certificate
     options:
-      ca: apiserver_ca
+      ca: autoscaler_apiserver_ca
       common_name: apiserver client
       extended_key_usage:
       - client_auth
 - type: replace
   path: /variables/-
   value:
-    name: servicebroker_ca
+    name: autoscaler_servicebroker_ca
     type: certificate
     options:
       common_name: servicebrokerCA
@@ -623,10 +646,10 @@
 - type: replace
   path: /variables/-
   value:
-    name: servicebroker_server
+    name: autoscaler_servicebroker_server
     type: certificate
     options:
-      ca: servicebroker_ca
+      ca: autoscaler_servicebroker_ca
       common_name: servicebroker.service.cf.internal
       extended_key_usage:
       - client_auth
@@ -634,17 +657,17 @@
 - type: replace
   path: /variables/-
   value:
-    name: servicebroker_client
+    name: autoscaler_servicebroker_client
     type: certificate
     options:
-      ca: servicebroker_ca
+      ca: autoscaler_servicebroker_ca
       common_name: servicebroker client
       extended_key_usage:
       - client_auth
 - type: replace
   path: /variables/-
   value:
-    name: servicebroker_public_ca
+    name: autoscaler_servicebroker_public_ca
     type: certificate
     options:
       common_name: servicebrokerCA
@@ -652,10 +675,10 @@
 - type: replace
   path: /variables/-
   value:
-    name: servicebroker_public_server
+    name: autoscaler_servicebroker_public_server
     type: certificate
     options:
-      ca: servicebroker_public_ca
+      ca: autoscaler_servicebroker_public_ca
       common_name: autoscalerservicebroker.((system_domain))
       extended_key_usage:
       - client_auth
@@ -663,7 +686,7 @@
 - type: replace
   path: /variables/-
   value:
-    name: scheduler_ca
+    name: autoscaler_scheduler_ca
     type: certificate
     options:
       common_name: schedulerCA
@@ -671,10 +694,10 @@
 - type: replace
   path: /variables/-
   value:
-    name: scheduler_server
+    name: autoscaler_scheduler_server
     type: certificate
     options:
-      ca: scheduler_ca
+      ca: autoscaler_scheduler_ca
       common_name: autoscalerscheduler.service.cf.internal
       extended_key_usage:
       - client_auth
@@ -682,17 +705,17 @@
 - type: replace
   path: /variables/-
   value:
-    name: scheduler_client
+    name: autoscaler_scheduler_client
     type: certificate
     options:
-      ca: scheduler_ca
+      ca: autoscaler_scheduler_ca
       common_name: scheduler client
       extended_key_usage:
       - client_auth
 - type: replace
   path: /variables/-
   value:
-    name: metricsserver_ca
+    name: autoscaler_metricsserver_ca
     type: certificate
     options:
       common_name: metricsserverCA
@@ -700,7 +723,7 @@
 - type: replace
   path: /variables/-
   value:
-    name: metricsserver_server
+    name: autoscaler_metricsserver_server
     type: certificate
     options:
       alternative_names:
@@ -710,7 +733,7 @@
       {{- range $index := until (int .Values.sizing.asmetrics.instances | default 1) }}
       - "{{ $root.Release.Name }}-asmetrics-{{ $index }}"
       {{- end }}
-      ca: metricsserver_ca
+      ca: autoscaler_metricsserver_ca
       common_name: metricsserver.service.cf.internal
       extended_key_usage:
       - client_auth
@@ -718,10 +741,10 @@
 - type: replace
   path: /variables/-
   value:
-    name: metricsserver_client
+    name: autoscaler_metricsserver_client
     type: certificate
     options:
-      ca: metricsserver_ca
+      ca: autoscaler_metricsserver_ca
       common_name: metricsserver client
       extended_key_usage:
       - client_auth
@@ -759,11 +782,9 @@
     bpm:
       processes:
       - name: scalingengine
-        executable: /bin/bash
+        executable: /var/vcap/jobs/scalingengine/bin/scalingengine_ctl
         args:
-        - -c
-        - |
-          /var/vcap/jobs/scalingengine/bin/scalingengine_ctl start
+        - start
     run:
       healthcheck:
         scalingengine:
@@ -787,11 +808,9 @@
     bpm:
       processes:
       - name: scheduler
-        executable: /bin/bash
+        executable: /var/vcap/jobs/scheduler/bin/scheduler
         args:
-        - -c
-        - |
-          /var/vcap/jobs/scheduler/bin/scheduler start
+        - start
     run:
       healthcheck:
         scheduler:
@@ -812,11 +831,9 @@
     bpm:
       processes:
       - name: operator
-        executable: /bin/bash
+        executable: /var/vcap/jobs/operator/bin/operator_ctl
         args:
-        - -c
-        - |
-          /var/vcap/jobs/operator/bin/operator_ctl start
+        - start
     run:
       healthcheck:
         operator:
@@ -843,11 +860,9 @@
     bpm:
       processes:
       - name: metricsserver
-        executable: /bin/bash
+        executable: /var/vcap/jobs/metricsserver/bin/metricsserver_ctl
         args:
-        - -c
-        - |
-          /var/vcap/jobs/metricsserver/bin/metricsserver_ctl start
+        - start
     run:
       healthcheck:
         metricsserver:
@@ -871,11 +886,9 @@
     bpm:
       processes:
       - name: eventgenerator
-        executable: /bin/bash
+        executable: /var/vcap/jobs/eventgenerator/bin/eventgenerator_ctl
         args:
-        - -c
-        - |
-          /var/vcap/jobs/eventgenerator/bin/eventgenerator_ctl start
+        - start
     run:
       healthcheck:
         eventgenerator:
@@ -926,11 +939,9 @@
     bpm:
       processes:
       - name: golangapiserver
-        executable: /bin/bash
+        executable: /var/vcap/jobs/golangapiserver/bin/apiserver_ctl
         args:
-        - -c
-        - |
-          /var/vcap/jobs/golangapiserver/bin/apiserver_ctl start
+        - start
     run:
       healthcheck:
         golangapiserver:
@@ -954,11 +965,9 @@
     bpm:
       processes:
       - name: metricsforwarder
-        executable: /bin/bash
+        executable: /var/vcap/jobs/metricsforwarder/bin/metricsforwarder_ctl
         args:
-        - -c
-        - |
-          /var/vcap/jobs/metricsforwarder/bin/metricsforwarder_ctl start
+        - start
     run:
       healthcheck:
         metricsforwarder:
