@@ -13,40 +13,40 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 spec:
   manifest:
-    name: cf-deployment
+    name: {{ .Release.Name }}-cf-deployment
     type: configmap
   ops:
 {{- if .Values.features.suse_buildpacks }}
-  - name: {{ include "kubecf.ops-name" "assets/operations/buildpacks/set_suse_buildpacks.yaml" }}
+  - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
     type: configmap
 {{- end }}
 {{- if .Values.features.eirini.enabled }}
-  - name: ops-use-bits-service
+  - name: {{ $root.Release.Name }}-ops-use-bits-service
     type: configmap
 {{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
-  - name: {{ include "kubecf.ops-name" $path }}
+  - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
-  - name: {{ include "kubecf.ops-name" $path }}
+  - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}
-  - name: ops-sizing
+  - name: {{ .Release.Name }}-ops-sizing
     type: configmap
-  - name: ops-azs
+  - name: {{ .Release.Name }}-ops-azs
     type: configmap
 {{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
-  - name: {{ include "kubecf.ops-name" $path }}
+  - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}
 {{- if .Values.features.eirini.enabled }}
-  - name: ops-remove-diego
+  - name: {{ $root.Release.Name }}-ops-remove-diego
     type: configmap
 {{- end }}
 {{- range $_, $ops := .Values.operations.custom }}
   - name: {{ $ops | quote }}
     type: configmap
 {{- end }}
-  - name: user-provided-properties
+  - name: {{ .Release.Name }}-user-provided-properties
     type: configmap
