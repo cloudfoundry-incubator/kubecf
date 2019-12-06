@@ -11,7 +11,7 @@ apiVersion: "v1"
 kind: "Secret"
 type: kubernetes.io/tls
 metadata:
-  name: "ingress-tls"
+  name: {{ .Release.Name }}-ingress-tls
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: "ingress-tls"
@@ -79,7 +79,7 @@ metadata:
 {{ end }}
 spec:
   tls:
-  - secretName: "ingress-tls"
+  - secretName: {{ .Release.Name }}-ingress-tls
     hosts:
     - "*.{{ .Values.system_domain }}"
     - "{{ .Values.system_domain }}"

@@ -45,9 +45,18 @@
       healthcheck:
         log-cache:
           readiness:
-            httpGet:
-              port: 6060
-              path: /debug/pprof/cmdline
+            exec:
+              command:
+              - curl
+              - --insecure
+              - --fail
+              - --head
+              - --silent
+              - --cert
+              - /var/vcap/jobs/log-cache/config/certs/metrics.crt
+              - --key
+              - /var/vcap/jobs/log-cache/config/certs/metrics.key
+              - https://localhost:6060/debug/pprof/cmdline
 
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=log-cache-gateway/properties/quarks?/run/healthcheck/log-cache-gateway
@@ -56,7 +65,17 @@
       # Unfortunately, by default the health port listens on localhost only
       # and isn't easily configurable
       exec:
-        command: [curl, --fail, --head, --silent, http://localhost:6063/debug/pprof/cmdline]
+        command:
+        - curl
+        - --insecure
+        - --fail
+        - --head
+        - --silent
+        - --cert
+        - /var/vcap/jobs/log-cache/config/certs/metrics.crt
+        - --key
+        - /var/vcap/jobs/log-cache/config/certs/metrics.key
+        - https://localhost:6063/debug/pprof/cmdline
 
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=log-cache-nozzle/properties/quarks?/run/healthcheck/log-cache-nozzle
@@ -66,22 +85,6 @@
       # and isn't easily configurable
       exec:
         command: [curl, --fail, --head, --silent, http://localhost:6061/debug/pprof/cmdline]
-
-- type: replace
-  path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs
-  value:
-  - name: INSTANCE_ADDR
-    value: {{ .Release.Name }}-doppler:8080
-  - name: INSTANCE_ID
-    valueFrom:
-      fieldRef:
-        apiVersion: v1
-        fieldPath: metadata.labels['quarks.cloudfoundry.org/pod-ordinal']
-- type: replace
-  path: /instance_groups/name=doppler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/run/healthcheck/log-cache-expvar-forwarder
-  value:
-    readiness: ~
-      # We do not have a good thing to use as a readiness probe
 
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
@@ -97,4 +100,14 @@
       # Unfortunately, by default the health port listens on localhost only
       # and isn't easily configurable
       exec:
-        command: [curl, --fail, --head, --silent, http://localhost:6065/debug/pprof/cmdline]
+        command:
+        - curl
+        - --insecure
+        - --fail
+        - --head
+        - --silent
+        - --cert
+        - /var/vcap/jobs/log-cache/config/certs/metrics.crt
+        - --key
+        - /var/vcap/jobs/log-cache/config/certs/metrics.key
+        - https://localhost:6065/debug/pprof/cmdline
