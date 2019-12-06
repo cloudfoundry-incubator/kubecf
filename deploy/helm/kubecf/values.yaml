@@ -26,6 +26,7 @@ releases:
   app-autoscaler:
     version: 3.0.0
     stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   bits-service:
     stemcell:
@@ -47,6 +48,7 @@ releases:
   postgres:
     version: "39"
     stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
 
 multi_az: false
