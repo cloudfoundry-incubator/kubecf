@@ -48,6 +48,19 @@ data:
       path: /instance_groups/name=eirini/azs?
     {{- end }}
 
+    {{- if .Values.features.autoscaler.enabled }}
+    - type: remove
+      path: /instance_groups/name=asdatabase/azs
+    - type: remove
+      path: /instance_groups/name=asactors/azs
+    - type: remove
+      path: /instance_groups/name=asmetrics/azs
+    - type: remove
+      path: /instance_groups/name=asapi/azs
+    - type: remove
+      path: /instance_groups/name=asnozzle/azs
+    {{- end }}
+
     {{- if not .Values.features.external_database.enabled }}
     - type: remove
       path: /instance_groups/name=database/azs?

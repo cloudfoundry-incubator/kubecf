@@ -33,6 +33,54 @@ data:
       value: 1
 {{- end }}
 
+{{- if .Values.features.autoscaler.enabled }}
+{{- if .Values.sizing.asapi.instances }}
+    - type: replace
+      path: /instance_groups/name=asapi/instances
+      value: {{.Values.sizing.asapi.instances}}
+{{- else if not .Values.high_availability }}
+    - type: replace
+      path: /instance_groups/name=asapi/instances
+      value: 1
+{{- end }}
+{{- if .Values.sizing.asactors.instances }}
+    - type: replace
+      path: /instance_groups/name=asactors/instances
+      value: {{.Values.sizing.asactors.instances}}
+{{- else if not .Values.high_availability }}
+    - type: replace
+      path: /instance_groups/name=asactors/instances
+      value: 1
+{{- end }}
+{{- if .Values.sizing.asmetrics.instances }}
+    - type: replace
+      path: /instance_groups/name=asmetrics/instances
+      value: {{.Values.sizing.asmetrics.instances}}
+{{- else if not .Values.high_availability }}
+    - type: replace
+      path: /instance_groups/name=asmetrics/instances
+      value: 1
+{{- end }}
+{{- if .Values.sizing.asnozzle.instances }}
+    - type: replace
+      path: /instance_groups/name=asnozzle/instances
+      value: {{.Values.sizing.asnozzle.instances}}
+{{- else if not .Values.high_availability }}
+    - type: replace
+      path: /instance_groups/name=asnozzle/instances
+      value: 1
+{{- end }}
+{{- if .Values.sizing.asdatabase.instances }}
+    - type: replace
+      path: /instance_groups/name=asdatabase/instances
+      value: {{.Values.sizing.asdatabase.instances}}
+{{- else if not .Values.high_availability }}
+    - type: replace
+      path: /instance_groups/name=asdatabase/instances
+      value: 1
+{{- end }}
+{{- end }}
+
 {{- if .Values.features.eirini.enabled }}
 {{- if .Values.sizing.bits.instances }}
     - type: replace
