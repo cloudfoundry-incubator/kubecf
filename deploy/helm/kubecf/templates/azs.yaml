@@ -50,7 +50,7 @@ data:
 
     {{- if .Values.features.autoscaler.enabled }}
     - type: remove
-      path: /instance_groups/name=postgres_autoscaler/azs
+      path: /instance_groups/name=asdatabase/azs
     - type: remove
       path: /instance_groups/name=asactors/azs
     - type: remove

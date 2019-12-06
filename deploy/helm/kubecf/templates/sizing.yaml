@@ -70,13 +70,13 @@ data:
       path: /instance_groups/name=asnozzle/instances
       value: 1
 {{- end }}
-{{- if .Values.sizing.postgres_autoscaler.instances }}
+{{- if .Values.sizing.asdatabase.instances }}
     - type: replace
-      path: /instance_groups/name=postgres_autoscaler/instances
-      value: {{.Values.sizing.postgres_autoscaler.instances}}
+      path: /instance_groups/name=asdatabase/instances
+      value: {{.Values.sizing.asdatabase.instances}}
 {{- else if not .Values.high_availability }}
     - type: replace
-      path: /instance_groups/name=postgres_autoscaler/instances
+      path: /instance_groups/name=asdatabase/instances
       value: 1
 {{- end }}
 {{- end }}

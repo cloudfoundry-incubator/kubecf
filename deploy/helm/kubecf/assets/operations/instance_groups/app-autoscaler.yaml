@@ -18,7 +18,7 @@
     targets:
     - deployment: {{ .Release.Name | quote }}
       domain: bosh
-      instance_group: postgres_autoscaler
+      instance_group: asdatabase
       network: default
       query: '*'
 - type: replace
@@ -112,7 +112,7 @@
 - type: replace
   path: /instance_groups/0:before
   value:
-    name: postgres_autoscaler
+    name: asdatabase
     persistent_disk: 20480 # 20GB
     {{- if .Values.kube.storage_class }}
     persistent_disk_type: {{ .Values.kube.storage_class }}
@@ -979,7 +979,7 @@
               - --head
               - http://127.0.0.1:6403
 - type: replace
-  path: /instance_groups/name=postgres_autoscaler/jobs/name=postgres/properties/quarks?
+  path: /instance_groups/name=asdatabase/jobs/name=postgres/properties/quarks?
   value:
     ports:
     - name: postgres

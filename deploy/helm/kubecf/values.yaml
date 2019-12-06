@@ -65,6 +65,8 @@ sizing:
     instances: ~
   asapi:
     instances: ~
+  asdatabase:
+    instances: 1
   asmetrics:
     instances: ~
   asnozzle:
@@ -87,8 +89,6 @@ sizing:
     instances: ~
   nats:
     instances: ~
-  postgres_autoscaler:
-    instances: 1
   router:
     instances: ~
   scheduler:
