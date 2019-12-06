@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ops-sizing
+  name: {{ .Release.Name }}-ops-sizing
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: operations

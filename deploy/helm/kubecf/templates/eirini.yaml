@@ -78,7 +78,7 @@ subjects:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ops-remove-diego
+  name: {{ .Release.Name }}-ops-remove-diego
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: operations
