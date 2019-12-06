@@ -38,6 +38,40 @@ spec:
       port: 443
       targetPort: 443
       nodePort: {{ .Values.features.eirini.registry.service.nodePort }}
+# A service for eirini-persi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-eirini-persi
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    quarks.cloudfoundry.org/instance-group-name: eirini
+    quarks.cloudfoundry.org/deployment-name: {{ .Release.Name }}
+  ports:
+    - protocol: TCP
+      name: "https"
+      port: 443
+      targetPort: 8443
+# A service for eirini-persi-broker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-eirini-persi-broker
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    quarks.cloudfoundry.org/instance-group-name: eirini
+    quarks.cloudfoundry.org/deployment-name: {{ .Release.Name }}
+  ports:
+    - protocol: TCP
+      name: "http"
+      port: 8999
+      targetPort: 8999
 ---
 # A namespace where eirini apps are created
 apiVersion: v1

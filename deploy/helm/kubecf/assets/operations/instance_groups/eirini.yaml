@@ -71,6 +71,30 @@
           settings:
             serviceAccountName: {{ .Release.Name }}-eirini
     jobs:
+    - name: eirini-persi-broker
+      release: eirini
+      properties:
+        eirini-persi-broker:
+          service_plans:
+            - id: "default"
+              name: "default"
+              description: "Eirini persistence broker"
+              free: true
+              kube_storage_class: {{ default "" .Values.kube.storage_class | quote }} # TODO: Check if default is used when no storage class is defined
+              default_size: "1Gi"
+          namespace: {{ .Release.Name }}-eirini
+          backend_host: "0.0.0.0"
+          backend_port: 8999
+          auth_password: ((eirini_persi_broker_auth_password))
+    - name: eirini-persi
+      release: eirini
+      properties:
+        eirini-persi:
+          namespace: {{ .Release.Name }}-eirini
+          operator_webhook_host: "0.0.0.0"
+          operator_webhook_port: 8443
+          operator_webhook_servicename: {{ .Release.Name }}-eirini-persi
+          operator_webhook_namespace: {{ .Release.Name }}
     - name: eirini-loggregator-bridge
       release: eirini
       properties:
@@ -248,6 +272,11 @@
       common_name: cloud_controller
       extended_key_usage:
       - client_auth
+- type: replace
+  path: /variables/name=eirini_persi_broker_auth_password?
+  value:
+    type: password
+    name: eirini_persi_broker_auth_password
 
 - type: replace
   path: /instance_groups/name=bits/jobs/name=eirinifs/properties?/quarks?
