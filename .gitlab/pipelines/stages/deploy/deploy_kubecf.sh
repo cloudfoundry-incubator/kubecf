@@ -36,8 +36,8 @@ properties:
     acceptance-tests:
       acceptance_tests:
         include: '${CATS_INCLUDE}'
-      ginkgo:
-        slow_spec_threshold: 300
+        ginkgo:
+          slow_spec_threshold: 300
 EOF
 
 # Locate the built kubecf chart.
