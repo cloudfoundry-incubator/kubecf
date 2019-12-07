@@ -21,6 +21,11 @@
         exec:
           command: [curl, --fail, --head, http://127.0.0.1:8080/health]
 
+# Disable tuning /proc/sys kernel parameters as things are running on a container.
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router?/set_kernel_parameters
+  value: false
+
 - type: replace
   path: /instance_groups/name=router/jobs/name=loggr-udp-forwarder/properties/quarks?/run/healthcheck/loggr-udp-forwarder
   value:
@@ -39,3 +44,13 @@
 - type: replace
   path: /instance_groups/name=router/env?/bosh/agent/settings/labels/app.kubernetes.io~1version
   value: {{ default .Chart.Version .Chart.AppVersion | quote }}
+
+# Trust the diego_instance_identity_ca certificate - trusting its CA
+# is insufficient with the cf-operator
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/ca_certs
+  value: |
+    ((diego_instance_identity_ca.ca))
+    ((cc_tls.ca))
+    ((uaa_ssl.ca))
+    ((network_policy_server_external.ca))

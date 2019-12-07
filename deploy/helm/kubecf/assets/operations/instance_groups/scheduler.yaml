@@ -83,31 +83,5 @@
   value: {{ default .Chart.Version .Chart.AppVersion | quote }}
 
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=log-cache-scheduler/properties?/quarks/run/healthcheck/log-cache-scheduler/readiness/exec/command
-  value: [curl, --fail, --silent, http://localhost:6064/debug/pprof/cmdline]
-
-- type: replace
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []
-
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/envs
-  value:
-  - name: INSTANCE_ADDR
-    value: {{ .Release.Name }}-scheduler:8080
-  - name: INSTANCE_ID
-    valueFrom:
-      fieldRef:
-        apiVersion: v1
-        fieldPath: metadata.labels['quarks.cloudfoundry.org/pod-ordinal']
-
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/properties/quarks?/run/healthcheck/log-cache-expvar-forwarder
-  value:
-    readiness: ~
-      # We do not have a good thing to use as a readiness probe
-
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=log-cache-expvar-forwarder/provides?
-  value:
-    log-cache-expvar-forwarder: {as: this_is_not_used}

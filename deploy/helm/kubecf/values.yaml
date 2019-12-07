@@ -21,28 +21,35 @@ releases:
   defaults:
     url: docker.io/cfcontainerization
     stemcell:
+      os: SLE_15_SP1
+      version: 15.1-7.0.0_367.g6b06e343
+  app-autoscaler:
+    version: 3.0.0
+    stemcell:
       os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_362.g9610e90b
+      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   bits-service:
     stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
   brain-tests:
     stemcell:
-      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
-  capi:
-    version: 1.83.0
-    stemcell:
-      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
-  cf-acceptance-tests:
-    stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   cf-mysql:
     version: 36.19.0
     stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
   eirini:
     stemcell:
+      os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+  postgres:
+    version: "39"
+    stemcell:
+      os: opensuse-42.3
+      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
 
 multi_az: false
 high_availability: false
@@ -53,6 +60,16 @@ sizing:
   adapter:
     instances: ~
   api:
+    instances: ~
+  asactors:
+    instances: ~
+  asapi:
+    instances: ~
+  asdatabase:
+    instances: 1
+  asmetrics:
+    instances: ~
+  asnozzle:
     instances: ~
   bits:
     instances: ~
@@ -118,6 +135,9 @@ features:
   # TODO: suse_buildpacks should be default to true after the opensuse-stemcell-based images are
   # published to docker.io.
   suse_buildpacks: false
+  # add autoscaler
+  autoscaler:
+    enabled: false
 
   # external_database disables the embedded database and allows using an external, already seeded,
   # database.
