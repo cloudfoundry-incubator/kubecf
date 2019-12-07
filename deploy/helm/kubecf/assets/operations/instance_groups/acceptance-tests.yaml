@@ -20,6 +20,10 @@
           admin_user: admin
           api: api.((system_domain))
           apps_domain: ((system_domain))
+          credhub_client: credhub_admin_client
+          credhub_location: https://credhub.((system_domain))
+          credhub_mode: assisted
+          credhub_secret: ((credhub_admin_client_secret))
           skip_ssl_validation: true
         bpm:
           enabled: true

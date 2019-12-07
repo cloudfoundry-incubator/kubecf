@@ -1,7 +1,24 @@
 ---
 - type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/provides?
-  value: { credhub: nil }
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/quarks?
+  value:
+    ports:
+    - name: credhub
+      protocol: TCP
+      internal: 8844
+    run:
+      healthcheck:
+        credhub:
+          readiness:
+            httpGet:
+              port: 8844
+              path: /health
+              scheme: HTTPS
+
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/authentication?/uaa/url
+  value: https://credhub.((system_domain))
+
 - type: replace
   path: /instance_groups/name=credhub/jobs/-
   value:
