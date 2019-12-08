@@ -10,7 +10,7 @@ Draft
 
 We need to improve the quality of the git commit messages so developers can easily understand the context of the proposed changes, throughout a concise and consistent message in order to avoid lengthy code reviews and project long term maintainability.
 
-Also, a good and structured message will support the automation of the releases notes or at least reduce the burn of it.
+Also, a good and structured message will support the automation of the releases notes or at least reduce the effort to have it.
 
 ## Decision
 
@@ -18,28 +18,28 @@ The first interation will rely on generic rules described [here](https://chris.b
 
 Most wanted rules:
 
-1. Separate subject from body with a blank line
-2. Limit the subject line to 50 characters
-3. Capitalize the subject line
-4. Wrap the body at 72 characters
-5. Use the body to explain what and why vs. how
+1. Separate subject from body with a blank line,
+2. Limit the subject line to 50 characters,
+3. Capitalize the subject line,
+4. Wrap the body at 72 characters, and
+5. Use the body to explain what and why vs. how.
 
 Other rules are also important!
 
 In order to automate the release notes/changelog process, we also need to define basic semantics:
 
-| Commit message | Release type |
-|----------------|--------------|
-|fix: Stop the O2 leak dock comportment (DC)|Patch release|
-|feat: Implements dog space travel module (BARK)|Feature release|
-|break: Removes the compase from the control room (DOOM)|Breaking change release|
-|docs: Peter and the wolf: Cloud version|Documentation only changes|
-|style: Replace tabs with spaces|Changes that not affect the code|
-|test: Add unit test at last|Add or correct existing tests|
+| Commit message                                           | Release type                     |
+|----------------------------------------------------------|----------------------------------|
+| fix: Stop the O2 leak dock comportment (DC)              | Patch release                    |
+| feat: Implements dog space travel module (BARK)          | Feature release                  |
+| break: Removes the compase from the control room (DOOM)  | Breaking change release          |
+| docs: Peter and the wolf: Cloud version                  | Documentation only changes       |
+| style: Replace tabs with spaces                          | Changes that not affect the code |
+| test: Add unit test at last                              | Add or correct existing tests    |
 
 ## Consequences
 
 With the automation of the release process, each git commit to the release branch (i.e. master) or by merging a pull request, a CI build is triggered and a:
 
-1. git commit message check is performed
-2. release notes/changelog is automaticaly produced
+1. git commit message check is performed, and
+2. release notes/changelog is automaticaly produced.
