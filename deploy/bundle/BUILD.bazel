@@ -1,0 +1,24 @@
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("//:def.bzl", "project")
+
+copy_file(
+    name = "cf_operator_chart",
+    src = "@cf_operator//file",
+    out = project.cf_operator.chart.url.rpartition("/")[-1],
+)
+
+pkg_tar(
+    visibility = ["//visibility:public"],
+    name = "bundle-{app_version}".format(app_version = project.app_version),
+    extension = "tgz",
+    srcs = [
+        ":cf_operator_chart",
+        "//deploy/helm/kubecf:chart",
+    ]
+)
+
+alias(
+    name = "kubecf-bundle",
+    actual = ":bundle-{app_version}".format(app_version = project.app_version),
+)

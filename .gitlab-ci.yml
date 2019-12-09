@@ -28,6 +28,7 @@ build:chart:
   artifacts:
     paths:
     - output/kubecf-*.tgz
+    - output/bundle-*.tgz
     expire_in: 1 week
 
 tests:

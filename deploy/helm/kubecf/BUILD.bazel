@@ -43,6 +43,6 @@ helm_package(
         "//bosh/releases:pre_render_scripts",
     ],
     chart_name = "kubecf",
-    chart_version = "3.0.0",
-    app_version = "2.0",
+    chart_version = project.chart_version,
+    app_version = project.app_version,
 )
