@@ -38,6 +38,23 @@ spec:
       port: 443
       targetPort: 443
       nodePort: {{ .Values.features.eirini.registry.service.nodePort }}
+# A service for eirini-ssh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-eirini-ssh
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    quarks.cloudfoundry.org/instance-group-name: eirini
+    quarks.cloudfoundry.org/deployment-name: {{ .Release.Name }}
+  ports:
+    - protocol: TCP
+      name: "https"
+      port: 443
+      targetPort: 2999
 # A service for eirini-persi
 ---
 apiVersion: v1
