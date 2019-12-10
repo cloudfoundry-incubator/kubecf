@@ -16,7 +16,8 @@ clone:
   disable: true
 
 # Dockerfile source - https://github.com/f0rmiga/bazel-docker-image.
-.bazel_image: &bazel_image thulioassis/bazel-docker-image:1.2.1
+.anchors:
+  bazel_image: &bazel_image thulioassis/bazel-docker-image:1.2.1
 
 steps:
 - name: clone
