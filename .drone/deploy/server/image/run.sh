@@ -4,4 +4,4 @@ set -o errexit -o nounset
 
 export DRONE_SERVER_PORT=":${PORT}"
 
-/bin/drone-server "${@}"
+exec /bin/drone-server "${@}"
