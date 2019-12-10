@@ -1,4 +1,4 @@
-{{- if .Values.testing.acceptance_tests.enabled -}}
+{{- if .Values.testing.cf_acceptance_tests.enabled -}}
 
 - path: /releases/-
   type: replace
