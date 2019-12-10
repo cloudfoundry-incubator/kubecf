@@ -25,6 +25,10 @@
   - name: binary_buildpack
     file: /var/vcap/data/shared-packages/binary-buildpack/packages/binary-buildpack-cflinuxfs3/binary_buildpack-cflinuxfs3-v1.0.35.zip
 
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/credhub_api?/external_url
+  value: https://credhub.((system_domain))
+
 # core_file_pattern should be disabled as CC is not running on a VM.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/core_file_pattern?

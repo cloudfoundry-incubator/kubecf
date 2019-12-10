@@ -1,0 +1,12 @@
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_staging_security_groups/-
+  value: internal
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/security_group_definitions/-
+  value:
+    name: internal
+    rules:
+    - destination: 172.16.0.0-172.31.255.255
+      protocol: all
+      ports: '8844'

@@ -11,13 +11,21 @@
         credhub:
           readiness:
             httpGet:
-              port: 8844
+              port: 8845
               path: /health
-              scheme: HTTPS
 
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/authentication?/uaa/url
-  value: https://credhub.((system_domain))
+  value: https://uaa.((system_domain))
+
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/authentication?/uaa/internal_url
+  value: https://uaa.service.cf.internal:8443
+
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/authentication?/uaa/ca_certs
+  value:
+  - ((uaa_ssl.ca))
 
 - type: replace
   path: /instance_groups/name=credhub/jobs/-
