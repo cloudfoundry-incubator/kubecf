@@ -166,4 +166,22 @@ project = struct(
             },
         },
     ),
+    drone = struct(
+        server = struct(
+            app_name = "kubecf-drone-ci-server",
+            image = struct(
+                version = 1,
+                sha256 = "0fc552775eb2ab2a36a434f2e7ba3a8f140ee1841eda6e94165265ed3e2ee683",
+            ),
+        ),
+        runner = struct(
+            rpc_host = "kubecf-drone-ci-server.herokuapp.com",
+            rpc_proto = "https",
+            capacity = 1,
+            image = struct(
+                version = 1,
+                sha256 = "eb09cdffd60b685fc76dc15c019a74829ba1632c27cf949ce271a792e7386597",
+            ),
+        ),
+    ),
 )

@@ -1,0 +1,6 @@
+ARG IMAGE=""
+FROM $IMAGE
+
+COPY ./run.sh /bin/run.sh
+
+ENTRYPOINT ["/bin/run.sh"]
