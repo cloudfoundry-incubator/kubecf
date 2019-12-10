@@ -1,0 +1,48 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+trigger:
+  ref:
+  - refs/heads/test/**
+  - refs/heads/master
+
+workspace:
+  base: /home/runner/builds
+  path: kubecf
+
+clone:
+  disable: true
+
+# Dockerfile source - https://github.com/f0rmiga/bazel-docker-image.
+.bazel_image: &bazel_image thulioassis/bazel-docker-image:1.2.1
+
+steps:
+- name: clone
+  image: *bazel_image
+  commands:
+  - git clone --depth=2 --branch="${DRONE_BRANCH}" "${DRONE_REMOTE_URL}" .
+  - git checkout "${DRONE_COMMIT}"
+- name: lint
+  image: *bazel_image
+  commands:
+  - ./dev/linters/shellcheck.sh
+  - ./dev/linters/yamllint.sh
+  - ./dev/linters/helmlint.sh
+- name: build
+  image: *bazel_image
+  commands:
+  - .drone/pipelines/default/steps/build/build.sh
+- name: test
+  image: *bazel_image
+  volumes:
+  - name: docker
+    path: /var/lib/docker
+  privileged: true
+  commands:
+  - ./.drone/pipelines/default/steps/test/test.sh
+
+volumes:
+- name: docker
+  temp: {}

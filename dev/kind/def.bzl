@@ -22,9 +22,9 @@ def _kind_impl(ctx):
         export K8S_VERSION="${{K8S_VERSION:-{k8s_version}}}"
         "{script}"
     """.format(
-        kind = ctx.executable._kind.path,
+        kind = ctx.executable._kind.short_path,
         cluster_name = ctx.attr.cluster_name,
-        kubectl = ctx.executable._kubectl.path,
+        kubectl = ctx.executable._kubectl.short_path,
         metrics_server = metrics_server_dir,
         k8s_version = ctx.attr.k8s_version,
         script = ctx.executable._script.path,
@@ -50,13 +50,13 @@ attrs = {
     "_kind": attr.label(
         allow_single_file = True,
         cfg = "host",
-        default = "@kind//kind",
+        default = "@kind//:binary",
         executable = True,
     ),
     "_kubectl": attr.label(
         allow_single_file = True,
         cfg = "host",
-        default = "@kubectl//kubectl",
+        default = "@kubectl//:binary",
         executable = True,
     ),
     "_metrics_server": attr.label(
