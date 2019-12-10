@@ -188,6 +188,8 @@ testing:
     enabled: false
   brain_tests:
     enabled: false
+  smoke_tests:
+    enabled: true
 
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.
