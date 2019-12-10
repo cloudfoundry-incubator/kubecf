@@ -12,24 +12,22 @@ workspace:
   base: /home/runner/builds
   path: kubecf
 
-clone:
-  disable: true
-
 # Dockerfile source - https://github.com/f0rmiga/bazel-docker-image.
 .anchors:
   bazel_image: &bazel_image thulioassis/bazel-docker-image:1.2.1
 
 steps:
-- name: clone
-  image: *bazel_image
-  commands:
-  - git clone --depth=2 --branch="${DRONE_BRANCH}" "${DRONE_REMOTE_URL}" .
-  - git checkout "${DRONE_COMMIT}"
-- name: lint
+- name: lint:shellcheck
   image: *bazel_image
   commands:
   - ./dev/linters/shellcheck.sh
+- name: lint:yamllint
+  image: *bazel_image
+  commands:
   - ./dev/linters/yamllint.sh
+- name: lint:helmlint
+  image: *bazel_image
+  commands:
   - ./dev/linters/helmlint.sh
 - name: build
   image: *bazel_image

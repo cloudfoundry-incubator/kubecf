@@ -20,6 +20,7 @@ if [ -z "${rpc_secret}" ]; then
 fi
 
 docker run \
+  --name "kubecf-drone-ci-runner" \
   --detach \
   --privileged \
   --volume /var/run/docker.sock:/var/run/docker.sock \

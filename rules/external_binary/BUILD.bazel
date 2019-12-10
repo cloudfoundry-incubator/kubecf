@@ -13,6 +13,8 @@ load(":def.bzl", "binary_location")
     "kubectl",
     "shellcheck",
     "yaml2json",
+
+    # The docker binaries.
     "containerd",
     "containerd-shim",
     "ctr",
