@@ -42,9 +42,10 @@ releases:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
   eirini:
+    url: docker.io/cfcontainerization
     stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+      os: SLE_15_SP1
+      version: SLE_15_SP1-15.1-7.0.0_372.ge3509601-0.0.25
   postgres:
     version: "39"
     stemcell:
