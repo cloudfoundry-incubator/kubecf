@@ -3,10 +3,15 @@
 set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/garden-runc/garden/templates/bin/post-start"
+sentinel="${target}.patch_sentinel"
+if [[ -f "${sentinel}" ]]; then
+  echo "Patch already applied. Skipping"
+  exit 0
+fi
 
 # Patch the post-start script to use netcat instead of curl when performing the ping to a unix
 # socket. curl support for unix sockets varies considerably depending on its version.
-PATCH=$(cat <<'EOT'
+patch --verbose "${target}" <<'EOT'
 @@ -1,19 +1,21 @@
  #!/usr/bin/env bash
  set -euo pipefail
@@ -35,11 +40,5 @@ PATCH=$(cat <<'EOT'
      exit 0
    fi
 EOT
-)
 
-# Only patch once
-if ! patch --binary --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
-  patch --binary --verbose "${target}" <<<"$PATCH"
-else
-  echo "Patch already applied. Skipping"
-fi
+touch "${sentinel}"

@@ -3,9 +3,14 @@
 set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/eirini/opi/templates/bpm.yml.erb"
+sentinel="${target}.patch_sentinel"
+if [[ -f "${sentinel}" ]]; then
+  echo "Patch already applied. Skipping"
+  exit 0
+fi
 
 # Patch BPM, since we're actually running in-cluster without BPM
-PATCH=$(cat <<'EOT'
+patch --verbose "${target}" <<'EOT'
 @@ -4,17 +4,3 @@
      args:
      - connect
@@ -25,11 +30,5 @@ PATCH=$(cat <<'EOT'
 -      mount_only: true
 -    <% end %>
 EOT
-)
 
-# Only patch once
-if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
-  patch --verbose "${target}" <<<"$PATCH"
-else
-  echo "Patch already applied. Skipping"
-fi
+touch "${sentinel}"

@@ -3,8 +3,13 @@
 set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/routing/routing-api/templates/bpm.yml.erb"
+sentinel="${target}.patch_sentinel"
+if [[ -f "${sentinel}" ]]; then
+  echo "Patch already applied. Skipping"
+  exit 0
+fi
 
-PATCH=$(cat <<'EOT'
+patch --verbose "${target}" <<'EOT'
 @@ -11,8 +11,10 @@
      - -timeFormat
      - rfc3339
@@ -18,11 +23,5 @@ PATCH=$(cat <<'EOT'
      hooks:
        pre_start: /var/vcap/jobs/routing-api/bin/bpm-pre-start
 EOT
-)
 
-# Only patch once
-if ! patch --reverse --binary --unified --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
-  patch --verbose --binary --unified "${target}" <<<"$PATCH"
-else
-  echo "Patch already applied. Skipping"
-fi
+touch "${sentinel}"
