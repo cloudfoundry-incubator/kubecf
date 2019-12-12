@@ -416,7 +416,7 @@
               level: info
             broker:
               server:
-                port: &servicebrokerPort 6102
+                port: 6102
                 catalog:
                   services:
                   - id: autoscaler-guid
@@ -500,14 +500,14 @@
             - autoscaler.((system_domain))
           - name: autoscaler_service_broker
             registration_interval: 20s
-            port: *servicebrokerPort
+            port: 6102
             tags:
               component: autoscaler_service_broker
             uris:
             - autoscalerservicebroker.((system_domain))
           - name: autoscaler_metrics_forwarder
             registration_interval: 20s
-            port: *apiServerPublicPort
+            port: 6201
             tags:
               component: autoscaler_metrics_forwarder
             uris:
