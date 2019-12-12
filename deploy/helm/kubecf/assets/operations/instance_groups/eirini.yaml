@@ -78,7 +78,7 @@
           service_plans:
             - id: "default"
               name: "default"
-              description: "Eirini persistence broker"
+              description: "Persistence storage service broker for applications."
               free: true
               kube_storage_class: {{ default "" .Values.kube.storage_class | quote }} # TODO: Check if default is used when no storage class is defined
               default_size: "1Gi"
