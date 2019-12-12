@@ -141,10 +141,8 @@ features:
   # TODO: suse_buildpacks should be default to true after the opensuse-stemcell-based images are
   # published to docker.io.
   suse_buildpacks: false
-  # add autoscaler
   autoscaler:
     enabled: false
-  # add sle15 stack
   sle15_stack:
     enabled: true
 

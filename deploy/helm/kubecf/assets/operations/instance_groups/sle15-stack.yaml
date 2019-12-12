@@ -1,6 +1,5 @@
 {{- if .Values.features.sle15_stack.enabled -}}
 {{- $root := . -}}
-# Add sle15 release.
 - type: replace
   path: /releases/-
   value:

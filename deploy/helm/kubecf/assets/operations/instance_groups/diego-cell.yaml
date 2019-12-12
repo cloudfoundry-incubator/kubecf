@@ -1,6 +1,6 @@
 {{- if not .Values.features.eirini.enabled -}}
 
-{{- if .Values.features.sle15_stack.enabled -}}
+{{- if .Values.features.sle15_stack.enabled }}
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/-
   value:
