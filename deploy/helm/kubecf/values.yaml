@@ -50,6 +50,12 @@ releases:
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
+  sle15:
+    url: registry.suse.com/cap-staging
+    version: "10.70"
+    stemcell:
+      os: SLE-12SP4
+      version: 11.g2837aef-0.233-7.0.0_372.ge3509601
 
 multi_az: false
 high_availability: false
@@ -138,6 +144,9 @@ features:
   # add autoscaler
   autoscaler:
     enabled: false
+  # add sle15 stack
+  sle15_stack:
+    enabled: true
 
   # external_database disables the embedded database and allows using an external, already seeded,
   # database.
