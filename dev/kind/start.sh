@@ -17,14 +17,14 @@ else
 fi
 
 # Create a storage class.
-"${KUBECTL}" apply --filename https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+"${KUBECTL}" apply --filename "${LOCAL_PATH_STORAGE_YAML}"
 "${KUBECTL}" patch storageclass standard \
   --patch '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false", "storageclass.beta.kubernetes.io/is-default-class":"false"}}}'
 "${KUBECTL}" patch storageclass local-path \
   --patch '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true", "storageclass.beta.kubernetes.io/is-default-class":"true"}}}'
 
 # Deploy the kube dashboard.
-"${KUBECTL}" apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta1/aio/deploy/recommended.yaml
+"${KUBECTL}" apply -f "${KUBE_DASHBOARD_YAML}"
 
 # Create the metrics server.
 "${KUBECTL}" apply -f "${METRICS_SERVER}"
