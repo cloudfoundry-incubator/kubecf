@@ -5,7 +5,7 @@
   value:
     name: cf-acceptance-tests
     url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "cf-acceptance-tests") }}
-    version: 0.0.7
+    version: 0.0.8
     stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "cf-acceptance-tests") }}
 
 - path: /instance_groups/-
