@@ -177,6 +177,13 @@ project = struct(
                 version = 1,
                 sha256 = "0fc552775eb2ab2a36a434f2e7ba3a8f140ee1841eda6e94165265ed3e2ee683",
             ),
+            plugins = struct(
+                convert_starlark = struct(
+                    image = struct(
+                        sha256 = "0cb9f8386b9c7862c2bf272b77ce63afa15785592818264c35bfacf1bb0e1b92",
+                    ),
+                ),
+            ),
         ),
         runner = struct(
             rpc_host = "kubecf-drone-ci-server.herokuapp.com",

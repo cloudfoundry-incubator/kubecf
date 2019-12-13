@@ -1,5 +1,10 @@
-ARG IMAGE=""
-FROM $IMAGE
+ARG DRONE_CONVERT_STARLARK_IMAGE=""
+ARG DRONE_IMAGE=""
+
+FROM $DRONE_CONVERT_STARLARK_IMAGE AS convert_starlark
+FROM $DRONE_IMAGE
+
+COPY --from=convert_starlark /bin/drone-convert-starlark /bin/drone-convert-starlark
 
 COPY ./run.sh /bin/run.sh
 

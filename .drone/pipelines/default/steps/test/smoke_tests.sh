@@ -2,6 +2,11 @@
 
 set -o errexit -o nounset
 
+# shellcheck disable=SC1091
+source ".drone/pipelines/default/runtime/binaries.sh"
+# shellcheck disable=SC1091
+source ".drone/pipelines/default/runtime/config.sh"
+
 # Trigger smoke-tests.
 bazel run //testing/smoke_tests
 

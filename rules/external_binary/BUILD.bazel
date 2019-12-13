@@ -6,6 +6,7 @@ load(":def.bzl", "binary_location")
     name = "{}_binary_location".format(name).replace("-", "_"),
     binary = "@{}//:binary".format(name),
 ) for name in [
+    "docker",
     "helm",
     "jq",
     "k3s",
@@ -13,14 +14,4 @@ load(":def.bzl", "binary_location")
     "kubectl",
     "shellcheck",
     "yaml2json",
-
-    # The docker binaries.
-    "containerd",
-    "containerd-shim",
-    "ctr",
-    "docker",
-    "dockerd",
-    "docker-init",
-    "docker-proxy",
-    "runc",
 ]]

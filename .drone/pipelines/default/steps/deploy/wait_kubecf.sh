@@ -5,6 +5,11 @@
 
 set -o errexit -o nounset -o pipefail
 
+# shellcheck disable=SC1091
+source ".drone/pipelines/default/runtime/binaries.sh"
+# shellcheck disable=SC1091
+source ".drone/pipelines/default/runtime/config.sh"
+
 echo "Waiting for the kubecf pods to be ready..."
 
 secret_name="${KUBECF_INSTALL_NAME}.with-ops"

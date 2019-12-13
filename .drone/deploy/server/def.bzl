@@ -13,6 +13,7 @@ def _deploy_drone_server_impl(ctx):
             "{app_name}": ctx.attr.app_name,
             "{drone_image_version}": ctx.attr._drone_image_version,
             "{drone_image_sha256}": ctx.attr._drone_image_sha256,
+            "{drone_convert_starlark_image_sha256}": ctx.attr._drone_convert_starlark_image_sha256,
         },
         is_executable = True,
     )
@@ -37,6 +38,9 @@ deploy_drone_server = rule(
         ),
         "_drone_image_sha256": attr.string(
             default = project.drone.server.image.sha256,
+        ),
+        "_drone_convert_starlark_image_sha256": attr.string(
+            default = project.drone.server.plugins.convert_starlark.image.sha256,
         ),
         "_dockerfile": attr.label(
             allow_single_file = True,

@@ -2,10 +2,12 @@
 
 set -o errexit -o nounset -o pipefail
 
-workspace=$(bazel info workspace)
-
-# shellcheck disable=SC1090
-source "${workspace}/.drone/pipelines/default/steps/build/output_chart.sh"
+# shellcheck disable=SC1091
+source ".drone/pipelines/default/runtime/binaries.sh"
+# shellcheck disable=SC1091
+source ".drone/pipelines/default/runtime/config.sh"
+# shellcheck disable=SC1091
+source ".drone/pipelines/default/steps/build/output_chart.sh"
 
 node_ip=$(kubectl get node kubecf-control-plane \
   --output jsonpath='{ .status.addresses[?(@.type == "InternalIP")].address }')
@@ -37,6 +39,12 @@ properties:
       acceptance_tests:
         ginkgo:
           slow_spec_threshold: 300
+
+testing:
+  cf_acceptance_tests:
+    enabled: true
+  smoke_tests:
+    enabled: true
 EOF
 
 # Locate the built kubecf chart.

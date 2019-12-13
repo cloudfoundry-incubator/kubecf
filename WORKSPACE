@@ -9,6 +9,7 @@ load(":def.bzl", "project")
     name = name,
     platforms = getattr(project, name).platforms,
 ) for name in [
+    "docker",
     "helm",
     "jq",
     "k3s",
@@ -16,21 +17,6 @@ load(":def.bzl", "project")
     "kubectl",
     "shellcheck",
     "yaml2json",
-]]
-
-# Declare all binaries on the docker compressed release.
-[external_binary(
-    name = name,
-    platforms = project.docker.platforms,
-) for name in [
-    "containerd",
-    "containerd-shim",
-    "ctr",
-    "docker",
-    "dockerd",
-    "docker-init",
-    "docker-proxy",
-    "runc",
 ]]
 
 minikube_binary(
