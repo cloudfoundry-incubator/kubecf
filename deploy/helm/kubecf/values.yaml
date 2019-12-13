@@ -9,6 +9,20 @@ system_domain: ~
 #          adapter:
 #            logs:
 #              addr: kubecf-log-api:8082
+#
+#  Eirini Persistence Broker setup example:
+#
+# properties:
+#   eirini:
+#     eirini-persi-broker:
+#       eirini-persi-broker:
+#         service_plans:
+#           - id: "default"
+#             name: "default"
+#             description: "Persistence storage service broker for applications."
+#             free: true
+#             kube_storage_class: "default"
+#             default_size: "1Gi"
 properties: {}
 
 # The storage class to be used for the instance groups that need it (e.g. bits, database and singleton-blobstore)
@@ -38,10 +52,6 @@ releases:
       version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   cf-mysql:
     version: 36.19.0
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
-  eirini:
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681

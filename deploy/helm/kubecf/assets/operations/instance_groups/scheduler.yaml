@@ -72,6 +72,7 @@
 
 # Add necessary labels to the scheduler instance group so that the service can select it to create
 # the endpoint.
+{{- if not .Values.features.eirini.enabled -}}
 - type: replace
   path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1component
   value: "ssh-proxy"
@@ -81,6 +82,7 @@
 - type: replace
   path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1version
   value: {{ default .Chart.Version .Chart.AppVersion | quote }}
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/quarks?/bpm/processes
