@@ -1,5 +1,31 @@
 {{- if .Values.features.eirini.enabled -}}
 
+# eirini-webhook cluster role for eirini service account.
+# Used to implement eirinix extensions.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Namespace }}:{{ .Release.Name }}-eirini-webhook
+rules:
+- apiGroups: ['admissionregistration.k8s.io']
+  resources: ['mutatingwebhookconfigurations']
+  verbs:     ['*']
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Namespace }}:{{ .Release.Name }}-eirini-webhook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Namespace }}:{{ .Release.Name }}-eirini-webhook
+subjects:
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-eirini
+  namespace: {{.Release.Namespace}}
+
 # A service for the cc uploader
 ---
 apiVersion: v1
