@@ -992,23 +992,6 @@
             exec:
               command:
               - /var/vcap/packages/postgres-11.5/bin/pg_isready
-    pre_render_scripts:
-      jobs:
-      - |
-        #!/usr/bin/env bash
-
-        set -o errexit -o nounset
-
-        target="/var/vcap/all-releases/jobs-src/postgres/postgres/templates/pre-start.sh.erb"
-        sentinel="${target}.patch_sentinel"
-        if [[ -f "${sentinel}" ]]; then
-          echo "Patch already applied. Skipping"
-          exit 0
-        fi
-
-        sed -i "s/sysctl/#sysctl/g" "${target}"
-
-        touch "${sentinel}"
     bpm:
       processes:
       - name: postgres
@@ -1059,4 +1042,10 @@
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/cf/skip_ssl_validation?
   value: true
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/asdatabase_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}
+
 {{- end }}
