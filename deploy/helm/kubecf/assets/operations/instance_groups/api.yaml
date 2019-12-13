@@ -1,3 +1,11 @@
+{{- if .Values.features.sle15_stack.enabled }}
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/stacks/-
+  value:
+    name: sle15
+    description: SLE15 based filesystem
+{{- end }}
+
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/install_buildpacks
   value:
