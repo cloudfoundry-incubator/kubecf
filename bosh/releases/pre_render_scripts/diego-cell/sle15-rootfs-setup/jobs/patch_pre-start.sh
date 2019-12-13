@@ -12,6 +12,7 @@ fi
 # Use the ephemeral data directory for the rootfs
 patch --verbose "${target}" <<'EOT'
 @@ -3,8 +3,8 @@
+
  CONF_DIR=/var/vcap/jobs/sle15-rootfs-setup/config
  ROOTFS_PACKAGE=/var/vcap/packages/sle15
 -ROOTFS_DIR=$ROOTFS_PACKAGE/rootfs
