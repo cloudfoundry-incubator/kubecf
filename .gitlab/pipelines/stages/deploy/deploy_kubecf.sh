@@ -38,6 +38,10 @@ properties:
         include: '${CATS_INCLUDE}'
       ginkgo:
         slow_spec_threshold: 300
+
+testing:
+  cf_acceptance_tests:
+    enabled: true
 EOF
 
 # Locate the built kubecf chart.

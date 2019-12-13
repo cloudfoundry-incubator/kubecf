@@ -1,9 +1,11 @@
+{{- if .Values.testing.cf_acceptance_tests.enabled -}}
+
 - path: /releases/-
   type: replace
   value:
     name: cf-acceptance-tests
     url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "cf-acceptance-tests") }}
-    version: 0.0.7
+    version: 0.0.8
     stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "cf-acceptance-tests") }}
 
 - path: /instance_groups/-
@@ -32,3 +34,5 @@
     update:
       serial: true
     vm_type: minimal
+
+{{- end }}
