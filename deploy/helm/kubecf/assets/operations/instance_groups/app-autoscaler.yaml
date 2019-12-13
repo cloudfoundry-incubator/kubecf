@@ -992,10 +992,6 @@
             exec:
               command:
               - /var/vcap/packages/postgres-11.5/bin/pg_isready
-    pre_render_scripts:
-      jobs:
-      - |
-        sed -i "s/sysctl/#sysctl/g" /var/vcap/all-releases/jobs-src/postgres/postgres/templates/pre-start.sh.erb
     bpm:
       processes:
       - name: postgres
@@ -1046,4 +1042,10 @@
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/cf/skip_ssl_validation?
   value: true
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/asdatabase_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}
+
 {{- end }}
