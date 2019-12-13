@@ -410,7 +410,7 @@
       internal: 3306
     run:
       healthcheck:
-        mariadb:
+        mariadb_ctrl:
           readiness:
             exec:
               command:
@@ -425,7 +425,7 @@
               command: [pidof, mysqld]
     bpm:
       processes:
-      - name: mariadb
+      - name: mariadb_ctrl
         limits:
           open_files: 1048576
         persistent_disk: true
