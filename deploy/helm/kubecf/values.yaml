@@ -198,6 +198,16 @@ features:
         password: ~
         username: ~
 
+# Enable or disable instance groups for the different test suites.
+# Only smoke tests should be run in production environments.
+testing:
+  brain_tests:
+    enabled: false
+  cf_acceptance_tests:
+    enabled: false
+  smoke_tests:
+    enabled: true
+
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.
   custom: []
