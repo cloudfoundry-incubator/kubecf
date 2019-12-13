@@ -36,7 +36,7 @@ releases:
     url: docker.io/cfcontainerization
     stemcell:
       os: SLE_15_SP1
-      version: 15.1-7.0.0_367.g6b06e343
+      version: 15.1-7.0.0_374.gb8e8e6af
   app-autoscaler:
     version: 3.0.0
     stemcell:
@@ -55,11 +55,6 @@ releases:
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
-  eirini:
-    url: docker.io/cfcontainerization
-    stemcell:
-      os: SLE_15_SP1
-      version: SLE_15_SP1-15.1-7.0.0_372.ge3509601-0.0.25
   postgres:
     version: "39"
     stemcell:

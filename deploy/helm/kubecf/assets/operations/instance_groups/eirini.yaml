@@ -179,7 +179,7 @@
   path: /releases/-
   value:
     name: eirini
-    version: 0.0.22
+    version: 0.0.25
     url: {{ .Values.releases.defaults.url | quote }}
     stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "eirini") }}
 
