@@ -3,9 +3,14 @@
 set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/eirini/eirini-ssh-proxy/templates/bpm.yml.erb"
+sentinel="${target}.patch_sentinel"
+if [[ -f "${sentinel}" ]]; then
+  echo "Patch already applied. Skipping"
+  exit 0
+fi
 
 # Patch BPM, since we're actually running in-cluster without BPM
-PATCH=$(cat <<'EOT'
+patch --verbose "${target}" <<'EOT'
 @@ -5,18 +5,5 @@ processes:
        - "--config"
        - "/var/vcap/jobs/eirini-ssh-proxy/config/eirini-ssh-proxy.json"
@@ -26,11 +31,5 @@ PATCH=$(cat <<'EOT'
 -      mount_only: true
 -    <% end %>
 EOT
-)
 
-# Only patch once
-if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
-  patch --verbose "${target}" <<<"$PATCH"
-else
-  echo "Patch already applied. skipping"
-fi
+touch "${sentinel}"
