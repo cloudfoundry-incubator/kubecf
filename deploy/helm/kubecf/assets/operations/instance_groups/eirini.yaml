@@ -71,6 +71,52 @@
           settings:
             serviceAccountName: {{ .Release.Name }}-eirini
     jobs:
+    - name: eirini-persi-broker
+      release: eirini
+      properties:
+        eirini-persi-broker:
+          namespace: {{ .Release.Name }}-eirini
+          backend_host: "0.0.0.0"
+          backend_port: 8999
+          auth_password: ((eirini_persi_broker_auth_password))
+    - name: eirini-persi
+      release: eirini
+      properties:
+        eirini-persi:
+          namespace: {{ .Release.Name }}-eirini
+          operator_webhook_host: "0.0.0.0"
+          operator_webhook_port: 8443
+          operator_webhook_servicename: {{ .Release.Name }}-eirini-persi
+          operator_webhook_namespace: {{ .Release.Name }}
+    - name: eirini-ssh-proxy
+      release: eirini
+      properties:
+        eirini-ssh-proxy:
+          api_url: "https://cloud-controller-ng.service.cf.internal:9024"
+          port: "2222"
+          host_key: '((eirini_ssh_proxy_key.private_key))'
+          kube_namespace: {{ .Release.Name }}-eirini
+          sshd_port: 2222
+          ssl:
+            skip_cert_verify: false
+          cc:
+            ca_cert: "((cc_tls.ca))"
+          uaa:
+            ca_cert: '((uaa_ssl.ca))'
+        uaa:
+          clients:
+            ssh-proxy:
+              secret: '((uaa_clients_ssh-proxy_secret))'
+          url: "https://uaa.service.cf.internal:8443"
+    - name: eirini-ssh-extension
+      release: eirini
+      properties:
+        eirini-ssh-extension:
+          namespace: {{ .Release.Name }}-eirini
+          operator_webhook_host: "0.0.0.0"
+          operator_webhook_port: 2999
+          operator_webhook_servicename: {{ .Release.Name }}-eirini-ssh
+          operator_webhook_namespace: {{ .Release.Name }}
     - name: eirini-loggregator-bridge
       release: eirini
       properties:
@@ -133,7 +179,7 @@
   path: /releases/-
   value:
     name: eirini
-    version: 0.0.22
+    version: 0.0.25
     url: {{ .Values.releases.defaults.url | quote }}
     stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "eirini") }}
 
@@ -248,6 +294,16 @@
       common_name: cloud_controller
       extended_key_usage:
       - client_auth
+- type: replace
+  path: /variables/name=eirini_persi_broker_auth_password?
+  value:
+    type: password
+    name: eirini_persi_broker_auth_password
+- type: replace
+  path: /variables/name=eirini_ssh_proxy_key?
+  value:
+    type: ssh
+    name: eirini_ssh_proxy_key
 
 - type: replace
   path: /instance_groups/name=bits/jobs/name=eirinifs/properties?/quarks?
@@ -263,6 +319,22 @@
 - type: replace
   path: /variables/name=loggregator_tls_doppler/options/alternative_names?/-
   value: metron
+
+# Add necessary labels to the eirini instance group so that the service can select it to create the endpoint for ssh-proxy
+- type: replace
+  path: /instance_groups/name=eirini/env?/bosh/agent/settings/labels/app.kubernetes.io~1component
+  value: "ssh-proxy"
+- type: replace
+  path: /instance_groups/name=eirini/env?/bosh/agent/settings/labels/app.kubernetes.io~1instance
+  value: {{ .Release.Name | quote }}
+- type: replace
+  path: /instance_groups/name=eirini/env?/bosh/agent/settings/labels/app.kubernetes.io~1version
+  value: {{ default .Chart.Version .Chart.AppVersion | quote }}
+
+# Set the ssh-proxy key fingerprint
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/app_ssh/host_key_fingerprint?
+  value: '((eirini_ssh_proxy_key.public_key_fingerprint))'
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/eirini_*" }}
