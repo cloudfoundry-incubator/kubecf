@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset
 
-target="/var/vcap/all-releases/jobs-src/eirini/eirini-loggregator-bridge/templates/bpm.yml.erb"
+target="/var/vcap/all-releases/jobs-src/eirini/eirini-ssh-proxy/templates/bpm.yml.erb"
 sentinel="${target}.patch_sentinel"
 if [[ -f "${sentinel}" ]]; then
   echo "Patch already applied. Skipping"
@@ -11,13 +11,14 @@ fi
 
 # Patch BPM, since we're actually running in-cluster without BPM
 patch --verbose "${target}" <<'EOT'
-@@ -8,17 +8,3 @@
-       - "--kubeconfig"
-       - "<%= kubeconfig %>"
-       <% end %>
--    env:
--      KUBERNETES_SERVICE_HOST: "<%= p("eirini-loggregator-bridge.kube_service_host") %>"
--      KUBERNETES_SERVICE_PORT: "<%= p("eirini-loggregator-bridge.kube_service_port") %>"
+@@ -5,18 +5,5 @@ processes:
+       - "--config"
+       - "/var/vcap/jobs/eirini-ssh-proxy/config/eirini-ssh-proxy.json"
+     env:
+-      KUBERNETES_SERVICE_HOST: "<%= p("eirini-ssh-proxy.kube_service_host") %>"
+-      KUBERNETES_SERVICE_PORT: "<%= p("eirini-ssh-proxy.kube_service_port") %>"
+       SSH_PROXY_KUBERNETES_NAMESPACE: "<%= p("eirini-ssh-proxy.kube_namespace") %>"
+       SSH_PROXY_DAEMON_PORT: "<%= p("eirini-ssh-proxy.sshd_port") %>"
 -    <% if properties.opi&.k8s&.host_url.nil? %>
 -    # The ServiceAccount admission controller has to be enabled.
 -    # https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/#accessing-the-api-from-a-pod
