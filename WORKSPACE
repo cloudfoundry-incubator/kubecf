@@ -94,6 +94,12 @@ http_file(
     urls = [project.local_path_provisioner.url],
 )
 
+http_file(
+    name = "kube_dashboard",
+    sha256 = project.kube_dashboard.sha256,
+    urls = [project.kube_dashboard.url],
+)
+
 http_archive(
     name = "bazel_skylib",
     sha256 = project.skylib.sha256,
