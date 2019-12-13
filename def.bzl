@@ -4,8 +4,8 @@ project = struct(
     chart_version = "3.0.0",
     app_version = "2.0",
     cf_deployment = struct(
-        version = "12.4.0",
-        sha256 = "067d12b47c6c4c6206ec5aceb9eb602ca558ebd72c1001263fd732ee1562fe77",
+        version = "12.18.0",
+        sha256 = "1aeb7fa2bbd78ac4837c2aeaa4b9dc9567bc498f08f7fd744da556e672788991",
     ),
     cf_operator = struct(
         chart = struct(
