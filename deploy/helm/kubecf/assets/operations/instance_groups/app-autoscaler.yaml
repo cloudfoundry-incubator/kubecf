@@ -416,7 +416,7 @@
               level: info
             broker:
               server:
-                port: &servicebrokerPort 6102
+                port: 6102
                 catalog:
                   services:
                   - id: autoscaler-guid
@@ -500,14 +500,14 @@
             - autoscaler.((system_domain))
           - name: autoscaler_service_broker
             registration_interval: 20s
-            port: *servicebrokerPort
+            port: 6102
             tags:
               component: autoscaler_service_broker
             uris:
             - autoscalerservicebroker.((system_domain))
           - name: autoscaler_metrics_forwarder
             registration_interval: 20s
-            port: *apiServerPublicPort
+            port: 6201
             tags:
               component: autoscaler_metrics_forwarder
             uris:
@@ -992,10 +992,6 @@
             exec:
               command:
               - /var/vcap/packages/postgres-11.5/bin/pg_isready
-    pre_render_scripts:
-      jobs:
-      - |
-        sed -i "s/sysctl/#sysctl/g" /var/vcap/all-releases/jobs-src/postgres/postgres/templates/pre-start.sh.erb
     bpm:
       processes:
       - name: postgres
@@ -1046,4 +1042,10 @@
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/cf/skip_ssl_validation?
   value: true
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/asdatabase_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}
+
 {{- end }}

@@ -54,3 +54,8 @@
     ((cc_tls.ca))
     ((uaa_ssl.ca))
     ((network_policy_server_external.ca))
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/router_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}

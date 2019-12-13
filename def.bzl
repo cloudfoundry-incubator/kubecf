@@ -4,8 +4,8 @@ project = struct(
     chart_version = "3.0.0",
     app_version = "2.0",
     cf_deployment = struct(
-        version = "12.4.0",
-        sha256 = "067d12b47c6c4c6206ec5aceb9eb602ca558ebd72c1001263fd732ee1562fe77",
+        version = "12.18.0",
+        sha256 = "1aeb7fa2bbd78ac4837c2aeaa4b9dc9567bc498f08f7fd744da556e672788991",
     ),
     cf_operator = struct(
         chart = struct(
@@ -101,6 +101,10 @@ project = struct(
     local_path_provisioner = struct(
         url = "https://raw.githubusercontent.com/rancher/local-path-provisioner/58cafaccef6645e135664053545ff94cb4bc4224/deploy/local-path-storage.yaml",
         sha256 = "df88b9a38420bb6d286953e06766abbc587e57f1f4eb5cb1c749fa53488cb4f7",
+    ),
+    kube_dashboard = struct(
+        url = "https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta1/aio/deploy/recommended.yaml",
+        sha256 = "f849252870818a2971dfc3c4f8a8c5f58a57606bc2b5f221d7ab693e1d1190e0",
     ),
     skylib = struct(
         version = "0.9.0",

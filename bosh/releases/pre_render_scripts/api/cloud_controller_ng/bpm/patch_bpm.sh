@@ -3,12 +3,17 @@
 set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/capi/cloud_controller_ng/templates/bpm.yml.erb"
+sentinel="${target}.patch_sentinel"
+if [[ -f "${sentinel}" ]]; then
+  echo "Patch already applied. Skipping"
+  exit 0
+fi
 
 # Patch a few things on the BPM:
 #   - DYNO environment variable is not needed.
 #   - We don't enable New Relic.
 #   - NGINX maintenance shouldn't run.
-PATCH=$(cat <<'EOT'
+patch --verbose "${target}" <<'EOT'
 @@ -20,7 +20,6 @@
      "BUNDLE_GEMFILE" => "/var/vcap/packages/cloud_controller_ng/cloud_controller_ng/Gemfile",
      "CLOUD_CONTROLLER_NG_CONFIG" => "/var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml",
@@ -27,11 +32,5 @@ PATCH=$(cat <<'EOT'
    ]
  }
 EOT
-)
 
-# Only patch once
-if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
-  patch --verbose "${target}" <<<"$PATCH"
-else
-  echo "Patch already applied. Skipping"
-fi
+touch "${sentinel}"

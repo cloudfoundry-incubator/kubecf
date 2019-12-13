@@ -20,6 +20,8 @@ def _kind_impl(ctx):
         export KUBECTL="{kubectl}"
         export METRICS_SERVER="{metrics_server}"
         export K8S_VERSION="${{K8S_VERSION:-{k8s_version}}}"
+        export LOCAL_PATH_STORAGE_YAML="{local_path_storage_yaml}"
+        export KUBE_DASHBOARD_YAML="{kube_dashboard}"
         "{script}"
     """.format(
         kind = ctx.executable._kind.short_path,
@@ -27,6 +29,8 @@ def _kind_impl(ctx):
         kubectl = ctx.executable._kubectl.short_path,
         metrics_server = metrics_server_dir,
         k8s_version = ctx.attr.k8s_version,
+        local_path_storage_yaml = ctx.file._local_path_storage_yaml.short_path,
+        kube_dashboard = ctx.file._kube_dashboard.short_path,
         script = ctx.executable._script.path,
     )
     ctx.actions.write(executable, contents, is_executable = True)
@@ -34,6 +38,8 @@ def _kind_impl(ctx):
         ctx.executable._kind,
         ctx.executable._kubectl,
         ctx.executable._script,
+        ctx.file._local_path_storage_yaml,
+        ctx.file._kube_dashboard,
     ] + ctx.files._metrics_server
     return [DefaultInfo(
         executable = executable,
@@ -62,6 +68,14 @@ attrs = {
     "_metrics_server": attr.label(
         default = "@com_github_kubernetes_incubator_metrics_server//:deploy",
         allow_files = True,
+    ),
+    "_local_path_storage_yaml": attr.label(
+        default = "@local_path_provisioner//file",
+        allow_single_file = True,
+    ),
+    "_kube_dashboard": attr.label(
+        default = "@kube_dashboard//file",
+        allow_single_file = True,
     ),
 }
 

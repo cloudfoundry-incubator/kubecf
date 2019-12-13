@@ -3,9 +3,14 @@
 set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/diego/rep/templates/bpm-pre-start.erb"
+sentinel="${target}.patch_sentinel"
+if [[ -f "${sentinel}" ]]; then
+  echo "Patch already applied. Skipping"
+  exit 0
+fi
 
 # Use the ephemeral data directory for the rootfs.
-PATCH=$(cat <<'EOT'
+patch --verbose "${target}" <<'EOT'
 @@ -5,3 +5,7 @@
  $bin_dir/set-rep-kernel-params
 
@@ -15,11 +20,5 @@ PATCH=$(cat <<'EOT'
 +cp -r /var/vcap/packages/healthcheck /var/vcap/data/shared-packages/
 +cp -r /var/vcap/packages/proxy /var/vcap/data/shared-packages/
 EOT
-)
 
-# Only patch once
-if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
-  patch --verbose "${target}" <<<"$PATCH"
-else
-  echo "Patch already applied. Skipping"
-fi
+touch "${sentinel}"
