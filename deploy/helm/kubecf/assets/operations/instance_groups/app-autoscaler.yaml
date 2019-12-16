@@ -1003,34 +1003,8 @@
         - "-"
         - vcap
         - -c
-        - |
-          set -o errexit -o nounset
-
-          wait_for_file() {
-            local file_path="$1"
-            local timeout="${2:-30}"
-            until [[ -f "${file_path}" ]] || [[ "$timeout" == "0" ]]; do sleep 1; timeout=$(expr $timeout - 1); done
-            if [[ "${timeout}" == 0 ]]; then return 1; fi
-            return 0
-          }
-
-          source /var/vcap/jobs/postgres/bin/pgconfig.sh
-
-          /var/vcap/jobs/postgres/bin/postgres_ctl start
-          wait_for_file "${PIDFILE}" || {
-            echo "${PIDFILE} did not get created"
-            exit 1
-          }
-          trap '/var/vcap/jobs/postgres/bin/postgres_ctl stop' EXIT
-
-          /var/vcap/jobs/postgres/bin/pg_janitor_ctl start &
-
-          tail \
-            --pid "$(cat "${PIDFILE}")" \
-            --follow \
-            "${LOG_DIR}/startup.log" \
-            "${LOG_DIR}/pg_janitor_ctl.log" \
-            "${LOG_DIR}/pg_janitor_ctl.err.log"
+        - |-
+          {{- .Files.Get "assets/scripts/jobs/postgres/bpm_process.sh" | nindent 10 }}
 
 # TODO: set these skip_ssl_validation to false if the cf API (api.((system_domain))) public cert is provided by the user.
 - type: replace
