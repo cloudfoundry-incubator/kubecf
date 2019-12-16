@@ -16,27 +16,28 @@ def main(ctx):
 
     steps = []
 
+    # Execute the binaries.sh script first to build the external binaries cache.
     steps.append(step(
         name = "external-binaries",
-        commands = ["bash {}/runtime/binaries.sh".format(DRONE_BASE_PATH)],
+        commands = ["{base_path}/runtime/binaries.sh".format(base_path = DRONE_BASE_PATH)],
     ))
 
     for linter in ["shellcheck", "yamllint", "helmlint"]:
         steps.append(step(
-            name = "lint:{}".format(linter),
-            commands = ["./dev/linters/{}.sh".format(linter)],
+            name = "lint:{linter}".format(linter = linter),
+            commands = ["dev/linters/{linter}.sh".format(linter = linter)],
         ))
 
     steps.append(step(
         name = "build",
-        commands = ["{}/steps/build/build.sh".format(DRONE_BASE_PATH)],
+        commands = ["{base_path}/steps/build/build.sh".format(base_path = DRONE_BASE_PATH)],
     ))
 
     steps.append(step(
         name = "deploy:kind",
         commands = [
-            "{}/steps/deploy/cleanup.sh".format(DRONE_BASE_PATH),
-            "{}/steps/deploy/kind.sh".format(DRONE_BASE_PATH),
+            "{base_path}/steps/deploy/cleanup.sh".format(base_path = DRONE_BASE_PATH),
+            "{base_path}/steps/deploy/kind.sh".format(base_path = DRONE_BASE_PATH),
         ],
         extra_volumes = [
             docker_sock_volume(),
@@ -47,10 +48,16 @@ def main(ctx):
 
     for component in ["cf_operator", "kubecf"]:
         steps.append(step(
-            name = "deploy:{}".format(component),
+            name = "deploy:{component}".format(component = component),
             commands = [
-                "{}/steps/deploy/{}.sh".format(DRONE_BASE_PATH, component),
-                "{}/steps/deploy/wait_{}.sh".format(DRONE_BASE_PATH, component),
+                "{base_path}/steps/deploy/{component}.sh".format(
+                    base_path = DRONE_BASE_PATH,
+                    component = component,
+                ),
+                "{base_path}/steps/deploy/wait_{component}.sh".format(
+                    base_path = DRONE_BASE_PATH,
+                    component = component,
+                ),
             ],
             extra_volumes = [
                 kube_volume(),
@@ -64,7 +71,7 @@ def main(ctx):
     steps.append(step(
         name = "cleanup:kind",
         commands = [
-            "{}/steps/deploy/cleanup.sh".format(DRONE_BASE_PATH),
+            "{base_path}/steps/deploy/cleanup.sh".format(base_path = DRONE_BASE_PATH),
         ],
         extra_volumes = [
             docker_sock_volume(),
@@ -87,7 +94,7 @@ def main(ctx):
 BAZEL_CACHE_VOLUME_NAME = "bazel-cache"
 DOCKER_SOCK_VOLUME_NAME = "docker-sock"
 DOCKER_SOCK_PATH = "/var/run/docker.sock"
-KUBE_VOLUME_NAME = "kube"
+KUBE_CONFIG_VOLUME_NAME = "kube"
 TMP_VOLUME_NAME = "tmp"
 
 def step(
@@ -99,7 +106,7 @@ def step(
     when = None,
 ):
     step = {
-        "name": name,
+        "name": name.replace("_", "-"),
         "commands": commands,
         "image": image,
         "volumes": extra_volumes + [
@@ -124,9 +131,12 @@ def step(
 
 def test_step(name):
     return step(
-        name = "test:{}".format(name),
+        name = "test:{name}".format(name = name),
         commands = [
-            "{}/steps/test/{}.sh".format(DRONE_BASE_PATH, name),
+            "{base_path}/steps/test/{name}.sh".format(
+                base_path = DRONE_BASE_PATH,
+                name = name,
+            ),
         ],
         extra_volumes = [
             kube_volume(),
@@ -142,7 +152,7 @@ def docker_sock_volume():
 
 def kube_volume():
     return {
-        "name": KUBE_VOLUME_NAME,
+        "name": KUBE_CONFIG_VOLUME_NAME,
         "path": "/root/.kube",
     }
 
@@ -161,7 +171,7 @@ def volumes():
             },
         },
         {
-            "name": KUBE_VOLUME_NAME,
+            "name": KUBE_CONFIG_VOLUME_NAME,
             "temp": {},
         },
         {

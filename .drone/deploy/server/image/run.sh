@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 # This script wraps the original drone-server executable but maps the provided $PORT environment
-# variable to the $DRONE_SERVER_PORT variable.
+# variable to the $DRONE_SERVER_PORT variable as well as runs the the Starlark plugin.
 
 set -o errexit -o nounset
 
