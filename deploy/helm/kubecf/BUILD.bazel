@@ -32,15 +32,22 @@ pkg_tar(
 )
 
 yaml_extractor(
+    name = "auctioneer_job",
+    src = "@cf_deployment//:cf-deployment.yml",
+    filter = """.instance_groups[] | select(.name == "scheduler") | .jobs[] | select(.name == "auctioneer")""",
+)
+
+yaml_extractor(
     name = "routing_api_job",
     src = "@cf_deployment//:cf-deployment.yml",
     filter = """.instance_groups[] | select(.name == "api") | .jobs[] | select(.name == "routing-api")""",
 )
 
 pkg_tar(
-    name = "routing_api_job_tar",
+    name = "extracted_jobs",
     package_dir = "assets/jobs",
     srcs = [
+        ":auctioneer_job",
         ":routing_api_job",
     ],
 )
@@ -56,7 +63,7 @@ helm_package(
     tars = [
         "//bosh/releases:pre_render_scripts",
         ":cf_deployment",
-        ":routing_api_job_tar",
+        ":extracted_jobs",
     ],
     chart_name = "kubecf",
     chart_version = project.chart_version,

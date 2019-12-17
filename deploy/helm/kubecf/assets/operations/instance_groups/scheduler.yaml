@@ -6,22 +6,6 @@
       exec:
         command: [curl, --fail, --head, --silent, http://127.0.0.1:8080/health]
 
-# Add quarks properties for the auctioneer job.
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=auctioneer/properties/quarks?
-  value:
-    ports:
-    - name: auctioneer
-      protocol: TCP
-      internal: 9016
-    run:
-      healthcheck:
-        auctioneer:
-          readiness:
-            # There is no health check, just depend on the port being open
-            tcpSocket:
-              port: 9016
-
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/quarks?/run/healthcheck/cloud_controller_clock
   value:

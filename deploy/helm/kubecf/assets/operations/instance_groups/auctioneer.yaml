@@ -1,0 +1,25 @@
+# Add quarks properties for the auctioneer job.
+- type: replace
+  path: /instance_groups/name=auctioneer/jobs/name=auctioneer/properties/quarks?
+  value:
+    ports:
+    - name: auctioneer
+      protocol: TCP
+      internal: 9016
+    run:
+      healthcheck:
+        auctioneer:
+          readiness:
+            # There is no health check, just depend on the port being open
+            tcpSocket:
+              port: 9016
+
+# Set the alias auctioneer.service.cf.internal instance group to auctioneer.
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=auctioneer.service.cf.internal/targets/0/instance_group
+  value: auctioneer
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/auctioneer_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}

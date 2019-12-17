@@ -81,6 +81,16 @@ data:
 {{- end }}
 {{- end }}
 
+{{- if .Values.sizing.auctioneer.instances }}
+    - type: replace
+      path: /instance_groups/name=auctioneer/instances
+      value: {{.Values.sizing.auctioneer.instances}}
+{{- else if not .Values.high_availability }}
+    - type: replace
+      path: /instance_groups/name=auctioneer/instances
+      value: 1
+{{- end }}
+
 {{- if .Values.features.eirini.enabled }}
 {{- if .Values.sizing.bits.instances }}
     - type: replace
