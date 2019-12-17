@@ -67,8 +67,10 @@
       healthcheck:
         bbs:
           readiness:
-            httpGet:
-              port: 8890
+            # The /ping endpoint on the healthcheck endpoint is unusable for this readiness probe.
+            # https://github.com/cloudfoundry/bbs/blob/513a9420c3244966c4391d3f3a830f1732f1398a/handlers/ping_handler.go#L17-L21
+            tcpSocket:
+              port: 8889
     post_start:
       condition:
         exec:
