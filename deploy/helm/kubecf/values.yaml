@@ -107,6 +107,8 @@ sizing:
     instances: ~
   router:
     instances: ~
+  routing_api:
+    instances: ~
   scheduler:
     instances: ~
   singleton_blobstore:

@@ -16,6 +16,8 @@ spec:
     name: {{ .Release.Name }}-cf-deployment
     type: configmap
   ops:
+  - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" "assets/operations/unordered/move_routing_api.yaml") }}
+    type: configmap
 {{- if .Values.features.suse_buildpacks }}
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
     type: configmap

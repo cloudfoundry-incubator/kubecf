@@ -36,10 +36,15 @@ http_archive(
     name = "cf_deployment",
     build_file_content = """
 package(default_visibility = ["//visibility:public"])
+files = [
+    "cf-deployment.yml",
+    "operations/bits-service/use-bits-service.yml",
+]
 filegroup(
     name = "cf_deployment",
-    srcs = ["cf-deployment.yml", "operations/bits-service/use-bits-service.yml"],
+    srcs = files,
 )
+exports_files(files)
 """,
     sha256 = project.cf_deployment.sha256,
     strip_prefix = "cf-deployment-{}".format(project.cf_deployment.version),
@@ -81,6 +86,11 @@ external_binary(
 external_binary(
     name = "jq",
     platforms = project.jq.platforms,
+)
+
+external_binary(
+    name = "yq",
+    platforms = project.yq.platforms,
 )
 
 external_binary(
