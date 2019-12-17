@@ -11,6 +11,7 @@ convert_starlark_secret="dont_need_to_be_secret"
 DRONE_SECRET="${convert_starlark_secret}" exec /bin/drone-convert-starlark &
 
 export DRONE_SERVER_PORT=":${PORT}"
+export DRONE_DATABASE_DATASOURCE="${DATABASE_URL}"
 export DRONE_CONVERT_PLUGIN_ENDPOINT=http://127.0.0.1:3000
 DRONE_CONVERT_PLUGIN_SECRET="${convert_starlark_secret}"
 export DRONE_CONVERT_PLUGIN_SECRET
