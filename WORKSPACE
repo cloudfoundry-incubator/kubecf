@@ -84,6 +84,11 @@ external_binary(
 )
 
 external_binary(
+    name = "yq",
+    platforms = project.yq.platforms,
+)
+
+external_binary(
     name = "yaml2json",
     platforms = project.yaml2json.platforms,
 )

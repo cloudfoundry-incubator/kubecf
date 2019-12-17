@@ -146,6 +146,22 @@ project = struct(
             },
         },
     ),
+    yq = struct(
+        platforms = {
+            "darwin": {
+                "url": "https://github.com/mikefarah/yq/releases/download/2.4.1/yq_darwin_amd64",
+                "sha256": "06732685917646c0bbba8cc17386cd2a39b214ad3cd128fb4b8b410ed069101c",
+            },
+            "linux": {
+                "url": "https://github.com/mikefarah/yq/releases/download/2.4.1/yq_linux_amd64",
+                "sha256": "754c6e6a7ef92b00ef73b8b0bb1d76d651e04d26aa6c6625e272201afa889f8b",
+            },
+            "windows": {
+                "url": "https://github.com/mikefarah/yq/releases/download/2.4.1/yq_windows_amd64.exe",
+                "sha256": "bdfd2a00bab3d8171edf57aaf4e9a2f7d0395e7a36d42b07f0e35503c00292a3",
+            },
+        },
+    ),
     yaml2json = struct(
         platforms = {
             "darwin": {
