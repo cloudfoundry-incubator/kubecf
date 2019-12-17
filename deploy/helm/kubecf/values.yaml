@@ -87,6 +87,8 @@ sizing:
     instances: ~
   asnozzle:
     instances: ~
+  auctioneer:
+    instances: ~
   bits:
     instances: ~
   cc_worker:
