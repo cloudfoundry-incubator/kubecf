@@ -1,9 +1,10 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-load("//rules/helm:def.bzl", helm_package = "package")
-load("//:def.bzl", "project")
 load("//deploy/helm/kubecf:defs.bzl", "metadata_file_generator")
+load("//rules/helm:def.bzl", helm_package = "package")
+load("//rules/yaml_extractor:defs.bzl", "yaml_extractor")
+load("//:def.bzl", "project")
 
 metadata_file_generator(
     name = "metadata",
@@ -30,6 +31,20 @@ pkg_tar(
     ],
 )
 
+yaml_extractor(
+    name = "routing_api_job",
+    src = "@cf_deployment//:cf-deployment.yml",
+    filter = """.instance_groups[] | select(.name == "api") | .jobs[] | select(.name == "routing-api")""",
+)
+
+pkg_tar(
+    name = "routing_api_job_tar",
+    package_dir = "assets/jobs",
+    srcs = [
+        ":routing_api_job",
+    ],
+)
+
 helm_package(
     name = "chart",
     srcs = [
@@ -39,8 +54,9 @@ helm_package(
         ":metadata",
     ],
     tars = [
-        ":cf_deployment",
         "//bosh/releases:pre_render_scripts",
+        ":cf_deployment",
+        ":routing_api_job_tar",
     ],
     chart_name = "kubecf",
     chart_version = project.chart_version,
