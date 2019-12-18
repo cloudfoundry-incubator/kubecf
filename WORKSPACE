@@ -17,6 +17,7 @@ load(":def.bzl", "project")
     "kubectl",
     "shellcheck",
     "yaml2json",
+    "yq",
 ]]
 
 minikube_binary(
