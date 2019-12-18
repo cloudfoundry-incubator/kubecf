@@ -35,7 +35,7 @@ Create chart name and version as used by the chart label.
 Get the metadata name for an ops file.
 */}}
 {{- define "kubecf.ops-name" -}}
-{{- printf "ops-%s" (base . | trimSuffix (ext .) | lower | replace "_" "-") -}}
+{{- printf "%s-ops-%s" .ReleaseName (base .Path | trimSuffix (ext .Path) | lower | replace "_" "-") -}}
 {{- end -}}
 
 {{- /*

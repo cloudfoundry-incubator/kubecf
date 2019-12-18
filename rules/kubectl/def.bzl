@@ -7,7 +7,7 @@ def _kubectl_impl(ctx):
         export NAMESPACE="{namespace}"
         "{script}"
     """.format(
-        kubectl = ctx.executable._kubectl.path,
+        kubectl = ctx.executable._kubectl.short_path,
         resource = ctx.file.resource.short_path,
         namespace = ctx.attr.namespace,
         script = ctx.executable._script.path,
@@ -27,7 +27,7 @@ _kubectl_attr = {
     "_kubectl": attr.label(
         allow_single_file = True,
         cfg = "host",
-        default = "@kubectl//kubectl",
+        default = "@kubectl//:binary",
         executable = True,
     ),
 }
@@ -80,7 +80,7 @@ def _kubectl_patch_impl(ctx):
         export PATCH_FILE="{patch_file}"
         "{script}"
     """.format(
-        kubectl = ctx.executable._kubectl.path,
+        kubectl = ctx.executable._kubectl.short_path,
         namespace = ctx.attr.namespace,
         resource_type = ctx.attr.resource_type,
         resource_name = ctx.attr.resource_name,

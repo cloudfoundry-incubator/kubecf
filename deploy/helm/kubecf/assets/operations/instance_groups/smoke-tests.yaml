@@ -1,3 +1,5 @@
+{{- if .Values.testing.smoke_tests.enabled -}}
+
 - type: replace
   path: /instance_groups/name=smoke-tests/jobs/name=cf-cli-6-linux/properties?/quarks/bpm/processes
   value: []
@@ -10,4 +12,11 @@
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/smoke-tests_*" }}
 {{ $root.Files.Get $path }}
+{{- end }}
+
+{{- else -}}
+
+- type: remove
+  path: /instance_groups/name=smoke-tests
+
 {{- end }}

@@ -19,33 +19,32 @@ def _external_binary_impl(ctx):
     }
     if any([url.endswith(suffix) for suffix in [".zip", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz"]]):
         ctx.download_and_extract(output="{name}/{name}_out".format(name = ctx.attr.name), **args)
-        build_contents = """
-        package(default_visibility = ["//visibility:public"])
-
-        load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
-
-        filegroup(
-            name = "{name}_filegroup",
-            srcs = glob(["**/{name}*"]),
-        )
-
-        copy_file(
-            name = "{name}",
-            src = ":{name}_filegroup",
-            out = "executable",
-            is_executable = True,
-        )
-        """.format(name = ctx.attr.name)
     else:
         args["executable"] = True
         ctx.download(output="{name}/{name}".format(name = ctx.attr.name), **args)
-        build_contents = """
-        package(default_visibility = ["//visibility:public"])
-        exports_files(glob(["**/*"]))
-        """.format(name = ctx.attr.name)
 
+    build_contents = """
+    package(default_visibility = ["//visibility:public"])
+
+    load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+
+    filegroup(
+        name = "{name}_filegroup",
+        srcs = glob([
+            "**/{name}",
+            "**/{name}.exe",
+        ]),
+    )
+
+    copy_file(
+        name = "binary",
+        src = ":{name}_filegroup",
+        out = "{name}",
+        is_executable = True,
+    )
+    """.format(name = ctx.attr.name)
     build_contents = '\n'.join([x.lstrip(' ') for x in build_contents.splitlines()])
-    ctx.file("{name}/BUILD.bazel".format(name = ctx.attr.name), build_contents)
+    ctx.file("BUILD.bazel".format(name = ctx.attr.name), build_contents)
 
 _external_binary = repository_rule(
     implementation = _external_binary_impl,
@@ -68,10 +67,9 @@ def _validade_platform_info(platform, info):
     if not "url" in info:
         fail("missing attr 'url' in '{}'".format(platform))
 
-
 def _binary_location_impl(ctx):
     script = ctx.actions.declare_file(ctx.attr.name)
-    contents = "echo \"$(pwd)/{}\"".format(ctx.executable.binary.path)
+    contents = "echo \"$(realpath $(pwd)/{})\"".format(ctx.executable.binary.short_path)
     ctx.actions.write(script, contents, is_executable = True)
     return [DefaultInfo(
         executable = script,

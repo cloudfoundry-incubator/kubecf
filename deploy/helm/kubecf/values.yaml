@@ -9,6 +9,20 @@ system_domain: ~
 #          adapter:
 #            logs:
 #              addr: kubecf-log-api:8082
+#
+#  Eirini Persistence Broker setup example:
+#
+# properties:
+#   eirini:
+#     eirini-persi-broker:
+#       eirini-persi-broker:
+#         service_plans:
+#           - id: "default"
+#             name: "default"
+#             description: "Persistence storage service broker for applications."
+#             free: true
+#             kube_storage_class: "default"
+#             default_size: "1Gi"
 properties: {}
 
 # The storage class to be used for the instance groups that need it (e.g. bits, database and singleton-blobstore)
@@ -22,8 +36,12 @@ releases:
     url: docker.io/cfcontainerization
     stemcell:
       os: SLE_15_SP1
-      version: 15.1-7.0.0_367.g6b06e343
-
+      version: 15.1-7.0.0_374.gb8e8e6af
+  app-autoscaler:
+    version: 3.0.0
+    stemcell:
+      os: opensuse-42.3
+      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   bits-service:
     stemcell:
       os: opensuse-42.3
@@ -37,10 +55,17 @@ releases:
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
-  eirini:
+  postgres:
+    version: "39"
     stemcell:
       os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
+  sle15:
+    url: registry.suse.com/cap-staging
+    version: "10.70"
+    stemcell:
+      os: SLE-12SP4
+      version: 11.g2837aef-0.233-7.0.0_372.ge3509601
 
 multi_az: false
 high_availability: false
@@ -51,6 +76,18 @@ sizing:
   adapter:
     instances: ~
   api:
+    instances: ~
+  asactors:
+    instances: ~
+  asapi:
+    instances: ~
+  asdatabase:
+    instances: 1
+  asmetrics:
+    instances: ~
+  asnozzle:
+    instances: ~
+  auctioneer:
     instances: ~
   bits:
     instances: ~
@@ -73,6 +110,8 @@ sizing:
   nats:
     instances: ~
   router:
+    instances: ~
+  routing_api:
     instances: ~
   scheduler:
     instances: ~
@@ -118,6 +157,10 @@ features:
   # TODO: suse_buildpacks should be default to true after the opensuse-stemcell-based images are
   # published to docker.io.
   suse_buildpacks: false
+  autoscaler:
+    enabled: false
+  sle15_stack:
+    enabled: true
 
   # external_database disables the embedded database and allows using an external, already seeded,
   # database.
@@ -160,6 +203,16 @@ features:
         name: credhub
         password: ~
         username: ~
+
+# Enable or disable instance groups for the different test suites.
+# Only smoke tests should be run in production environments.
+testing:
+  brain_tests:
+    enabled: false
+  cf_acceptance_tests:
+    enabled: false
+  smoke_tests:
+    enabled: true
 
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.

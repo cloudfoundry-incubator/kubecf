@@ -1,5 +1,27 @@
 {{- if not .Values.features.eirini.enabled -}}
 
+{{- if .Values.features.sle15_stack.enabled }}
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/-
+  value:
+    name: sle15-rootfs-setup
+    release: sle15
+    properties:
+      sle15-rootfs:
+        trusted_certs:
+        - ((diego_instance_identity_ca.ca))
+        - ((credhub_tls.ca))
+        - ((uaa_ssl.ca))
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=sle15-rootfs-setup/properties/quarks?/bpm/processes
+  value: []
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/preloaded_rootfses/-
+  value: sle15:/var/vcap/data/rep/sle15/rootfs.tar
+{{- end }}
+
 # Selectively remove jobs temporarily.
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden-cni
@@ -102,6 +124,7 @@
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties/quarks?/bpm/processes
   value: []
+
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []

@@ -56,3 +56,8 @@
     ((uaa_ssl.ca))
     ((network_policy_server_external.ca))
     ((credhub_ca.certificate))
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/router_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}

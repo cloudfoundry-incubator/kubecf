@@ -1,6 +1,7 @@
+{{- if .Values.testing.brain_tests.enabled -}}
+
 # Service account, roles, and cluster role for the brain tests.
 # Raw kube objects going into the chart.
-# TODO: Make this conditional.
 
 # Service account "tests-brain" is used by the instance group "acceptance-tests-brain"
 ---
@@ -219,3 +220,5 @@ roleRef:
   kind: "ClusterRole"
   apiGroup: "rbac.authorization.k8s.io"
   name: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
+
+{{- end }}

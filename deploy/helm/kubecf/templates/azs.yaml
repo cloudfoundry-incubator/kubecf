@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ops-azs
+  name: {{ .Release.Name }}-ops-azs
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: operations
@@ -48,6 +48,19 @@ data:
       path: /instance_groups/name=bits/azs?
     - type: remove
       path: /instance_groups/name=eirini/azs?
+    {{- end }}
+
+    {{- if .Values.features.autoscaler.enabled }}
+    - type: remove
+      path: /instance_groups/name=asdatabase/azs
+    - type: remove
+      path: /instance_groups/name=asactors/azs
+    - type: remove
+      path: /instance_groups/name=asmetrics/azs
+    - type: remove
+      path: /instance_groups/name=asapi/azs
+    - type: remove
+      path: /instance_groups/name=asnozzle/azs
     {{- end }}
 
     {{- if not .Values.features.external_database.enabled }}

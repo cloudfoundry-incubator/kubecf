@@ -1,5 +1,31 @@
 {{- if .Values.features.eirini.enabled -}}
 
+# eirini-webhook cluster role for eirini service account.
+# Used to implement eirinix extensions.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Namespace }}:{{ .Release.Name }}-eirini-webhook
+rules:
+- apiGroups: ['admissionregistration.k8s.io']
+  resources: ['mutatingwebhookconfigurations']
+  verbs:     ['*']
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Namespace }}:{{ .Release.Name }}-eirini-webhook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Namespace }}:{{ .Release.Name }}-eirini-webhook
+subjects:
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-eirini
+  namespace: {{.Release.Namespace}}
+
 # A service for the cc uploader
 ---
 apiVersion: v1
@@ -38,6 +64,57 @@ spec:
       port: 443
       targetPort: 443
       nodePort: {{ .Values.features.eirini.registry.service.nodePort }}
+# A service for eirini-ssh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-eirini-ssh
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    quarks.cloudfoundry.org/instance-group-name: eirini
+    quarks.cloudfoundry.org/deployment-name: {{ .Release.Name }}
+  ports:
+    - protocol: TCP
+      name: "https"
+      port: 443
+      targetPort: 2999
+# A service for eirini-persi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-eirini-persi
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    quarks.cloudfoundry.org/instance-group-name: eirini
+    quarks.cloudfoundry.org/deployment-name: {{ .Release.Name }}
+  ports:
+    - protocol: TCP
+      name: "https"
+      port: 443
+      targetPort: 8443
+# A service for eirini-persi-broker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-eirini-persi-broker
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    quarks.cloudfoundry.org/instance-group-name: eirini
+    quarks.cloudfoundry.org/deployment-name: {{ .Release.Name }}
+  ports:
+    - protocol: TCP
+      name: "http"
+      port: 8999
+      targetPort: 8999
 ---
 # A namespace where eirini apps are created
 apiVersion: v1
@@ -78,7 +155,7 @@ subjects:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ops-remove-diego
+  name: {{ .Release.Name }}-ops-remove-diego
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: operations
@@ -93,14 +170,14 @@ data:
     - type: remove
       path: /instance_groups/name=diego-cell
 
-    # Remove bbs and silk-controller from diego-api.
+    # Remove bbs from diego-api.
     # TODO: remove bbs in the future - when the clock and worker no longer need it.
     # - type: remove
     #   path: /instance_groups/name=diego-api/jobs/name=bbs
 
     # Remove auctioneer, tps and ssh_proxy from scheduler.
     - type: remove
-      path: /instance_groups/name=scheduler/jobs/name=auctioneer
+      path: /instance_groups/name=auctioneer
     - type: remove
       path: /instance_groups/name=scheduler/jobs/name=tps
     - type: remove

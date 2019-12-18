@@ -3,11 +3,16 @@
 set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/capi/cc_uploader/templates/pre-start.erb"
+sentinel="${target}.patch_sentinel"
+if [[ -f "${sentinel}" ]]; then
+  echo "Patch already applied. Skipping"
+  exit 0
+fi
 
 # Remove sysctl calls as we are running in containers.
 # cc_uploader_ctl in https://github.com/cloudfoundry/capi-release/blob/master/jobs/cc_uploader/templates/cc_uploader_ctl.erb#L26
 # also skips setting those parameters.
-PATCH=$(cat <<'EOT'
+patch --verbose "${target}" <<'EOT'
 @@ -6,6 +6,3 @@
      /var/vcap/jobs/bosh-dns/bin/wait
    fi
@@ -16,11 +21,5 @@ PATCH=$(cat <<'EOT'
 -sysctl -e -w net.ipv4.tcp_fin_timeout=10
 -sysctl -e -w net.ipv4.tcp_tw_reuse=1
 EOT
-)
 
-# Only patch once
-if ! patch --reverse --dry-run -f "${target}" <<<"$PATCH" 2>&1  >/dev/null ; then
-  patch --verbose "${target}" <<<"$PATCH"
-else
-  echo "Patch already applied. Skipping"
-fi
+touch "${sentinel}"

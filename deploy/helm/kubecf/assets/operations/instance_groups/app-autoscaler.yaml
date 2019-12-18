@@ -1,0 +1,1025 @@
+{{- if .Values.features.autoscaler.enabled -}}
+{{- $root := . -}}
+
+# Add autoscaler uaa client id and secret
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients?/app_autoscaler
+  value:
+    authorities: cloud_controller.read,cloud_controller.admin,uaa.resource
+    authorized-grant-types: client_credentials
+    scope: cloud_controller.read,cloud_controller.write,openid,scim.read
+    secret: ((uaa_clients_app_autoscaler_secret))
+
+# Add autoscaler BOSH DNS aliases.
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: autoscalerpostgres.service.cf.internal
+    targets:
+    - deployment: {{ .Release.Name | quote }}
+      domain: bosh
+      instance_group: asdatabase
+      network: default
+      query: '*'
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: apiserver.service.cf.internal
+    targets:
+    - deployment: {{ .Release.Name | quote }}
+      domain: bosh
+      instance_group: asapi
+      network: default
+      query: '*'
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: autoscalerscheduler.service.cf.internal
+    targets:
+    - deployment: {{ .Release.Name | quote }}
+      domain: bosh
+      instance_group: asactors
+      network: default
+      query: '*'
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: servicebroker.service.cf.internal
+    targets:
+    - deployment: {{ .Release.Name | quote }}
+      domain: bosh
+      instance_group: asapi
+      network: default
+      query: '*'
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: eventgenerator.service.cf.internal
+    targets:
+    - deployment: {{ .Release.Name | quote }}
+      domain: bosh
+      instance_group: asmetrics
+      network: default
+      query: '*'
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: scalingengine.service.cf.internal
+    targets:
+    - deployment: {{ .Release.Name | quote }}
+      domain: bosh
+      instance_group: asactors
+      network: default
+      query: '*'
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: metricsgateway.service.cf.internal
+    targets:
+    - deployment: {{ .Release.Name | quote }}
+      domain: bosh
+      instance_group: asnozzle
+      network: default
+      query: '*'
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: metricsserver.service.cf.internal
+    targets:
+    - deployment: {{ .Release.Name | quote }}
+      domain: bosh
+      instance_group: asmetrics
+      network: default
+      query: '*'
+
+# Add autoscaler related releases.
+- type: replace
+  path: /releases/-
+  value:
+    name: app-autoscaler
+    version: {{ (index .Values.releases "app-autoscaler").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "app-autoscaler") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "app-autoscaler") }}
+- type: replace
+  path: /releases/-
+  value:
+    name: postgres
+    version: {{ .Values.releases.postgres.version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "postgres") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "postgres") }}
+
+# Add autoscaler instance groups.
+- type: replace
+  path: /instance_groups/0:before
+  value:
+    name: asdatabase
+    persistent_disk: 20480 # 20GB
+    {{- if .Values.kube.storage_class }}
+    persistent_disk_type: {{ .Values.kube.storage_class }}
+    {{- end }}
+    azs:
+    - z1
+    instances: 1
+    stemcell: default
+    networks:
+    - name: default
+    jobs:
+    - name: postgres
+      release: postgres
+      properties:
+        databases:
+          tls:
+            ca: ((postgres_ca.certificate))
+            certificate: ((postgres_server.certificate))
+            private_key: ((postgres_server.private_key))
+          databases:
+          - name: autoscaler
+            tag: default
+          port: &postgresPort 5432
+          roles:
+          - name: postgres
+            password: "((autoscaler_database_password))"
+            tag: default
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: asactors
+    azs:
+    - z1
+    instances: 1
+    networks:
+    - name: default
+    stemcell: default
+    update:
+      max_in_flight: 1
+      serial: true
+    jobs:
+    - name: scalingengine
+      release: app-autoscaler
+      properties:
+        autoscaler:
+          scalingengine_db: &database
+            databases:
+            - name: autoscaler
+              tag: default
+            db_scheme: postgres
+            port: 5432
+            roles:
+            - name: postgres
+              password: ((autoscaler_database_password))
+              tag: default
+            sslmode: verify-full
+            tls:
+              ca: ((postgres_ca.certificate))
+          scheduler_db: *database
+          policy_db: *database
+          scalingengine_db_connection_config: &databaseConnectionConfig
+            max_open_connections: 100
+            max_idle_connections: 10
+            connection_max_lifetime: 60s
+          scheduler_db_connection_config: *databaseConnectionConfig
+          policy_db_connection_config: *databaseConnectionConfig
+          cf: &cf_credentials
+            api: "https://api.((system_domain))"
+            grant_type: client_credentials
+            client_id: "app_autoscaler"
+            secret: "((uaa_clients_app_autoscaler_secret))"
+            skip_ssl_validation: "((skip_ssl_validation))"
+          scalingengine:
+            logging:
+              level: info
+            http_client_timeout: 60s
+            server:
+              port: &scalingEnginePort 6104
+            health:
+              port: &scalingEngineHealthPort 6204
+            defaultCoolDownSecs: 300
+            lockSize: 32
+            ca_cert: ((autoscaler_scalingengine_ca.certificate))
+            server_cert: ((autoscaler_scalingengine_server.certificate))
+            server_key: ((autoscaler_scalingengine_server.private_key))
+    - name: scheduler
+      release: app-autoscaler
+      properties:
+        autoscaler:
+          scheduler:
+            port: &schedulerPort 6102
+            health:
+              port: &schedulerHealthPort 6202
+            http_client_timeout: 60
+            job_reschedule_interval_millisecond: 10000
+            job_reschedule_maxcount: 6
+            notification_reschedule_maxcount: 3
+            ca_cert: ((autoscaler_scheduler_ca.certificate))
+            server_cert: ((autoscaler_scheduler_server.certificate))
+            server_key: ((autoscaler_scheduler_server.private_key))
+            scaling_engine:
+              ca_cert: ((autoscaler_scalingengine_ca.certificate))
+              client_cert: ((autoscaler_scalingengine_client.certificate))
+              client_key: ((autoscaler_scalingengine_client.private_key))
+          scheduler_db: *database
+          policy_db: *database
+    - name: operator
+      release: app-autoscaler
+      properties:
+        autoscaler:
+          cf: *cf_credentials
+          policy_db: *database
+          appmetrics_db: *database
+          instancemetrics_db: *database
+          scalingengine_db: *database
+          lock_db: *database
+          policy_db_connection_config: *databaseConnectionConfig
+          appmetrics_db_connection_config: *databaseConnectionConfig
+          instancemetrics_db_connection_config: *databaseConnectionConfig
+          scalingengine_db_connection_config: *databaseConnectionConfig
+          lock_db_connection_config: *databaseConnectionConfig
+          operator:
+            app_sync_interval: 24h
+            scaling_engine:
+              port: *scalingEnginePort
+              ca_cert: ((autoscaler_scalingengine_ca.certificate))
+              client_cert: ((autoscaler_scalingengine_client.certificate))
+              client_key: ((autoscaler_scalingengine_client.private_key))
+            scheduler:
+              port: *schedulerPort
+              ca_cert: ((autoscaler_scheduler_ca.certificate))
+              client_cert: ((autoscaler_scheduler_client.certificate))
+              client_key: ((autoscaler_scheduler_client.private_key))
+            db_lock:
+              ttl: 15s
+              retry_interval: 5s
+            logging:
+              level: info
+            http_client_timeout: 60s
+            health:
+              port: &operatorHealthPort 6208
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: asmetrics
+    azs:
+    - z1
+    instances: 1
+    networks:
+    - name: default
+    stemcell: default
+    update:
+      max_in_flight: 1
+      serial: true
+    jobs:
+    - name: metricsserver
+      release: app-autoscaler
+      properties:
+        autoscaler:
+          instancemetrics_db: *database
+          policy_db: *database
+          instancemetrics_db_connection_config: *databaseConnectionConfig
+          policy_db_connection_config: *databaseConnectionConfig
+          metricsserver:
+            logging:
+              level: info
+            server:
+              port: &metricsserverPort 6103
+            http_client_timeout: 60s
+            ca_cert: ((autoscaler_metricsserver_server.ca))
+            server_cert: ((autoscaler_metricsserver_server.certificate))
+            server_key: ((autoscaler_metricsserver_server.private_key))
+            collector:
+              port: 7103
+              keep_alive_time: 60s
+              refresh_interval: 60s
+              collect_interval: 60s
+              save_interval: 5s
+              persist_metrics: true
+              envelope_processor_count: 5
+              metric_cache_size_per_app: 1000
+              envelope_channel_size: 1000
+              metric_channel_size: 1000
+            health:
+              port: &metricsserverHealthPort 6303
+    - name: eventgenerator
+      release: app-autoscaler
+      properties:
+        autoscaler:
+          appmetrics_db: *database
+          policy_db: *database
+          appmetrics_db_connection_config: *databaseConnectionConfig
+          policy_db_connection_config: *databaseConnectionConfig
+          eventgenerator:
+            logging:
+              level: info
+            http_client_timeout: 60s
+            server:
+              port: &eventGeneratorPort 6105
+            health:
+              port: &eventGeneratorHealthPort 6205
+            ca_cert: ((autoscaler_eventgenerator_ca.certificate))
+            server_cert: ((autoscaler_eventgenerator_server.certificate))
+            server_key: ((autoscaler_eventgenerator_server.private_key))
+            aggregator:
+              aggregator_execute_interval: 40s
+              policy_poller_interval: 60s
+              metric_poller_count: 20
+              app_monitor_channel_size: 200
+              save_interval: 5s
+              app_metric_channel_size: 1000
+            evaluator:
+              evaluation_manager_execute_interval: 60s
+              evaluator_count: 20
+              trigger_array_channel_size: 200
+            defaultStatWindowSecs: 120
+            defaultBreachDurationSecs: 120
+            circuitBreaker:
+              back_off_initial_interval: 5m
+              back_off_max_interval: 120m
+              consecutive_failure_count: 5
+            scaling_engine:
+              host: scalingengine.service.cf.internal
+              port: *scalingEnginePort
+              ca_cert: ((autoscaler_scalingengine_ca.certificate))
+              client_cert: ((autoscaler_scalingengine_client.certificate))
+              client_key: ((autoscaler_scalingengine_client.private_key))
+            metricscollector:
+              host: metricsserver.service.cf.internal
+              port: *metricsserverPort
+              ca_cert: ((autoscaler_metricsserver_ca.certificate))
+              client_cert: ((autoscaler_metricsserver_client.certificate))
+              client_key: ((autoscaler_metricsserver_client.private_key))
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: asnozzle
+    azs:
+    - z1
+    instances: 1
+    networks:
+    - name: default
+    stemcell: default
+    update:
+      max_in_flight: 1
+      serial: true
+    jobs:
+    - name: metricsgateway
+      release: app-autoscaler
+      properties:
+        autoscaler:
+          policy_db: *database
+          policy_db_connection_config: *databaseConnectionConfig
+          metricsgateway:
+            logging:
+              level: info
+            envelop_chan_size: 1000
+            nozzle_count: 3
+            app_manager:
+              app_refresh_interval: 5s
+            emitter:
+              buffer_size: 500
+              keep_alive_interval: 5s
+              handshake_timeout: 1s
+              max_setup_retry_count: 3
+              max_close_retry_count: 3
+              retry_delay: 1s
+              metricsserver_client:
+                cert: ((autoscaler_metricsserver_client.certificate))
+                key: ((autoscaler_metricsserver_client.private_key))
+                ca_cert: ((autoscaler_metricsserver_client.ca))
+            nozzle:
+              rlp_addr: "reverse-log-proxy.service.cf.internal:8082"
+              shard_id: "CF_AUTOSCALER"
+              loggregator_rlp_tls:
+                cert: ((loggregator_tls_rlp.certificate))
+                key: ((loggregator_tls_rlp.private_key))
+                ca_cert: ((loggregator_ca.certificate))
+            health:
+              port: &metricsgatewayHealthPort 6503
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: asapi
+    azs:
+    - z1
+    instances: 1
+    networks:
+    - name: default
+    stemcell: default
+    update:
+      max_in_flight: 1
+      serial: true
+    jobs:
+    - name: golangapiserver
+      release: app-autoscaler
+      properties:
+        autoscaler:
+          apiserver:
+            logging:
+              level: info
+            broker:
+              server:
+                port: 6102
+                catalog:
+                  services:
+                  - id: autoscaler-guid
+                    name: autoscaler
+                    description: Automatically increase or decrease the number of application instances based on a policy you define.
+                    bindable: true
+                    plans:
+                    - id: autoscaler-free-plan-id
+                      name: autoscaler-free-plan
+                      description: This is the free service plan for the Auto-Scaling service.
+                dashboard_redirect_uri: ""
+              username: autoscaler_service_broker_user
+              password: ((autoscaler_service_broker_password))
+            public_api:
+              server:
+                port: &apiServerPublicPort 6101
+            use_buildin_mode: true
+            scheduler:
+              ca_cert: ((autoscaler_scheduler_ca.certificate))
+              client_cert: ((autoscaler_scheduler_client.certificate))
+              client_key: ((autoscaler_scheduler_client.private_key))
+            scaling_engine:
+              ca_cert: ((autoscaler_scalingengine_ca.certificate))
+              client_cert: ((autoscaler_scalingengine_client.certificate))
+              client_key: ((autoscaler_scalingengine_client.private_key))
+            metrics_collector:
+              host: metricsserver.service.cf.internal
+              port: *metricsserverPort
+              ca_cert: ((autoscaler_metricsserver_ca.certificate))
+              client_cert: ((autoscaler_metricsserver_client.certificate))
+              client_key: ((autoscaler_metricsserver_client.private_key))
+            event_generator:
+              ca_cert: ((autoscaler_eventgenerator_ca.certificate))
+              client_cert: ((autoscaler_eventgenerator_client.certificate))
+              client_key: ((autoscaler_eventgenerator_client.private_key))
+            metrics_forwarder:
+              host: autoscalermetrics.((system_domain))
+          policy_db: *database
+          policy_db_connection_config: *databaseConnectionConfig
+          binding_db: *database
+          binding_db_connection_config: *databaseConnectionConfig
+          cf: *cf_credentials
+    - name: metricsforwarder
+      release: app-autoscaler
+      properties:
+        autoscaler:
+          metricsforwarder:
+            logging:
+              level: info
+            server:
+              port: 6201
+            loggregator:
+              metron_address: "127.0.0.1:3458"
+              tls:
+                ca_cert: ((loggregator_tls_agent.ca))
+                cert: ((loggregator_tls_agent.certificate))
+                key: ((loggregator_tls_agent.private_key))
+            require_consule: false
+            cache_ttl: 900s
+            cache_cleanup_interval: 6h
+            policy_poller_interval: 60s
+            health:
+              port: 6403
+          policy_db: *database
+          policy_db_connection_config: *databaseConnectionConfig
+    - name: route_registrar
+      release: routing
+      consumes:
+        nats:
+          from: nats
+          deployment: {{ .Release.Name | quote }}
+      properties:
+        route_registrar:
+          routes:
+          - name: api_server
+            registration_interval: 20s
+            port: *apiServerPublicPort
+            tags:
+              component: api_server
+            uris:
+            - autoscaler.((system_domain))
+          - name: autoscaler_service_broker
+            registration_interval: 20s
+            port: 6102
+            tags:
+              component: autoscaler_service_broker
+            uris:
+            - autoscalerservicebroker.((system_domain))
+          - name: autoscaler_metrics_forwarder
+            registration_interval: 20s
+            port: 6201
+            tags:
+              component: autoscaler_metrics_forwarder
+            uris:
+            - autoscalermetrics.((system_domain))
+
+# Add autoscaler variables.
+- type: replace
+  path: /variables/-
+  value:
+    name: uaa_clients_app_autoscaler_secret
+    type: password
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_database_password
+    type: password
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_service_broker_password
+    type: password
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_scalingengine_ca
+    type: certificate
+    options:
+      is_ca: true
+      common_name: scalingengineCA
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_scalingengine_server
+    type: certificate
+    options:
+      ca: autoscaler_scalingengine_ca
+      common_name: scalingengine.service.cf.internal
+      extended_key_usage:
+      - client_auth
+      - server_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_scalingengine_client
+    type: certificate
+    options:
+      ca: autoscaler_scalingengine_ca
+      common_name: scalingengine client
+      extended_key_usage:
+      - client_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_eventgenerator_ca
+    type: certificate
+    options:
+      common_name: eventgeneratorCA
+      is_ca: true
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_eventgenerator_server
+    type: certificate
+    options:
+      ca: autoscaler_eventgenerator_ca
+      common_name: eventgenerator.service.cf.internal
+      extended_key_usage:
+      - client_auth
+      - server_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_eventgenerator_client
+    type: certificate
+    options:
+      ca: autoscaler_eventgenerator_ca
+      common_name: eventgenerator client
+      extended_key_usage:
+      - client_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_apiserver_ca
+    type: certificate
+    options:
+      common_name: apiserverCA
+      is_ca: true
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_apiserver_server
+    type: certificate
+    options:
+      ca: autoscaler_apiserver_ca
+      common_name: apiserver.service.cf.internal
+      extended_key_usage:
+      - client_auth
+      - server_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_apiserver_public_ca
+    type: certificate
+    options:
+      common_name: apiserverpublicCA
+      is_ca: true
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_apiserver_public_server
+    type: certificate
+    options:
+      ca: autoscaler_apiserver_public_ca
+      common_name: autoscaler.((system_domain))
+      extended_key_usage:
+      - client_auth
+      - server_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_apiserver_client
+    type: certificate
+    options:
+      ca: autoscaler_apiserver_ca
+      common_name: apiserver client
+      extended_key_usage:
+      - client_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_servicebroker_ca
+    type: certificate
+    options:
+      common_name: servicebrokerCA
+      is_ca: true
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_servicebroker_server
+    type: certificate
+    options:
+      ca: autoscaler_servicebroker_ca
+      common_name: servicebroker.service.cf.internal
+      extended_key_usage:
+      - client_auth
+      - server_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_servicebroker_client
+    type: certificate
+    options:
+      ca: autoscaler_servicebroker_ca
+      common_name: servicebroker client
+      extended_key_usage:
+      - client_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_servicebroker_public_ca
+    type: certificate
+    options:
+      common_name: servicebrokerCA
+      is_ca: true
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_servicebroker_public_server
+    type: certificate
+    options:
+      ca: autoscaler_servicebroker_public_ca
+      common_name: autoscalerservicebroker.((system_domain))
+      extended_key_usage:
+      - client_auth
+      - server_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_scheduler_ca
+    type: certificate
+    options:
+      common_name: schedulerCA
+      is_ca: true
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_scheduler_server
+    type: certificate
+    options:
+      ca: autoscaler_scheduler_ca
+      common_name: autoscalerscheduler.service.cf.internal
+      extended_key_usage:
+      - client_auth
+      - server_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_scheduler_client
+    type: certificate
+    options:
+      ca: autoscaler_scheduler_ca
+      common_name: scheduler client
+      extended_key_usage:
+      - client_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_metricsserver_ca
+    type: certificate
+    options:
+      common_name: metricsserverCA
+      is_ca: true
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_metricsserver_server
+    type: certificate
+    options:
+      alternative_names:
+      - metricsserver.service.cf.internal
+      - '{{ .Release.Name }}-asmetrics'
+      - '*.{{ .Release.Name }}-asmetrics'
+      {{- range $index := until (int .Values.sizing.asmetrics.instances | default 1) }}
+      - "{{ $root.Release.Name }}-asmetrics-{{ $index }}"
+      {{- end }}
+      ca: autoscaler_metricsserver_ca
+      common_name: metricsserver.service.cf.internal
+      extended_key_usage:
+      - client_auth
+      - server_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: autoscaler_metricsserver_client
+    type: certificate
+    options:
+      ca: autoscaler_metricsserver_ca
+      common_name: metricsserver client
+      extended_key_usage:
+      - client_auth
+- type: replace
+  path: /variables/-
+  value:
+    name: postgres_ca
+    type: certificate
+    options:
+      common_name: postgresCA
+      is_ca: true
+- type: replace
+  path: /variables/-
+  value:
+    name: postgres_server
+    type: certificate
+    options:
+      ca: postgres_ca
+      common_name: autoscalerpostgres.service.cf.internal
+      extended_key_usage:
+      - client_auth
+      - server_auth
+
+# Add autoscaler bpm ops.
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/quarks?
+  value:
+    ports:
+    - name: scalingengine
+      protocol: TCP
+      internal: 6104
+    - name: sehealthport
+      portocol: TCP
+      internal: 6204
+    bpm:
+      processes:
+      - name: scalingengine
+        executable: /var/vcap/jobs/scalingengine/bin/scalingengine_ctl
+        args:
+        - start
+    run:
+      healthcheck:
+        scalingengine:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --fail
+              - --head
+              - http://127.0.0.1:6204
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=scheduler/properties/quarks?
+  value:
+    ports:
+    - name: scheduler
+      protocol: TCP
+      internal: 6102
+    - name: sdhealthport
+      portocol: TCP
+      internal: 6202
+    bpm:
+      processes:
+      - name: scheduler
+        executable: /var/vcap/jobs/scheduler/bin/scheduler
+        args:
+        - start
+    run:
+      healthcheck:
+        scheduler:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --fail
+              - --head
+              - http://127.0.0.1:6202
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=operator/properties/quarks?
+  value:
+    ports:
+    - name: ophealthport
+      protocol: TCP
+      internal: 6208
+    bpm:
+      processes:
+      - name: operator
+        executable: /var/vcap/jobs/operator/bin/operator_ctl
+        args:
+        - start
+    run:
+      healthcheck:
+        operator:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --fail
+              - --head
+              - http://127.0.0.1:6208
+- type: replace
+  path: /instance_groups/name=asmetrics/jobs/name=metricsserver/properties/quarks?
+  value:
+    ports:
+    - name: metrics
+      protocol: TCP
+      internal: 6103
+    - name: mscollector
+      protocol: TCP
+      internal: 7103
+    - name: mshealthport
+      portocol: TCP
+      internal: 6303
+    bpm:
+      processes:
+      - name: metricsserver
+        executable: /var/vcap/jobs/metricsserver/bin/metricsserver_ctl
+        args:
+        - start
+    run:
+      healthcheck:
+        metricsserver:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --fail
+              - --head
+              - http://127.0.0.1:6303
+- type: replace
+  path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/quarks?
+  value:
+    ports:
+    - name: eventgen
+      protocol: TCP
+      internal: 6105
+    - name: eghealthport
+      portocol: TCP
+      internal: 6205
+    bpm:
+      processes:
+      - name: eventgenerator
+        executable: /var/vcap/jobs/eventgenerator/bin/eventgenerator_ctl
+        args:
+        - start
+    run:
+      healthcheck:
+        eventgenerator:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --fail
+              - --head
+              - http://127.0.0.1:6205
+- type: replace
+  path: /instance_groups/name=asnozzle/jobs/name=metricsgateway/properties/quarks?
+  value:
+    ports:
+    - name: mghealthport
+      portocol: TCP
+      internal: 6503
+    bpm:
+      processes:
+      - name: metricsgateway
+        executable: /var/vcap/packages/metricsgateway/metricsgateway
+        args:
+        - -c
+        - /var/vcap/jobs/metricsgateway/config/metricsgateway.yml
+    run:
+      healthcheck:
+        metricsgateway:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --fail
+              - --head
+              - http://127.0.0.1:6503
+- type: replace
+  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/quarks?
+  value:
+    ports:
+    - name: golangapiserver
+      protocol: TCP
+      internal: *apiServerPublicPort
+    - name: apihealthport
+      portocol: TCP
+      internal: 1080
+    - name: brokerport
+      portocol: TCP
+      internal: 6102
+    bpm:
+      processes:
+      - name: golangapiserver
+        executable: /var/vcap/jobs/golangapiserver/bin/apiserver_ctl
+        args:
+        - start
+    run:
+      healthcheck:
+        golangapiserver:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --fail
+              - --head
+              - http://127.0.0.1:1080
+- type: replace
+  path: /instance_groups/name=asapi/jobs/name=metricsforwarder/properties/quarks?
+  value:
+    ports:
+    - name: metricsforwarder
+      protocol: TCP
+      internal: 6201
+    - name: mgfdhealthport
+      portocol: TCP
+      internal: 6403
+    bpm:
+      processes:
+      - name: metricsforwarder
+        executable: /var/vcap/jobs/metricsforwarder/bin/metricsforwarder_ctl
+        args:
+        - start
+    run:
+      healthcheck:
+        metricsforwarder:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --fail
+              - --head
+              - http://127.0.0.1:6403
+- type: replace
+  path: /instance_groups/name=asdatabase/jobs/name=postgres/properties/quarks?
+  value:
+    ports:
+    - name: postgres
+      protocol: TCP
+      internal: *postgresPort
+    run:
+      healthcheck:
+        postgres:
+          readiness:
+            exec:
+              command:
+              - /var/vcap/packages/postgres-11.5/bin/pg_isready
+    bpm:
+      processes:
+      - name: postgres
+        limits:
+          open_files: 1048576
+        persistent_disk: true
+        executable: /usr/bin/su
+        args:
+        - "-"
+        - vcap
+        - -c
+        - |-
+          {{- .Files.Get "assets/scripts/jobs/postgres/bpm_process.sh" | nindent 10 }}
+
+# TODO: set these skip_ssl_validation to false if the cf API (api.((system_domain))) public cert is provided by the user.
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/cf/skip_ssl_validation?
+  value: true
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/cf/skip_ssl_validation?
+  value: true
+- type: replace
+  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/cf/skip_ssl_validation?
+  value: true
+
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/asdatabase_*" }}
+{{ $root.Files.Get $path }}
+{{- end }}
+
+{{- end }}

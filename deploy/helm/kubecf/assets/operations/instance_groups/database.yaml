@@ -197,25 +197,25 @@
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/require_ssl?
 
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/type
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/type
   value: {{ .Values.features.external_database.type | quote }}
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/port
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/port
   value: {{ .Values.features.external_database.port }}
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/schema
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/schema
   value: {{ .Values.features.external_database.databases.routing_api.name | quote }}
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/host?
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/host?
   value: {{ .Values.features.external_database.host | quote }}
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/password
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/password
   value: {{ .Values.features.external_database.databases.routing_api.password | quote }}
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/username
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/username
   value: {{ .Values.features.external_database.databases.routing_api.username | quote }}
 - type: remove
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/type
@@ -410,7 +410,7 @@
       internal: 3306
     run:
       healthcheck:
-        mariadb_ctrl:
+        mariadb:
           readiness:
             exec:
               command:
@@ -425,40 +425,15 @@
               command: [pidof, mysqld]
     bpm:
       processes:
-      - name: mariadb_ctrl
+      - name: mariadb
         limits:
           open_files: 1048576
         persistent_disk: true
         executable: /bin/bash
         args:
           - -c
-          - |
-            wait_for_file() {
-              local file_path="$1"
-              local timeout="${2:-30}"
-              until [[ -f "${file_path}" ]] || [[ "$timeout" == "0" ]]; do sleep 1; timeout=$(expr $timeout - 1); done
-              if [[ "${timeout}" == 0 ]]; then return 1; fi
-              return 0
-            }
-
-            /var/vcap/jobs/mysql/bin/mariadb_ctl start
-
-            pid_file="/var/vcap/sys/run/mysql/mysql.pid"
-            log_file="/var/vcap/sys/log/mysql/mariadb_ctrl.combined.log"
-
-            wait_for_file "${pid_file}" || {
-              echo "${pid_file} did not get created"
-              exit 1
-            }
-
-            wait_for_file "${log_file}" || {
-              echo "${log_file} did not get created"
-              exit 1
-            }
-
-            tail \
-              --pid $(cat "${pid_file}") \
-              --follow "${log_file}"
+          - |-
+            {{- .Files.Get "assets/scripts/jobs/mariadb/bpm_process.sh" | nindent 12 }}
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/database_*" }}

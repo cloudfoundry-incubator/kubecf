@@ -38,10 +38,14 @@ properties:
         include: '${CATS_INCLUDE}'
         ginkgo:
           slow_spec_threshold: 300
+
+testing:
+  cf_acceptance_tests:
+    enabled: true
 EOF
 
 # Locate the built kubecf chart.
 chart="$(output_chart)"
 
 # Render and apply the kubecf chart.
-bazel run @helm//helm -- template "${chart}" --name "${KUBECF_INSTALL_NAME}" --namespace "${KUBECF_NAMESPACE}" --values "${values}" | "${KUBECTL}" apply -f -
+bazel run @helm//:binary -- template "${chart}" --name "${KUBECF_INSTALL_NAME}" --namespace "${KUBECF_NAMESPACE}" --values "${values}" | "${KUBECTL}" apply -f -
