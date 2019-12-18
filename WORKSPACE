@@ -16,7 +16,6 @@ load(":def.bzl", "project")
     "kind",
     "kubectl",
     "shellcheck",
-    "yaml2json",
     "yq",
 ]]
 

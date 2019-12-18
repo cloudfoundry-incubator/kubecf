@@ -170,22 +170,6 @@ project = struct(
             },
         },
     ),
-    yaml2json = struct(
-        platforms = {
-            "darwin": {
-                "url": "https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_darwin_amd64",
-                "sha256": "5ea7e2bddf13721e68ae38b81093e8d539456af2cd22c7a1b0923e45a765c636",
-            },
-            "linux": {
-                "url": "https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_linux_amd64",
-                "sha256": "e792647dd757c974351ea4ad35030852af97ef9bbbfb9594f0c94317e6738e55",
-            },
-            "windows": {
-                "url": "https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_windows_amd64.exe",
-                "sha256": "a73fb27e36e30062c48dc0979c96afbbe25163e0899f6f259b654d56fda5cc26",
-            },
-        },
-    ),
     drone = struct(
         server = struct(
             app_name = "kubecf-drone-ci-server",
