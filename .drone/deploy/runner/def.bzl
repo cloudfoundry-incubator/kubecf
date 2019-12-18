@@ -18,12 +18,7 @@ def _start_drone_runner_impl(ctx):
         is_executable = True,
     )
 
-    runfiles = []
-
-    return [DefaultInfo(
-        executable = script,
-        runfiles = ctx.runfiles(files = runfiles),
-    )]
+    return [DefaultInfo(executable = script)]
 
 start_drone_runner = rule(
     implementation = _start_drone_runner_impl,
