@@ -148,28 +148,6 @@
         exec:
           command: [curl, --fail, --head, --silent, http://127.0.0.1:9022/healthz]
 
-# Add quarks properties for routing-api.
-- type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/quarks?
-  value:
-    envs:
-    - name: POD_IP
-      valueFrom:
-        fieldRef:
-          apiVersion: v1
-          fieldPath: status.podIP
-    ports:
-    - name: routing-api
-      protocol: TCP
-      internal: 3000
-    run:
-      healthcheck:
-        routing-api:
-          readiness:
-            # routing-api does not expose a health check endpoint
-            tcpSocket:
-              port: 3000
-
 # Add quarks properties for cc_uploader.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/quarks?

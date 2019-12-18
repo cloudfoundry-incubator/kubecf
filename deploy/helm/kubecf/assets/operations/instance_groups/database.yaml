@@ -197,25 +197,25 @@
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/require_ssl?
 
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/type
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/type
   value: {{ .Values.features.external_database.type | quote }}
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/port
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/port
   value: {{ .Values.features.external_database.port }}
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/schema
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/schema
   value: {{ .Values.features.external_database.databases.routing_api.name | quote }}
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/host?
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/host?
   value: {{ .Values.features.external_database.host | quote }}
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/password
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/password
   value: {{ .Values.features.external_database.databases.routing_api.password | quote }}
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/username
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/username
   value: {{ .Values.features.external_database.databases.routing_api.username | quote }}
 - type: remove
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/type

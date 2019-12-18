@@ -1,7 +1,7 @@
 {{- $service := index .Values.services "tcp-router" -}}
 
 - type: replace
-  path: /instance_groups/name=api/jobs/name=routing-api/properties/routing_api/router_groups/name=default-tcp/reservable_ports
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/router_groups/name=default-tcp/reservable_ports
   value: "{{ $service.port_range.start }}-{{ $service.port_range.end }}"
 
 - type: replace

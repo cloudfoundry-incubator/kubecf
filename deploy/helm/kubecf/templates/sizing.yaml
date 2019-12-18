@@ -81,6 +81,16 @@ data:
 {{- end }}
 {{- end }}
 
+{{- if .Values.sizing.auctioneer.instances }}
+    - type: replace
+      path: /instance_groups/name=auctioneer/instances
+      value: {{.Values.sizing.auctioneer.instances}}
+{{- else if not .Values.high_availability }}
+    - type: replace
+      path: /instance_groups/name=auctioneer/instances
+      value: 1
+{{- end }}
+
 {{- if .Values.features.eirini.enabled }}
 {{- if .Values.sizing.bits.instances }}
     - type: replace
@@ -183,6 +193,16 @@ data:
 {{- else if not .Values.high_availability }}
     - type: replace
       path: /instance_groups/name=router/instances
+      value: 1
+{{- end }}
+
+{{- if .Values.sizing.routing_api.instances }}
+    - type: replace
+      path: /instance_groups/name=routing-api/instances
+      value: {{.Values.sizing.routing_api.instances}}
+{{- else if not .Values.high_availability }}
+    - type: replace
+      path: /instance_groups/name=routing-api/instances
       value: 1
 {{- end }}
 

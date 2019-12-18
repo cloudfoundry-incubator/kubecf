@@ -87,6 +87,8 @@ sizing:
     instances: ~
   asnozzle:
     instances: ~
+  auctioneer:
+    instances: ~
   bits:
     instances: ~
   cc_worker:
@@ -106,6 +108,8 @@ sizing:
   nats:
     instances: ~
   router:
+    instances: ~
+  routing_api:
     instances: ~
   scheduler:
     instances: ~

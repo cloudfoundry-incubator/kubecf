@@ -19,15 +19,22 @@ data:
 {{- end -}}
 
 {{- $root := . -}}
+
+{{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/unordered/move_auctioneer.yaml") }}
+{{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/unordered/move_routing_api.yaml") }}
+
 {{- if .Values.features.suse_buildpacks }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
 {{- end }}
+
 {{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
+
 {{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
+
 {{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
