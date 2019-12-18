@@ -12,3 +12,4 @@ personal-setup
 
 /bazel-*
 /output
+/tmp

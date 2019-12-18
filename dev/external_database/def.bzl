@@ -9,8 +9,8 @@ def _deploy_mysql_impl(ctx):
         output = script,
         substitutions = {
             "{MYSQL_CHART}": ctx.file._mysql_chart.path,
-            "{HELM}": ctx.executable._helm.path,
-            "{KUBECTL}": ctx.executable._kubectl.path,
+            "{HELM}": ctx.executable._helm.short_path,
+            "{KUBECTL}": ctx.executable._kubectl.short_path,
         },
         is_executable = True,
     )
@@ -35,13 +35,13 @@ deploy_mysql = rule(
         "_helm": attr.label(
             allow_single_file = True,
             cfg = "host",
-            default = "@helm//:helm",
+            default = "@helm//:binary",
             executable = True,
         ),
         "_kubectl": attr.label(
             allow_single_file = True,
             cfg = "host",
-            default = "@kubectl//kubectl",
+            default = "@kubectl//:binary",
             executable = True,
         ),
         "_script_template": attr.label(

@@ -32,22 +32,22 @@ project = struct(
     ),
     kubernetes = struct(
         version = "1.15.6",
-        kubectl = struct(
-            platforms = {
-                "darwin": {
-                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/darwin/amd64/kubectl",
-                    "sha256": "1b8e747984ae3f9aa5a199bd444823d703dcd4dbf0617347b3b3aea254ada7b1",
-                },
-                "linux": {
-                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/linux/amd64/kubectl",
-                    "sha256": "522115e0f11d83c08435a05e76120c89ea320782ccaff8e301bd14588ec50145",
-                },
-                "windows": {
-                    "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/windows/amd64/kubectl.exe",
-                    "sha256": "cd134c5746e39b985df979a944876c0d61ae88e79d954f8534a66bc84cd8a7fb",
-                },
+    ),
+    kubectl = struct(
+        platforms = {
+            "darwin": {
+                "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/darwin/amd64/kubectl",
+                "sha256": "1b8e747984ae3f9aa5a199bd444823d703dcd4dbf0617347b3b3aea254ada7b1",
             },
-        ),
+            "linux": {
+                "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/linux/amd64/kubectl",
+                "sha256": "522115e0f11d83c08435a05e76120c89ea320782ccaff8e301bd14588ec50145",
+            },
+            "windows": {
+                "url": "https://storage.googleapis.com/kubernetes-release/release/v1.15.6/bin/windows/amd64/kubectl.exe",
+                "sha256": "cd134c5746e39b985df979a944876c0d61ae88e79d954f8534a66bc84cd8a7fb",
+            },
+        },
     ),
     minikube = struct(
         version = "1.3.0",
@@ -88,6 +88,14 @@ project = struct(
                 "url": "https://github.com/rancher/k3s/releases/download/v0.9.1/k3s",
                 "sha256": "9f8bea3fa6f88066ca51cc896000aab2794e3f585d6fc982dd5aa7da8ee9fe85",
             }
+        },
+    ),
+    docker = struct(
+        platforms = {
+            "linux": {
+                "url": "https://download.docker.com/linux/static/stable/x86_64/docker-19.03.5.tgz",
+                "sha256": "50cdf38749642ec43d6ac50f4a3f1f7f6ac688e8d8b4e1c5b7be06e1a82f06e9",
+            },
         },
     ),
     local_path_provisioner = struct(
@@ -177,5 +185,30 @@ project = struct(
                 "sha256": "a73fb27e36e30062c48dc0979c96afbbe25163e0899f6f259b654d56fda5cc26",
             },
         },
+    ),
+    drone = struct(
+        server = struct(
+            app_name = "kubecf-drone-ci-server",
+            image = struct(
+                version = 1,
+                sha256 = "0fc552775eb2ab2a36a434f2e7ba3a8f140ee1841eda6e94165265ed3e2ee683",
+            ),
+            plugins = struct(
+                convert_starlark = struct(
+                    image = struct(
+                        sha256 = "0cb9f8386b9c7862c2bf272b77ce63afa15785592818264c35bfacf1bb0e1b92",
+                    ),
+                ),
+            ),
+        ),
+        runner = struct(
+            rpc_host = "kubecf-drone-ci-server.herokuapp.com",
+            rpc_proto = "https",
+            capacity = 1,
+            image = struct(
+                version = 1,
+                sha256 = "eb09cdffd60b685fc76dc15c019a74829ba1632c27cf949ce271a792e7386597",
+            ),
+        ),
     ),
 )
