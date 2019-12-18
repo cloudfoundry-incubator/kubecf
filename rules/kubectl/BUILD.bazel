@@ -7,8 +7,3 @@ exports_files([
     "delete.sh",
     "patch.sh",
 ])
-
-binary_location(
-    name = "binary_location",
-    binary = "@kubectl//kubectl",
-)

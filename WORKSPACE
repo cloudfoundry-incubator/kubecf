@@ -5,12 +5,26 @@ load("//dev/minikube:binary.bzl", "minikube_binary")
 load("//rules/external_binary:def.bzl", "external_binary")
 load(":def.bzl", "project")
 
-external_binary(
-    name = "shellcheck",
-    platforms = project.shellcheck.platforms,
-)
+[external_binary(
+    name = name,
+    platforms = getattr(project, name).platforms,
+) for name in [
+    "docker",
+    "helm",
+    "jq",
+    "k3s",
+    "kind",
+    "kubectl",
+    "shellcheck",
+    "yaml2json",
+    "yq",
+]]
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+minikube_binary(
+    name = "minikube",
+    platforms = project.minikube.platforms,
+    version = project.minikube.version,
+)
 
 http_archive(
     name = "rules_python",
@@ -55,47 +69,6 @@ http_file(
     name = "cf_operator",
     sha256 = project.cf_operator.chart.sha256,
     urls = [project.cf_operator.chart.url],
-)
-
-external_binary(
-    name = "helm",
-    platforms = project.helm.platforms,
-)
-
-external_binary(
-    name = "kubectl",
-    platforms = project.kubernetes.kubectl.platforms
-)
-
-minikube_binary(
-    name = "minikube",
-    platforms = project.minikube.platforms,
-    version = project.minikube.version,
-)
-
-external_binary(
-    name = "kind",
-    platforms = project.kind.platforms,
-)
-
-external_binary(
-    name = "k3s",
-    platforms = project.k3s.platforms,
-)
-
-external_binary(
-    name = "jq",
-    platforms = project.jq.platforms,
-)
-
-external_binary(
-    name = "yq",
-    platforms = project.yq.platforms,
-)
-
-external_binary(
-    name = "yaml2json",
-    platforms = project.yaml2json.platforms,
 )
 
 http_file(

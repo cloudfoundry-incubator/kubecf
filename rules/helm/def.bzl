@@ -46,7 +46,7 @@ _package = rule(
         "_helm": attr.label(
             allow_single_file = True,
             cfg = "host",
-            default = "@helm//helm",
+            default = "@helm//:binary",
             executable = True,
         ),
         "_script": attr.label(
@@ -120,7 +120,7 @@ template = rule(
         "_helm": attr.label(
             allow_single_file = True,
             cfg = "host",
-            default = "@helm//helm",
+            default = "@helm//:binary",
             executable = True,
         ),
         "_script": attr.label(

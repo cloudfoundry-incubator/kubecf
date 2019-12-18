@@ -2,9 +2,9 @@ def yaml_extractor(name, src, filter):
     native.genrule(
         name = name,
         cmd = """
-            '$(location @jq//jq)' -r '{filter}' \
-                <('$(location @yq//yq)' read --tojson - < '$(location {src})') \
-                | '$(location @yq//yq)' read - > '$@'
+            '$(location @jq//:binary)' -r '{filter}' \
+                <('$(location @yq//:binary)' read --tojson - < '$(location {src})') \
+                | '$(location @yq//:binary)' read - > '$@'
         """.format(
             filter = filter,
             src = src,
@@ -12,7 +12,7 @@ def yaml_extractor(name, src, filter):
         outs = ["{}.yaml".format(name)],
         srcs = [src],
         tools = [
-            "@jq//jq",
-            "@yq//yq",
+            "@jq//:binary",
+            "@yq//:binary",
         ],
     )
