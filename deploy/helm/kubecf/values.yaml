@@ -25,10 +25,24 @@ system_domain: ~
 #             default_size: "1Gi"
 properties: {}
 
-# The storage class to be used for the instance groups that need it (e.g. bits, database and singleton-blobstore)
-# If it's not set, the default storage class will be used.
 kube:
+  # The storage class to be used for the instance groups that need it (e.g. bits, database and
+  # singleton-blobstore). If it's not set, the default storage class will be used.
   storage_class: ~
+  # The service_cluster_ip_range and pos_cluster_ip_range are used by the internal security group
+  # definition to allow apps to communicate with internal service brokers (e.g. credhub).
+  # service_cluster_ip_range can be fetched with the following command, assuming that the API
+  # server started with the `--service-cluster-ip-range` flag:
+  # kubectl cluster-info dump --output yaml \
+  #   | awk 'match($0, /service-cluster-ip-range=(.*)/, range) { print range[1] }'
+  # The default value for `--service-cluster-ip-range` is 10.0.0.0/24.
+  service_cluster_ip_range: ~
+  # pod_cluster_ip_range can be fetched with the following command, assuming that the controller
+  # manager started with the `--cluster-cidr` flag:
+  # kubectl cluster-info dump --output yaml \
+  #   | awk 'match($0, /cluster-cidr=(.*)/, range) { print range[1] }'
+  # There is no default value for `--cluster-cidr`.
+  pod_cluster_ip_range: ~
 
 releases:
   # The defaults for all releases, where we do not otherwise override them.
