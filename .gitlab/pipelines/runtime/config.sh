@@ -12,4 +12,3 @@ export EIRINI_ENABLED
 export KUBECF_CHART_TARGET="//deploy/helm/kubecf:chart"
 export KUBECF_BUNDLE_TARGET="//deploy/bundle:kubecf-bundle"
 export BOSHDEPLOYMENT_CRD="boshdeployments.quarks.cloudfoundry.org"
-export CATS_INCLUDE="+tcp_routing"

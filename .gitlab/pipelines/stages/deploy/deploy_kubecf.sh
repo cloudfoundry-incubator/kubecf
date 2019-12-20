@@ -35,9 +35,9 @@ properties:
   acceptance-tests:
     acceptance-tests:
       acceptance_tests:
-        include: '${CATS_INCLUDE}'
         ginkgo:
           slow_spec_threshold: 300
+          nodes: 2
 
 testing:
   cf_acceptance_tests:
