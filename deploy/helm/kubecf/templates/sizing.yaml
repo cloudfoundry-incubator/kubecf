@@ -70,15 +70,6 @@ data:
       path: /instance_groups/name=asnozzle/instances
       value: 1
 {{- end }}
-{{- if .Values.sizing.asdatabase.instances }}
-    - type: replace
-      path: /instance_groups/name=asdatabase/instances
-      value: {{.Values.sizing.asdatabase.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=asdatabase/instances
-      value: 1
-{{- end }}
 {{- end }}
 
 {{- if .Values.sizing.auctioneer.instances }}
@@ -133,15 +124,9 @@ data:
 {{- end }}
 
 {{- if not .Values.features.external_database.enabled }}
-{{- if .Values.sizing.database.instances }}
-    - type: replace
-      path: /instance_groups/name=database/instances
-      value: {{.Values.sizing.database.instances}}
-{{- else if not .Values.high_availability }}
     - type: replace
       path: /instance_groups/name=database/instances
       value: 1
-{{- end }}
 {{- end }}
 
 {{- if .Values.sizing.diego_api.instances }}
@@ -223,16 +208,6 @@ data:
 {{- else if not .Values.high_availability }}
     - type: replace
       path: /instance_groups/name=scheduler/instances
-      value: 1
-{{- end }}
-
-{{- if .Values.sizing.singleton_blobstore.instances }}
-    - type: replace
-      path: /instance_groups/name=singleton-blobstore/instances
-      value: {{.Values.sizing.singleton_blobstore.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=singleton-blobstore/instances
       value: 1
 {{- end }}
 

@@ -95,8 +95,6 @@ sizing:
     instances: ~
   asapi:
     instances: ~
-  asdatabase:
-    instances: 1
   asmetrics:
     instances: ~
   asnozzle:
@@ -109,8 +107,6 @@ sizing:
     instances: ~
   credhub:
     instances: ~
-  database:
-    instances: 1
   diego_api:
     instances: ~
   diego_cell:
@@ -128,8 +124,6 @@ sizing:
   routing_api:
     instances: ~
   scheduler:
-    instances: ~
-  singleton_blobstore:
     instances: ~
   uaa:
     instances: ~
