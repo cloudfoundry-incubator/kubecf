@@ -1,0 +1,32 @@
+---
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/quarks?
+  value:
+    ports:
+    - name: credhub
+      protocol: TCP
+      internal: 8844
+    run:
+      healthcheck:
+        credhub:
+          readiness:
+            httpGet:
+              port: 8845
+              path: /health
+
+- type: replace
+  path: /instance_groups/name=credhub/jobs/-
+  value:
+    name: route_registrar
+    release: routing
+    properties:
+      route_registrar:
+        routes:
+        - name: credhub
+          tls_port: 8844
+          server_cert_domain_san: credhub.service.cf.internal
+          registration_interval: 10s
+          tags:
+            component: credhub
+          uris:
+          - credhub.((system_domain))
