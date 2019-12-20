@@ -42,6 +42,10 @@ properties:
 testing:
   cf_acceptance_tests:
     enabled: true
+
+kube:
+  service_cluster_ip_range: 0.0.0.0/0
+  pod_cluster_ip_range: 0.0.0.0/0
 EOF
 
 # Locate the built kubecf chart.
