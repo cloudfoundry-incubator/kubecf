@@ -12,7 +12,6 @@ project = struct(
             url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v1.0.0-1.g424dd0b3.tgz",
             sha256 = "7cd3c54179b3c58de2996301188c7074fbcd7307a39300157e7f3e52059f961d",
         ),
-        namespace = "cfo",
     ),
     helm = struct(
         platforms = {
