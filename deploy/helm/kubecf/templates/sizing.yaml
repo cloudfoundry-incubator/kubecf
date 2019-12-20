@@ -82,6 +82,16 @@ data:
       value: 1
 {{- end }}
 
+{{- if .Values.sizing.credhub.instances }}
+    - type: replace
+      path: /instance_groups/name=credhub/instances
+      value: {{.Values.sizing.credhub.instances}}
+{{- else if not .Values.high_availability }}
+    - type: replace
+      path: /instance_groups/name=credhub/instances
+      value: 1
+{{- end }}
+
 {{- if .Values.features.eirini.enabled }}
 {{- if .Values.sizing.bits.instances }}
     - type: replace

@@ -5,6 +5,11 @@
 
 set -o errexit -o nounset
 
+on_exit() {
+  echo "Failed to wait for kubecf pods"
+}
+trap on_exit EXIT
+
 workspace=$(bazel info workspace)
 
 # shellcheck disable=SC1090
@@ -48,3 +53,6 @@ for instance_group in "${instance_groups[@]}"; do
     --timeout=1800s \
     --namespace "${KUBECF_NAMESPACE}"
 done
+
+trap "" EXIT
+echo "Finished waiting for the kubecf pods to be ready."
