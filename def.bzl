@@ -1,8 +1,8 @@
 project = struct(
     deployment_name = "kubecf",
     namespace = "kubecf",
-    chart_version = "3.0.0",
-    app_version = "2.0",
+    chart_version = "0.1.0",
+    app_version = "0.1.0",
     cf_deployment = struct(
         version = "12.18.0",
         sha256 = "1aeb7fa2bbd78ac4837c2aeaa4b9dc9567bc498f08f7fd744da556e672788991",
