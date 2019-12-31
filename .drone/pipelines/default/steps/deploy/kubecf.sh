@@ -44,6 +44,7 @@ properties:
       acceptance_tests:
         ginkgo:
           slow_spec_threshold: 300
+          nodes: 2
 
 testing:
   cf_acceptance_tests:
