@@ -35,14 +35,23 @@ tests:
   stage: test
   only: *common_refs
   script:
+  - /usr/bin/date
   - .gitlab/pipelines/stages/deploy/setup_k8s.sh
+  - /usr/bin/date
   - .gitlab/pipelines/stages/deploy/deploy_cf_operator.sh
+  - /usr/bin/date
   - .gitlab/pipelines/stages/deploy/wait_cf_operator.sh
+  - /usr/bin/date
   - .gitlab/pipelines/stages/deploy/deploy_kubecf.sh
+  - /usr/bin/date
   - .gitlab/pipelines/stages/deploy/wait_kubecf.sh
+  - /usr/bin/date
   - .gitlab/pipelines/stages/tests/smoke_tests.sh
+  - /usr/bin/date
   - .gitlab/pipelines/stages/tests/cf_acceptance_tests.sh
+  - /usr/bin/date
   - .gitlab/pipelines/stages/deploy/stop_k8s.sh
+  - /usr/bin/date
 
 publish:chart:
   stage: publish

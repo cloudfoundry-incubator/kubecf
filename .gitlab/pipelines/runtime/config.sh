@@ -2,7 +2,7 @@
 
 export KUBECF_INSTALL_NAME="kubecf"
 export KUBECF_NAMESPACE="kubecf"
-export CF_OPERATOR_NAMESPACE="cfo"
+export CF_OPERATOR_NAMESPACE="kubecf"
 export ROUTER_CLUSTER_IP="10.43.0.231"
 export SSH_PROXY_CLUSTER_IP="10.43.0.232"
 export TCP_ROUTER_CLUSTER_IP="10.43.0.233"
@@ -12,4 +12,3 @@ export EIRINI_ENABLED
 export KUBECF_CHART_TARGET="//deploy/helm/kubecf:chart"
 export KUBECF_BUNDLE_TARGET="//deploy/bundle:kubecf-bundle"
 export BOSHDEPLOYMENT_CRD="boshdeployments.quarks.cloudfoundry.org"
-export CATS_INCLUDE="+tcp_routing"

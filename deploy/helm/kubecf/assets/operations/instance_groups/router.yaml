@@ -47,6 +47,7 @@
 
 # Trust the diego_instance_identity_ca certificate - trusting its CA
 # is insufficient with the cf-operator
+# Also add the CredHub CA
 - type: replace
   path: /instance_groups/name=router/jobs/name=gorouter/properties/router/ca_certs
   value: |
@@ -54,6 +55,7 @@
     ((cc_tls.ca))
     ((uaa_ssl.ca))
     ((network_policy_server_external.ca))
+    ((credhub_ca.certificate))
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/router_*" }}

@@ -67,8 +67,12 @@
       healthcheck:
         bbs:
           readiness:
-            httpGet:
-              port: 8890
+            # The /ping endpoint on the healthcheck endpoint is unusable for this readiness probe as
+            # it always returns success if the server it up and running. The port 8889, on the other
+            # hand, is useful because bbs will start listening on it only if it acquired the lock
+            # via locket.
+            tcpSocket:
+              port: 8889
     post_start:
       condition:
         exec:

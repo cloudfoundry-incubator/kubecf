@@ -53,7 +53,7 @@ with Helm Tiller pre-installed.
 
 ```shell
 helm install --name cf-operator \
-     --namespace cfo \
+     --namespace kubecf \
      --set "global.operator.watchNamespace=kubecf" \
      https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-147.gb88e4296.tgz
 ```
@@ -62,23 +62,6 @@ In the example above, version 0.4.1 of the operator was used. Look
 into the `cf_operator` section of the top-level `def.bzl` file to find
 the version of the operator validated against the current kubecf
 master.
-
-**Note:**
-> The above `helm install` will generate many controllers spread over multiple pods inside the `cfo` namespace.
-> Most of these controllers run inside the `cf-operator` pod.
->
-> The `global.operator.watchNamespace=kubecf` path tells the
-controllers to watch for CRD´s instances into the `kubecf` namespace.
->
-> The cf-operator helm chart will generate the `kubecf` namespace during installation, and eventually one of the
-controllers will use a webhook to label this namespace with the `cf-operator-ns` key.
->
-> If the `kubecf` namespace is deleted, but the operators are still running, they will no longer
-know which namespace to watch. This can lead to problems, so make sure you also delete the pods
-inside the `cfo` namespace, after deleting the `kubecf` namespace.
-
-Note how the namespace the operator is installed into (`cfo`) differs
-from the namespace the operator is watching for deployments (`kubecf`).
 
 This form of deployment enables restarting the operator because it is
 not affected by webhooks. It further enables the deletion of the

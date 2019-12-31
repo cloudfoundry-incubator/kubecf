@@ -1,18 +1,17 @@
 project = struct(
     deployment_name = "kubecf",
     namespace = "kubecf",
-    chart_version = "3.0.0",
-    app_version = "2.0",
+    chart_version = "0.1.0",
+    app_version = "0.1.0",
     cf_deployment = struct(
         version = "12.18.0",
         sha256 = "1aeb7fa2bbd78ac4837c2aeaa4b9dc9567bc498f08f7fd744da556e672788991",
     ),
     cf_operator = struct(
         chart = struct(
-            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-240.g3c753ac2.tgz",
-            sha256 = "98c9824651da63e5dd34116d26a45159a1d15a6c305dc0e2a04c281e19392130",
+            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v1.0.0-1.g424dd0b3.tgz",
+            sha256 = "7cd3c54179b3c58de2996301188c7074fbcd7307a39300157e7f3e52059f961d",
         ),
-        namespace = "cfo",
     ),
     helm = struct(
         platforms = {
