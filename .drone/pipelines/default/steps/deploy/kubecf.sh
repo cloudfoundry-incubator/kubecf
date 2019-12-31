@@ -21,35 +21,40 @@ helm template "${chart}" \
   --name "${KUBECF_INSTALL_NAME}" \
   --namespace "${KUBECF_NAMESPACE}" \
   --values <(cat <<EOF
-  system_domain: "${system_domain}"
+system_domain: "${system_domain}"
 
-  services:
-    router:
-      externalIPs:
-      - ${node_ip}
-    ssh-proxy:
-      externalIPs:
-      - ${node_ip}
-    tcp-router:
-      externalIPs:
-      - ${node_ip}
+services:
+  router:
+    externalIPs:
+    - ${node_ip}
+  ssh-proxy:
+    externalIPs:
+    - ${node_ip}
+  tcp-router:
+    externalIPs:
+    - ${node_ip}
 
-  features:
-    eirini:
-      enabled: ${EIRINI_ENABLED}
+features:
+  eirini:
+    enabled: ${EIRINI_ENABLED}
 
-  properties:
+properties:
+  acceptance-tests:
     acceptance-tests:
-      acceptance-tests:
-        acceptance_tests:
-          ginkgo:
-            slow_spec_threshold: 300
+      acceptance_tests:
+        ginkgo:
+          slow_spec_threshold: 300
+          nodes: 2
 
-  testing:
-    cf_acceptance_tests:
-      enabled: true
-    smoke_tests:
-      enabled: true
+testing:
+  cf_acceptance_tests:
+    enabled: true
+  smoke_tests:
+    enabled: true
+
+kube:
+  service_cluster_ip_range: 0.0.0.0/0
+  pod_cluster_ip_range: 0.0.0.0/0
 EOF
 ) \
   | kubectl apply -f -
