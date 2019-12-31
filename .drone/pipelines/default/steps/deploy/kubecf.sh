@@ -50,6 +50,9 @@ testing:
     enabled: true
   smoke_tests:
     enabled: true
+
+kube:
+  service_cluster_ip_range: 0.0.0.0/0
 EOF
 ) \
   | kubectl apply -f -
