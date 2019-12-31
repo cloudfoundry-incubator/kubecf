@@ -53,6 +53,7 @@ testing:
 
 kube:
   service_cluster_ip_range: 0.0.0.0/0
+  pod_cluster_ip_range: 0.0.0.0/0
 EOF
 ) \
   | kubectl apply -f -
