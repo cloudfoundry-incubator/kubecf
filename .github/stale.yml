@@ -13,7 +13,7 @@ exemptLabels:
 exemptMilestones: false
 
 # Label to use when marking an issue as stale.
-staleLabel: "Type: Stalled"
+staleLabel: "Type: Staled"
 
 # Comment to post when marking an issue as stale. Set to `false` to disable.
 markComment: >
