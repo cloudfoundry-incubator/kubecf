@@ -44,7 +44,7 @@ def _external_binary_impl(ctx):
     )
     """.format(name = ctx.attr.name)
     build_contents = '\n'.join([x.lstrip(' ') for x in build_contents.splitlines()])
-    ctx.file("BUILD.bazel".format(name = ctx.attr.name), build_contents)
+    ctx.file("BUILD.bazel", build_contents)
 
 _external_binary = repository_rule(
     implementation = _external_binary_impl,
