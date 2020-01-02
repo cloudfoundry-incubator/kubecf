@@ -49,19 +49,19 @@ project = struct(
         },
     ),
     minikube = struct(
-        version = "1.3.0",
+        version = "1.6.2",
         platforms = [
             {
                 "platform": "linux",
-                "sha256": "5aa7c5f0b6dd09348f7e2435b9618f6a916fbb573580619b393b514258771eab",
+                "sha256": "eabd027438953d29a4b0f7b810c801919cc13bef3ebe7aff08c9534ac2b091ab",
             },
             {
                 "platform": "darwin",
-                "sha256": "5bda29e2d990bb8ac9da1767143e228772adc45507d22a49b5af70b03e7db682",
+                "sha256": "5ea5168a80597ee6221bf50a524429a24a37f0c0f36725e6b297dc5a7a6a2105",
             },
             {
                 "platform": "windows",
-                "sha256": "d808b6e42e6f53c9338d135a352bebd4469634f33646d06e7cad3569330225cb",
+                "sha256": "79d66c874cfe3497656e9ba191680cc95abd92d2f722b10de38f00b76ef82393",
             },
         ],
     ),
