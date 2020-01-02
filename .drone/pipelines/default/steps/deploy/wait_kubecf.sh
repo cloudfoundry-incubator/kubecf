@@ -27,7 +27,7 @@ while IFS='' read -r line; do instance_groups+=("${line}"); done < <(
     --namespace "${KUBECF_NAMESPACE}" \
     --output jsonpath='{ .data.manifest\.yaml }' \
     | base64 --decode \
-    | yaml2json \
+    | yq read --tojson - \
     | jq -r '.instance_groups[] | select(.lifecycle != "errand") | select (.lifecycle != "auto-errand") | .name'
 )
 

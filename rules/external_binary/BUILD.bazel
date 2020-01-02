@@ -13,6 +13,5 @@ load(":def.bzl", "binary_location")
     "kind",
     "kubectl",
     "shellcheck",
-    "yaml2json",
     "yq",
 ]]
