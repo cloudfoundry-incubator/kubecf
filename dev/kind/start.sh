@@ -12,6 +12,36 @@ if ! cluster_exists; then
   "${KIND}" create cluster \
     --name "${CLUSTER_NAME}" \
     --image "kindest/node:${K8S_VERSION}"
+
+  # This is the default CoreDNS config with the 'forward' plugin pointing to 1.1.1.1 instead of
+  # /etc/resolv.conf. This allows a more deterministic DNS behaviour when connecting the kind
+  # container to a different network. With Docker, /etc/resolv.conf gets rewritten with Docker's
+  # nameserver (127.0.0.11).
+  "${KUBECTL}" apply -f - <<'EOT'
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+data:
+  Corefile: |
+    .:53 {
+      errors
+      health
+      kubernetes cluster.local in-addr.arpa ip6.arpa {
+         pods insecure
+         upstream
+         fallthrough in-addr.arpa ip6.arpa
+         ttl 30
+      }
+      prometheus :9153
+      forward . 1.1.1.1
+      cache 30
+      loop
+      reload
+      loadbalance
+    }
+EOT
 else
   echo "Kind is already started"
 fi
