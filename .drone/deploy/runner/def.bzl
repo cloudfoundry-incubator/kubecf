@@ -9,6 +9,7 @@ def _start_drone_runner_impl(ctx):
         template = ctx.file._script_template,
         output = script,
         substitutions = {
+            "{network_name}": ctx.attr._network_name,
             "{rpc_host}": ctx.attr._rpc_host,
             "{rpc_proto}": ctx.attr._rpc_proto,
             "{runner_capacity}": ctx.attr._runner_capacity,
@@ -23,6 +24,9 @@ def _start_drone_runner_impl(ctx):
 start_drone_runner = rule(
     implementation = _start_drone_runner_impl,
     attrs = {
+        "_network_name": attr.string(
+            default = project.drone.runner.network.name,
+        ),
         "_rpc_host": attr.string(
             default = project.drone.runner.rpc_host,
         ),

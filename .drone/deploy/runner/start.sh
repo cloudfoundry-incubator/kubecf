@@ -31,3 +31,27 @@ docker run \
   --env "DRONE_RUNNER_CAPACITY={runner_capacity}" \
   --restart always \
   "drone/drone-runner-docker:{runner_image_version}@sha256:{runner_image_sha256}"
+
+# ==================================================================================================
+# Start the image registry caches.
+docker run \
+  --name kubecf-drone-ci-registry-dockerio \
+  --detach \
+  --volume /tmp/drone/docker/var/lib/registry:/var/lib/registry \
+  --env "REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io" \
+  --restart always \
+  registry:2
+
+docker run \
+  --name kubecf-drone-ci-registry-registrysusecom \
+  --detach \
+  --volume /tmp/drone/docker/var/lib/registry:/var/lib/registry \
+  --env "REGISTRY_PROXY_REMOTEURL=https://registry.suse.com" \
+  --restart always \
+  registry:2
+
+# ==================================================================================================
+# Connect the image registry caches to the kubecf-drone-ci network.
+docker network create "{network_name}"
+docker network connect "{network_name}" kubecf-drone-ci-registry-dockerio
+docker network connect "{network_name}" kubecf-drone-ci-registry-registrysusecom
