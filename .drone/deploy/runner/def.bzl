@@ -28,10 +28,10 @@ start_drone_runner = rule(
             default = project.drone.runner.network.name,
         ),
         "_rpc_host": attr.string(
-            default = project.drone.runner.rpc_host,
+            default = project.drone.runner.rpc.host,
         ),
         "_rpc_proto": attr.string(
-            default = project.drone.runner.rpc_proto,
+            default = project.drone.runner.rpc.proto,
         ),
         "_runner_capacity": attr.string(
             default = str(project.drone.runner.capacity),
