@@ -42,6 +42,9 @@ data:
       loadbalance
     }
 EOT
+
+  # Make the node trust Kube's CA.
+  docker exec "${CLUSTER_NAME}-control-plane" bash -c "cp /etc/kubernetes/pki/ca.crt /usr/local/share/ca-certificates/kube-ca.crt;update-ca-certificates;service containerd restart"
 else
   echo "Kind is already started"
 fi
@@ -58,6 +61,3 @@ fi
 
 # Create the metrics server.
 "${KUBECTL}" apply -f "${METRICS_SERVER}"
-
-# Make the node trust Kube's CA.
-docker exec "${CLUSTER_NAME}-control-plane" bash -c "cp /etc/kubernetes/pki/ca.crt /usr/local/share/ca-certificates/kube-ca.crt;update-ca-certificates;service containerd restart"
