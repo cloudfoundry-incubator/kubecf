@@ -134,6 +134,9 @@ spec:
   {{- if $service.clusterIP }}
   clusterIP: {{ $service.clusterIP | quote }}
   {{- end }}
+  {{- if $service.loadBalancerIP }}
+  loadBalancerIP: {{ $service.loadBalancerIP | quote }}
+  {{- end }}
 {{- end }}
 ---
 {{- with $service := index .Values.services "ssh-proxy" }}
@@ -165,6 +168,9 @@ spec:
   {{- end }}
   {{- if $service.clusterIP }}
   clusterIP: {{ $service.clusterIP | quote }}
+  {{- end }}
+  {{- if $service.loadBalancerIP }}
+  loadBalancerIP: {{ $service.loadBalancerIP | quote }}
   {{- end }}
 {{- end }}
 ---
@@ -200,6 +206,9 @@ spec:
   {{- end }}
   {{- if $service.clusterIP }}
   clusterIP: {{ $service.clusterIP | quote }}
+  {{- end }}
+  {{- if $service.loadBalancerIP }}
+  loadBalancerIP: {{ $service.loadBalancerIP | quote }}
   {{- end }}
 {{- end }}
 {{- end }}

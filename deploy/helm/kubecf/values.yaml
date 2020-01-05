@@ -29,7 +29,7 @@ kube:
   # The storage class to be used for the instance groups that need it (e.g. bits, database and
   # singleton-blobstore). If it's not set, the default storage class will be used.
   storage_class: ~
-  # The service_cluster_ip_range and pos_cluster_ip_range are used by the internal security group
+  # The service_cluster_ip_range and pod_cluster_ip_range are used by the internal security group
   # definition to allow apps to communicate with internal service brokers (e.g. credhub).
   # service_cluster_ip_range can be fetched with the following command, assuming that the API
   # server started with the `--service-cluster-ip-range` flag:
