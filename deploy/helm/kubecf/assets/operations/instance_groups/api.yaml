@@ -53,6 +53,46 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_staging_security_groups/-
   value: internal
 
+# These replaces set their default values explicitly in order to the rotate-cc-database-key errand
+# resolve the BOSH link correctly.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/max_connections?
+  value: 25
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/pool_timeout?
+  value: 10
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ssl_verify_hostname?
+  value: true
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/read_timeout?
+  value: 3600
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/connection_validation_timeout?
+  value: 3600
+
+{{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
+- type: replace
+  path: /variables/-
+  value:
+    name: {{ $keyLabel | quote }}
+    type: password
+{{- end }}
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/database_encryption?
+  value: &encryption_info
+    keys:
+      {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
+      {{ $keyLabel }}: "(({{ $keyLabel }}))"
+      {{- end }}
+    current_key_label: {{ .Values.ccdb.encryption.rotation.current_key_label | quote }}
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/database_encryption?
+  value: *encryption_info
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/database_encryption?
+  value: *encryption_info
+
 # core_file_pattern should be disabled as CC is not running on a VM.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/core_file_pattern?

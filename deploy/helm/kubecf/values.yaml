@@ -222,6 +222,14 @@ testing:
   smoke_tests:
     enabled: true
 
+ccdb:
+  encryption:
+    rotation:
+      # Key labels must be < 256 characters long.
+      key_labels:
+      - encryption_key_0
+      current_key_label: encryption_key_0
+
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.
   custom: []
