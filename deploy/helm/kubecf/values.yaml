@@ -134,14 +134,17 @@ sizing:
 # features.ingress.enabled is false.
 services:
   router:
+    annotations: ~
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~
   ssh-proxy:
+    annotations: ~
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~
   tcp-router:
+    annotations: ~
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~

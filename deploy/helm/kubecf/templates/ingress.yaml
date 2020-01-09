@@ -106,6 +106,10 @@ kind: Service
 metadata:
   name: "{{ $root.Release.Name }}-router-public"
   namespace: {{ $root.Release.Namespace | quote }}
+  {{- if $service.annotations }}
+  annotations:
+    {{- toYaml $service.annotations | nindent 4 }}
+  {{- end }}
   labels:
     app.kubernetes.io/component: router
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
@@ -145,6 +149,10 @@ kind: Service
 metadata:
   name: "{{ $root.Release.Name }}-ssh-proxy-public"
   namespace: {{ $root.Release.Namespace | quote }}
+  {{- if $service.annotations }}
+  annotations:
+    {{- toYaml $service.annotations | nindent 4 }}
+  {{- end }}
   labels:
     app.kubernetes.io/component: ssh-proxy
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
@@ -180,6 +188,10 @@ kind: Service
 metadata:
   name: "{{ $root.Release.Name }}-tcp-router-public"
   namespace: {{ $root.Release.Namespace | quote }}
+  {{- if $service.annotations }}
+  annotations:
+    {{- toYaml $service.annotations | nindent 4 }}
+  {{- end }}
   labels:
     app.kubernetes.io/component: tcp-router
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
