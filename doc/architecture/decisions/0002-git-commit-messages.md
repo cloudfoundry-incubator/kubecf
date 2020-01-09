@@ -48,5 +48,5 @@ In order to automate the release notes/changelog process, we also need to define
 With the automation of the release process, each git commit to the release branch (i.e. master) or 
 by merging a pull request, a CI build is triggered and a:
 
-1. git commit message check is performed, and
+1. git commit message check is performed during squash & merge option selected, and
 2. release notes/changelog is automaticaly produced.
