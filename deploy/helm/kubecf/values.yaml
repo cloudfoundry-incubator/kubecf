@@ -64,6 +64,11 @@ releases:
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_372.ge3509601
+  cf-acceptance-tests:
+    version: 0.0.9
+    stemcell:
+      os: SLE_15_SP1
+      version: 21.3-7.0.0_374.gb8e8e6af
   cf-mysql:
     version: 36.19.0
     stemcell:
