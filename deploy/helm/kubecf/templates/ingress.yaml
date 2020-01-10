@@ -126,7 +126,7 @@ spec:
   - name: http
     protocol: TCP
     port: 80
-    targetPort: 8000
+    targetPort: 80
   - name: https
     protocol: TCP
     port: 443
@@ -205,6 +205,10 @@ spec:
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
     app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
   ports:
+  - name: healthcheck
+    protocol: TCP
+    port: 80
+    targetPort: 80
   {{- range $port := until (int (add 1 (sub $service.port_range.end $service.port_range.start))) }}
   {{- $port = add $port $service.port_range.start }}
   - name: "tcp-route-{{ $port }}"

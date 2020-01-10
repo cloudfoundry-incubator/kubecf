@@ -5,7 +5,7 @@
     ports:
     - name: router
       protocol: TCP
-      internal: 8000
+      internal: 80
     - name: router-ssl
       protocol: TCP
       internal: 443
