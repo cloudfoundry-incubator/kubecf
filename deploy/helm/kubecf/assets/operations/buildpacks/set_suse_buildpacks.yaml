@@ -34,9 +34,9 @@
   path: /releases/name=php-buildpack
   value:
     name: suse-php-buildpack
-    url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.3.80.1.tgz"
-    version: "4.3.80.1"
-    sha1: "6f175c1c116c70542521e404394926c9be3017bb"
+    url: "https://s3.amazonaws.com/suse-final-releases/php-buildpack-release-4.4.2.1.tgz"
+    version: "4.4.2.1"
+    sha1: "0468d080a7069b0e9ccaeac23d89caa42922a50b"
 
 - type: replace
   path: /releases/name=python-buildpack
