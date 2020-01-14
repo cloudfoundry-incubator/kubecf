@@ -42,9 +42,9 @@
   path: /releases/name=python-buildpack
   value:
     name: suse-python-buildpack
-    url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.6.36.1.tgz"
-    version: "1.6.36.1"
-    sha1: "4f0a35780ee32df8b0809fee23bcfb2176ea4d73"
+    url: "https://s3.amazonaws.com/suse-final-releases/python-buildpack-release-1.7.4.1.tgz"
+    version: "1.7.4.1"
+    sha1: "802726e8aa2493bbc52ea0939b7fab364e695806"
 
 - type: replace
   path: /releases/name=ruby-buildpack
