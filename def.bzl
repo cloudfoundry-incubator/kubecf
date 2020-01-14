@@ -9,8 +9,8 @@ project = struct(
     ),
     cf_operator = struct(
         chart = struct(
-            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v1.0.0-1.g424dd0b3.tgz",
-            sha256 = "7cd3c54179b3c58de2996301188c7074fbcd7307a39300157e7f3e52059f961d",
+            url = "https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v1.0.3-0.g5dd886a5.tgz",
+            sha256 = "17f34a4d741b6b653210efece7a894037dbf45d73b2655edc160b8d7a5994065",
         ),
     ),
     helm = struct(
