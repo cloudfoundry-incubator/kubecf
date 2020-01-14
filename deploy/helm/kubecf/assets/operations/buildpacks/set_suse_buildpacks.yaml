@@ -74,6 +74,6 @@
   path: /releases/name=dotnet-core-buildpack
   value:
     name: suse-dotnet-core-buildpack
-    url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.2.13.1.tgz"
-    version: "2.2.13.1"
-    sha1: "2891486988d66aaae783c6f8df506695a916201b"
+    url: "https://s3.amazonaws.com/suse-final-releases/dotnet-core-buildpack-release-2.3.0.2.tgz"
+    version: "2.3.0.2"
+    sha1: "d9693e3b80019dd098ee7d1d17d14e6eaafd2fe7"
