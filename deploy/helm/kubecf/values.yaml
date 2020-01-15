@@ -89,8 +89,8 @@ releases:
     url: registry.suse.com/cap-staging
     version: "1.9.4.1"
     stemcell:
-      os: SLE-12SP4
-      version: 15.ga717911-0.234-7.0.0_374.gb8e8e6af
+      os: SLE_15_SP1
+      version: 21.3-7.0.0_374.gb8e8e6af
 
 multi_az: false
 high_availability: false
