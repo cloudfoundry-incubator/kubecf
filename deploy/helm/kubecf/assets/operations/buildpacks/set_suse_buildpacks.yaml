@@ -26,9 +26,9 @@
   path: /releases/name=nodejs-buildpack
   value:
     name: suse-nodejs-buildpack
-    url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.6.53.1.tgz"
-    version: "1.6.53.1"
-    sha1: "24e426b2bcd28bb6dc0e456b70f121d5228074fa"
+    url: "https://s3.amazonaws.com/suse-final-releases/nodejs-buildpack-release-1.7.7.1.tgz"
+    version: "1.7.7.1"
+    sha1: "55ee7c15c4a7d702d93144801758f12e51cacb86"
 
 - type: replace
   path: /releases/name=php-buildpack
