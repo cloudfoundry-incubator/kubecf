@@ -66,9 +66,9 @@
   path: /releases/name=nginx-buildpack
   value:
     name: suse-nginx-buildpack
-    url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.0.18.1.tgz"
-    version: "1.0.18.1"
-    sha1: "feaff64dfbf7d7e006f3fcf5a3320f25b19be171"
+    url: "https://s3.amazonaws.com/suse-final-releases/nginx-buildpack-release-1.1.3.1.tgz"
+    version: "1.1.3.1"
+    sha1: "40819df1f89765f7bc73eca7309b9b5fbd5d0e64"
 
 - type: replace
   path: /releases/name=dotnet-core-buildpack
