@@ -32,8 +32,10 @@
     file: /var/vcap/data/shared-packages/r-buildpack/packages/r-buildpack-cflinuxfs3/r_buildpack-cflinuxfs3-v1.1.0.zip
   - name: binary_buildpack
     file: /var/vcap/data/shared-packages/binary-buildpack/packages/binary-buildpack-cflinuxfs3/binary_buildpack-cflinuxfs3-v1.0.35.zip
+{{- if .Values.features.sle15_stack.enabled }}  
   - name: suse_go_buildpack
     file: /var/vcap/data/shared-packages/suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.4.1-1.1-436eaf5d.zip
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/credhub_api?/external_url
@@ -109,9 +111,11 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=staticfile-buildpack/properties?/quarks/bpm/processes
   value: []
+{{- if .Values.features.sle15_stack.enabled }}  
 - type: replace
   path: /instance_groups/name=api/jobs/name=suse-go-buildpack/properties?/quarks/bpm/processes
   value: []
+{{- end }}
 
 # Add quarks properties for cloud_controller_ng.
 - type: replace
