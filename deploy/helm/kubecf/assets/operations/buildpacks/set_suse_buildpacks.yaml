@@ -58,9 +58,9 @@
   path: /releases/name=staticfile-buildpack
   value:
     name: suse-staticfile-buildpack
-    url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.4.44.1.tgz"
-    version: "1.4.44.1"
-    sha1: "dfde6883b38dc39669ec33caa2e1a384a807dc2b"
+    url: "https://s3.amazonaws.com/suse-final-releases/staticfile-buildpack-release-1.5.2.1.tgz"
+    version: "1.5.2.1"
+    sha1: "ea6594775ed472b79d1364d1f6ea1e6eab76bd77"
 
 - type: replace
   path: /releases/name=nginx-buildpack
