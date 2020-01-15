@@ -32,9 +32,27 @@
     file: /var/vcap/data/shared-packages/r-buildpack/packages/r-buildpack-cflinuxfs3/r_buildpack-cflinuxfs3-v1.1.0.zip
   - name: binary_buildpack
     file: /var/vcap/data/shared-packages/binary-buildpack/packages/binary-buildpack-cflinuxfs3/binary_buildpack-cflinuxfs3-v1.0.35.zip
-{{- if .Values.features.sle15_stack.enabled }}  
+{{- if .Values.features.suse_buildpacks.enabled }}  
+  - name: suse_staticfile_buildpack
+    file: {{ include "kubecf.fileLookup" (list .Values.releases "suse-staticfile-buildpack") }}
+  - name: suse_java_buildpack
+    file: {{ include "kubecf.fileLookup" (list .Values.releases "suse-java-buildpack") }}
+  - name: suse_ruby_buildpack
+    file: {{ include "kubecf.fileLookup" (list .Values.releases "suse-ruby-buildpack") }}
+  - name: suse_dotnet_core_buildpack
+    file: {{ include "kubecf.fileLookup" (list .Values.releases "suse-dotnet-core-buildpack") }}
+  - name: suse_nodejs_buildpack
+    file: {{ include "kubecf.fileLookup" (list .Values.releases "suse-nodejs-buildpack") }}
   - name: suse_go_buildpack
-    file: /var/vcap/data/shared-packages/suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.4.1-1.1-436eaf5d.zip
+    file: {{ include "kubecf.fileLookup" (list .Values.releases "suse-go-buildpack") }}
+  - name: suse_python_buildpack
+    file: {{ include "kubecf.fileLookup" (list .Values.releases "suse-python-buildpack") }}
+  - name: suse_php_buildpack
+    file: {{ include "kubecf.fileLookup" (list .Values.releases "suse-php-buildpack") }}
+  - name: suse_nginx_buildpack
+    file: {{ include "kubecf.fileLookup" (list .Values.releases "suse-nginx-buildpack") }}
+  - name: suse_binary_buildpack
+    file: {{ include "kubecf.fileLookup" (list .Values.releases "suse-binary-buildpack") }}
 {{- end }}
 
 - type: replace
@@ -111,9 +129,36 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=staticfile-buildpack/properties?/quarks/bpm/processes
   value: []
-{{- if .Values.features.sle15_stack.enabled }}  
+{{- if .Values.features.suse_buildpacks.enabled }}  
+- type: replace
+  path: /instance_groups/name=api/jobs/name=suse-staticfile-buildpack/properties?/quarks/bpm/processes
+  value: []
+- type: replace
+  path: /instance_groups/name=api/jobs/name=suse-java-buildpack/properties?/quarks/bpm/processes
+  value: []
+- type: replace
+  path: /instance_groups/name=api/jobs/name=suse-ruby-buildpack/properties?/quarks/bpm/processes
+  value: []
+- type: replace
+  path: /instance_groups/name=api/jobs/name=suse-dotnet-core-buildpack/properties?/quarks/bpm/processes
+  value: []
+- type: replace
+  path: /instance_groups/name=api/jobs/name=suse-nodejs-buildpack/properties?/quarks/bpm/processes
+  value: []
 - type: replace
   path: /instance_groups/name=api/jobs/name=suse-go-buildpack/properties?/quarks/bpm/processes
+  value: []
+- type: replace
+  path: /instance_groups/name=api/jobs/name=suse-python-buildpack/properties?/quarks/bpm/processes
+  value: []
+- type: replace
+  path: /instance_groups/name=api/jobs/name=suse-php-buildpack/properties?/quarks/bpm/processes
+  value: []
+- type: replace
+  path: /instance_groups/name=api/jobs/name=suse-nginx-buildpack/properties?/quarks/bpm/processes
+  value: []
+- type: replace
+  path: /instance_groups/name=api/jobs/name=suse-binary-buildpack/properties?/quarks/bpm/processes
   value: []
 {{- end }}
 

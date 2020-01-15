@@ -3,15 +3,150 @@
 - type: replace
   path: /releases/-
   value:
+    name: suse-staticfile-buildpack
+    version: {{ (index .Values.releases "suse-staticfile-buildpack").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-staticfile-buildpack") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-staticfile-buildpack") }}
+
+- type: replace
+  path: /releases/-
+  value:
+    name: suse-java-buildpack
+    version: {{ (index .Values.releases "suse-go-buildpack").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-java-buildpack") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-java-buildpack") }}
+
+- type: replace
+  path: /releases/-
+  value:
+    name: suse-ruby-buildpack
+    version: {{ (index .Values.releases "suse-ruby-buildpack").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-ruby-buildpack") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-ruby-buildpack") }}
+
+- type: replace
+  path: /releases/-
+  value:
+    name: suse-dotnet-core-buildpack
+    version: {{ (index .Values.releases "suse-dotnet-core-buildpack").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-dotnet-core-buildpack") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-dotnet-core-buildpack") }}
+
+- type: replace
+  path: /releases/-
+  value:
+    name: suse-nodejs-buildpack
+    version: {{ (index .Values.releases "suse-nodejs-buildpack").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-nodejs-buildpack") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-nodejs-buildpack") }}
+
+- type: replace
+  path: /releases/-
+  value:
     name: suse-go-buildpack
     version: {{ (index .Values.releases "suse-go-buildpack").version | quote }}
     url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-go-buildpack") }}
     stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-go-buildpack") }}
 
 - type: replace
+  path: /releases/-
+  value:
+    name: suse-python-buildpack
+    version: {{ (index .Values.releases "suse-python-buildpack").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-python-buildpack") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-python-buildpack") }}
+
+- type: replace
+  path: /releases/-
+  value:
+    name: suse-php-buildpack
+    version: {{ (index .Values.releases "suse-php-buildpack").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-php-buildpack") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-php-buildpack") }}
+
+- type: replace
+  path: /releases/-
+  value:
+    name: suse-nginx-buildpack
+    version: {{ (index .Values.releases "suse-nginx-buildpack").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-nginx-buildpack") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-nginx-buildpack") }}
+
+- type: replace
+  path: /releases/-
+  value:
+    name: suse-binary-buildpack
+    version: {{ (index .Values.releases "suse-binary-buildpack").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-binary-buildpack") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-binary-buildpack") }}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/-
+  value:
+    name: suse-staticfile-buildpack
+    release: suse-staticfile-buildpack
+    properties: {}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/-
+  value:
+    name: suse-java-buildpack
+    release: suse-java-buildpack
+    properties: {}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/-
+  value:
+    name: suse-ruby-buildpack
+    release: suse-ruby-buildpack
+    properties: {}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/-
+  value:
+    name: suse-dotnet-core-buildpack
+    release: suse-dotnet-core-buildpack
+    properties: {}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/-
+  value:
+    name: suse-nodejs-buildpack
+    release: suse-nodejs-buildpack
+    properties: {}
+
+- type: replace
   path: /instance_groups/name=api/jobs/-
   value:
     name: suse-go-buildpack
     release: suse-go-buildpack
+    properties: {}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/-
+  value:
+    name: suse-python-buildpack
+    release: suse-python-buildpack
+    properties: {}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/-
+  value:
+    name: suse-php-buildpack
+    release: suse-php-buildpack
+    properties: {}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/-
+  value:
+    name: suse-nginx-buildpack
+    release: suse-nginx-buildpack
+    properties: {}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/-
+  value:
+    name: suse-binary-buildpack
+    release: suse-binary-buildpack
     properties: {}
 {{- end }}
