@@ -18,9 +18,9 @@
   path: /releases/name=java-buildpack
   value:
     name: suse-java-buildpack
-    url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.21.0.1.tgz"
-    version: "4.21.0.1"
-    sha1: "76796e0687b7348afe2d947468d68910fc95c86d"
+    url: "https://s3.amazonaws.com/suse-final-releases/java-buildpack-release-4.27.0.1.tgz"
+    version: "4.27.0.1"
+    sha1: "3bc1626e8e7584c832d72cc6800ffcbbdcde6616"
 
 - type: replace
   path: /releases/name=nodejs-buildpack
