@@ -12,7 +12,7 @@
   path: /releases/-
   value:
     name: suse-java-buildpack
-    version: {{ (index .Values.releases "suse-go-buildpack").version | quote }}
+    version: {{ (index .Values.releases "suse-java-buildpack").version | quote }}
     url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "suse-java-buildpack") }}
     stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "suse-java-buildpack") }}
 
