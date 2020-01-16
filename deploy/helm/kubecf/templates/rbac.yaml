@@ -49,7 +49,7 @@ spec:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ .Release.Name }}-default
+  name: {{ .Release.Name }}-default-psp
   namespace: {{ .Release.Namespace | quote }}
 rules:
 - apiGroups: [policy]
@@ -64,13 +64,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ .Release.Name }}-default
+  name: {{ .Release.Name }}-default-psp
   namespace: {{ .Release.Namespace | quote }}
   annotations:
     rbac.authorization.kubernetes.io/autoupdate: "true"
 roleRef:
   kind: Role
-  name: {{ .Release.Name }}-default
+  name: {{ .Release.Name }}-default-psp
   apiGroup: rbac.authorization.k8s.io
 subjects:
 - kind: ServiceAccount
