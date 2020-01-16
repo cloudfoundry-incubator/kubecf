@@ -67,6 +67,7 @@ def main(ctx):
 
     steps.append(test_step("smoke_tests"))
     steps.append(test_step("cf_acceptance_tests"))
+    steps.append(test_step("cats_internetless"))
 
     steps.append(step(
         name = "cleanup:kind",
