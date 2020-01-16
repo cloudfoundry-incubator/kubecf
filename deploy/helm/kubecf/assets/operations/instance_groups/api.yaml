@@ -129,38 +129,6 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=staticfile-buildpack/properties?/quarks/bpm/processes
   value: []
-{{- if .Values.features.suse_buildpacks.enabled }}  
-- type: replace
-  path: /instance_groups/name=api/jobs/name=suse-staticfile-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=suse-java-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=suse-ruby-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=suse-dotnet-core-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=suse-nodejs-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=suse-go-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=suse-python-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=suse-php-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=suse-nginx-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=suse-binary-buildpack/properties?/quarks/bpm/processes
-  value: []
-{{- end }}
 
 # Add quarks properties for cloud_controller_ng.
 - type: replace
