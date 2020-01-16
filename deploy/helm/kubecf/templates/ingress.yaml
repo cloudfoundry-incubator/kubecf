@@ -106,6 +106,10 @@ kind: Service
 metadata:
   name: "{{ $root.Release.Name }}-router-public"
   namespace: {{ $root.Release.Namespace | quote }}
+  {{- if $service.annotations }}
+  annotations:
+    {{- toYaml $service.annotations | nindent 4 }}
+  {{- end }}
   labels:
     app.kubernetes.io/component: router
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
@@ -122,7 +126,7 @@ spec:
   - name: http
     protocol: TCP
     port: 80
-    targetPort: 8000
+    targetPort: 80
   - name: https
     protocol: TCP
     port: 443
@@ -145,6 +149,10 @@ kind: Service
 metadata:
   name: "{{ $root.Release.Name }}-ssh-proxy-public"
   namespace: {{ $root.Release.Namespace | quote }}
+  {{- if $service.annotations }}
+  annotations:
+    {{- toYaml $service.annotations | nindent 4 }}
+  {{- end }}
   labels:
     app.kubernetes.io/component: ssh-proxy
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
@@ -180,6 +188,10 @@ kind: Service
 metadata:
   name: "{{ $root.Release.Name }}-tcp-router-public"
   namespace: {{ $root.Release.Namespace | quote }}
+  {{- if $service.annotations }}
+  annotations:
+    {{- toYaml $service.annotations | nindent 4 }}
+  {{- end }}
   labels:
     app.kubernetes.io/component: tcp-router
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
@@ -193,6 +205,10 @@ spec:
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
     app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
   ports:
+  - name: healthcheck
+    protocol: TCP
+    port: 80
+    targetPort: 80
   {{- range $port := until (int (add 1 (sub $service.port_range.end $service.port_range.start))) }}
   {{- $port = add $port $service.port_range.start }}
   - name: "tcp-route-{{ $port }}"
