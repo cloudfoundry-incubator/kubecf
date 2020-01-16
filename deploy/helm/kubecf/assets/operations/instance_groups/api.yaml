@@ -76,7 +76,7 @@
 - type: replace
   path: /variables/-
   value:
-    name: {{ $keyLabel | quote }}
+    name: "ccdb_key_label_{{ $keyLabel }}"
     type: password
 {{- end }}
 - type: replace
@@ -84,7 +84,7 @@
   value: &encryption_info
     keys:
       {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
-      {{ $keyLabel }}: "(({{ $keyLabel }}))"
+      ccdb_key_label_{{ $keyLabel }}: "((ccdb_key_label_{{ $keyLabel }}))"
       {{- end }}
     current_key_label: {{ .Values.ccdb.encryption.rotation.current_key_label | quote }}
 - type: replace

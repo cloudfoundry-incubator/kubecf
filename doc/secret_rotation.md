@@ -32,7 +32,7 @@ ccdb:
       current_key_label: encryption_key_1
 ```
 
-**IMPORTANT** - key labels should be less than 256 characters long.
+**IMPORTANT** - key labels should be less than 240 characters long.
 
 Then, update the kubecf Helm installation. After Helm finishes its updates, trigger the
 `rotate-cc-database-key` errand:
