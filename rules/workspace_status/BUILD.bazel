@@ -1,0 +1,6 @@
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "status_converter.tmpl.sh",
+    "status_merger.tmpl.sh",
+])

@@ -5,6 +5,11 @@ load("//dev/minikube:binary.bzl", "minikube_binary")
 load("//rules/external_binary:def.bzl", "external_binary")
 load(":def.bzl", "project")
 
+local_repository(
+    name = "workspace_status",
+    path = "rules/workspace_status",
+)
+
 [external_binary(
     name = name,
     platforms = getattr(project, name).platforms,
