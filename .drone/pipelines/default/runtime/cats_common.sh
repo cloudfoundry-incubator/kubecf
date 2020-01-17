@@ -50,7 +50,7 @@ wait_for_ig_job() {
     echo "$(green "Job exists"):  $(blue "${job_name}")"
 
     # shellcheck disable=SC2005
-    blue "Waiting for the ig job to complete..."
+    echo "$(blue "Waiting for the ig job to complete...")"
 
     local timeout="360"
     while ig_job_exists && [[ "$timeout" -gt 0 ]]
