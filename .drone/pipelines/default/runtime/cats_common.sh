@@ -32,13 +32,7 @@ wait_for_ig_job() {
 
     local timeout="360"
     until ig_job_exists || [[ "$timeout" == "0" ]]
-    do
-        kubectl get jobs \
-		--namespace "${KUBECF_NAMESPACE}" \
-		2> /dev/null \
-	| grep -v NAME | sed -e "s|^|$(date): |"
-	sleep 1; timeout=$((timeout - 1))
-
+    do sleep 1; timeout=$((timeout - 1))
     done
     if [[ "${timeout}" == 0 ]]; then
 	# shellcheck disable=SC2005
@@ -54,12 +48,7 @@ wait_for_ig_job() {
 
     local timeout="360"
     while ig_job_exists && [[ "$timeout" -gt 0 ]]
-    do
-        kubectl get jobs \
-		--namespace "${KUBECF_NAMESPACE}" \
-		2> /dev/null \
-	| grep -v NAME | sed -e "s|^|$(date): |"
-	sleep 1; timeout=$((timeout - 1))
+    do sleep 1; timeout=$((timeout - 1))
     done
     if [[ "${timeout}" == 0 ]]; then
 	# shellcheck disable=SC2005
