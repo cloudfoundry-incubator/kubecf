@@ -82,6 +82,12 @@ http_file(
     urls = [project.kube_dashboard.url],
 )
 
+http_file(
+    name = "weave_container_network_plugin",
+    sha256 = project.weave_container_network_plugin.sha256,
+    urls = [project.weave_container_network_plugin.url],
+)
+
 http_archive(
     name = "bazel_skylib",
     sha256 = project.skylib.sha256,
