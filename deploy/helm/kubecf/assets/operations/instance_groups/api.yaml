@@ -92,7 +92,7 @@
       {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
       ccdb_key_label_{{ $keyLabel }}: "((ccdb_key_label_{{ $keyLabel }}))"
       {{- end }}
-    current_key_label: {{ .Values.ccdb.encryption.rotation.current_key_label | quote }}
+    current_key_label: "ccdb_key_label_{{ .Values.ccdb.encryption.rotation.current_key_label }}"
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/database_encryption?
   value: *encryption_info
