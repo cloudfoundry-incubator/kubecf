@@ -106,7 +106,7 @@ project = struct(
         sha256 = "f849252870818a2971dfc3c4f8a8c5f58a57606bc2b5f221d7ab693e1d1190e0",
     ),
     weave_container_network_plugin = struct(
-        url = "https://github.com/weaveworks/weave/releases/download/latest_release/weave-daemonset-k8s-1.11.yaml",
+        url = "https://github.com/weaveworks/weave/releases/download/v2.6.0/weave-daemonset-k8s-1.11.yaml",
         sha256 = "3f6d84c16f46dd57a362446dfa8e313d9e401b0cabafef10da280c634a00ac0f",
     ),
     skylib = struct(
