@@ -11,7 +11,11 @@ function cluster_exists {
 if ! cluster_exists; then
   "${KIND}" create cluster \
     --name "${CLUSTER_NAME}" \
-    --image "kindest/node:${K8S_VERSION}"
+    --image "kindest/node:${K8S_VERSION}" \
+    --config "${KIND_CONFIG}"
+
+  # Make the node trust Kube's CA.
+  docker exec "${CLUSTER_NAME}-control-plane" bash -c "cp /etc/kubernetes/pki/ca.crt /usr/local/share/ca-certificates/kube-ca.crt;update-ca-certificates;service containerd restart"
 
   # This is the default CoreDNS config with the 'forward' plugin pointing to 1.1.1.1 instead of
   # /etc/resolv.conf. This allows a more deterministic DNS behaviour when connecting the kind
@@ -43,8 +47,8 @@ data:
     }
 EOT
 
-  # Make the node trust Kube's CA.
-  docker exec "${CLUSTER_NAME}-control-plane" bash -c "cp /etc/kubernetes/pki/ca.crt /usr/local/share/ca-certificates/kube-ca.crt;update-ca-certificates;service containerd restart"
+  # Install the Weave container network plugin.
+  "${KUBECTL}" apply -f "${WEAVE_CONTAINER_NETWORK_PLUGIN}"
 else
   echo "Kind is already started"
 fi
