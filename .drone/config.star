@@ -68,7 +68,7 @@ def main(ctx):
     steps.append(test_step("smoke_tests"))
     steps.append(test_step("cf_acceptance_tests"))
     steps.append(test_step("kubecf_redeploy_cats_internetless"))
-    steps.append(test_step("cf_acceptance_tests"))
+    steps.append(test_step("cf_acceptance_tests", "internetless"))
 
     steps.append(step(
         name = "cleanup:kind",
@@ -131,9 +131,12 @@ def step(
 
     return step
 
-def test_step(name):
+def test_step(name, subset_name = ""):
     return step(
-        name = "test:{name}".format(name = name),
+        name = "test:{name}{subset_name}".format(
+            name = name,
+            subset_name = ":{}".format(subset_name) if subset_name != "" else ""
+        ),
         commands = [
             "{base_path}/steps/test/{name}.sh".format(
                 base_path = DRONE_BASE_PATH,
