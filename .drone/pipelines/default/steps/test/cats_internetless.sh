@@ -127,7 +127,7 @@ configure_cats_suites
 isolate_network
 
 # Run the cats in the new environment
-cf_acceptance_tests_go
+run_cf_acceptance_tests
 exit_code="$(cat EXIT)"
 
 # Unisolate

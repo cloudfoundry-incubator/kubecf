@@ -9,7 +9,7 @@ source ".drone/pipelines/default/runtime/config.sh"
 # shellcheck disable=SC1091
 source ".drone/pipelines/default/runtime/cats_common.sh"
 
-cf_acceptance_tests_go
+run_cf_acceptance_tests
 exit_code="$(cat EXIT)"
 
 if [[ "$exit_code" == "0" ]]; then

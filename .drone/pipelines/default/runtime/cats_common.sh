@@ -148,7 +148,7 @@ wait_for_cf_acceptance_tests_termination() {
 }
 
 # Core of CAT execution
-cf_acceptance_tests_go() {
+run_cf_acceptance_tests() {
     # Trigger cf-acceptance-tests.
     bazel run //testing/acceptance_tests
 
