@@ -3,7 +3,14 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/stacks/-
   value:
     name: sle15
-    description: SLE15 based filesystem
+    description: "SUSE Linux Enterprise-based filesystem"
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego/lifecycle_bundles?
+  value:
+    buildpack/sle15: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
+    buildpack/cflinuxfs3: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
+    docker: docker_app_lifecycle/docker_app_lifecycle.tgz
 {{- end }}
 
 - type: replace
@@ -16,7 +23,7 @@
     file: /var/vcap/data/shared-packages/java-buildpack/packages/java-buildpack-cflinuxfs3/java-buildpack-cflinuxfs3-v4.26.zip
   - name: ruby_buildpack
     file: /var/vcap/data/shared-packages/ruby-buildpack/packages/ruby-buildpack-cflinuxfs3/ruby_buildpack-cflinuxfs3-v1.8.2.zip
-  - name: dotnet_core_buildpack
+  - name: dotnet-core_buildpack
     file: /var/vcap/data/shared-packages/dotnet-core-buildpack/packages/dotnet-core-buildpack-cflinuxfs3/dotnet-core_buildpack-cflinuxfs3-v2.3.2.zip
   - name: nodejs_buildpack
     file: /var/vcap/data/shared-packages/nodejs-buildpack/packages/nodejs-buildpack-cflinuxfs3/nodejs_buildpack-cflinuxfs3-v1.7.4.zip
@@ -34,25 +41,25 @@
     file: /var/vcap/data/shared-packages/binary-buildpack/packages/binary-buildpack-cflinuxfs3/binary_buildpack-cflinuxfs3-v1.0.35.zip
 {{- if .Values.features.suse_buildpacks.enabled }}
 {{- $path := "/var/vcap/data/shared-packages/" }}
-  - name: suse_staticfile_buildpack
+  - name: staticfile_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-staticfile-buildpack").file }}
-  - name: suse_java_buildpack
+  - name: java_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-java-buildpack").file }}
-  - name: suse_ruby_buildpack
+  - name: ruby_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-ruby-buildpack").file }}
-  - name: suse_dotnet_core_buildpack
+  - name: dotnet-core_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-dotnet-core-buildpack").file }}
-  - name: suse_nodejs_buildpack
+  - name: nodejs_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-nodejs-buildpack").file }}
-  - name: suse_go_buildpack
+  - name: go_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-go-buildpack").file }}
-  - name: suse_python_buildpack
+  - name: python_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-python-buildpack").file }}
-  - name: suse_php_buildpack
+  - name: php_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-php-buildpack").file }}
-  - name: suse_nginx_buildpack
+  - name: nginx_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-nginx-buildpack").file }}
-  - name: suse_binary_buildpack
+  - name: binary_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-binary-buildpack").file }}
 {{- end }}
 
