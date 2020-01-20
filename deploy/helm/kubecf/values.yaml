@@ -81,10 +81,10 @@ releases:
       version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   sle15:
     url: registry.suse.com/cap-staging
-    version: "10.70"
+    version: "10.93"
     stemcell:
-      os: SLE-12SP4
-      version: 11.g2837aef-0.233-7.0.0_372.ge3509601
+      os: SLE_15_SP1
+      version: 23.1-7.0.0_374.gb8e8e6af
   suse-staticfile-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.5.2.1"
