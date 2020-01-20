@@ -182,6 +182,71 @@ run_cf_acceptance_tests() {
     > EXIT echo "${exit_code}"
 }
 
+isolate_network() {
+    enable="${1:-1}"
+
+    if [[ $enable == 1 ]]; then
+	# Complaint wrong. The echo generates a traling newline the `blue` doesn't.
+	# shellcheck disable=SC2005
+	echo "$(blue "Configure cluster network: Deny egress external")"
+	# enable isolation
+	# ingress - allows all incoming traffic
+	# egress  - allows dns traffic anywhere
+	#         - allows traffic to all ports, pods, namespaces
+	#           (but no whitelisting of external ips!)
+	# references
+	# - BASE = https://github.com/ahmetb/kubernetes-network-policy-recipes
+	# - (BASE)/blob/master/02a-allow-all-traffic-to-an-application.md
+	# - (BASE)/blob/master/14-deny-external-egress-traffic.md
+	# - See also https://www.youtube.com/watch?v=3gGpMmYeEO8 (31min)
+	#   - Egress info wrt disallow external see 17:20-17:52
+	#
+	# __ATTENTION__
+	# Requires a networking plugin to enforce, else ignored
+	# (if not directly supported by platform)
+	# - Example plugins: Calico, WeaveNet, Romana
+	#
+	# GKE: Uses Calico, Use `--enable-network-policy` when
+	# creating a cluster (`gcloud`).
+	# Minikube needs special setup.
+	# KinD used by our Drone setup may have support.
+
+	cat <<EOF | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cats-internetless
+  namespace: ${KUBECF_NAMESPACE}
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - {}
+  egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+    - to:
+      - namespaceSelector: {}
+EOF
+	# For debugging, show what kube thinks of it.
+	kubectl describe networkpolicies \
+		--namespace "${KUBECF_NAMESPACE}" \
+		cats-internetless
+    else
+	# shellcheck disable=SC2005
+	echo "$(blue "Configure cluster network: Full access")"
+	# disable isolation
+	kubectl delete networkpolicies \
+		--namespace "${KUBECF_NAMESPACE}" \
+		cats-internetless
+    fi
+}
+
 # color codes
 # - 30 black - 31 red - 32 green - 33 yellow - 34 blue - 35 magenta - 36 cyan - 37 white
 

@@ -78,4 +78,7 @@ EOF
 # intermediate data, the applied chart itself.
 
 wait_for_ig_job || exit 1
+
+# Isolate the deployment
+isolate_network
 exit 0
