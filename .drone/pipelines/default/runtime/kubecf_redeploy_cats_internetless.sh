@@ -12,6 +12,11 @@ source ".drone/pipelines/default/runtime/binaries.sh"
 source ".drone/pipelines/default/runtime/config.sh"
 # shellcheck disable=SC1091
 source ".drone/pipelines/default/steps/build/output_chart.sh"
+# shellcheck disable=SC1091
+source ".drone/pipelines/default/runtime/cats_common.sh"
+
+# shellcheck disable=SC2005
+echo "$(blue "Configure CATS: =internetless")"
 
 node_ip=$(kubectl get node kubecf-control-plane \
 		  --output jsonpath='{ .status.addresses[?(@.type == "InternalIP")].address }')
@@ -20,6 +25,7 @@ system_domain="${node_ip}.nip.io"
 # Locate thebuilt kubecf chart.
 chart="$(output_chart)"
 
+{
 # Render and apply the kubecf chart.
 helm template "${chart}" \
   --name "${KUBECF_INSTALL_NAME}" \
@@ -46,9 +52,12 @@ properties:
   acceptance-tests:
     acceptance-tests:
       acceptance_tests:
+        # disable credhub tests, not controlled by property 'include'
+        credhub_mode:   "off"
         ginkgo:
           slow_spec_threshold: 300
           nodes: 2
+        include: "=internetless"
 
 testing:
   cf_acceptance_tests:
@@ -61,7 +70,12 @@ kube:
   pod_cluster_ip_range: 0.0.0.0/0
 EOF
 ) \
-  | tee CHART | kubectl apply -f -
+    | tee CHART | kubectl apply -f - \
+    >& /dev/null
+} || true
 
 # tee CHART inserted for debugging, i.e. when we have to know the
 # intermediate data, the applied chart itself.
+
+wait_for_ig_job || exit 1
+exit 0

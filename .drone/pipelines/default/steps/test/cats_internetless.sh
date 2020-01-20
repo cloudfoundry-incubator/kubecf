@@ -86,42 +86,10 @@ EOF
     fi
 }
 
-configure_cats_suites() {
-    # shellcheck disable=SC2005
-    echo "$(blue "Configure CATS: =internetless")"
-
-    # External script. Variant of the script `deploy/kubecf.sh`
-    # modified to limit the suites used by the cats to `internetless`
-    # alone.
-    #
-    # External __by choice__. Make it easier in the future to
-    # consolidate with the original script and use parameters,
-    # templating, whatever to choose mode on call.
-    #
-    # || true catches that reconfiguration generates errors of the
-    # form ``invalid: spec.clusterIP: Invalid value: "": field is immutable``.
-    # These errors do not seem to prevent us from running the CATS again.
-    # And the redirection hides the output from that.
-
-    { ".drone/pipelines/default/runtime/cats_kubecf.sh" >& /dev/null; } || true
-    wait_for_ig_job || exit 1
-}
-
-deconfigure_cats_suites() {
-    # shellcheck disable=SC2005
-    echo "$(blue "Configure CATS: defaults")"
-
-    # Undo the limited configuration of the cats.
-    { ".drone/pipelines/default/runtime/decats_kubecf.sh" >& /dev/null; } || true
-
-    # { ".drone/pipelines/default/deploy/kubecf.sh" >& /dev/null; } || true
-    wait_for_ig_job || exit 1
-}
-
 # - -- --- ----- -------- ------------- ---------------------
 
 # Reconfigure deployment
-configure_cats_suites
+".drone/pipelines/default/runtime/kubecf_redeploy_cats_internetless.sh"
 
 # Isolate deployment
 isolate_network
@@ -133,9 +101,6 @@ exit_code="$(cat EXIT)"
 # Unisolate
 isolate_network 0
 
-# Reconfigure deployment again
-deconfigure_cats_suites
-
 # Signal results, and be done
 if [[ "$exit_code" == "0" ]]; then
     # shellcheck disable=SC2005
@@ -144,5 +109,6 @@ else
     # shellcheck disable=SC2005
     echo "$(red "FAILED")"
 fi
+
 # ... and exit the script with the container's exit code.
 exit "${exit_code}"
