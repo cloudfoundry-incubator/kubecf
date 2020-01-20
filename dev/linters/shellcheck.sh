@@ -9,4 +9,4 @@ workspace=$(bazel info workspace)
 # We want work splitting with ls-files.
 # shellcheck disable=SC2046
 bazel run @shellcheck//:binary -- \
-      $(git ls-files | awk '/.sh$/ { print $0 }' | sed -e "s|^|${workspace}/|")
+      $(git ls-files --full-name '*.sh' | sed -e "s|^|${workspace}/|")
