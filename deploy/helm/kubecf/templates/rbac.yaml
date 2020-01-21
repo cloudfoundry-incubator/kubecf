@@ -1,0 +1,78 @@
+{{- if not .Values.kube.psp.default }}
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+  name: {{ .Release.Name }}-default
+spec:
+  allowPrivilegeEscalation: true
+  allowedCapabilities:
+  - NET_BIND_SERVICE
+  - SYS_ADMIN
+  - SYS_RESOURCE
+  defaultAllowPrivilegeEscalation: true
+  fsGroup:
+    rule: RunAsAny
+  hostPorts:
+  - max: 65535
+    min: 0
+  privileged: true
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - configMap
+  - secret
+  - emptyDir
+  - downwardAPI
+  - projected
+  - persistentVolumeClaim
+  - nfs
+  - rbd
+  - cephFS
+  - glusterfs
+  - fc
+  - iscsi
+  - cinder
+  - gcePersistentDisk
+  - awsElasticBlockStore
+  - azureDisk
+  - azureFile
+  - vsphereVolume
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-default-psp
+  namespace: {{ .Release.Namespace | quote }}
+rules:
+- apiGroups: [policy]
+  {{- if .Values.kube.psp.default }}
+  resourceNames: [{{ .Values.kube.psp.default | quote }}]
+  {{- else }}
+  resourceNames: [{{ .Release.Name }}-default]
+  {{- end }}
+  resources: [podsecuritypolicies]
+  verbs: [use]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-default-psp
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+roleRef:
+  kind: Role
+  name: {{ .Release.Name }}-default-psp
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: {{ .Release.Namespace | quote }}

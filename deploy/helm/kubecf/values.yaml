@@ -43,6 +43,11 @@ kube:
   #   | awk 'match($0, /cluster-cidr=(.*)/, range) { print range[1] }'
   # There is no default value for `--cluster-cidr`.
   pod_cluster_ip_range: ~
+  # The psp key contains the configuration related to Pod Security Policies. By default, a PSP will
+  # be generated with the necessary permissions for running KubeCF. To pass an existing PSP and
+  # prevent KubeCF from creating a new one, set the kube.psp.default with the PSP name.
+  psp:
+    default: ~
 
 releases:
   # The defaults for all releases, where we do not otherwise override them.
@@ -298,6 +303,15 @@ testing:
     enabled: false
   smoke_tests:
     enabled: true
+
+ccdb:
+  encryption:
+    rotation:
+      # Key labels must be <= 240 characters long. Each label will be prepended with the
+      # "ccdb_key_label_" value.
+      key_labels:
+      - encryption_key_0
+      current_key_label: encryption_key_0
 
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.

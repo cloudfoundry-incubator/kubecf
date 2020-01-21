@@ -83,6 +83,53 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_staging_security_groups/-
   value: internal
 
+# These operations set the default values explicitly in order to get the rotate-cc-database-key
+# errand working. Without them, the rotate-cc-database-key errand is not able to resolve the CC BOSH
+# link correctly.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/max_connections?
+  value: 25
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/pool_timeout?
+  value: 10
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ssl_verify_hostname?
+  value: true
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/read_timeout?
+  value: 3600
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/connection_validation_timeout?
+  value: 3600
+
+{{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
+{{- if not (regexMatch "^[a-z]+[a-z0-9_]*[a-z0-9]+$" $keyLabel) }}
+{{ fail "One or more items in ccdb.encryption.rotation.key_labels don't match the regex /^[a-z]+[a-z0-9_]*[a-z0-9]+$/" }}
+{{- end }}
+{{- if gt (len $keyLabel) 240 }}
+{{ fail "One or more items in ccdb.encryption.rotation.key_labels exceed the maximum length of 240 characters" }}
+{{- end }}
+- type: replace
+  path: /variables/-
+  value:
+    name: "ccdb_key_label_{{ $keyLabel }}"
+    type: password
+{{- end }}
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/database_encryption?
+  value: &encryption_info
+    keys:
+      {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
+      ccdb_key_label_{{ $keyLabel }}: "((ccdb_key_label_{{ $keyLabel }}))"
+      {{- end }}
+    current_key_label: "ccdb_key_label_{{ .Values.ccdb.encryption.rotation.current_key_label }}"
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/database_encryption?
+  value: *encryption_info
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/database_encryption?
+  value: *encryption_info
+
 # core_file_pattern should be disabled as CC is not running on a VM.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/core_file_pattern?
