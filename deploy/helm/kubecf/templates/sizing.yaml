@@ -123,12 +123,6 @@ data:
       value: 1
 {{- end }}
 
-{{- if not .Values.features.external_database.enabled }}
-    - type: replace
-      path: /instance_groups/name=database/instances
-      value: 1
-{{- end }}
-
 {{- if .Values.sizing.diego_api.instances }}
     - type: replace
       path: /instance_groups/name=diego-api/instances

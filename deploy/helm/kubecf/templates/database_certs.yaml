@@ -1,0 +1,12 @@
+{{ $ca := genCA "kubecf" 3650 }}
+{{ $cn := printf "%s-pxc.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{ $server := genSignedCert $cn nil nil 365 $ca }}
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}.var-pxc-certs
+data:
+  ca.pem: {{ b64enc $ca.Cert }}
+  server-cert.pem: {{ b64enc $server.Cert }}
+  server-key.pem: {{ b64enc $server.Key }}

@@ -64,12 +64,6 @@ releases:
     version: v0.0.8
   cf-acceptance-tests:
     version: 0.0.9
-  # TODO: cf-mysql must switch to SLE15 stemcell once the compilation failures are resolved.
-  cf-mysql:
-    version: 36.19.0
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
   eirini:
     version: 0.0.25
   loggregator:
@@ -305,3 +299,27 @@ k8s-host-url: ""
 k8s-service-token: ""
 k8s-service-username: ""
 k8s-node-ca: ""
+
+# Configuration for the embedded database solution using the pxc subchart
+percona-xtradb-cluster:
+  replicas: 1
+
+  image:
+    repository: "splatform/percona-xtradb-cluster"
+    tag: 0.0.2
+
+  ssl:
+    enabled: true
+    secret: kubecf.var-pxc-certs
+
+  persistence:
+    enabled: true
+    size: 20Gi
+
+  configFiles:
+    ssl.cnf: |+
+      [mysqld]
+      ssl-ca=/ssl/ca.pem
+      ssl-cert=/ssl/server-cert.pem
+      ssl-key=/ssl/server-key.pem
+

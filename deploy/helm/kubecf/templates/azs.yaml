@@ -62,9 +62,4 @@ data:
     - type: remove
       path: /instance_groups/name=asnozzle/azs
     {{- end }}
-
-    {{- if not .Values.features.external_database.enabled }}
-    - type: remove
-      path: /instance_groups/name=database/azs?
-    {{- end }}
 {{- end }}
