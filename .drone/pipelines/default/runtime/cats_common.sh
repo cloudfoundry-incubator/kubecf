@@ -3,6 +3,13 @@
 # I.e determine pod names, existence, state, termination
 # Ditto for associated jobs. And other miscellanea.
 
+show_jobs() {
+    kubectl get jobs \
+	    --namespace "${KUBECF_NAMESPACE}" \
+	    2> /dev/null \
+	| grep -v NAME | sed -e "s|^|$(date): |"
+}
+
 ig_job_name() {
     kubectl get jobs \
 	    --namespace "${KUBECF_NAMESPACE}" \
@@ -32,7 +39,7 @@ wait_for_ig_job() {
 
     local timeout="360"
     until ig_job_exists || [[ "$timeout" == "0" ]]
-    do sleep 1; timeout=$((timeout - 1))
+    do show_jobs; sleep 1; timeout=$((timeout - 1))
     done
     if [[ "${timeout}" == 0 ]]; then
 	# shellcheck disable=SC2005
@@ -48,16 +55,16 @@ wait_for_ig_job() {
 
     local timeout="360"
     while ig_job_exists && [[ "$timeout" -gt 0 ]]
-    do sleep 1; timeout=$((timeout - 1))
+    do show_jobs; sleep 1; timeout=$((timeout - 1))
     done
     if [[ "${timeout}" == 0 ]]; then
 	# shellcheck disable=SC2005
-	>&2 red "Timed out waiting for the ig job to complete"
+	>&2 echo "$(red "Timed out waiting for the ig job to complete")"
 	return 1
     fi
 
     # shellcheck disable=SC2005
-    blue "Completed ig job, continue..."
+    echo "$(blue "Completed ig job, continue...")"
     return 0
 }
 
