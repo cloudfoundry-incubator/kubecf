@@ -154,10 +154,15 @@
   value: true
 
 {{- $root := . -}}
+{{- if .Values.features.suse_buildpacks.enabled }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
-{{- if and (not $root.Values.features.suse_buildpacks.enabled) (regexMatch "diego-cell_sle15-rootfs-setup" $path) }}
-{{- else }}
 {{ $root.Files.Get $path }}
+{{- end }}
+{{- else }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
+{{- if not (regexMatch "diego-cell_sle15-rootfs-setup" $path) }}
+{{ $root.Files.Get $path }}
+{{- end }}
 {{- end }}
 {{- end }}
 
