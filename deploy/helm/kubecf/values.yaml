@@ -244,8 +244,6 @@ features:
     enabled: true
   autoscaler:
     enabled: false
-  sle15_stack:
-    enabled: true
 
   # external_database disables the embedded database and allows using an external, already seeded,
   # database.

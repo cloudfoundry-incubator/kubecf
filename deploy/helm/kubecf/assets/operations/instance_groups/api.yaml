@@ -1,4 +1,4 @@
-{{- if .Values.features.sle15_stack.enabled }}
+{{- if .Values.features.suse_buildpacks.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/stacks/-
   value:
@@ -292,5 +292,8 @@
 
 {{- $root := . -}}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/api_*" }}
+{{- if and (not $root.Values.features.suse_buildpacks.enabled) (regexMatch "api_suse-.*?-buildpack" $path ) }}
+{{- else }}
 {{ $root.Files.Get $path }}
+{{- end }}
 {{- end }}

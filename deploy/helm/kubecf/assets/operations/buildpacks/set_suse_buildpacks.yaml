@@ -1,4 +1,10 @@
-{{- $root := . -}}
+- type: replace
+  path: /releases/-
+  value:
+    name: sle15
+    version: {{ (index .Values.releases "sle15").version | quote }}
+    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "sle15") }}
+    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "sle15") }}
 
 {{- $buildpacks := list "suse-staticfile-buildpack" }}
 {{- $buildpacks = append $buildpacks "suse-java-buildpack" }}
@@ -11,6 +17,7 @@
 {{- $buildpacks = append $buildpacks "suse-nginx-buildpack" }}
 {{- $buildpacks = append $buildpacks "suse-binary-buildpack" }}
 
+{{- $root := . -}}
 {{- range $buildpack := $buildpacks }}
 - type: replace
   path: /releases/-
