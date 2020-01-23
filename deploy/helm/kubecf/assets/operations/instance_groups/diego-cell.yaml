@@ -1,6 +1,6 @@
 {{- if not .Values.features.eirini.enabled -}}
 
-{{- if .Values.features.sle15_stack.enabled }}
+{{- if .Values.features.suse_buildpacks.enabled }}
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/-
   value:
@@ -16,10 +16,6 @@
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=sle15-rootfs-setup/properties/quarks?/bpm/processes
   value: []
-
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/preloaded_rootfses/-
-  value: sle15:/var/vcap/data/rep/sle15/rootfs.tar
 {{- end }}
 
 # Selectively remove jobs temporarily.
@@ -133,6 +129,9 @@
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/preloaded_rootfses
   value:
   - cflinuxfs3:/var/vcap/data/rep/cflinuxfs3/rootfs.tar
+  {{- if .Values.features.suse_buildpacks.enabled }}
+  - sle15:/var/vcap/data/rep/sle15/rootfs.tar
+  {{- end }}
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_pool?
@@ -155,8 +154,16 @@
   value: true
 
 {{- $root := . -}}
+{{- if .Values.features.suse_buildpacks.enabled }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
 {{ $root.Files.Get $path }}
+{{- end }}
+{{- else }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
+{{- if not (regexMatch "diego-cell_sle15-rootfs-setup" $path) }}
+{{ $root.Files.Get $path }}
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{- end }}

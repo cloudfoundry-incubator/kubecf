@@ -151,15 +151,11 @@ data:
 {{- end }}
 {{- end }}
 
-{{- if .Values.sizing.doppler.instances }}
-    - type: replace
-      path: /instance_groups/name=doppler/instances
-      value: {{.Values.sizing.doppler.instances}}
-{{- else if not .Values.high_availability }}
+    # Temporarily fixes https://github.com/SUSE/kubecf/issues/241.
+    # TODO: properly investigate and fix log-cache.
     - type: replace
       path: /instance_groups/name=doppler/instances
       value: 1
-{{- end }}
 
 {{- if .Values.sizing.log_api.instances }}
     - type: replace

@@ -1,5 +1,5 @@
 # Dockerfile source - https://github.com/f0rmiga/bazel-docker-image.
-image: thulioassis/bazel-docker-image:1.2.0
+image: thulioassis/bazel-docker-image:2.0.0
 
 stages:
 - lint
