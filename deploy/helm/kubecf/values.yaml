@@ -1,319 +1,111 @@
-system_domain: ~
-
-# Set or override job properties. The first level of the map is the instance group name. The second
-# level of the map is the job name. E.g.:
-#  properties:
-#    adapter:
-#      adapter:
-#        scalablesyslog:
-#          adapter:
-#            logs:
-#              addr: kubecf-log-api:8082
-#
-#  Eirini Persistence Broker setup example:
-#
-# properties:
-#   eirini:
-#     eirini-persi-broker:
-#       eirini-persi-broker:
-#         service_plans:
-#           - id: "default"
-#             name: "default"
-#             description: "Persistence storage service broker for applications."
-#             free: true
-#             kube_storage_class: "default"
-#             default_size: "1Gi"
-properties: {}
-
-kube:
-  # The storage class to be used for the instance groups that need it (e.g. bits, database and
-  # singleton-blobstore). If it's not set, the default storage class will be used.
-  storage_class: ~
-  # The service_cluster_ip_range and pod_cluster_ip_range are used by the internal security group
-  # definition to allow apps to communicate with internal service brokers (e.g. credhub).
-  # service_cluster_ip_range can be fetched with the following command, assuming that the API
-  # server started with the `--service-cluster-ip-range` flag:
-  # kubectl cluster-info dump --output yaml \
-  #   | awk 'match($0, /service-cluster-ip-range=(.*)/, range) { print range[1] }'
-  # The default value for `--service-cluster-ip-range` is 10.0.0.0/24.
-  service_cluster_ip_range: ~
-  # pod_cluster_ip_range can be fetched with the following command, assuming that the controller
-  # manager started with the `--cluster-cidr` flag:
-  # kubectl cluster-info dump --output yaml \
-  #   | awk 'match($0, /cluster-cidr=(.*)/, range) { print range[1] }'
-  # There is no default value for `--cluster-cidr`.
-  pod_cluster_ip_range: ~
-  # The psp key contains the configuration related to Pod Security Policies. By default, a PSP will
-  # be generated with the necessary permissions for running KubeCF. To pass an existing PSP and
-  # prevent KubeCF from creating a new one, set the kube.psp.default with the PSP name.
-  psp:
-    default: ~
-
-releases:
   # The defaults for all releases, where we do not otherwise override them.
-  defaults:
-    url: docker.io/cfcontainerization
-    stemcell:
-      os: SLE_15_SP1
-      version: 15.1-7.0.0_374.gb8e8e6af
-  app-autoscaler:
-    version: 3.0.0
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
-  bits-service:
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
-  brain-tests:
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_372.ge3509601
-  cf-acceptance-tests:
-    version: 0.0.9
-    stemcell:
-      os: SLE_15_SP1
-      version: 21.3-7.0.0_374.gb8e8e6af
-  cf-mysql:
-    version: 36.19.0
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
-  postgres:
-    version: "39"
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
-  sle15:
-    url: registry.suse.com/cap-staging
-    version: "10.93"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
-  suse-staticfile-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.5.2.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
-    file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.2.1-1.1-2c315eb8.zip
-  suse-java-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "4.27.0.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
-    file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.27.0.1-7975f85e.zip
-  suse-ruby-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.8.3.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
-    file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.3.1-1.1-a08b9b7a.zip
-  suse-dotnet-core-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "2.3.0.2"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
-    file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.0.1-1.1-d1344b0e.zip
-  suse-nodejs-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.7.7.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
-    file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.7.1-1.1-856d35fb.zip
-  suse-go-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.9.4.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 21.3-7.0.0_374.gb8e8e6af
-    file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.4.1-1.1-436eaf5d.zip
-  suse-python-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.7.4.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
-    file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.4.1-1.1-79c8afbe.zip
-  suse-php-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "4.4.2.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
-    file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.2.1-1.1-905fbac1.zip
-  suse-nginx-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.1.3.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
-    file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.3.1-1.1-bdd184c6.zip
-  suse-binary-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.0.36.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
-    file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
+defaults:
+  url: docker.io/cfcontainerization
+  stemcell:
+    os: SLE_15_SP1
+    version: 15.1-7.0.0_374.gb8e8e6af
+app-autoscaler:
+  version: 3.0.0
+  stemcell:
+    os: opensuse-42.3
+    version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
+bits-service:
+  stemcell:
+    os: opensuse-42.3
+    version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
+brain-tests:
+  stemcell:
+    os: opensuse-42.3
+    version: 36.g03b4653-30.80-7.0.0_372.ge3509601
+cf-acceptance-tests:
+  version: 0.0.9
+  stemcell:
+    os: SLE_15_SP1
+    version: 21.3-7.0.0_374.gb8e8e6af
+cf-mysql:
+  version: 36.19.0
+  stemcell:
+    os: opensuse-42.3
+    version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+postgres:
+  version: "39"
+  stemcell:
+    os: opensuse-42.3
+    version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
+sle15:
+  url: registry.suse.com/cap-staging
+  version: "10.93"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+suse-staticfile-buildpack:
+  url: registry.suse.com/cap-staging
+  version: "1.5.2.1"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+  file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.2.1-1.1-2c315eb8.zip
+suse-java-buildpack:
+  url: registry.suse.com/cap-staging
+  version: "4.27.0.1"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+  file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.27.0.1-7975f85e.zip
+suse-ruby-buildpack:
+  url: registry.suse.com/cap-staging
+  version: "1.8.3.1"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+  file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.3.1-1.1-a08b9b7a.zip
+suse-dotnet-core-buildpack:
+  url: registry.suse.com/cap-staging
+  version: "2.3.0.2"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+  file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.0.1-1.1-d1344b0e.zip
+suse-nodejs-buildpack:
+  url: registry.suse.com/cap-staging
+  version: "1.7.7.1"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+  file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.7.1-1.1-856d35fb.zip
+suse-go-buildpack:
+  url: registry.suse.com-cap-staging
+  version: "1.9.4.1"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+  file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.4.1-1.1-436eaf5d.zip
+suse-python-buildpack:
+  url: registry.suse.com/cap-staging
+  version: "1.7.4.1"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+  file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.4.1-1.1-79c8afbe.zip
+suse-php-buildpack:
+  url: registry.suse.com/cap-staging
+  version: "4.4.2.1"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+  file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.2.1-1.1-905fbac1.zip
+suse-nginx-buildpack:
+  url: registry.suse.com/cap-staging
+  version: "1.1.3.1"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+  file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.3.1-1.1-bdd184c6.zip
+suse-binary-buildpack:
+  url: registry.suse.com/cap-staging
+  version: "1.0.36.1"
+  stemcell:
+    os: SLE_15_SP1
+    version: 23.1-7.0.0_374.gb8e8e6af
+  file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
 
-multi_az: false
-high_availability: false
-
-# Sizing takes precedence over the high_availability property. I.e. setting the instance count
-# for an instance group greater than 1 will make it highly available.
-sizing:
-  adapter:
-    instances: ~
-  api:
-    instances: ~
-  asactors:
-    instances: ~
-  asapi:
-    instances: ~
-  asmetrics:
-    instances: ~
-  asnozzle:
-    instances: ~
-  auctioneer:
-    instances: ~
-  bits:
-    instances: ~
-  cc_worker:
-    instances: ~
-  credhub:
-    instances: ~
-  diego_api:
-    instances: ~
-  diego_cell:
-    instances: ~
-  eirini:
-    instances: ~
-  log_api:
-    instances: ~
-  nats:
-    instances: ~
-  router:
-    instances: ~
-  routing_api:
-    instances: ~
-  scheduler:
-    instances: ~
-  uaa:
-    instances: ~
-  tcp_router:
-    instances: ~
-
-# Service is only valid to set a external endpoints for the instance groups if
-# features.ingress.enabled is false.
-services:
-  router:
-    annotations: ~
-    type: LoadBalancer
-    externalIPs: []
-    clusterIP: ~
-  ssh-proxy:
-    annotations: ~
-    type: LoadBalancer
-    externalIPs: []
-    clusterIP: ~
-  tcp-router:
-    annotations: ~
-    type: LoadBalancer
-    externalIPs: []
-    clusterIP: ~
-    port_range:
-      start: 20000
-      end: 20008
-
-features:
-  eirini:
-    enabled: false
-    registry:
-      service:
-        nodePort: 32123
-  ingress:
-    enabled: false
-    tls:
-      crt: ~
-      key: ~
-    annotations: {}
-    labels: {}
-  suse_buildpacks:
-    enabled: true
-  autoscaler:
-    enabled: false
-
-  # external_database disables the embedded database and allows using an external, already seeded,
-  # database.
-  # The database type can be either 'mysql' or 'postgres'.
-  external_database:
-    enabled: false
-    type: ~
-    host: ~
-    port: ~
-    databases:
-      uaa:
-        name: uaa
-        password: ~
-        username: ~
-      cc:
-        name: cloud_controller
-        password: ~
-        username: ~
-      bbs:
-        name: diego
-        password: ~
-        username: ~
-      routing_api:
-        name: routing-api
-        password: ~
-        username: ~
-      policy_server:
-        name: network_policy
-        password: ~
-        username: ~
-      silk_controller:
-        name: network_connectivity
-        password: ~
-        username: ~
-      locket:
-        name: locket
-        password: ~
-        username: ~
-      credhub:
-        name: credhub
-        password: ~
-        username: ~
-
-# Enable or disable instance groups for the different test suites.
-# Only smoke tests should be run in production environments.
-testing:
-  brain_tests:
-    enabled: false
-  cf_acceptance_tests:
-    enabled: false
-  smoke_tests:
-    enabled: true
-
-ccdb:
-  encryption:
-    rotation:
-      # Key labels must be <= 240 characters long. Each label will be prepended with the
-      # "ccdb_key_label_" value.
-      key_labels:
-      - encryption_key_0
-      current_key_label: encryption_key_0
-
-operations:
-  # A list of configmap names that should be applied to the BOSH manifest.
-  custom: []
-
-k8s-host-url: ""
-k8s-service-token: ""
-k8s-service-username: ""
-k8s-node-ca: ""
