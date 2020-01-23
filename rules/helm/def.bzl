@@ -1,5 +1,5 @@
 def _package_impl(ctx):
-    output_filename = "{}-{}.tgz".format(ctx.attr.chart_name, ctx.attr.chart_version)
+    output_filename = "{}.tgz".format(ctx.attr.name)
     output_tgz = ctx.actions.declare_file(output_filename)
     outputs = [output_tgz]
     ctx.actions.run(
@@ -15,9 +15,6 @@ def _package_impl(ctx):
             # TODO(mudler): Support also nested folders and paths with spaces
             "GENERATED": " ".join([f.path for f in ctx.files.generated]),
             "HELM": ctx.executable._helm.path,
-            "CHART_VERSION": ctx.attr.chart_version,
-            "APP_VERSION": ctx.attr.app_version,
-            "OUTPUT_FILENAME": output_filename,
             "OUTPUT_TGZ": output_tgz.path,
         },
     )
@@ -34,15 +31,6 @@ _package = rule(
         "package_dir": attr.string(
             mandatory = True,
         ),
-        "chart_name": attr.string(
-            mandatory = True,
-        ),
-        "chart_version": attr.string(
-            mandatory = True,
-        ),
-        "app_version": attr.string(
-            mandatory = True,
-        ),
         "_helm": attr.label(
             allow_single_file = True,
             cfg = "host",
@@ -52,7 +40,7 @@ _package = rule(
         "_script": attr.label(
             allow_single_file = True,
             cfg = "host",
-            default = "//rules/helm:package.sh",
+            default = "//rules/helm:package_sh",
             executable = True,
         ),
     },
@@ -63,13 +51,6 @@ def package(**kwargs):
         package_dir = native.package_name(),
         **kwargs
     )
-
-PackageInfo = provider(
-    fields=[
-        "chart_name",
-        "chart_version",
-    ],
-)
 
 def _template_impl(ctx):
     output_filename = "{}.yaml".format(ctx.attr.name)

@@ -65,7 +65,4 @@ helm_package(
         ":cf_deployment",
         ":extracted_jobs",
     ],
-    chart_name = "kubecf",
-    chart_version = project.chart_version,
-    app_version = project.app_version,
 )
