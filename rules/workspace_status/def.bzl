@@ -68,6 +68,6 @@ workspace_status = rule(
             cfg = "host",
             default = "@jq//:jq",
             executable = True,
-        )
+        ),
     },
 )

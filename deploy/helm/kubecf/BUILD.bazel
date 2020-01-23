@@ -53,7 +53,7 @@ pkg_tar(
 )
 
 helm_package(
-    name = "chart",
+    name = "kubecf",
     srcs = [
         ":chart_files_static",
     ],

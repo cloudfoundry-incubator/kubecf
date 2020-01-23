@@ -14,7 +14,7 @@ pkg_tar(
     extension = "tgz",
     srcs = [
         ":cf_operator_chart",
-        "//deploy/helm/kubecf:chart",
+        "//deploy/helm/kubecf",
     ]
 )
 
