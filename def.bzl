@@ -203,4 +203,8 @@ project = struct(
             ),
         ),
     ),
+    rules_gomplate = struct(
+        commit = "3ab8ff7a25d9c13c8a9d2c5a122241c745a92570",
+        sha256 = "5f2c173824020dea6923e0fa20d13df4a1d4cbe264acc009efa41f8a1a50e7d4",
+    ),
 )

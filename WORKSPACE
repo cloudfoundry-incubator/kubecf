@@ -100,6 +100,17 @@ http_archive(
 )
 
 http_archive(
+    name = "rules_gomplate",
+    sha256 = project.rules_gomplate.sha256,
+    strip_prefix = "rules_gomplate-{commit}".format(commit = project.rules_gomplate.commit),
+    url = "https://github.com/codelogia/rules_gomplate/archive/{commit}.tar.gz".format(commit = project.rules_gomplate.commit),
+)
+
+load("@rules_gomplate//:repositories.bzl", "gomplate_repositories")
+
+gomplate_repositories()
+
+http_archive(
     name = "com_github_kubernetes_incubator_metrics_server",
     build_file_content = """
 package(default_visibility = ["//visibility:public"])
