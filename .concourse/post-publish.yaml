@@ -87,7 +87,7 @@ jobs:
           outputs:
             - name: output
           params:
-            DEFAULT_STACK: sle15
+            DEFAULT_STACK: cflinuxfs3
             EKCP_HOST: ((ekcp-host))
             QUIET_OUTPUT: true
             ENABLE_EIRINI: false
@@ -136,7 +136,7 @@ jobs:
           outputs:
             - name: output
           params:
-            DEFAULT_STACK: sle15
+            DEFAULT_STACK: cflinuxfs3
             EKCP_HOST: ((ekcp-host))
             TEST_SUITE: smokes
             CLUSTER_NAME: kubecfmasterdiego
@@ -231,7 +231,7 @@ jobs:
           outputs:
             - name: output
           params:
-            DEFAULT_STACK: sle15
+            DEFAULT_STACK: cflinuxfs3
             EKCP_HOST: ((ekcp-host))
             ENABLE_EIRINI: true
             CLUSTER_NAME: kubecfmastereirini
@@ -279,7 +279,7 @@ jobs:
           outputs:
             - name: mail-output
           params:
-            DEFAULT_STACK: sle15
+            DEFAULT_STACK: cflinuxfs3
             EKCP_HOST: ((ekcp-host))
             TEST_SUITE: smokes
             CLUSTER_NAME: kubecfmastereirini
@@ -327,7 +327,7 @@ jobs:
           outputs:
             - name: mail-output
           params:
-            DEFAULT_STACK: sle15
+            DEFAULT_STACK: cflinuxfs3
             EKCP_HOST: ((ekcp-host))
             TEST_SUITE: cats
             CLUSTER_NAME: kubecfmastereirini
