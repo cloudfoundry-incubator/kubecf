@@ -1,0 +1,346 @@
+
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: teliaoss/github-pr-resource
+- name: github-status
+  type: docker-image
+  source:
+    repository: resource/github-status
+    tag: release
+resources:
+  - name: kubecf
+    type: git
+    source:
+      branch: master
+      uri: https://github.com/SUSE/kubecf
+  - name: catapult
+    type: git
+    source:
+      uri: https://github.com/SUSE/catapult
+  - name: status.src
+    type: github-status
+    source:
+      repo: SUSE/kubecf
+      access_token: ((github-access-token))
+
+deploy_args: &deploy_args
+  - -xce
+  - |
+    export SCF_LOCAL=$PWD/kubecf
+    pushd catapult
+    export SCF_OPERATOR=true
+    export FORCE_DELETE=true
+    export SCF_TESTGROUP=true
+    export BACKEND=ekcp
+    export DOCKER_ORG=cap-staging
+    export QUIET_OUTPUT=true
+
+    # Bring up a k8s cluster and builds+deploy kubecf
+    # See: https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
+    make k8s scf-build
+
+test_args: &test_args
+  - -xce
+  - |
+    export BACKEND=ekcp
+    export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
+    export KUBECF_NAMESPACE="scf"
+    export KUBECF_CHECKOUT="$PWD/kubecf"
+    export QUIET_OUTPUT=true
+    pushd catapult
+
+    # Grabs back a deployed cluster and runs test suites on it
+    # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
+    make recover tests-kubecf
+
+jobs:
+
+# Diego
+  - name: deploy-kubecf-diego-master
+    public: true
+    serial: true
+    serial_groups: [tests-v3-develop-diego]
+    plan:
+      - get: kubecf
+        trigger: true
+      - get: catapult
+      - put: status.src
+        params: &diego_deploy
+            context: deploy-diego
+            description: "Diego deploy"
+            path: kubecf/.git/short_ref
+            state: pending
+      - task: deploy-diego
+        privileged: true
+        timeout: 1h30m
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: splatform/catapult
+          inputs:
+            - name: kubecf
+            - name: catapult
+          outputs:
+            - name: output
+          params:
+            DEFAULT_STACK: sle15
+            EKCP_HOST: ((ekcp-host))
+            QUIET_OUTPUT: true
+            ENABLE_EIRINI: false
+            CLUSTER_NAME: kubecfmasterdiego
+          run:
+           path: "/bin/bash"
+           args: *deploy_args
+        on_success:
+          put: status.src
+          params:
+            << : *diego_deploy
+            state: success
+        on_failure:
+          put: status.src
+          params:
+            <<: *diego_deploy
+            state: failure
+  - name: smokes-kubecf-diego-master
+    public: true
+    serial: true
+    serial_groups: [tests-v3-develop-diego]
+    plan:
+      - get: kubecf
+        passed:
+        - deploy-kubecf-diego-master
+        trigger: true
+      - get: catapult
+      - put: status.src
+        params: &diego_smoke
+            context: smoke-diego
+            description: "Diego smoke"
+            path: kubecf/.git/short_ref
+            state: pending
+      - task: test-diego
+        privileged: true
+        timeout: 1h30m
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: splatform/catapult
+          inputs:
+            - name: catapult
+            - name: kubecf
+          outputs:
+            - name: output
+          params:
+            DEFAULT_STACK: sle15
+            EKCP_HOST: ((ekcp-host))
+            TEST_SUITE: smokes
+            CLUSTER_NAME: kubecfmasterdiego
+          run:
+           path: "/bin/bash"
+           args: *test_args
+        on_success:
+          put: status.src
+          params:
+            << : *diego_smoke
+            state: success
+        on_failure:
+          put: status.src
+          params:
+            <<: *diego_smoke
+            state: failure
+  - name: cats-kubecf-diego-master
+    public: true
+    serial: true
+    serial_groups: [tests-v3-develop-diego]
+    plan:
+      - get: kubecf
+        passed:
+        - smokes-kubecf-diego-master
+        trigger: true
+      - get: catapult
+      - put: status.src
+        params: &diego_cats
+            context: cats-diego
+            description: "Diego cats"
+            path: kubecf/.git/short_ref
+            state: pending
+      - task: test-diego
+        privileged: true
+        timeout: 5h30m
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: splatform/catapult
+          inputs:
+            - name: catapult
+            - name: kubecf
+          outputs:
+            - name: output
+          params:
+            DEFAULT_STACK: cflinuxfs3
+            EKCP_HOST: ((ekcp-host))
+            TEST_SUITE: cats
+            CLUSTER_NAME: kubecfmasterdiego
+          run:
+           path: "/bin/bash"
+           args: *test_args
+        on_success:
+          put: status.src
+          params:
+            << : *diego_cats
+            state: success
+        on_failure:
+          put: status.src
+          params:
+            <<: *diego_cats
+            state: failure
+# Eirini
+  - name: deploy-kubecf-eirini-master
+    public: true
+    serial: true
+    serial_groups: [tests-v3-develop-eirini]
+    plan:
+      - get: kubecf
+        trigger: true
+      - get: catapult
+      - put: status.src
+        params: &eirini_deploy
+            context: deploy-eirini
+            description: "Eirini Deploy"
+            path: kubecf/.git/short_ref
+            state: pending
+      - task: deploy
+        timeout: 1h30m
+        privileged: true
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: splatform/catapult
+          inputs:
+            - name: kubecf
+            - name: catapult
+          outputs:
+            - name: output
+          params:
+            DEFAULT_STACK: sle15
+            EKCP_HOST: ((ekcp-host))
+            ENABLE_EIRINI: true
+            CLUSTER_NAME: kubecfmastereirini
+          run:
+           path: "/bin/bash"
+           args: *deploy_args
+        on_success:
+          put: status.src
+          params:
+            << : *eirini_deploy
+            state: success
+        on_failure:
+          put: status.src
+          params:
+            <<: *eirini_deploy
+            state: failure
+  - name: smokes-kubecf-eirini-master
+    public: true
+    serial: true
+    serial_groups: [tests-v3-develop-eirini]
+    plan:
+      - get: kubecf
+        passed:
+        - deploy-kubecf-eirini-master
+        trigger: true
+      - get: catapult
+      - put: status.src
+        params: &eirini_smoke
+            context: smoke-eirini
+            description: "Eirini smoke"
+            path: kubecf/.git/short_ref
+            state: pending
+      - task: test
+        privileged: true
+        timeout: 1h30m
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: splatform/catapult
+          inputs:
+            - name: catapult
+            - name: kubecf
+          outputs:
+            - name: mail-output
+          params:
+            DEFAULT_STACK: sle15
+            EKCP_HOST: ((ekcp-host))
+            TEST_SUITE: smokes
+            CLUSTER_NAME: kubecfmastereirini
+          run:
+           path: "/bin/bash"
+           args: *test_args
+        on_success:
+          put: status.src
+          params:
+            << : *eirini_smoke
+            state: success
+        on_failure:
+          put: status.src
+          params:
+            <<: *eirini_smoke
+            state: failure
+  - name: cats-kubecf-eirini-master
+    public: true
+    serial: true
+    serial_groups: [tests-v3-develop-eirini]
+    plan:
+      - get: kubecf
+        passed:
+        - smokes-kubecf-eirini-master
+        trigger: true
+      - get: catapult
+      - put: status.src
+        params: &eirini_cats
+            context: cats-eirini
+            description: "Eirini CATs"
+            path: kubecf/.git/short_ref
+            state: pending
+      - task: test
+        timeout: 5h30m
+        privileged: true
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: splatform/catapult
+          inputs:
+            - name: catapult
+            - name: kubecf
+          outputs:
+            - name: mail-output
+          params:
+            DEFAULT_STACK: sle15
+            EKCP_HOST: ((ekcp-host))
+            TEST_SUITE: cats
+            CLUSTER_NAME: kubecfmastereirini
+          run:
+           path: "/bin/bash"
+           args: *test_args
+        on_success:
+          put: status.src
+          params:
+            << : *eirini_cats
+            state: success
+        on_failure:
+          put: status.src
+          params:
+            <<: *eirini_cats
+            state: failure
