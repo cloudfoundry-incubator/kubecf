@@ -60,13 +60,8 @@ releases:
     version: 3.0.0
   bits-service:
     version: 2.28.0
-  # TODO: brains-tests must switch to SLE15 stemcell once the compilation failures are resolved.
-  # check: https://github.com/SUSE/kubecf/issues/270
   brain-tests:
-    version: v0.0.6
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_372.ge3509601
+    version: v0.0.8
   cf-acceptance-tests:
     version: 0.0.9
   # TODO: cf-mysql must switch to SLE15 stemcell once the compilation failures are resolved.
