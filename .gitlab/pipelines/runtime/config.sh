@@ -11,4 +11,5 @@ export SYSTEM_DOMAIN="k3s-ci.kubecf.aws.howdoi.website"
 export EIRINI_ENABLED
 export KUBECF_CHART_TARGET="//deploy/helm/kubecf"
 export KUBECF_BUNDLE_TARGET="//deploy/bundle:kubecf-bundle"
+export KUBECF_VERSION_TARGET="//deploy/helm/kubecf:version"
 export BOSHDEPLOYMENT_CRD="boshdeployments.quarks.cloudfoundry.org"

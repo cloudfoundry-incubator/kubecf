@@ -27,8 +27,9 @@ build:chart:
   - .gitlab/pipelines/stages/build/build.sh
   artifacts:
     paths:
-    - output/kubecf-*.tgz
-    - output/bundle-*.tgz
+    - output/version.tgz
+    - output/kubecf.tgz
+    - output/bundle.tgz
     expire_in: 1 week
 
 tests:

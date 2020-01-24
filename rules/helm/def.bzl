@@ -114,3 +114,44 @@ template = rule(
         ),
     },
 )
+
+def _version_impl(ctx):
+    script = ctx.actions.declare_file("{}.rb".format(ctx.attr.name))
+    output = ctx.actions.declare_file("version.txt")
+    outputs = [output]
+    contents = """
+        open('{output}', 'w') do |f|
+          f << `{helm} inspect chart {chart}`[/version: (.*)/, 1]
+        end
+    """.format(
+        output = output.path,
+        helm = ctx.executable._helm.path,
+        chart = ctx.file.chart.path,
+    )
+    ctx.actions.write(script, contents)
+    ctx.actions.run_shell(
+        command = "ruby {}".format(script.path),
+        inputs = [
+            script,
+            ctx.file.chart,
+        ],
+        outputs = outputs,
+        tools = [ctx.executable._helm],
+    )
+    return [DefaultInfo(files = depset(outputs))]
+
+version = rule(
+    implementation = _version_impl,
+    attrs = {
+        "chart": attr.label(
+            allow_single_file = True,
+            mandatory = True,
+        ),
+        "_helm": attr.label(
+            allow_single_file = True,
+            cfg = "host",
+            default = "@helm//:binary",
+            executable = True,
+        ),
+    },
+)

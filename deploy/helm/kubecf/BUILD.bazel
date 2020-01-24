@@ -2,7 +2,11 @@ package(default_visibility = ["//visibility:public"])
 
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("//deploy/helm/kubecf:defs.bzl", "metadata_file_generator")
-load("//rules/helm:def.bzl", helm_package = "package")
+load(
+    "//rules/helm:def.bzl",
+    helm_package = "package",
+    helm_version = "version",
+)
 load("//rules/yaml_extractor:defs.bzl", "yaml_extractor")
 load("//:def.bzl", "project")
 
@@ -65,4 +69,9 @@ helm_package(
         ":cf_deployment",
         ":extracted_jobs",
     ],
+)
+
+helm_version(
+    name = "version",
+    chart = ":kubecf",
 )
