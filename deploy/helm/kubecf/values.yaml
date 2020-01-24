@@ -191,6 +191,8 @@ sizing:
     instances: ~
   diego_cell:
     instances: ~
+  doppler:
+    instances: ~
   eirini:
     instances: ~
   log_api:
