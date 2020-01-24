@@ -14,7 +14,7 @@ The following section describes the requirements and the steps needed to deploy 
 
 The only requirement of this pipeline is a [EKCP](https://github.com/mudler/ekcp) instance deployed in the network, which the concourse workers can reach.
 
-EKCP is an API on top of Kind that allows to create clusters programmatically and let access Kind clusters them from outside.
+EKCP is an API on top of Kind that allows to create clusters programmatically and let access Kind clusters from outside.
 
 For more informations, see also [EKCP Deployment setup](https://github.com/mudler/ekcp/wiki/Deployment-setups) on how to set-up a EKCP node in a local network, also [see the Catapult-web wiki page](https://github.com/SUSE/catapult/wiki/Catapult-web) for a full guided setup.
 
