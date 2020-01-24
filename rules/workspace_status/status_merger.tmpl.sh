@@ -4,4 +4,4 @@
 
 set -o errexit
 
-echo "$(cat "{info_file}") $(cat "{version_file}")" | "{jq}" --slurp add > "{workspace_status}"
+"{jq}" --slurp add "{info_file}" "{version_file}" > "{workspace_status}"
