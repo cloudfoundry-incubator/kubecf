@@ -174,14 +174,6 @@
     name: eirinifs
     release: eirini
 
-- type: replace
-  path: /releases/-
-  value:
-    name: eirini
-    version: 0.0.25
-    url: {{ .Values.releases.defaults.url | quote }}
-    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "eirini") }}
-
 # Set the correct addresses to be reached by the Eirini apps namespace.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config/private_endpoint

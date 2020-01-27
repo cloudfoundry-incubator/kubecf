@@ -62,10 +62,12 @@ releases:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   bits-service:
+    version: 2.28.0
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
   brain-tests:
+    version: v0.0.6
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_372.ge3509601
@@ -79,6 +81,8 @@ releases:
     stemcell:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+  eirini:
+    version: 0.0.25
   postgres:
     version: "39"
     stemcell:
