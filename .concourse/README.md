@@ -27,5 +27,5 @@ To make the pipeline request new clusters from a different node, only adjust the
 If you wish to deploy the pipeline on Concourse, run the following command:
 
 ```
-fly -t target set-pipeline -c post-publish.yaml -p post-publish
+fly -t target set-pipeline -c post_publish.yaml -p post-publish
 ```
