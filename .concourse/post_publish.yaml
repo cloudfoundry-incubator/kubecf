@@ -90,7 +90,7 @@ jobs:
             EKCP_HOST: ((ekcp-host))
             QUIET_OUTPUT: true
             ENABLE_EIRINI: false
-            CLUSTER_NAME: kubecfmasterdiego
+            CLUSTER_NAME: kubecf-diego-master
           run:
            path: "/bin/bash"
            args: *deploy_args
@@ -138,7 +138,7 @@ jobs:
             DEFAULT_STACK: cflinuxfs3
             EKCP_HOST: ((ekcp-host))
             TEST_SUITE: smokes
-            CLUSTER_NAME: kubecfmasterdiego
+            CLUSTER_NAME: kubecf-diego-master
           run:
            path: "/bin/bash"
            args: *test_args
@@ -186,7 +186,7 @@ jobs:
             DEFAULT_STACK: cflinuxfs3
             EKCP_HOST: ((ekcp-host))
             TEST_SUITE: cats
-            CLUSTER_NAME: kubecfmasterdiego
+            CLUSTER_NAME: kubecf-diego-master
           run:
            path: "/bin/bash"
            args: *test_args
@@ -233,7 +233,7 @@ jobs:
             DEFAULT_STACK: cflinuxfs3
             EKCP_HOST: ((ekcp-host))
             ENABLE_EIRINI: true
-            CLUSTER_NAME: kubecfmastereirini
+            CLUSTER_NAME: kubecf-eirini-master
           run:
            path: "/bin/bash"
            args: *deploy_args
@@ -281,7 +281,7 @@ jobs:
             DEFAULT_STACK: cflinuxfs3
             EKCP_HOST: ((ekcp-host))
             TEST_SUITE: smokes
-            CLUSTER_NAME: kubecfmastereirini
+            CLUSTER_NAME: kubecf-eirini-master
           run:
            path: "/bin/bash"
            args: *test_args
@@ -329,7 +329,7 @@ jobs:
             DEFAULT_STACK: cflinuxfs3
             EKCP_HOST: ((ekcp-host))
             TEST_SUITE: cats
-            CLUSTER_NAME: kubecfmastereirini
+            CLUSTER_NAME: kubecf-eirini-master
           run:
            path: "/bin/bash"
            args: *test_args
