@@ -16,9 +16,7 @@ The only requirement of this pipeline is an [EKCP](https://github.com/mudler/ekc
 
 EKCP is an API on top of Kind that allows the programmatically creation of externally accessible clusters.
 
-For more information, see also [EKCP Deployment setup](https://github.com/mudler/ekcp/wiki/Deployment-setups) on how to set-up an EKCP node in a local network. Also, [see the Catapult-web wiki page](https://github.com/SUSE/catapult/wiki/Catapult-web) for a full guided setup.
-
-### Switching EKCP node
+For more information, see also [EKCP Deployment setup](https://github.com/mudler/ekcp/wiki/Deployment-setups) and the [Catapult-web wiki page](https://github.com/SUSE/catapult/wiki/Catapult-web) for a full guided setup.
 
 To make the pipeline request new clusters from a different node, only adjust the `EKCP_HOST` parameter on the pipelines/environment variable accordingly to point to your new EKCP API endpoint.
 
