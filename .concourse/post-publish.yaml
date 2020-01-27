@@ -58,7 +58,7 @@ test_args: &test_args
 jobs:
 
 # Diego
-  - name: deploy-kubecf-diego-master
+  - name: deploy-diego
     public: true
     serial: true
     serial_groups: [tests-diego]
@@ -105,14 +105,14 @@ jobs:
           params:
             <<: *diego_deploy
             state: failure
-  - name: smokes-kubecf-diego-master
+  - name: smoke-tests-diego
     public: true
     serial: true
     serial_groups: [tests-diego]
     plan:
       - get: kubecf
         passed:
-        - deploy-kubecf-diego-master
+        - deploy-diego
         trigger: true
       - get: catapult
       - put: status.src
@@ -153,14 +153,14 @@ jobs:
           params:
             <<: *diego_smoke
             state: failure
-  - name: cats-kubecf-diego-master
+  - name: cf-acceptance-tests-diego
     public: true
     serial: true
     serial_groups: [tests-diego]
     plan:
       - get: kubecf
         passed:
-        - smokes-kubecf-diego-master
+        - smoke-tests-diego
         trigger: true
       - get: catapult
       - put: status.src
@@ -202,7 +202,7 @@ jobs:
             <<: *diego_cats
             state: failure
 # Eirini
-  - name: deploy-kubecf-eirini-master
+  - name: deploy-eirini
     public: true
     serial: true
     serial_groups: [tests-eirini]
@@ -248,14 +248,14 @@ jobs:
           params:
             <<: *eirini_deploy
             state: failure
-  - name: smokes-kubecf-eirini-master
+  - name: smoke-tests-eirini
     public: true
     serial: true
     serial_groups: [tests-eirini]
     plan:
       - get: kubecf
         passed:
-        - deploy-kubecf-eirini-master
+        - deploy-eirini
         trigger: true
       - get: catapult
       - put: status.src
@@ -296,14 +296,14 @@ jobs:
           params:
             <<: *eirini_smoke
             state: failure
-  - name: cats-kubecf-eirini-master
+  - name: cf-acceptance-tests-eirini
     public: true
     serial: true
     serial_groups: [tests-eirini]
     plan:
       - get: kubecf
         passed:
-        - smokes-kubecf-eirini-master
+        - smoke-tests-eirini
         trigger: true
       - get: catapult
       - put: status.src
