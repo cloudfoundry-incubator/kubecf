@@ -87,7 +87,7 @@
           operator_webhook_host: "0.0.0.0"
           operator_webhook_port: 8443
           operator_webhook_servicename: {{ .Release.Name }}-eirini-persi
-          operator_webhook_namespace: {{ .Release.Name }}
+          operator_webhook_namespace: {{ .Release.Namespace }}
     - name: eirini-ssh-proxy
       release: eirini
       properties:
@@ -116,7 +116,7 @@
           operator_webhook_host: "0.0.0.0"
           operator_webhook_port: 2999
           operator_webhook_servicename: {{ .Release.Name }}-eirini-ssh
-          operator_webhook_namespace: {{ .Release.Name }}
+          operator_webhook_namespace: {{ .Release.Namespace }}
     - name: eirini-loggregator-bridge
       release: eirini
       properties:
