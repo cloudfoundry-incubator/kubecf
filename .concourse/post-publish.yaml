@@ -61,7 +61,7 @@ jobs:
   - name: deploy-kubecf-diego-master
     public: true
     serial: true
-    serial_groups: [tests-kubecf-diego]
+    serial_groups: [tests-diego]
     plan:
       - get: kubecf
         trigger: true
@@ -108,7 +108,7 @@ jobs:
   - name: smokes-kubecf-diego-master
     public: true
     serial: true
-    serial_groups: [tests-kubecf-diego]
+    serial_groups: [tests-diego]
     plan:
       - get: kubecf
         passed:
@@ -156,7 +156,7 @@ jobs:
   - name: cats-kubecf-diego-master
     public: true
     serial: true
-    serial_groups: [tests-kubecf-diego]
+    serial_groups: [tests-diego]
     plan:
       - get: kubecf
         passed:
@@ -205,7 +205,7 @@ jobs:
   - name: deploy-kubecf-eirini-master
     public: true
     serial: true
-    serial_groups: [tests-kubecf-eirini]
+    serial_groups: [tests-eirini]
     plan:
       - get: kubecf
         trigger: true
@@ -251,7 +251,7 @@ jobs:
   - name: smokes-kubecf-eirini-master
     public: true
     serial: true
-    serial_groups: [tests-kubecf-eirini]
+    serial_groups: [tests-eirini]
     plan:
       - get: kubecf
         passed:
@@ -299,7 +299,7 @@ jobs:
   - name: cats-kubecf-eirini-master
     public: true
     serial: true
-    serial_groups: [tests-kubecf-eirini]
+    serial_groups: [tests-eirini]
     plan:
       - get: kubecf
         passed:
