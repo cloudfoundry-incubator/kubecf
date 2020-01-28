@@ -1,0 +1,104 @@
+{{- $releases := list }}
+{{- $releases = append $releases "binary-buildpack" }}
+{{- $releases = append $releases "capi" }}
+{{- $releases = append $releases "cf-networking" }}
+{{- $releases = append $releases "cf-smoke-tests" }}
+{{- $releases = append $releases "cf-syslog-drain" }}
+{{- $releases = append $releases "cflinuxfs3" }}
+{{- $releases = append $releases "credhub" }}
+{{- $releases = append $releases "diego" }}
+{{- $releases = append $releases "dotnet-core-buildpack" }}
+{{- $releases = append $releases "garden-runc" }}
+{{- $releases = append $releases "go-buildpack" }}
+{{- $releases = append $releases "java-buildpack" }}
+{{- $releases = append $releases "loggregator" }}
+{{- $releases = append $releases "nats" }}
+{{- $releases = append $releases "nginx-buildpack" }}
+{{- $releases = append $releases "r-buildpack" }}
+{{- $releases = append $releases "nodejs-buildpack" }}
+{{- $releases = append $releases "php-buildpack" }}
+{{- $releases = append $releases "python-buildpack" }}
+{{- $releases = append $releases "routing" }}
+{{- $releases = append $releases "ruby-buildpack" }}
+{{- $releases = append $releases "silk" }}
+{{- $releases = append $releases "staticfile-buildpack" }}
+{{- $releases = append $releases "statsd-injector" }}
+{{- $releases = append $releases "uaa" }}
+{{- $releases = append $releases "loggregator-agent" }}
+{{- $releases = append $releases "log-cache" }}
+{{- $releases = append $releases "cf-cli" }}
+
+# Remove the PXC release and related variables.
+- type: remove
+  path: /releases/name=pxc
+- type: remove
+  path: /variables/name=pxc_galera_ca
+- type: remove
+  path: /variables/name=galera_server_certificate
+
+# Add the cf-mysql-release.
+{{- if not .Values.features.external_database.enabled }}
+{{- $releases = append $releases "cf-mysql" }}
+- type: replace
+  path: /releases/-
+  value:
+    name: cf-mysql
+{{- end }}
+
+# Add the cf-acceptance-tests-release.
+{{- if .Values.testing.cf_acceptance_tests.enabled }}
+{{- $releases = append $releases "cf-acceptance-tests" }}
+- type: replace
+  path: /releases/-
+  value:
+    name: cf-acceptance-tests
+{{- end }}
+
+{{- if .Values.testing.brain_tests.enabled }}
+{{- $releases = append $releases "brain-tests" }}
+- path: /releases/-
+  type: replace
+  value:
+    name: brain-tests
+{{- end }}
+
+# Add app-autoscaler related releases.
+{{- if .Values.features.autoscaler.enabled }}
+{{- $releases = append $releases "app-autoscaler" }}
+- type: replace
+  path: /releases/-
+  value:
+    name: app-autoscaler
+{{- $releases = append $releases "postgres" }}
+- type: replace
+  path: /releases/-
+  value:
+    name: postgres
+{{- end }}
+
+{{- if .Values.features.eirini.enabled }}
+{{- $releases = append $releases "bits-service" }}
+{{- $releases = append $releases "eirini" }}
+- type: replace
+  path: /releases/-
+  value:
+    name: eirini
+{{- end }}
+
+# Loop over the releases, replacing the url and stemcell, and the version when appropriate.
+{{- $root := . }}
+{{- range $release := $releases }}
+- type: replace
+  path: /releases/name={{ $release }}/url?
+  value: {{ include "kubecf.releaseURLLookup" (list $root.Values.releases $release) }}
+- type: replace
+  path: /releases/name={{ $release }}/stemcell?
+  value: {{ include "kubecf.stemcellLookup" (list $root.Values.releases $release) }}
+{{- if (index $root.Values.releases $release).version }}
+- type: replace
+  path: /releases/name={{ $release }}/version?
+  value: {{ (index $root.Values.releases $release).version | quote }}
+{{- end }}
+- type: remove
+  path: /releases/name={{ $release }}/sha1?
+{{- end }}

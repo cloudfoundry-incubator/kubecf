@@ -1,10 +1,8 @@
 {{- if .Values.features.external_database.enabled -}}
 
-# Remove the database instance group and release.
+# Remove the database instance group.
 - type: remove
   path: /instance_groups/name=database
-- type: remove
-  path: /releases/name=pxc
 
 # Remove the database variables.
 - type: remove
@@ -319,23 +317,6 @@
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/address
   value: sql-db.service.cf.internal
-
-# Remove the PXC release and related variables.
-- type: remove
-  path: /releases/name=pxc
-- type: remove
-  path: /variables/name=pxc_galera_ca
-- type: remove
-  path: /variables/name=galera_server_certificate
-
-# Add the cf-mysql-release.
-- type: replace
-  path: /releases/name=cf-mysql?
-  value:
-    name: cf-mysql
-    url: {{ .Values.releases.defaults.url | quote }}
-    version: {{ index .Values.releases "cf-mysql" "version" | quote }}
-    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "cf-mysql") }}
 
 # Configure the persistent disk in the way that cf-operator can provision.
 - type: replace

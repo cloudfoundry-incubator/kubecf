@@ -1,13 +1,5 @@
 {{- if .Values.testing.brain_tests.enabled -}}
 
-- path: /releases/-
-  type: replace
-  value:
-    name: brain-tests
-    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "brain-tests") }}
-    version: v0.0.6
-    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "brain-tests") }}
-
 - path: /instance_groups/-
   type: replace
   value:
