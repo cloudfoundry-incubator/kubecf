@@ -33,7 +33,9 @@ end
 tars = tarsStr.split(multipath_sep)
 tars.each do |file|
   file = File.readlink(file) while File.ftype(file) == "link"
-  `tar xf "#{file}" -C "#{build_dir}"`
+  pid = Process.spawn("tar xf '#{file}' -C '#{build_dir}'")
+  _, status = Process.wait2 pid
+  exit 1 unless status.success?
 end
 
 # Copy the generated files into the temporary build directory.
@@ -43,7 +45,9 @@ generated.each do |file|
   FileUtils.cp(file, build_dir)
 end
 
-`"#{helm}" init --client-only`
+pid = Process.spawn("'#{helm}' init --client-only")
+_, status = Process.wait2 pid
+exit 1 unless status.success?
 
 # Handle chart versioning based on git state.
 version = "v0.0.0-#{git_commit_short}"
