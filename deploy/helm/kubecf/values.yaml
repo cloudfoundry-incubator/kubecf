@@ -230,6 +230,9 @@ features:
   autoscaler:
     enabled: false
 
+  embedded_database:
+    enabled: true
+
   # external_database disables the embedded database and allows using an external, already seeded,
   # database.
   # The database type can be either 'mysql' or 'postgres'.
@@ -299,6 +302,11 @@ k8s-host-url: ""
 k8s-service-token: ""
 k8s-service-username: ""
 k8s-node-ca: ""
+
+dependencies:
+  - name: percona-xtradb-cluster
+    enabled: true
+    repository: file://percona-xtradb-cluster
 
 # Configuration for the embedded database solution using the pxc subchart
 percona-xtradb-cluster:

@@ -1,3 +1,5 @@
+{{- if .Values.features.embedded_database.enabled -}}
+
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -103,3 +105,5 @@ spec:
         secret:
           secretName: {{ .Release.Namespace }}.var-credhub-database-password
       restartPolicy: Never
+
+{{- end -}}

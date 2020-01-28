@@ -1,3 +1,5 @@
+{{- if .Values.features.embedded_database.enabled -}}
+
 {{ $ca := genCA "kubecf" 3650 }}
 {{ $cn := printf "%s-pxc.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
 {{ $server := genSignedCert $cn nil nil 365 $ca }}
@@ -10,3 +12,5 @@ data:
   ca.pem: {{ b64enc $ca.Cert }}
   server-cert.pem: {{ b64enc $server.Cert }}
   server-key.pem: {{ b64enc $server.Key }}
+
+{{- end -}}
