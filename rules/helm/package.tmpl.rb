@@ -32,14 +32,14 @@ end
 # Extract the tar files into the temporary build directory.
 tars = tarsStr.split(multipath_sep)
 tars.each do |file|
-  file = File.readlink(file) if File.ftype(file) == "link"
+  file = File.readlink(file) while File.ftype(file) == "link"
   `tar xf "#{file}" -C "#{build_dir}"`
 end
 
 # Copy the generated files into the temporary build directory.
 generated = generatedStr.split(multipath_sep)
 generated.each do |file|
-  file = File.readlink(file) if File.ftype(file) == "link"
+  file = File.readlink(file) while File.ftype(file) == "link"
   FileUtils.cp(file, build_dir)
 end
 
