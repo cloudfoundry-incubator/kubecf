@@ -122,6 +122,7 @@ def _version_impl(ctx):
     contents = """
         open('{output}', 'w') do |f|
           f << `{helm} inspect chart {chart}`[/version: (.*)/, 1]
+          exit 1 if not $?.success?
         end
     """.format(
         output = output.path,
