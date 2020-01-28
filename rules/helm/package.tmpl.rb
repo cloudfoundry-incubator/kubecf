@@ -60,7 +60,11 @@ if git_branch.match(semver_regex)
 end
 
 # Package and return the output path.
-package_cmd = "'#{helm}' package '#{build_dir}' --version='#{version}' --app-version='#{version}'"
+package_cmd = <<-EOS
+  '#{helm}' package '#{build_dir}' \
+    --version='#{version}' \
+    --app-version='#{version}'
+EOS
 package_output = Open3.popen3(package_cmd) do |stdin, stdout, stderr, wait_thread|
   stderr.each {|l| STDERR.puts l }
   status = wait_thread.value
