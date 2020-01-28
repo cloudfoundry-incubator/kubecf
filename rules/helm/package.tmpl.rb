@@ -21,11 +21,10 @@ FileUtils.mkdir_p(build_dir)
 # Copy the source static files to the temporary build directory.
 Dir.glob(File.join(package_dir, "**", "*")) do |file|
   dest = File.join(tmp_build_dir, file)
-  ftype = File.ftype(file)
-  if ftype == "directory"
+  file = File.readlink(file) while File.ftype(file) == "link"
+  if File.ftype(file) == "directory"
     FileUtils.mkdir_p(dest)
   else
-    file = File.readlink(file) if ftype == "link"
     FileUtils.cp(file, dest)
   end
 end
