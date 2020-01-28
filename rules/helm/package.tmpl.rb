@@ -65,13 +65,9 @@ package_cmd = <<-EOS
     --version='#{version}' \
     --app-version='#{version}'
 EOS
-package_output = Open3.popen3(package_cmd) do |stdin, stdout, stderr, wait_thread|
-  stderr.each {|l| STDERR.puts l }
-  status = wait_thread.value
-  raise if not status.success?
-
-  stdout.read[/Successfully packaged chart and saved it to: (.*)/, 1]
-end
+stdout_str, status = Open3.capture2(package_cmd)
+exit 1 unless status.success?
+package_output = stdout_str[/Successfully packaged chart and saved it to: (.*)/, 1]
 
 # Move the created package to the expected output tgz path provided by Bazel.
 FileUtils.mv(package_output, output_tgz)
