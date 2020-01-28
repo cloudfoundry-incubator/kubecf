@@ -92,22 +92,6 @@
       network: default
       query: '*'
 
-# Add autoscaler related releases.
-- type: replace
-  path: /releases/-
-  value:
-    name: app-autoscaler
-    version: {{ (index .Values.releases "app-autoscaler").version | quote }}
-    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "app-autoscaler") }}
-    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "app-autoscaler") }}
-- type: replace
-  path: /releases/-
-  value:
-    name: postgres
-    version: {{ .Values.releases.postgres.version | quote }}
-    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "postgres") }}
-    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "postgres") }}
-
 # Add autoscaler instance groups.
 - type: replace
   path: /instance_groups/0:before

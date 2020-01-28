@@ -1,13 +1,5 @@
 {{- if .Values.testing.cf_acceptance_tests.enabled -}}
 
-- path: /releases/-
-  type: replace
-  value:
-    name: cf-acceptance-tests
-    url: {{ include "kubecf.releaseURLLookup" (list .Values.releases "cf-acceptance-tests") }}
-    version: {{ index .Values.releases "cf-acceptance-tests" "version" | quote }}
-    stemcell: {{ include "kubecf.stemcellLookup" (list .Values.releases "cf-acceptance-tests") }}
-
 - path: /instance_groups/-
   type: replace
   value:
