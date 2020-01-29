@@ -28,7 +28,8 @@ These are:
 |Helm (client)  | Handling helm charts.                                  |
 |Helm Tiller    | __Not required__.                                      |
 |cf-operator    | Processes BOSH deployments. Maps them to kube objects. |
-|cf-deployment  | The CF release at the core of `kubecf`                 |
+|cf-deployment  | The CF release at the core of `kubecf`.                |
+
 
 
 As most of the developers use the `Bazel` build system coming with the
