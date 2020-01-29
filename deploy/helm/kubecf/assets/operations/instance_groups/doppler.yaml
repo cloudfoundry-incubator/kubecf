@@ -3,6 +3,10 @@
   path: /variables/name=log_cache_ca/options/common_name
   value: log-cache-ca
 
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=log-cache/properties/memory_limit_percent?
+  value: 25
+
 # Add quarks properties for doppler.
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=doppler/properties/quarks?
