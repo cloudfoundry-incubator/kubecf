@@ -76,7 +76,3 @@ Last, but not least __more documentation__ on how to work with
 | S3 Bucket with helm charts | https://scf-v3.s3.amazonaws.com/index.html                   |
 | Cloud Foundry Operator     | https://github.com/cloudfoundry-incubator/cf-operator/       |
 | CF Operator Charts         | https://cf-operators.s3.amazonaws.com/helm-charts/index.html |
-
-## Contributing to Kubecf development
-
-See the [Guide to Contribution](doc/Contribute.md).
