@@ -10,6 +10,10 @@ under [Project Quarks].
 [Cloud Foundry Operator]: https://github.com/cloudfoundry-incubator/cf-operator/
 [Project Quarks]:         https://www.cloudfoundry.org/project-quarks/
 
+## Contributing to Kubecf development
+
+See the [Guide to Contribution](doc/Contribute.md).
+
 # System requirements
 
 To work with `kubecf` a variety of supporting tools are required. These are
