@@ -1,0 +1,49 @@
+# Extra job to configure credhub access
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-credhub-setup
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  template:
+    metadata:
+      annotations:
+        quarks.cloudfoundry.org/consumes: >
+          [
+            { "name": "credhub", "type": "credhub" },
+            { "name": "cloud_controller_https_endpoint", "type": "cloud_controller_https_endpoint" }
+          ]
+        quarks.cloudfoundry.org/deployment: {{ .Release.Name }}
+    spec:
+      containers:
+      - image: credhub-setup:<< (ds "workspace_status").STABLE_CONTAINERS_CREDHUB_SETUP >>
+        name: credhub-setup
+        env:
+        - name: OAUTH_CLIENT
+          value: credhub_setup
+        - name: OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}.var-uaa-clients-credhub-setup-secret
+              key: password
+        volumeMounts:
+        - name: pod-info
+          mountPath: /run/pod-info
+          readOnly: true
+        - name: uaa-ca-cert
+          mountPath: /run/uaa-ca-cert
+          readOnly: true
+      restartPolicy: Never
+      volumes:
+      - name: pod-info
+        downwardAPI:
+          items:
+          - fieldRef:
+              fieldPath: metadata.annotations['quarks.cloudfoundry.org/deployment']
+            path: deployment-name
+      - name: uaa-ca-cert
+        secret:
+          secretName: {{ .Release.Name }}.var-router-ca
+          items:
+          - key: certificate
+            path: ca.crt
