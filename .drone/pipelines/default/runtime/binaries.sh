@@ -7,7 +7,7 @@ path_sh="/tmp/path.sh"
 if [[ ! -f "${path_sh}" ]]; then
   targets=()
   while IFS='' read -r target; do targets+=("${target}"); done < <(
-    bazel query 'kind(binary_location, //rules/external_binary/...)' 2> /dev/null
+    bazel query 'kind(binary_location, //:all)' 2> /dev/null
   )
 
   for target in "${targets[@]}"; do
