@@ -164,6 +164,12 @@ filegroup(
             sha256 = "acbd018f11355ead06b250b352e59824fbb9e77f4874d250d230138231182c1c",
             strip_prefix = "rules_python-{version}",
         ),
+        "rules_gomplate": struct(
+            sha256 = "5f2c173824020dea6923e0fa20d13df4a1d4cbe264acc009efa41f8a1a50e7d4",
+            strip_prefix = "rules_gomplate-{version}",
+            urls = ["https://github.com/codelogia/rules_gomplate/archive/{version}.tar.gz"],
+            version = "3ab8ff7a25d9c13c8a9d2c5a122241c745a92570",
+        ),
     },
 
     # Generic dependencies
@@ -229,9 +235,5 @@ filegroup(
                 proto = "https",
             ),
         ),
-    ),
-    rules_gomplate = struct(
-        commit = "3ab8ff7a25d9c13c8a9d2c5a122241c745a92570",
-        sha256 = "5f2c173824020dea6923e0fa20d13df4a1d4cbe264acc009efa41f8a1a50e7d4",
     ),
 )

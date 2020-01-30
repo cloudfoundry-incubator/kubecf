@@ -42,6 +42,10 @@ load("@yamllint//:requirements.bzl", "pip_install")
 
 pip_install()
 
+load("@rules_gomplate//:repositories.bzl", "gomplate_repositories")
+
+gomplate_repositories()
+
 http_file(
     name = "cf_operator",
     sha256 = project.cf_operator.chart.sha256,
@@ -71,14 +75,3 @@ http_file(
     sha256 = project.mysql_chart.sha256,
     urls = ["https://kubernetes-charts.storage.googleapis.com/mysql-{}.tgz".format(project.mysql_chart.version)],
 )
-
-http_archive(
-    name = "rules_gomplate",
-    sha256 = project.rules_gomplate.sha256,
-    strip_prefix = "rules_gomplate-{commit}".format(commit = project.rules_gomplate.commit),
-    url = "https://github.com/codelogia/rules_gomplate/archive/{commit}.tar.gz".format(commit = project.rules_gomplate.commit),
-)
-
-load("@rules_gomplate//:repositories.bzl", "gomplate_repositories")
-
-gomplate_repositories()
