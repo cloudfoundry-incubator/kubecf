@@ -1,6 +1,6 @@
 sh_library(
     name = "chart",
-    data = ["//deploy/helm/kubecf:chart"],
+    data = ["//deploy/helm/kubecf"],
 )
 
 sh_test(

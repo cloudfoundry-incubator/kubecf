@@ -1,25 +1,26 @@
 def _package_impl(ctx):
-    output_filename = "{}-{}.tgz".format(ctx.attr.chart_name, ctx.attr.chart_version)
+    output_filename = "{}.tgz".format(ctx.attr.name)
     output_tgz = ctx.actions.declare_file(output_filename)
     outputs = [output_tgz]
-    ctx.actions.run(
-        inputs = [] + ctx.files.srcs + ctx.files.tars + ctx.files.generated,
+    package_script = ctx.actions.declare_file("package.rb")
+    multipath_sep = "||"
+    ctx.actions.expand_template(
+        output = package_script,
+        substitutions = {
+            "[[package_dir]]": ctx.attr.package_dir,
+            "[[multipath_sep]]": multipath_sep,
+            "[[tars]]": multipath_sep.join([f.path for f in ctx.files.tars]),
+            "[[generated]]": multipath_sep.join([f.path for f in ctx.files.generated]),
+            "[[helm]]": ctx.executable._helm.path,
+            "[[output_tgz]]": output_tgz.path,
+        },
+        template = ctx.file._script_tmpl,
+    )
+    ctx.actions.run_shell(
+        command = "ruby {}".format(package_script.path),
+        inputs = [package_script] + ctx.files.srcs + ctx.files.tars + ctx.files.generated,
         outputs = outputs,
         tools = [ctx.executable._helm],
-        progress_message = "Generating Helm package archive {}".format(output_filename),
-        executable = ctx.executable._script,
-        env = {
-            "PACKAGE_DIR": ctx.attr.package_dir,
-            # TODO(f0rmiga): Figure out a way of working with paths that contain spaces.
-            "TARS": " ".join([f.path for f in ctx.files.tars]),
-            # TODO(mudler): Support also nested folders and paths with spaces
-            "GENERATED": " ".join([f.path for f in ctx.files.generated]),
-            "HELM": ctx.executable._helm.path,
-            "CHART_VERSION": ctx.attr.chart_version,
-            "APP_VERSION": ctx.attr.app_version,
-            "OUTPUT_FILENAME": output_filename,
-            "OUTPUT_TGZ": output_tgz.path,
-        },
     )
     return [DefaultInfo(files = depset(outputs))]
 
@@ -34,26 +35,15 @@ _package = rule(
         "package_dir": attr.string(
             mandatory = True,
         ),
-        "chart_name": attr.string(
-            mandatory = True,
-        ),
-        "chart_version": attr.string(
-            mandatory = True,
-        ),
-        "app_version": attr.string(
-            mandatory = True,
-        ),
         "_helm": attr.label(
             allow_single_file = True,
             cfg = "host",
             default = "@helm//:binary",
             executable = True,
         ),
-        "_script": attr.label(
+        "_script_tmpl": attr.label(
             allow_single_file = True,
-            cfg = "host",
-            default = "//rules/helm:package.sh",
-            executable = True,
+            default = "//rules/helm:package_tmpl_rb",
         ),
     },
 )
@@ -63,13 +53,6 @@ def package(**kwargs):
         package_dir = native.package_name(),
         **kwargs
     )
-
-PackageInfo = provider(
-    fields=[
-        "chart_name",
-        "chart_version",
-    ],
-)
 
 def _template_impl(ctx):
     output_filename = "{}.yaml".format(ctx.attr.name)
@@ -127,6 +110,48 @@ template = rule(
             allow_single_file = True,
             cfg = "host",
             default = "//rules/helm:template.sh",
+            executable = True,
+        ),
+    },
+)
+
+def _version_impl(ctx):
+    script = ctx.actions.declare_file("{}.rb".format(ctx.attr.name))
+    output = ctx.actions.declare_file("version.txt")
+    outputs = [output]
+    contents = """
+        open('{output}', 'w') do |f|
+          f << `{helm} inspect chart {chart}`[/version: (.*)/, 1]
+          exit 1 unless $?.success?
+        end
+    """.format(
+        output = output.path,
+        helm = ctx.executable._helm.path,
+        chart = ctx.file.chart.path,
+    )
+    ctx.actions.write(script, contents)
+    ctx.actions.run_shell(
+        command = "ruby {}".format(script.path),
+        inputs = [
+            script,
+            ctx.file.chart,
+        ],
+        outputs = outputs,
+        tools = [ctx.executable._helm],
+    )
+    return [DefaultInfo(files = depset(outputs))]
+
+version = rule(
+    implementation = _version_impl,
+    attrs = {
+        "chart": attr.label(
+            allow_single_file = True,
+            mandatory = True,
+        ),
+        "_helm": attr.label(
+            allow_single_file = True,
+            cfg = "host",
+            default = "@helm//:binary",
             executable = True,
         ),
     },

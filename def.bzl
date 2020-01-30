@@ -4,8 +4,6 @@ Project-wide constant definitions
 project = struct(
     deployment_name = "kubecf",
     namespace = "kubecf",
-    chart_version = "0.2.0",
-    app_version = "0.2.0",
 
     # External binaries; see external_binary() invocation in WORKSPACE.
     external_binaries = {
@@ -165,6 +163,12 @@ filegroup(
             version = "94677401bc56ed5d756f50b441a6a5c7f735a6d4",
             sha256 = "acbd018f11355ead06b250b352e59824fbb9e77f4874d250d230138231182c1c",
             strip_prefix = "rules_python-{version}",
+        ),
+        "rules_gomplate": struct(
+            sha256 = "5f2c173824020dea6923e0fa20d13df4a1d4cbe264acc009efa41f8a1a50e7d4",
+            strip_prefix = "rules_gomplate-{version}",
+            urls = ["https://github.com/codelogia/rules_gomplate/archive/{version}.tar.gz"],
+            version = "3ab8ff7a25d9c13c8a9d2c5a122241c745a92570",
         ),
     },
 

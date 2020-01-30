@@ -6,5 +6,5 @@ export KUBECF_NAMESPACE="kubecf"
 export CF_OPERATOR_NAMESPACE="kubecf"
 : "${EIRINI_ENABLED:=false}"
 export EIRINI_ENABLED
-export KUBECF_CHART_TARGET="//deploy/helm/kubecf:chart"
+export KUBECF_CHART_TARGET="//deploy/helm/kubecf"
 export KUBECF_BUNDLE_TARGET="//deploy/bundle:kubecf-bundle"
