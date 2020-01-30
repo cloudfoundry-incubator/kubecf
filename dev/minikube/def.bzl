@@ -12,7 +12,7 @@ def _minikube_start_impl(ctx):
         export ISO_URL="${{ISO_URL:-{iso_url}}}"
         "{script}"
     """.format(
-        minikube = ctx.executable._minikube.path,
+        minikube = ctx.executable._minikube.short_path,
         k8s_version = ctx.attr.k8s_version,
         vm_cpus = ctx.attr.vm_cpus,
         vm_memory = ctx.attr.vm_memory,
@@ -54,7 +54,7 @@ attrs = {
     ),
 }
 
-minikube_start_binary = rule(
+start_binary = rule(
     implementation = _minikube_start_impl,
     attrs = dict({
         "_script": attr.label(
@@ -67,7 +67,7 @@ minikube_start_binary = rule(
     executable = True,
 )
 
-minikube_delete_binary = rule(
+delete_binary = rule(
     implementation = _minikube_start_impl,
     attrs = dict({
         "_script": attr.label(

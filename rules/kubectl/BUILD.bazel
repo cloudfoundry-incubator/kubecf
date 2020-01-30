@@ -1,7 +1,5 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//rules/external_binary:def.bzl", "binary_location")
-
 exports_files([
     "apply.sh",
     "delete.sh",

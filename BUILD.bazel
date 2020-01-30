@@ -1,1 +1,8 @@
 package(default_visibility = ["//visibility:public"])
+
+load("@external_binaries//:def.bzl", "binary_location")
+
+[binary_location(
+    name = "{name}_binary_location".format(name = name),
+    binary = "@{}//:binary".format(name),
+) for name, _ in project.external_binaries.items()]
