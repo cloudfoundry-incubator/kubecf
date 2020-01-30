@@ -1,8 +1,5 @@
 workspace(name = "kubecf")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
-load("//dev/minikube:binary.bzl", "minikube_binary")
-load("//rules/external_binary:def.bzl", "external_binary")
 load(":def.bzl", "project")
 
 local_repository(
@@ -10,32 +7,27 @@ local_repository(
     path = "rules/workspace_status",
 )
 
+local_repository(
+    name = "external_binaries",
+    path = "rules/external_binaries",
+)
+
+load("@external_binaries//:def.bzl", "external_binary")
+
 [external_binary(
     name = name,
-    platforms = getattr(project, name).platforms,
-) for name in [
-    "docker",
-    "helm",
-    "jq",
-    "k3s",
-    "kind",
-    "kubectl",
-    "shellcheck",
-    "yq",
-]]
+    config = config,
+) for name, config in project.external_binaries.items()]
 
-minikube_binary(
-    name = "minikube",
-    platforms = project.minikube.platforms,
-    version = project.minikube.version,
-)
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
-http_archive(
-    name = "rules_python",
-    sha256 = project.rules_python.sha256,
-    strip_prefix = "rules_python-{commit}".format(commit = project.rules_python.commit),
-    url = "https://github.com/bazelbuild/rules_python/archive/{commit}.tar.gz".format(commit = project.rules_python.commit),
-)
+[http_archive(
+    name = name,
+    sha256 = config.sha256,
+    urls = [u.format(version = config.version) for u in config.urls],
+    strip_prefix = getattr(config, "strip_prefix", "").format(version = config.version),
+    build_file_content = getattr(config, "build_file_content", None),
+) for name, config in project.bazel_libs.items()]
 
 load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
 
@@ -49,25 +41,6 @@ pip3_import(
 load("@yamllint//:requirements.bzl", "pip_install")
 
 pip_install()
-
-http_archive(
-    name = "cf_deployment",
-    build_file_content = """
-package(default_visibility = ["//visibility:public"])
-files = [
-    "cf-deployment.yml",
-    "operations/bits-service/use-bits-service.yml",
-]
-filegroup(
-    name = "cf_deployment",
-    srcs = files,
-)
-exports_files(files)
-""",
-    sha256 = project.cf_deployment.sha256,
-    strip_prefix = "cf-deployment-{}".format(project.cf_deployment.version),
-    url = "https://github.com/cloudfoundry/cf-deployment/archive/v{}.tar.gz".format(project.cf_deployment.version),
-)
 
 http_file(
     name = "cf_operator",
@@ -93,10 +66,10 @@ http_file(
     urls = [project.weave_container_network_plugin.url],
 )
 
-http_archive(
-    name = "bazel_skylib",
-    sha256 = project.skylib.sha256,
-    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel_skylib-{version}.tar.gz".format(version = project.skylib.version),
+http_file(
+    name = "mysql_chart",
+    sha256 = project.mysql_chart.sha256,
+    urls = ["https://kubernetes-charts.storage.googleapis.com/mysql-{}.tgz".format(project.mysql_chart.version)],
 )
 
 http_archive(
@@ -109,23 +82,3 @@ http_archive(
 load("@rules_gomplate//:repositories.bzl", "gomplate_repositories")
 
 gomplate_repositories()
-
-http_archive(
-    name = "com_github_kubernetes_incubator_metrics_server",
-    build_file_content = """
-package(default_visibility = ["//visibility:public"])
-filegroup(
-    name = "deploy",
-    srcs = glob(["deploy/1.8+/**/*"]),
-)
-""",
-    sha256 = project.metrics_server.sha256,
-    strip_prefix = "metrics-server-{}".format(project.metrics_server.version),
-    url = "https://github.com/kubernetes-incubator/metrics-server/archive/v{}.tar.gz".format(project.metrics_server.version),
-)
-
-http_file(
-    name = "mysql_chart",
-    sha256 = project.mysql_chart.sha256,
-    urls = ["https://kubernetes-charts.storage.googleapis.com/mysql-{}.tgz".format(project.mysql_chart.version)],
-)
