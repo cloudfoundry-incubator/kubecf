@@ -7,7 +7,7 @@ project = struct(
     chart_version = "0.2.0",
     app_version = "0.2.0",
 
-    # External binaries; see external_binary() invocation in WORKSPACE
+    # External binaries; see external_binary() invocation in WORKSPACE.
     external_binaries = {
         "docker": struct(
             sha256 = {

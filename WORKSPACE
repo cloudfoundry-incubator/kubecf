@@ -15,6 +15,7 @@ load("@external_binaries//:def.bzl", "external_binary")
 ) for name, config in project.external_binaries.items()]
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+
 [http_archive(
     name = name,
     sha256 = config.sha256,
