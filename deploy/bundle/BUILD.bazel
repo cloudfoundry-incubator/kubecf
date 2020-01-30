@@ -15,7 +15,7 @@ pkg_tar(
     srcs = [
         ":cf_operator_chart",
         "//deploy/helm/kubecf:chart",
-    ]
+    ],
 )
 
 alias(

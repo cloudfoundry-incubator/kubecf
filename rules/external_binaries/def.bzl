@@ -1,21 +1,16 @@
-def _external_binary_impl(ctx):
-    info = None
-    if ctx.os.name == 'mac os x':
-        info = ctx.attr.darwin
-        _validade_platform_info("darwin", info)
-    elif ctx.os.name == 'linux':
-        info = ctx.attr.linux
-        _validade_platform_info("linux", info)
-    elif ctx.os.name == 'windows':
-        info = ctx.attr.windows
-        _validade_platform_info("windows", info)
-    else:
-        fail("Unsupported operating system: {}".format(ctx.os.name))
+"""
+This module contains the implementation to pull in external binaries.
+"""
 
-    url = info.get("url")
+def _external_binary_impl(ctx):
+    os = ctx.os.name
+    if os == "mac os x":
+        os = "darwin"
+
+    url = ctx.attr.url[os].format(version = ctx.attr.version, platform = os)
     args = {
         "url": url,
-        "sha256": info.get("sha256", ""),
+        "sha256": ctx.attr.sha256[os],
     }
     if any([url.endswith(suffix) for suffix in [".zip", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz"]]):
         ctx.download_and_extract(output="{name}/{name}_out".format(name = ctx.attr.name), **args)
@@ -49,23 +44,28 @@ def _external_binary_impl(ctx):
 _external_binary = repository_rule(
     implementation = _external_binary_impl,
     attrs = {
-        "darwin": attr.string_dict(),
-        "linux": attr.string_dict(),
-        "windows": attr.string_dict(),
+        "sha256": attr.string_dict(
+            allow_empty = False,
+            doc = "Checksum of the binaries, keyed by os name",
+        ),
+        "url": attr.string_dict(
+            allow_empty = False,
+            doc = "URL to download the binary from, keyed by platform; {version} will be replaced",
+        ),
+        "version": attr.string(
+            doc = "Version of the binary",
+            mandatory = False,
+        ),
     },
 )
 
-def external_binary(name, platforms):
+def external_binary(name, config):
     _external_binary(
         name = name,
-        darwin = platforms.get("darwin"),
-        linux = platforms.get("linux"),
-        windows = platforms.get("windows"),
+        sha256 = config.sha256,
+        url = config.url,
+        version = config.version,
     )
-
-def _validade_platform_info(platform, info):
-    if not "url" in info:
-        fail("missing attr 'url' in '{}'".format(platform))
 
 def _binary_location_impl(ctx):
     script = ctx.actions.declare_file(ctx.attr.name)
