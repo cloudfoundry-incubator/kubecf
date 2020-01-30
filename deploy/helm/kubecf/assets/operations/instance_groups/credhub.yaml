@@ -30,3 +30,16 @@
             component: credhub
           uris:
           - credhub.((system_domain))
+
+# Additional UAA client for the credhub-setup job
+- type: replace
+  path: /variables/-
+  value:
+    name: uaa_clients_credhub_setup_secret
+    type: password
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/credhub_setup?
+  value:
+    authorities: cloud_controller.admin
+    authorized-grant-types: client_credentials
+    secret: ((uaa_clients_credhub_setup_secret))

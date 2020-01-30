@@ -56,6 +56,14 @@ pkg_tar(
     ],
 )
 
+pkg_tar(
+    name = "helm_templates_processed",
+    package_dir = "templates",
+    srcs = [
+        "@credhub_setup//:credhub_setup_manifest",
+    ],
+)
+
 helm_package(
     name = "kubecf",
     srcs = [
@@ -68,6 +76,7 @@ helm_package(
         "//bosh/releases:pre_render_scripts",
         ":cf_deployment",
         ":extracted_jobs",
+        ":helm_templates_processed",
     ],
 )
 
