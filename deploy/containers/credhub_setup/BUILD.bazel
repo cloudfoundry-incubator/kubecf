@@ -1,0 +1,97 @@
+load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+load(
+    "@io_bazel_rules_docker//container:container.bzl",
+    "container_bundle",
+    "container_push",
+)
+load("@rules_gomplate//:defs.bzl", "gomplate_library")
+load("@workspace_status//:def.bzl", "workspace_status")
+
+workspace_status(
+    name = "workspace_status",
+)
+
+gazelle(
+    name = "gazelle",
+    prefix = "github.com/SUSE/kubecf/deploy/containers/credhub_setup",
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "auth.go",
+        "credhub_info.go",
+        "dns.go",
+        "main.go",
+        "secgroup.go",
+    ],
+    importpath = "github.com/SUSE/kubecf/deploy/containers/credhub_setup",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@org_golang_x_oauth2//:go_default_library",
+        "@org_golang_x_oauth2//clientcredentials:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "credhub_setup",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:private"],
+)
+
+go_image(
+    name = "credhub_setup_image",
+    embed = [":go_default_library"],
+    pure = "on",
+    static = "on",
+    goos = "linux",
+    goarch = "amd64",
+    visibility = ["//visibility:private"],
+)
+
+# The bundle is only required to rename and tag our image.
+container_bundle(
+    name = "credhub_setup_bundle",
+    images = {
+        "credhub-setup:{STABLE_CONTAINERS_CREDHUB_SETUP}": ":credhub_setup_image",
+    },
+    visibility = ["//visibility:public"],
+)
+
+gomplate_library(
+    name = "credhub_setup_manifest",
+    templates = {
+        ":manifest.tmpl.yaml": "credhub_setup.yaml",
+    },
+    left_delim = "<<",
+    right_delim = ">>",
+    datasources = {
+        "//:workspace_status": "workspace_status",
+    },
+    visibility = ["//visibility:public"],
+)
+
+container_push(
+    name = "credhub_setup_push",
+    format = "OCI",
+    image = ":credhub_setup_image",
+    registry = "{BUILD_HOST}:5000",
+    repository = "cfcontainerization/credhub-setup",
+    tag = "{BUILD_TIMESTAMP}",
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = [
+        "auth_test.go",
+        "main_test.go",
+        "secgroup_test.go",
+    ],
+    embed = [":go_default_library"],
+    deps = [
+        "@com_github_stretchr_testify//assert:go_default_library",
+        "@com_github_stretchr_testify//require:go_default_library",
+    ],
+)

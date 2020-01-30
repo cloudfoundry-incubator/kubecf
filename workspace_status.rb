@@ -7,3 +7,5 @@ git_commit_short = `git rev-parse --short --verify HEAD`.strip!
 
 puts "STABLE_GIT_BRANCH #{git_branch}"
 puts "STABLE_GIT_COMMIT_SHORT #{git_commit_short}"
+
+require_relative 'deploy/containers/credhub_setup/workspace_status'

@@ -51,3 +51,32 @@ pip_install()
 load("@rules_gomplate//:repositories.bzl", "gomplate_repositories")
 
 gomplate_repositories()
+
+load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
+
+container_repositories()
+
+load("@io_bazel_rules_go//go:deps.bzl", "go_rules_dependencies", "go_register_toolchains")
+
+go_rules_dependencies()
+
+go_register_toolchains()
+
+# gazelle:repo bazel_gazelle
+# gazelle:repository_macro deploy/containers/credhub_setup/repositories.bzl%go_repositories
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+gazelle_dependencies()
+
+load("@io_bazel_rules_docker//go:image.bzl", _go_image_repos = "repositories")
+
+_go_image_repos()
+
+local_repository(
+    name = "credhub_setup",
+    path = "deploy/containers/credhub_setup",
+)
+
+load("@credhub_setup//:repositories.bzl", credhub_go_repositories = "go_repositories")
+
+credhub_go_repositories()

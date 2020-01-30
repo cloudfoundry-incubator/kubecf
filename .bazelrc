@@ -7,3 +7,5 @@ build \
 
 run \
   --workspace_status_command="$(pwd)/workspace_status.rb"
+
+try-import user.bazelrc

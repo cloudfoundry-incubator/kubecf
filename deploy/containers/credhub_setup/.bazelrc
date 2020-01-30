@@ -1,0 +1,8 @@
+test \
+  --test_output=errors \
+  --workspace_status_command "$(pwd)/workspace_status.rb"
+
+build \
+  --workspace_status_command "$(pwd)/workspace_status.rb"
+
+try-import user.bazelrc

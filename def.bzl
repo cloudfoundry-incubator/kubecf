@@ -121,6 +121,14 @@ project = struct(
 
     # External bazel libraries; see http_archive() invocation in WORKSPACE.
     bazel_libs = {
+        "bazel_gazelle": struct(
+            sha256 = "86c6d481b3f7aedc1d60c1c211c6f76da282ae197c3b3160f54bd3a8f847896f",
+            urls = [
+                "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/bazel-gazelle/releases/download/v{version}/bazel-gazelle-v{version}.tar.gz",
+                "https://github.com/bazelbuild/bazel-gazelle/releases/download/v{version}/bazel-gazelle-v{version}.tar.gz",
+            ],
+            version = "0.19.1",
+        ),
         "bazel_skylib": struct(
             urls = [
                 "https://github.com/bazelbuild/bazel-skylib/releases/download/{version}/bazel_skylib-{version}.tar.gz",
@@ -159,17 +167,31 @@ filegroup(
 )
 """,
         ),
-        "rules_python": struct(
-            urls = ["https://github.com/bazelbuild/rules_python/archive/{version}.tar.gz"],
-            version = "94677401bc56ed5d756f50b441a6a5c7f735a6d4",
-            sha256 = "acbd018f11355ead06b250b352e59824fbb9e77f4874d250d230138231182c1c",
-            strip_prefix = "rules_python-{version}",
+        "io_bazel_rules_docker": struct(
+            sha256 = "df13123c44b4a4ff2c2f337b906763879d94871d16411bf82dcfeba892b58607",
+            strip_prefix = "rules_docker-{version}",
+            urls = ["https://github.com/bazelbuild/rules_docker/archive/v{version}.tar.gz"],
+            version = "0.13.0",
+        ),
+        "io_bazel_rules_go": struct(
+            sha256 = "b27e55d2dcc9e6020e17614ae6e0374818a3e3ce6f2024036e688ada24110444",
+            urls = [
+                "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/v{version}/rules_go-v{version}.tar.gz",
+                "https://github.com/bazelbuild/rules_go/releases/download/v{version}/rules_go-v{version}.tar.gz",
+            ],
+            version = "0.21.0",
         ),
         "rules_gomplate": struct(
             sha256 = "5f2c173824020dea6923e0fa20d13df4a1d4cbe264acc009efa41f8a1a50e7d4",
             strip_prefix = "rules_gomplate-{version}",
             urls = ["https://github.com/codelogia/rules_gomplate/archive/{version}.tar.gz"],
             version = "3ab8ff7a25d9c13c8a9d2c5a122241c745a92570",
+        ),
+        "rules_python": struct(
+            sha256 = "acbd018f11355ead06b250b352e59824fbb9e77f4874d250d230138231182c1c",
+            strip_prefix = "rules_python-{version}",
+            urls = ["https://github.com/bazelbuild/rules_python/archive/{version}.tar.gz"],
+            version = "94677401bc56ed5d756f50b441a6a5c7f735a6d4",
         ),
     },
 
