@@ -16,5 +16,5 @@ echo "URL: https://scf-v3.s3.amazonaws.com/kubecf-${version}.tgz"
 
 mc cp "output/kubecf.tgz" "s3/kubecf/kubecf-${version}.tgz"
 echo "URL: https://kubecf.s3.amazonaws.com/kubecf-${version}.tgz"
-mc cp "output/bundle.tgz" "s3/kubecf/bundle-${version}.tgz"
-echo "URL: https://kubecf.s3.amazonaws.com/bundle-${version}.tgz"
+mc cp "output/kubecf-bundle.tgz" "s3/kubecf/kubecf-bundle-${version}.tgz"
+echo "URL: https://kubecf.s3.amazonaws.com/kubecf-bundle-${version}.tgz"
