@@ -118,3 +118,65 @@ kind_delete_binary = rule(
     }, **attrs),
     executable = True,
 )
+
+def _kind_load_impl(ctx):
+    executable = ctx.actions.declare_file(ctx.attr.name)
+    contents = """
+        set -o errexit
+        export KIND="{kind}"
+        export CLUSTER_NAME="{cluster_name}"
+        DOCKER_IMAGES=()
+    """.format(
+        kind = ctx.executable._kind.short_path,
+        cluster_name = ctx.attr.cluster_name,
+    )
+
+    # Add the docker saved tarballs to load
+    for image in ctx.attr.images:
+        for file in image.files.to_list():
+            contents += """
+                DOCKER_IMAGES+=('{path}')
+            """.format(path = file.short_path)
+
+    contents += """
+        source "{script}"
+    """.format(
+        script = ctx.executable._script.path)
+    ctx.actions.write(executable, contents, is_executable = True)
+
+    runfiles = [
+        ctx.executable._kind,
+        ctx.executable._script,
+    ] + ctx.files.images
+
+    return [DefaultInfo(
+        executable = executable,
+        runfiles = ctx.runfiles(files = runfiles),
+    )]
+
+kind_load_binary = rule(
+    implementation = _kind_load_impl,
+    attrs = {
+        "cluster_name": attr.string(
+            mandatory = True,
+        ),
+        "images": attr.label_list(
+            allow_empty = False,
+            doc = "Docker images to pre-load into the cluster",
+            allow_files = [".tar"],
+        ),
+        "_script": attr.label(
+            allow_single_file = True,
+            cfg = "host",
+            default = "//dev/kind:load.sh",
+            executable = True,
+        ),
+        "_kind": attr.label(
+            allow_single_file = True,
+            cfg = "host",
+            default = "@kind//:binary",
+            executable = True,
+        ),
+    },
+    executable = True,
+)

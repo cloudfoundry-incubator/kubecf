@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load(":def.bzl", "kind_start_binary", "kind_delete_binary")
+load(":def.bzl", "kind_start_binary", "kind_delete_binary", "kind_load_binary")
 load("//:def.bzl", "project")
 
 CLUSTER_NAME = project.deployment_name
@@ -13,4 +13,10 @@ kind_start_binary(
 kind_delete_binary(
     name = "delete",
     cluster_name = CLUSTER_NAME,
+)
+
+kind_load_binary(
+    name = "load",
+    cluster_name = CLUSTER_NAME,
+    images = ["//deploy/containers:bundle.tar"]
 )
