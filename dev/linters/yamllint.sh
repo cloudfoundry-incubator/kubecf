@@ -2,13 +2,20 @@
 
 set -o errexit -o nounset
 
-workspace=$(bazel info workspace)
-
-# shellcheck disable=SC2046
-# We want word splitting with find.
-bazel run //dev/linters/yamllint -- \
-      -d "{extends: relaxed, rules: {line-length: {max: 120}}}" \
-      --strict $(find "${workspace}" -type f \
-                      -path "${workspace}/deploy/helm/kubecf/values.*" \
-                      -or -not -path "${workspace}/deploy/helm/kubecf/*" \
-                      -name '*.yaml' -or -name '*.yml')
+bazel run //dev/linters/yamllint -- --config-file /dev/stdin --strict . <<'EOF'
+    yaml-files:
+    - "*.yaml"
+    - "*.yml"
+    ignore: |
+        # Ignore gomplate templates
+        *.tmpl.yaml
+        *.tmpl.yml
+        # Ignore helm templates
+        /deploy/helm/kubecf/**/*
+        # _don't_ ignore helm chart metadata
+        !/deploy/helm/kubecf/*
+    extends: relaxed
+    rules:
+        line-length:
+            max: 120
+EOF
