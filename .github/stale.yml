@@ -13,7 +13,7 @@ exemptLabels:
 exemptMilestones: false
 
 # Label to use when marking an issue as stale.
-staleLabel: "Type: Staled"
+staleLabel: "Type: Stale"
 
 # Comment to post when marking an issue as stale. Set to `false` to disable.
 markComment: >
@@ -21,5 +21,8 @@ markComment: >
   recent activity. If this issue is still relevant then let us know how to help move it forward.
   Thank you for your contributions.
 
-# Comment to post when closing a stale issue. Set to `false` to disable.
+# Comment to post when removing the stale label. Set to `false` to disable
+unmarkComment: false
+
+# Comment to post when closing a stale Issue or Pull Request. Set to `false` to disable
 closeComment: false
