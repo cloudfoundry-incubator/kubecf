@@ -39,6 +39,8 @@ tests:
   - /usr/bin/date
   - .gitlab/pipelines/stages/deploy/setup_k8s.sh
   - /usr/bin/date
+  - .gitlab/pipelines/stages/deploy/load_images.sh
+  - /usr/bin/date
   - .gitlab/pipelines/stages/deploy/deploy_cf_operator.sh
   - /usr/bin/date
   - .gitlab/pipelines/stages/deploy/wait_cf_operator.sh
