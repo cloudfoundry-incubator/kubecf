@@ -8,8 +8,6 @@ workspace=$(bazel info workspace)
 source "${workspace}/.gitlab/pipelines/runtime/config.sh"
 # shellcheck disable=SC1090
 source "${workspace}/.gitlab/pipelines/runtime/binaries.sh"
-# shellcheck disable=SC1090
-source "${workspace}/.gitlab/pipelines/stages/build/output_chart.sh"
 
 # Create a values.yaml for the test.
 values="$(mktemp -t values_XXXXXXXX.yaml)"
@@ -48,8 +46,7 @@ kube:
   pod_cluster_ip_range: 0.0.0.0/0
 EOF
 
-# Locate the built kubecf chart.
-chart="$(output_chart)"
+chart="${workspace}/output/kubecf.tgz"
 
 # Render and apply the kubecf chart.
 bazel run @helm//:binary -- template "${chart}" --name "${KUBECF_INSTALL_NAME}" --namespace "${KUBECF_NAMESPACE}" --values "${values}" | "${KUBECTL}" apply -f -

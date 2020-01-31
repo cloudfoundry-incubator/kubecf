@@ -9,6 +9,7 @@ export TCP_ROUTER_CLUSTER_IP="10.43.0.233"
 export SYSTEM_DOMAIN="k3s-ci.kubecf.aws.howdoi.website"
 : "${EIRINI_ENABLED:=false}"
 export EIRINI_ENABLED
-export KUBECF_CHART_TARGET="//deploy/helm/kubecf:chart"
+export KUBECF_CHART_TARGET="//deploy/helm/kubecf"
 export KUBECF_BUNDLE_TARGET="//deploy/bundle:kubecf-bundle"
+export KUBECF_VERSION_TARGET="//deploy/helm/kubecf:version"
 export BOSHDEPLOYMENT_CRD="boshdeployments.quarks.cloudfoundry.org"

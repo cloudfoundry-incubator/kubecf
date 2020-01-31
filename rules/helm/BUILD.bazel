@@ -1,6 +1,15 @@
 package(default_visibility = ["//visibility:public"])
 
+load("@rules_gomplate//:defs.bzl", "gomplate_binary")
+
+gomplate_binary(
+    name = "package_tmpl_rb",
+    datasources = {
+        "//:workspace_status": "workspace_status",
+    },
+    template = ":package.tmpl.rb",
+)
+
 exports_files([
-    "package.sh",
     "template.sh",
 ])

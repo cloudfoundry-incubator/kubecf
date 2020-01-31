@@ -101,7 +101,7 @@ def step(
     name,
     commands,
     extra_volumes = [],
-    image = "thulioassis/bazel-docker-image:1.2.1",
+    image = "thulioassis/bazel-docker-image:2.0.0",
     network_mode = None,
     when = None,
 ):
