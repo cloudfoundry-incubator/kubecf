@@ -16,7 +16,7 @@ spec:
         quarks.cloudfoundry.org/deployment: {{ .Release.Name }}
     spec:
       containers:
-      - image: credhub-setup:<< (ds "workspace_status").STABLE_CONTAINERS_CREDHUB_SETUP >>
+      - image: << (ds "workspace_status").STABLE_DOCKER_ORG >>/credhub-setup:<< (ds "workspace_status").STABLE_CONTAINERS_CREDHUB_SETUP >>
         name: credhub-setup
         env:
         - name: OAUTH_CLIENT

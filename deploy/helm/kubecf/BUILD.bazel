@@ -60,7 +60,7 @@ pkg_tar(
     name = "helm_templates_processed",
     package_dir = "templates",
     srcs = [
-        "@credhub_setup//:credhub_setup_manifest",
+        "@credhub_setup//:manifest",
     ],
 )
 
