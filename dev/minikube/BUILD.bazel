@@ -4,6 +4,7 @@ load(
     ":def.bzl",
     minikube_start_binary = "start_binary",
     minikube_delete_binary = "delete_binary",
+    minikube_load_binary = "load_binary",
 )
 
 minikube_start_binary(
@@ -12,4 +13,9 @@ minikube_start_binary(
 
 minikube_delete_binary(
     name = "delete",
+)
+
+minikube_load_binary(
+    name = "load",
+    images = ["//deploy/containers:bundle.tar"]
 )

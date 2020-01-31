@@ -79,3 +79,57 @@ delete_binary = rule(
     }, **attrs),
     executable = True,
 )
+
+def _minikube_load_impl(ctx):
+    executable = ctx.actions.declare_file(ctx.attr.name)
+    contents = """
+        set -o errexit
+        export MINIKUBE="{minikube}"
+        DOCKER_IMAGES=()
+    """.format(minikube = ctx.executable._minikube.short_path)
+
+    # Add the docker saved tarballs to load
+    for image in ctx.attr.images:
+        for file in image.files.to_list():
+            contents += """
+                DOCKER_IMAGES+=('{path}')
+            """.format(path = file.short_path)
+
+    contents += """
+        source "{script}"
+    """.format(script = ctx.executable._script.path)
+    ctx.actions.write(executable, contents, is_executable = True)
+
+    runfiles = [
+        ctx.executable._minikube,
+        ctx.executable._script,
+    ] + ctx.files.images
+
+    return [DefaultInfo(
+        executable = executable,
+        runfiles = ctx.runfiles(files = runfiles),
+    )]
+
+load_binary = rule(
+    implementation = _minikube_load_impl,
+    attrs = {
+        "images": attr.label_list(
+            allow_empty = False,
+            doc = "Docker images to pre-load into the cluster",
+            allow_files = [".tar"],
+        ),
+        "_script": attr.label(
+            allow_single_file = True,
+            cfg = "host",
+            default = "//dev/minikube:load.sh",
+            executable = True,
+        ),
+        "_minikube": attr.label(
+            allow_single_file = True,
+            cfg = "host",
+            default = "@minikube//:minikube",
+            executable = True,
+        ),
+    },
+    executable = True,
+)
