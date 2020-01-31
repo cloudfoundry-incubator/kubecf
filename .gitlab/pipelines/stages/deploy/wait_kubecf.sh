@@ -54,5 +54,12 @@ for instance_group in "${instance_groups[@]}"; do
     --namespace "${KUBECF_NAMESPACE}"
 done
 
+# Wait for non-quarks jobs
+"${KUBECTL}" wait jobs \
+  --selector "!quarks.cloudfoundry.org/qjob-name" \
+  --for condition=Complete \
+  --timeout=1800s \
+  --namespace "${KUBECF_NAMESPACE}"
+
 trap "" EXIT
 echo "Finished waiting for the kubecf pods to be ready."
