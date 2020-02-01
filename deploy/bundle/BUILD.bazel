@@ -5,7 +5,7 @@ load("//:def.bzl", "project")
 copy_file(
     name = "cf_operator_chart",
     src = "@cf_operator//file",
-    out = project.cf_operator.chart.url.rpartition("/")[-1],
+    out = project.external_files['cf_operator'].urls[0].rpartition("/")[-1],
 )
 
 pkg_tar(
