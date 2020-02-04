@@ -76,7 +76,7 @@ To rotate this secret:
 
   2. Apply this ConfigMap using
 
-         kubectl apply -f /path/to/your/yaml/file
+         kubectl apply -n kubecf -f /path/to/your/yaml/file
 
   3. The CF operator will see that this ConfigMap is for it to
      process, because of the special label
@@ -93,4 +93,4 @@ To rotate this secret:
       users of the rotated secrets), delete the trigger config map
       again:
       
-         kubectl delete -f /path/to/your/yaml/file
+         kubectl delete -n kubecf -f /path/to/your/yaml/file
