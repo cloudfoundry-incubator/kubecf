@@ -55,17 +55,13 @@ releases:
     url: docker.io/cfcontainerization
     stemcell:
       os: SLE_15_SP1
-      version: 15.1-7.0.0_374.gb8e8e6af
+      version: 23.8-7.0.0_374.gb8e8e6af
   app-autoscaler:
     version: 3.0.0
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   bits-service:
     version: 2.28.0
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_348.gc8fb3864
+  # TODO: brains-tests must switch to SLE15 stemcell once the compilation failures are resolved.
+  # check: https://github.com/SUSE/kubecf/issues/270
   brain-tests:
     version: v0.0.6
     stemcell:
@@ -73,9 +69,7 @@ releases:
       version: 36.g03b4653-30.80-7.0.0_372.ge3509601
   cf-acceptance-tests:
     version: 0.0.9
-    stemcell:
-      os: SLE_15_SP1
-      version: 21.3-7.0.0_374.gb8e8e6af
+  # TODO: cf-mysql must switch to SLE15 stemcell once the compilation failures are resolved.
   cf-mysql:
     version: 36.19.0
     stemcell:
@@ -85,20 +79,10 @@ releases:
     version: 0.0.25
   loggregator:
     version: "105.6"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
   postgres:
     version: "39"
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_367.g6b06e343
   sle15:
-    url: registry.suse.com/cap-staging
     version: "10.93"
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.1-7.0.0_374.gb8e8e6af
   suse-staticfile-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.5.2.1"
