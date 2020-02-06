@@ -179,8 +179,8 @@ filegroup(
     ),
     cf_operator = struct(
         chart = struct(
-            url = "https://s3.amazonaws.com/cf-operators/release/helm-charts/cf-operator-2.2.0-0.g3dce81dc.tgz",
-            sha256 = "16c073821e0fe0db979ac00617b943b6ad72ac28cfcfd9b45fbd8b40a3711869",
+            url = "https://s3.amazonaws.com/cf-operators/release/helm-charts/cf-operator-2.3.0%2B0.g27a91cdf.tgz",
+            sha256 = "78d2266d127980806c5e6eabca1fdab0f968eba7c63a06167b906fab75c989f7",
         ),
     ),
     kubernetes = struct(
