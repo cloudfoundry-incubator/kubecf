@@ -29,6 +29,12 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file"
     build_file_content = getattr(config, "build_file_content", None),
 ) for name, config in project.bazel_libs.items()]
 
+[http_file(
+    name = name,
+    urls = [u.format(version = getattr(config, "version", "")) for u in config.urls],
+    sha256 = config.sha256,
+) for name, config in project.external_files.items()]
+
 load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
 
 pip_repositories()
@@ -45,33 +51,3 @@ pip_install()
 load("@rules_gomplate//:repositories.bzl", "gomplate_repositories")
 
 gomplate_repositories()
-
-http_file(
-    name = "cf_operator",
-    sha256 = project.cf_operator.chart.sha256,
-    urls = [project.cf_operator.chart.url],
-)
-
-http_file(
-    name = "local_path_provisioner",
-    sha256 = project.local_path_provisioner.sha256,
-    urls = [project.local_path_provisioner.url],
-)
-
-http_file(
-    name = "kube_dashboard",
-    sha256 = project.kube_dashboard.sha256,
-    urls = [project.kube_dashboard.url],
-)
-
-http_file(
-    name = "weave_container_network_plugin",
-    sha256 = project.weave_container_network_plugin.sha256,
-    urls = [project.weave_container_network_plugin.url],
-)
-
-http_file(
-    name = "mysql_chart",
-    sha256 = project.mysql_chart.sha256,
-    urls = ["https://kubernetes-charts.storage.googleapis.com/mysql-{}.tgz".format(project.mysql_chart.version)],
-)
