@@ -8,4 +8,4 @@ source ".drone/pipelines/default/runtime/binaries.sh"
 source ".drone/pipelines/default/runtime/config.sh"
 
 kubectl create namespace "${CF_OPERATOR_NAMESPACE}"
-bazel run //dev/cf_operator:apply
+bazel run //dev/cf_operator:install_or_upgrade
