@@ -47,10 +47,6 @@ begin
     FileUtils.cp(file, build_dir)
   end
 
-  pid = Process.spawn("'#{helm}' init --client-only")
-  _, status = Process.wait2 pid
-  exit 1 unless status.success?
-
   # Handle chart versioning based on git state.
   version = "v0.0.0-#{git_commit_short}"
 
