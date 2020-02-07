@@ -8,7 +8,7 @@ load("//:def.bzl", "project")
 package(default_visibility = ["//visibility:public"])
 
 helm_upgrade(
-    name = "install_or_upgrade",
+    name = "apply",
     install = True,
     install_name = project.deployment_name,
     namespace = project.namespace,

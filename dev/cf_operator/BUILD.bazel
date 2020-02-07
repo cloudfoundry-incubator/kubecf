@@ -10,7 +10,7 @@ package(default_visibility = ["//visibility:public"])
 INSTALL_NAME = "cf-operator"
 
 helm_upgrade(
-    name = "install_or_upgrade",
+    name = "apply",
     install = True,
     install_name = INSTALL_NAME,
     namespace = project.cf_operator_namespace,

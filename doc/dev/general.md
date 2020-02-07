@@ -168,7 +168,7 @@ For local development with an external database, the
 `bazel run //dev/external_database:deploy_mysql` command will bring a mysql database up and running
 ready to be consumed by kubecf.
 
-An example for the additional values to be provided to `//dev/kubecf:install_or_upgrade`:
+An example for the additional values to be provided to `//dev/kubecf:apply`:
 
 ```yaml
 features:

@@ -2,4 +2,4 @@
 
 set -o errexit
 
-bazel run //dev/cf_operator:install_or_upgrade
+bazel run //dev/cf_operator:apply
