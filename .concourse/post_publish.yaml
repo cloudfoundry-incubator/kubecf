@@ -19,7 +19,7 @@ resources:
   source:
     uri: https://github.com/SUSE/catapult
   version:
-    ref: 18957254f9da0920fa1d0674932f87db07bf83ce
+    ref: 05b6a6ff325993a3f97f173b6c048af416a0274a
 - name: status.src
   type: github-status
   source:

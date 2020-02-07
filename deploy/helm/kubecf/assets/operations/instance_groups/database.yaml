@@ -402,8 +402,14 @@
             # Check for mysql, as we go through a bunch of control scripts
             # before the actual database server is run; ensure that all of that
             # is succeeding and we actually have a DB.
+            # Note that we avoid the use of `pidof` here, as it attempts to use
+            # SYS_PTRACE capabilities, which triggers the docker-default
+            # AppArmor profile (but does not appear to be harmful).
             exec:
-              command: [pidof, mysqld]
+              command:
+              - /bin/sh
+              - -c
+              - grep -P '^[^\0]*/mysqld\0' /proc/*/cmdline
     bpm:
       processes:
       - name: mariadb

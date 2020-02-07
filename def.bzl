@@ -172,39 +172,38 @@ filegroup(
         ),
     },
 
-    # Generic dependencies
-    cf_deployment = struct(
-        version = "12.18.0",
-        sha256 = "1aeb7fa2bbd78ac4837c2aeaa4b9dc9567bc498f08f7fd744da556e672788991",
-    ),
-    cf_operator = struct(
-        chart = struct(
-            url = "https://s3.amazonaws.com/cf-operators/release/helm-charts/cf-operator-v2.0.0-0.g0142d1e9.tgz",
-            sha256 = "6881d36ce283d00aff0b9bf64a8018043bfe9d360ef755535b2821cbdd57a9fb",
+    # Additional files we need to download
+    external_files = {
+        "cf_operator": struct(
+            urls = ["https://s3.amazonaws.com/cf-operators/release/helm-charts/cf-operator-{version}.tgz"],
+            sha256 = "78d2266d127980806c5e6eabca1fdab0f968eba7c63a06167b906fab75c989f7",
+            version = "2.3.0%2B0.g27a91cdf",
         ),
-    ),
+        "kube_dashboard": struct(
+            urls = ["https://raw.githubusercontent.com/kubernetes/dashboard/{version}/aio/deploy/recommended.yaml"],
+            sha256 = "f849252870818a2971dfc3c4f8a8c5f58a57606bc2b5f221d7ab693e1d1190e0",
+            version = "v2.0.0-beta1",
+        ),
+        "local_path_provisioner": struct(
+            urls = ["https://raw.githubusercontent.com/rancher/local-path-provisioner/{version}/deploy/local-path-storage.yaml"],
+            sha256 = "df88b9a38420bb6d286953e06766abbc587e57f1f4eb5cb1c749fa53488cb4f7",
+            version = "58cafaccef6645e135664053545ff94cb4bc4224",
+        ),
+        "mysql_chart": struct(
+            urls = ["https://kubernetes-charts.storage.googleapis.com/mysql-{version}.tgz"],
+            sha256 = "9ef4ce3693eb2a7428598f9dae833ee546eac9c105b4005c6d7375c55e33bdff",
+            version = "1.3.3",
+        ),
+        "weave_container_network_plugin": struct(
+            urls = ["https://github.com/weaveworks/weave/releases/download/{version}/weave-daemonset-k8s-1.11.yaml"],
+            sha256 = "3f6d84c16f46dd57a362446dfa8e313d9e401b0cabafef10da280c634a00ac0f",
+            version = "v2.6.0",
+        ),
+    },
+
+    # Generic dependencies
     kubernetes = struct(
         version = "1.15.6",
-    ),
-    local_path_provisioner = struct(
-        url = "https://raw.githubusercontent.com/rancher/local-path-provisioner/58cafaccef6645e135664053545ff94cb4bc4224/deploy/local-path-storage.yaml",
-        sha256 = "df88b9a38420bb6d286953e06766abbc587e57f1f4eb5cb1c749fa53488cb4f7",
-    ),
-    kube_dashboard = struct(
-        url = "https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta1/aio/deploy/recommended.yaml",
-        sha256 = "f849252870818a2971dfc3c4f8a8c5f58a57606bc2b5f221d7ab693e1d1190e0",
-    ),
-    weave_container_network_plugin = struct(
-        url = "https://github.com/weaveworks/weave/releases/download/v2.6.0/weave-daemonset-k8s-1.11.yaml",
-        sha256 = "3f6d84c16f46dd57a362446dfa8e313d9e401b0cabafef10da280c634a00ac0f",
-    ),
-    metrics_server = struct(
-        version = "0.3.6",
-        sha256 = "cb0626b297eeb14be20f53896bc0cd68b32d20a4e4b6c8becdef625e322a54ed",
-    ),
-    mysql_chart = struct(
-        version = "1.3.3",
-        sha256 = "9ef4ce3693eb2a7428598f9dae833ee546eac9c105b4005c6d7375c55e33bdff",
     ),
     drone = struct(
         server = struct(
