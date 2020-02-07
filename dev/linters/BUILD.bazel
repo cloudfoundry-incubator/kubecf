@@ -7,6 +7,9 @@ sh_test(
     name = "helm",
     srcs = ["@helm//:binary"],
     deps = [":chart"],
-    args = ["lint", "$(rootpath :chart)"],
+    args = [
+        "lint",
+        "$(rootpath :chart)",
+    ],
     size = "small",
 )

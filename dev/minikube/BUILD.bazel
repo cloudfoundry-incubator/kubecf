@@ -16,6 +16,6 @@ minikube_delete_binary(
 )
 
 minikube_load_binary(
-    name = "load",
-    images = ["//deploy/containers:bundle.tar"]
+    name = "load_images",
+    images = ["//deploy/containers:bundle.tar"],
 )

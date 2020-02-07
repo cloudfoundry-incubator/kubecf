@@ -62,12 +62,6 @@ go_rules_dependencies()
 
 go_register_toolchains()
 
-# gazelle:repo bazel_gazelle
-# gazelle:repository_macro deploy/containers/credhub_setup/repositories.bzl%go_repositories
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-
-gazelle_dependencies()
-
 load("@io_bazel_rules_docker//go:image.bzl", _go_image_repos = "repositories")
 
 _go_image_repos()

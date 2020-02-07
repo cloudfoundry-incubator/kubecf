@@ -16,7 +16,7 @@ kind_delete_binary(
 )
 
 kind_load_binary(
-    name = "load",
+    name = "load_images",
     cluster_name = CLUSTER_NAME,
-    images = ["//deploy/containers:bundle.tar"]
+    images = ["//deploy/containers:bundle.tar"],
 )
