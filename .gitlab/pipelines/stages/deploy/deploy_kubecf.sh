@@ -49,7 +49,8 @@ EOF
 chart="${workspace}/output/kubecf.tgz"
 
 # Install the KubeCF chart.
-bazel run @helm//:binary -- upgrade "${KUBECF_INSTALL_NAME}" "${chart}" \
+bazel run @helm//:binary -- \
+  upgrade "${KUBECF_INSTALL_NAME}" "${chart}" \
   --install \
   --namespace "${KUBECF_NAMESPACE}" \
   --values "${values}"
