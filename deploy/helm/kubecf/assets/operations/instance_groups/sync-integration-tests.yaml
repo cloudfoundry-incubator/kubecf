@@ -1,0 +1,39 @@
+{{- if .Values.testing.sync_integration_tests.enabled -}}
+
+- path: /instance_groups/-
+  type: replace
+  value:
+    instances: 1
+    jobs:
+    - name: sync-integration-tests
+      properties:
+        quarks:
+        bpm:
+          processes: []
+        sync_integration_tests:
+          bbs:
+            svc:
+              name: diego-api-bbs
+              namespace: {{ .Release.Namespace }}
+              port: 8889
+          config:
+            bbs_client_cert_contents: ((diego_bbs_client.certificate))
+            bbs_client_key_contents: ((diego_bbs_client.private_key))
+            cf_admin_password: ((cf_admin_password))
+            cf_api: api.((system_domain))
+            cf_apps_domain: ((system_domain))
+          setup:
+            flake_attempts: 3
+            nodes: 4
+            verbose: false
+      release: sync-integration-tests
+    lifecycle: errand
+    name: sync-integration-tests
+    networks:
+    - name: default
+    stemcell: default
+    update:
+      serial: true
+    vm_type: minimal
+
+{{- end }}

@@ -83,6 +83,8 @@ releases:
     version: "39"
   sle15:
     version: "10.93"
+  sync-integration-tests:
+    version: v0.0.2
   suse-staticfile-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.5.2.1"
@@ -292,6 +294,8 @@ testing:
     enabled: false
   smoke_tests:
     enabled: true
+  sync_integration_tests:
+    enabled: false
 
 ccdb:
   encryption:
