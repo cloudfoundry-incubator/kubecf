@@ -225,3 +225,33 @@ upgrade = rule(
     }, **_common_attrs),
     executable = True,
 )
+
+def _delete_impl(ctx):
+    executable = ctx.actions.declare_file("{}.rb".format(ctx.attr.name))
+    ctx.actions.expand_template(
+        output = executable,
+        substitutions = {
+            "[[helm]]": ctx.executable._helm.short_path,
+            "[[install_name]]": ctx.attr.install_name,
+            "[[namespace]]": ctx.attr.namespace,
+        },
+        template = ctx.file._script_tmpl,
+    )
+    runfiles = [
+        ctx.executable._helm,
+    ]
+    return [DefaultInfo(
+        executable = executable,
+        runfiles = ctx.runfiles(files = runfiles),
+    )]
+
+delete = rule(
+    implementation = _delete_impl,
+    attrs = dict({
+        "_script_tmpl": attr.label(
+            allow_single_file = True,
+            default = "//rules/helm:delete.tmpl.rb",
+        ),
+    }, **_common_attrs),
+    executable = True,
+)

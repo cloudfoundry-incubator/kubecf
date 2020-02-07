@@ -12,5 +12,6 @@ gomplate_binary(
 
 exports_files([
     "template.sh",
+    "delete.tmpl.rb",
     "upgrade.tmpl.rb",
 ])
