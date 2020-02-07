@@ -3,7 +3,6 @@
 # frozen_string_literal: true
 
 require 'json'
-require 'open3'
 
 # Variable interpolation via Bazel template expansion.
 helm = '[[helm]]'
@@ -34,10 +33,4 @@ set_values = set_values.map do |key, value|
 end
 args.concat(*set_values)
 
-stdout, stderr, status = Open3.capture3(*args)
-unless status.success?
-  puts stderr
-  exit 1
-end
-
-puts stdout
+exit Process.wait2(Process.spawn(*args)).last.exitstatus
