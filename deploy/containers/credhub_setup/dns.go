@@ -10,6 +10,8 @@ import (
 	"net"
 	"sync"
 	"time"
+
+	"credhub_setup/quarks"
 )
 
 var customResolver *net.Resolver
@@ -30,7 +32,7 @@ func setupResolver(ctx context.Context) error {
 
 // getDNSResolver returns a custom DNS resolver that uses the BOSH-DNS service.
 func getDNSResolver(ctx context.Context) (*net.Resolver, error) {
-	deploymentName, err := getDeploymentName(ctx)
+	deploymentName, err := quarks.GetDeploymentName(ctx)
 	if err != nil {
 		return nil, err
 	}

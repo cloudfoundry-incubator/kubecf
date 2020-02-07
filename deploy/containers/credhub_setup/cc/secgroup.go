@@ -1,4 +1,4 @@
-package main
+package cc
 
 // secgroup.go contains the code necessary to interact with the CF API to set
 // up default running / staging security groups.
@@ -12,19 +12,9 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-)
 
-// ccEndpointLinkData describes the data returned from the cloud controller BOSH
-// link (ccEntanglementName)
-type ccEndpointLinkData struct {
-	CC struct {
-		InternalServiceHostname string `json:"internal_service_hostname"`
-		PublicTLS               struct {
-			CACert string `json:"ca_cert"`
-			Port   int    `json:"port"`
-		} `json:"public_tls"`
-	} `json:"cc"`
-}
+	"credhub_setup/quarks"
+)
 
 // securityGroupRule is a single rule in a security group definition
 type securityGroupRule struct {
@@ -51,6 +41,13 @@ type securityGroupDefinition struct {
 	Entity securityGroupEntity `json:"entity"`
 }
 
+// PortInfo describes a port to be opened
+type PortInfo struct {
+	Addresses   []string
+	Port        int
+	Description string
+}
+
 // lifecycleType is the lifecycle phase of of a security group, either
 // lifecycleRunning or lifecycleStaging.
 type lifecycleType string
@@ -70,18 +67,18 @@ const (
 // buildSecurityGroup constructs the security group entity (as required to be
 // uploaded to the CC API) for apps to be able to communicate with CredHub,
 // given the addresses for CredHub and the port it's listening on.
-func buildSecurityGroup(ports []portInfo) securityGroupEntity {
+func buildSecurityGroup(ports []PortInfo) securityGroupEntity {
 	var entries []securityGroupRule
 	for _, info := range ports {
-		for _, addr := range info.addresses {
-			desc := info.description
+		for _, addr := range info.Addresses {
+			desc := info.Description
 			if desc == "" {
 				desc = "CredHub service access"
 			}
 			entries = append(entries, securityGroupRule{
 				Protocol:    "tcp",
 				Destination: addr,
-				Ports:       fmt.Sprintf("%d", info.port),
+				Ports:       fmt.Sprintf("%d", info.Port),
 				Description: desc,
 			})
 		}
@@ -193,13 +190,13 @@ func bindDefaultSecurityGroup(ctx context.Context, lifecycle lifecycleType, grou
 	return nil
 }
 
-// setupCredHubApplicationSecurityGroups does all of the work to ensure an
+// SetupCredHubApplicationSecurityGroups does all of the work to ensure an
 // appropriate security group exists and is bound to the appropriate lifecycle
 // phases.  It requres the addresses and port that the target (CredHub) is
 // listening on.
-func setupCredHubApplicationSecurityGroups(ctx context.Context, client *http.Client, ports []portInfo) error {
+func SetupCredHubApplicationSecurityGroups(ctx context.Context, client *http.Client, ports []PortInfo) error {
 	var link ccEndpointLinkData
-	err := resolveLink(ctx, ccEntanglementName, &link)
+	err := quarks.ResolveLink(ctx, ccEntanglementName, &link)
 	if err != nil {
 		return fmt.Errorf("could not get CC link: %w", err)
 	}

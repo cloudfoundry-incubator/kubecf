@@ -1,4 +1,4 @@
-package main
+package cc
 
 import (
 	"bytes"
@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+
+	"credhub_setup/quarks/testhelpers"
 )
 
 type mockCC struct {
@@ -216,7 +218,7 @@ func TestGetExistingSecurityGroup(t *testing.T) {
 	require.Empty(t, groupID, "got unexpected group ID")
 
 	newEntity := buildSecurityGroup(
-		[]portInfo{portInfo{addresses: []string{"1"}, port: 80}})
+		[]PortInfo{PortInfo{Addresses: []string{"1"}, Port: 80}})
 	entityBytes, err := json.Marshal(newEntity)
 	require.NoError(t, err, "could not marshal sample data")
 	entityReader := bytes.NewReader(entityBytes)
@@ -230,7 +232,7 @@ func TestGetExistingSecurityGroup(t *testing.T) {
 	require.Equal(t, createdGroup.Entity, newEntity)
 
 	updatedEntity := buildSecurityGroup(
-		[]portInfo{portInfo{addresses: []string{"hello"}, port: 443}})
+		[]PortInfo{PortInfo{Addresses: []string{"hello"}, Port: 443}})
 	entityBytes, err = json.Marshal(updatedEntity)
 	require.NoError(t, err, "could not marshal sample data")
 	entityReader = bytes.NewReader(entityBytes)
@@ -260,17 +262,16 @@ func TestSetupCredHubApplicationSecurityGroups(t *testing.T) {
 	require.NoError(t, err, "could not convert port number")
 	endpointData.CC.PublicTLS.Port = port
 
-	fakeMount, err := generateFakeMount("deployment-name", t)
+	ctx, fakeMount, err := testhelpers.GenerateFakeMount(context.Background(), "deployment-name", t)
 	require.NoError(t, err, "could not set up temporary mount directorry")
-	defer fakeMount.cleanup()
-	err = fakeMount.writeLink("cloud_controller_https_endpoint", endpointData)
+	defer fakeMount.CleanUp()
+	err = fakeMount.WriteLink("cloud_controller_https_endpoint", endpointData)
 	require.NoError(t, err, "could not write fake CC mount")
 
-	ctx := context.WithValue(context.Background(), overrideMountRoot, fakeMount.workDir)
 	client := server.Client()
 
-	err = setupCredHubApplicationSecurityGroups(ctx, client,
-		[]portInfo{portInfo{addresses: []string{"1"}, port: 22}})
+	err = SetupCredHubApplicationSecurityGroups(ctx, client,
+		[]PortInfo{PortInfo{Addresses: []string{"1"}, Port: 22}})
 	require.NoError(t, err, "could not set up credhub security groups")
 
 	group, err := mockCCInstance.findGroup(func(group *securityGroupDefinition) bool {
@@ -290,8 +291,8 @@ func TestSetupCredHubApplicationSecurityGroups(t *testing.T) {
 	}
 
 	// Do it again and check for updates
-	err = setupCredHubApplicationSecurityGroups(ctx, client,
-		[]portInfo{portInfo{addresses: []string{"irc"}, port: 6667}})
+	err = SetupCredHubApplicationSecurityGroups(ctx, client,
+		[]PortInfo{PortInfo{Addresses: []string{"irc"}, Port: 6667}})
 	require.NoError(t, err, "could not set up credhub security groups")
 
 	group, err = mockCCInstance.findGroup(func(group *securityGroupDefinition) bool {
