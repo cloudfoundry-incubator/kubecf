@@ -54,7 +54,7 @@ for instance_group in "${instance_groups[@]}"; do
     --namespace "${KUBECF_NAMESPACE}"
 done
 
-# Wait for non-quarks jobs
+# Wait for non-quarks jobs.
 "${KUBECTL}" wait jobs \
   --selector "!quarks.cloudfoundry.org/qjob-name" \
   --for condition=Complete \
