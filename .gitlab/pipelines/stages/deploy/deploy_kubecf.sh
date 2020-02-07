@@ -48,5 +48,8 @@ EOF
 
 chart="${workspace}/output/kubecf.tgz"
 
-# Render and apply the kubecf chart.
-bazel run @helm//:binary -- template "${chart}" --name "${KUBECF_INSTALL_NAME}" --namespace "${KUBECF_NAMESPACE}" --values "${values}" | "${KUBECTL}" apply -f -
+# Install the KubeCF chart.
+bazel run @helm//:binary -- upgrade "${KUBECF_INSTALL_NAME}" "${chart}" \
+  --install \
+  --namespace "${KUBECF_NAMESPACE}" \
+  --values "${values}"

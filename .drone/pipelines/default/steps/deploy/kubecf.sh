@@ -13,9 +13,9 @@ system_domain="${node_ip}.nip.io"
 
 chart="output/kubecf.tgz"
 
-# Render and apply the kubecf chart.
-helm template "${chart}" \
-  --name "${KUBECF_INSTALL_NAME}" \
+# Install the KubeCF chart.
+helm upgrade "${KUBECF_INSTALL_NAME}" "${chart}" \
+  --install \
   --namespace "${KUBECF_NAMESPACE}" \
   --values <(cat <<EOF
 system_domain: "${system_domain}"
@@ -53,5 +53,4 @@ kube:
   service_cluster_ip_range: 0.0.0.0/0
   pod_cluster_ip_range: 0.0.0.0/0
 EOF
-) \
-  | kubectl apply -f -
+)

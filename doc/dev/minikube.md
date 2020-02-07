@@ -55,10 +55,10 @@ It has to be installed in the same kube cluster Kubecf will be deployed to.
 The Kubecf Bazel workspace contains targets to deploy and/or tear-down
 cf-operator:
 
-|Operation  |Command                               |
-|---        |---                                   |
-|Deployment | `bazel run //dev/cf_operator:apply`  |
-|Tear-down  | `bazel run //dev/cf_operator:delete` |
+|Operation  |Command                                            |
+|---        |---                                                |
+|Deployment | `bazel run //dev/cf_operator:install_or_upgrade`  |
+|Tear-down  | `bazel run //dev/cf_operator:delete`              |
 
 ## Kubecf
 
@@ -80,10 +80,10 @@ echo "system_domain: $(minikube ip).xip.io" \
 The Kubecf Bazel workspace contains targets to deploy and/or tear-down
 kubecf from the sources:
 
-|Operation  |Command                          |
-|---        |---                              |
-|Deployment | `bazel run //dev/kubecf:apply`  |
-|Tear-down  | `bazel run //dev/kubecf:delete` |
+|Operation  |Command                                       |
+|---        |---                                           |
+|Deployment | `bazel run //dev/kubecf:install_or_upgrade`  |
+|Tear-down  | `bazel run //dev/kubecf:delete`              |
 
 In this default deployment kubecf is launched without Ingress, and
 uses the Diego scheduler.

@@ -4,6 +4,7 @@ Project-wide constant definitions
 project = struct(
     deployment_name = "kubecf",
     namespace = "kubecf",
+    cf_operator_namespace = "cf-operator",
 
     # External binaries; see external_binary() invocation in WORKSPACE.
     external_binaries = {

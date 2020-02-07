@@ -1,25 +1,28 @@
-package(default_visibility = ["//visibility:public"])
-
-load("//rules/helm:def.bzl", helm_template = "template")
-load("//rules/kubectl:def.bzl", kubectl_apply_binary = "apply", kubectl_delete_binary = "delete")
+load(
+    "//rules/helm:def.bzl",
+    helm_upgrade = "upgrade",
+    helm_delete = "delete",
+)
 load("//:def.bzl", "project")
 
-helm_template(
-    name = "rendered_template",
-    values = glob(["**/*values.yaml"]),
-    install_name = "cf-operator",
-    namespace = project.namespace,
+package(default_visibility = ["//visibility:public"])
+
+INSTALL_NAME = "cf-operator"
+
+helm_upgrade(
+    name = "install_or_upgrade",
+    install = True,
+    install_name = INSTALL_NAME,
+    namespace = project.cf_operator_namespace,
     chart_package = "@cf_operator//file",
+    set_values = {
+        "global.operator.watchNamespace": project.namespace,
+    },
+    reuse_values = True,
 )
 
-kubectl_apply_binary(
-    name = "apply",
-    resource = ":rendered_template",
-    namespace = project.namespace,
-)
-
-kubectl_delete_binary(
+helm_delete(
     name = "delete",
-    resource = ":rendered_template",
-    namespace = project.namespace,
+    install_name = INSTALL_NAME,
+    namespace = project.cf_operator_namespace,
 )
