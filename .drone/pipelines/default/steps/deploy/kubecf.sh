@@ -11,7 +11,7 @@ node_ip=$(kubectl get node kubecf-control-plane \
   --output jsonpath='{ .status.addresses[?(@.type == "InternalIP")].address }')
 system_domain="${node_ip}.nip.io"
 
-chart="output/kubecf.tgz"
+chart=$(find output/ -name 'kubecf-*.tgz' -not -name 'kubecf-bundle-*.tgz')
 
 # Install the KubeCF chart.
 helm upgrade "${KUBECF_INSTALL_NAME}" "${chart}" \
