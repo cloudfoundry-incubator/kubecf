@@ -2,6 +2,14 @@
 
 ## Considerations
 
+KubeCF uses [semver](https://semver.org/) for versioning and does it automatically by inspecting the git release branch name. 
+If the branch name is not semver compatible, a version 0.0.0 will be associated to the KubeCF package indicating an **UNOFFICIAL** package released.
+
+Examples:
+
+* git branch name **v1.0.0** will generate a **KubeCF-v1.0.0** package file :+1:
+* git branch name **non-semver** will generate a **KubeCF-v0.0.0** package file that indicates an **UNOFFICIAL** release.
+
 ## Prerequisites
 
 1. set version number (e.g. version=v1.2.0) 
