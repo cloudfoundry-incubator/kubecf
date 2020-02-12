@@ -25,6 +25,8 @@ A minor or a patch release can occur during a version life cyle and if so, a *re
 
 ![](https://i.imgur.com/b2DVvMw.png)
 
+> Read more about release proposal [here]( https://docs.google.com/document/d/1xPkFhS_0zSfyzMIHUb1q3lmILwVm0ft1ksLSMv3KWZI/edit?usp=sharing)
+
 
 ## Github Release
 
