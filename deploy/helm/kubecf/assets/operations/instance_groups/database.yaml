@@ -82,10 +82,23 @@
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/roles/name=uaa/name
   value: {{ .Values.features.external_database.databases.uaa.username | quote }}
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa?/ca_certs/0
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
 - type: remove
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa?/ca_certs
-- type: remove
+{{- end }}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/tls_enabled?
+  value: enabled
+{{- else }}
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/tls_enabled?
+  value: disabled
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/db_scheme
@@ -105,8 +118,23 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/roles/name=cloud_controller/name
   value: &external_cc_database_username {{ .Values.features.external_database.databases.cc.username | quote }}
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ca_cert?
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
 - type: remove
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ca_cert?
+{{- end}}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ssl_verify_hostname?
+  value: true
+{{- else }}
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ssl_verify_hostname?
+  value: true
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/db_scheme
@@ -126,8 +154,23 @@
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/roles/name=cloud_controller/name
   value: *external_cc_database_username
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/ca_cert?
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
 - type: remove
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/ca_cert?
+{{- end }}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/ssl_verify_hostname?
+  value: true
+{{- else }}
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/ssl_verify_hostname?
+  value: true
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/db_scheme
@@ -147,8 +190,24 @@
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/roles/name=cloud_controller/name
   value: *external_cc_database_username
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ca_cert?
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
 - type: remove
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ca_cert?
+{{- end }}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ssl_verify_hostname?
+  value: true
+{{- else }}
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ssl_verify_hostname?
+  value: true
+{{- end }}
+
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/db_scheme
@@ -168,8 +227,24 @@
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/roles/name=cloud_controller/name
   value: *external_cc_database_username
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
 - type: remove
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
+{{- end }}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ssl_verify_hostname?
+  value: true
+{{- else }}
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ssl_verify_hostname?
+  value: true
+{{- end }}
+
 
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_driver
@@ -189,10 +264,23 @@
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_username
   value: {{ .Values.features.external_database.databases.bbs.username | quote }}
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/ca_cert?
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
 - type: remove
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/ca_cert?
-- type: remove
+{{- end }}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/require_ssl?
+  value: true
+{{- else }}
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/require_ssl?
+  value: false
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/type
@@ -212,8 +300,23 @@
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/username
   value: {{ .Values.features.external_database.databases.routing_api.username | quote }}
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else}}
 - type: remove
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
+{{- end }}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/skip_ssl_validation?
+  value: false
+{{- else }}
+- type: replace
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/skip_ssl_validation?
+  value: true
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/type
@@ -233,10 +336,23 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/username
   value: {{ .Values.features.external_database.databases.policy_server.username | quote }}
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/database/ca_cert?
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
 - type: remove
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/ca_cert?
-- type: remove
+{{- end }}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/require_ssl?
+  value: true
+{{- else }}
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/database/require_ssl?
+  value: false
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/type
@@ -256,10 +372,23 @@
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/username
   value: {{ .Values.features.external_database.databases.silk_controller.username | quote }}
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/ca_cert?
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
 - type: remove
   path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/ca_cert?
-- type: remove
+{{- end }}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
   path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/require_ssl?
+  value: true
+{{- else }}
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/require_ssl?
+  value: false
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_driver
@@ -279,10 +408,23 @@
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_username
   value: {{ .Values.features.external_database.databases.locket.username | quote }}
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/ca_cert?
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
 - type: remove
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/ca_cert?
-- type: remove
+{{- end}}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/require_ssl?
+  value: true
+{{- else }}
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/require_ssl?
+  value: false
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/type
@@ -302,11 +444,23 @@
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/username
   value: {{ .Values.features.external_database.databases.credhub.username | quote }}
+{{ if .Values.features.external_database.ca_cert -}}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
 - type: remove
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
+{{- end }}
+{{ if .Values.features.external_database.require_ssl -}}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/require_tls?
+  value: true
+{{- else }}
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/require_tls?
   value: false
+{{- end }}
 
 {{- else -}}
 
