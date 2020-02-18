@@ -1,7 +1,6 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
-load("@io_bazel_rules_docker//go:image.bzl", "go_image")
-load("@io_bazel_rules_docker//container:container.bzl", "container_bundle")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@rules_gomplate//:defs.bzl", "gomplate_library")
 load("@workspace_status//:def.bzl", "workspace_status")
 
@@ -33,16 +32,16 @@ go_library(
 go_binary(
     name = "credhub_setup",
     embed = [":credhub_setup_lib"],
-    visibility = ["//visibility:private"],
-)
-
-go_image(
-    name = "image",
-    embed = [":credhub_setup_lib"],
     pure = "on",
     static = "on",
     goos = "linux",
     goarch = "amd64",
+    visibility = ["//visibility:private"],
+)
+
+container_image(
+    name = "image",
+    files = [":credhub_setup"],
     visibility = ["//visibility:public"],
 )
 
