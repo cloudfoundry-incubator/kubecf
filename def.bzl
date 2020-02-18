@@ -206,34 +206,4 @@ filegroup(
     kubernetes = struct(
         version = "1.15.6",
     ),
-    drone = struct(
-        server = struct(
-            app_name = "kubecf-drone-ci-server",
-            image = struct(
-                version = 1,
-                sha256 = "0fc552775eb2ab2a36a434f2e7ba3a8f140ee1841eda6e94165265ed3e2ee683",
-            ),
-            plugins = struct(
-                convert_starlark = struct(
-                    image = struct(
-                        sha256 = "0cb9f8386b9c7862c2bf272b77ce63afa15785592818264c35bfacf1bb0e1b92",
-                    ),
-                ),
-            ),
-        ),
-        runner = struct(
-            capacity = 1,
-            network = struct(
-                name = "kubecf-drone-ci",
-            ),
-            image = struct(
-                version = 1,
-                sha256 = "eb09cdffd60b685fc76dc15c019a74829ba1632c27cf949ce271a792e7386597",
-            ),
-            rpc = struct(
-                host = "kubecf-drone-ci-server.herokuapp.com",
-                proto = "https",
-            ),
-        ),
-    ),
 )

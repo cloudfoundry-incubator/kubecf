@@ -1,7 +1,0 @@
-package(default_visibility = ["//visibility:private"])
-
-load(":def.bzl", "start_drone_runner")
-
-start_drone_runner(
-    name = "runner",
-)
