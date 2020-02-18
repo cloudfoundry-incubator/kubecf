@@ -13,7 +13,7 @@ load("//:def.bzl", "project")
 metadata_file_generator(
     name = "metadata",
     file = "Metadata.yaml",
-    operator_chart = project.external_files["cf_operator"].urls[0]
+    operator_chart = project.external_files["cf_operator"].urls[0].format( version = project.external_files["cf_operator"].version )
 )
 
 filegroup(
