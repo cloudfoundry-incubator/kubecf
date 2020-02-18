@@ -1,3 +1,7 @@
+"""
+The definitions and implementations of the Bazel rules for dealing with Helm.
+"""
+
 def _package_impl(ctx):
     output_filename = "{}.tgz".format(ctx.attr.name)
     output_tgz = ctx.actions.declare_file(output_filename)
@@ -54,6 +58,23 @@ def package(**kwargs):
         **kwargs
     )
 
+_common_attrs = {
+    "install_name": attr.string(
+        doc = "The Helm installation name for the chart",
+        mandatory = True,
+    ),
+    "namespace": attr.string(
+        doc = "The namespace to install the Helm chart",
+        mandatory = True,
+    ),
+    "_helm": attr.label(
+        allow_single_file = True,
+        cfg = "host",
+        default = "@helm//:binary",
+        executable = True,
+    ),
+}
+
 def _template_impl(ctx):
     output_filename = "{}.yaml".format(ctx.attr.name)
     output_yaml = ctx.actions.declare_file(output_filename)
@@ -82,7 +103,7 @@ def _template_impl(ctx):
 
 template = rule(
     implementation = _template_impl,
-    attrs = {
+    attrs = dict({
         "set_values": attr.string_dict(
             default = {},
         ),
@@ -90,21 +111,9 @@ template = rule(
             default = [],
             allow_files = True,
         ),
-        "install_name": attr.string(
-            mandatory = True,
-        ),
-        "namespace": attr.string(
-            mandatory = True,
-        ),
         "chart_package": attr.label(
             mandatory = True,
             allow_single_file = True,
-        ),
-        "_helm": attr.label(
-            allow_single_file = True,
-            cfg = "host",
-            default = "@helm//:binary",
-            executable = True,
         ),
         "_script": attr.label(
             allow_single_file = True,
@@ -112,7 +121,7 @@ template = rule(
             default = "//rules/helm:template.sh",
             executable = True,
         ),
-    },
+    }, **_common_attrs),
 )
 
 def _version_impl(ctx):
@@ -155,4 +164,94 @@ version = rule(
             executable = True,
         ),
     },
+)
+
+def _upgrade_impl(ctx):
+    executable = ctx.actions.declare_file("{}.rb".format(ctx.attr.name))
+    path_split_delim = "||"
+    ctx.actions.expand_template(
+        output = executable,
+        substitutions = {
+            "[[helm]]": ctx.executable._helm.short_path,
+            "[[install_name]]": ctx.attr.install_name,
+            "[[chart_package]]": ctx.file.chart_package.short_path,
+            "[[namespace]]": ctx.attr.namespace,
+            "[[install]]": str(ctx.attr.install),
+            "[[reuse_values]]": str(ctx.attr.reuse_values),
+            "[[values_paths]]": path_split_delim.join(
+                [values.short_path for values in ctx.files.values]),
+            "[[path_split_delim]]": path_split_delim,
+            "[[set_values]]": str(ctx.attr.set_values),
+        },
+        template = ctx.file._script_tmpl,
+    )
+    runfiles = [
+        ctx.executable._helm,
+        ctx.file.chart_package,
+    ] + ctx.files.values
+    return [DefaultInfo(
+        executable = executable,
+        runfiles = ctx.runfiles(files = runfiles),
+    )]
+
+upgrade = rule(
+    implementation = _upgrade_impl,
+    attrs = dict({
+        "install": attr.bool(
+            default = False,
+            doc = "Whether the Helm upgrade should install, if not installed yet",
+        ),
+        "chart_package": attr.label(
+            allow_single_file = True,
+            doc = "The chart file to be installed",
+            mandatory = True,
+        ),
+        "values": attr.label_list(
+            allow_files = True,
+            doc = "The values files for setting the Helm properties",
+        ),
+        "set_values": attr.string_dict(
+            default = {},
+            doc = "A set of key-value pairs to be passed as --set flag to Helm",
+        ),
+        "reuse_values": attr.bool(
+            default = False,
+            doc = "Whether the Helm upgrade should reuse the values already applied",
+        ),
+        "_script_tmpl": attr.label(
+            allow_single_file = True,
+            default = "//rules/helm:upgrade.tmpl.rb",
+        ),
+    }, **_common_attrs),
+    executable = True,
+)
+
+def _delete_impl(ctx):
+    executable = ctx.actions.declare_file("{}.rb".format(ctx.attr.name))
+    ctx.actions.expand_template(
+        output = executable,
+        substitutions = {
+            "[[helm]]": ctx.executable._helm.short_path,
+            "[[install_name]]": ctx.attr.install_name,
+            "[[namespace]]": ctx.attr.namespace,
+        },
+        template = ctx.file._script_tmpl,
+    )
+    runfiles = [
+        ctx.executable._helm,
+    ]
+    return [DefaultInfo(
+        executable = executable,
+        runfiles = ctx.runfiles(files = runfiles),
+    )]
+
+delete = rule(
+    implementation = _delete_impl,
+    attrs = dict({
+        "_script_tmpl": attr.label(
+            allow_single_file = True,
+            default = "//rules/helm:delete.tmpl.rb",
+        ),
+    }, **_common_attrs),
+    executable = True,
 )

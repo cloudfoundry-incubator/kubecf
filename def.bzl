@@ -4,6 +4,7 @@ Project-wide constant definitions
 project = struct(
     deployment_name = "kubecf",
     namespace = "kubecf",
+    cf_operator_namespace = "cf-operator",
 
     # External binaries; see external_binary() invocation in WORKSPACE.
     external_binaries = {
@@ -18,16 +19,16 @@ project = struct(
         ),
         "helm": struct(
             sha256 = {
-                "darwin":  "34fc397ec4a992a451d130a962944315ca782242bbd05a8d732a2e74ca2b9153",
-                "linux":   "7eebaaa2da4734242bbcdced62cc32ba8c7164a18792c8acdf16c77abffce202",
-                "windows": "414d09b2559316c3dcb81cc448ba44cbbbf54a08a475998211d8dbe7217dd138",
+                "darwin":  "5e27bc6ecf838ed28a6a480ee14e6bec137b467a56f427dbc3cf995f9bdcf85c",
+                "linux":   "fc75d62bafec2c3addc87b715ce2512820375ab812e6647dc724123b616586d6",
+                "windows": "c52065cb70ad9d88b195638e1591db64852f4ad150448e06fca907d47a07fe4c",
             },
             url = {
                 "darwin":  "https://get.helm.sh/helm-v{version}-darwin-amd64.tar.gz",
                 "linux":   "https://get.helm.sh/helm-v{version}-linux-amd64.tar.gz",
                 "windows": "https://get.helm.sh/helm-v{version}-windows-amd64.zip",
             },
-            version = "2.16.1",
+            version = "3.0.3",
         ),
         "jq": struct(
             sha256 = {
