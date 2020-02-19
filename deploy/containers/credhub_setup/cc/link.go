@@ -11,9 +11,9 @@ import (
 	"credhub_setup/quarks"
 )
 
-// ccEndpointLinkData describes the data returned from the cloud controller BOSH
+// CEndpointLinkData describes the data returned from the cloud controller BOSH
 // link (ccEntanglementName)
-type ccEndpointLinkData struct {
+type CCEndpointLinkData struct {
 	CC struct {
 		InternalServiceHostname string `json:"internal_service_hostname"`
 		PublicTLS               struct {
@@ -23,16 +23,27 @@ type ccEndpointLinkData struct {
 	} `json:"cc"`
 }
 
-type ccInfoData struct {
+type CCInfoData struct {
 	AuthorizationEndpoint string `json:"authorization_endpoint"`
 	TokenEndpoint         string `json:"token_endpoint"`
 }
 
-func getCCLinkData(ctx context.Context) (*ccEndpointLinkData, error) {
-	var link ccEndpointLinkData
+func getCCLinkData(ctx context.Context) (*CCEndpointLinkData, error) {
+	var link CCEndpointLinkData
 	err := quarks.ResolveLink(ctx, "cloud_controller_https_endpoint", &link)
 	if err != nil {
 		return nil, fmt.Errorf("could not get link: %w", err)
+	}
+	// Do some sanity checking for empty fields; if they are empty, then we are
+	// probably reading an invalid link.
+	if link.CC.InternalServiceHostname == "" {
+		return nil, fmt.Errorf("empty internal CC host name")
+	}
+	if link.CC.PublicTLS.CACert == "" {
+		return nil, fmt.Errorf("empty internal CC CA certificate")
+	}
+	if link.CC.PublicTLS.Port == 0 {
+		return nil, fmt.Errorf("empty internal CC port")
 	}
 	return &link, nil
 }
@@ -44,9 +55,13 @@ func NewHTTPClient(ctx context.Context) (*http.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return httpclient.MakeHTTPClientWithCA(
+	client, err := httpclient.MakeHTTPClientWithCA(
 		link.CC.InternalServiceHostname,
 		[]byte(link.CC.PublicTLS.CACert))
+	if err != nil {
+		return nil, fmt.Errorf("could not create HTTP client with CA: %w", err)
+	}
+	return client, nil
 }
 
 // GetTokenURL fetches the OAuth token URL from the cloud controller
@@ -65,7 +80,7 @@ func GetTokenURL(ctx context.Context, ccClient *http.Client) (*url.URL, error) {
 		return nil, fmt.Errorf("could not get CC info: %w", err)
 	}
 
-	var ccInfo ccInfoData
+	var ccInfo CCInfoData
 	err = json.NewDecoder(infoResp.Body).Decode(&ccInfo)
 	if err != nil {
 		return nil, fmt.Errorf("could not read CC info response: %w", err)
@@ -76,6 +91,5 @@ func GetTokenURL(ctx context.Context, ccClient *http.Client) (*url.URL, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid token url: %w", err)
 	}
-	tokenURL.Path += "/oauth/token"
-	return tokenURL, nil
+	return tokenURL.ResolveReference(&url.URL{Path: "/oauth/token"}), nil
 }

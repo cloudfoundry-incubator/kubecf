@@ -32,9 +32,9 @@ type securityGroupEntity struct {
 	Rules []securityGroupRule `json:"rules"`
 }
 
-// securityGroupDefinition is a security group definition as returned from the
+// SecurityGroupDefinition is a security group definition as returned from the
 // CF API
-type securityGroupDefinition struct {
+type SecurityGroupDefinition struct {
 	Metadata struct {
 		GUID string `json:"guid"`
 	} `json:"metadata"`
@@ -54,7 +54,7 @@ type lifecycleType string
 
 const (
 	// The name of the security group to create / update
-	securityGroupName = "credhub-internal"
+	SecurityGroupName = "credhub-internal"
 
 	// The name of the BOSH link
 	ccEntanglementName = "cloud_controller_https_endpoint"
@@ -64,10 +64,10 @@ const (
 	lifecycleStaging = lifecycleType("staging")
 )
 
-// buildSecurityGroup constructs the security group entity (as required to be
+// BuildSecurityGroup constructs the security group entity (as required to be
 // uploaded to the CC API) for apps to be able to communicate with CredHub,
 // given the addresses for CredHub and the port it's listening on.
-func buildSecurityGroup(ports []PortInfo) securityGroupEntity {
+func BuildSecurityGroup(ports []PortInfo) securityGroupEntity {
 	var entries []securityGroupRule
 	for _, info := range ports {
 		for _, addr := range info.Addresses {
@@ -84,20 +84,20 @@ func buildSecurityGroup(ports []PortInfo) securityGroupEntity {
 		}
 	}
 	return securityGroupEntity{
-		Name:  securityGroupName,
+		Name:  SecurityGroupName,
 		Rules: entries,
 	}
 }
 
-// getExistingSecurityGroup returns the GUID of the existing security group, if
+// GetExistingSecurityGroup returns the GUID of the existing security group, if
 // there is one; otherwise, returns the empty string.
-func getExistingSecurityGroup(ctx context.Context, client *http.Client, baseURL *url.URL) (string, error) {
+func GetExistingSecurityGroup(ctx context.Context, client *http.Client, baseURL *url.URL) (string, error) {
 	existingURL := &url.URL{
 		Path: "/v2/security_groups",
 	}
 	existingURL = baseURL.ResolveReference(existingURL)
 	query := existingURL.Query()
-	query.Set("q", fmt.Sprintf("name:%s", securityGroupName))
+	query.Set("q", fmt.Sprintf("name:%s", SecurityGroupName))
 	existingURL.RawQuery = query.Encode()
 	fmt.Printf("Checking for existing groups via %s\n", existingURL)
 	resp, err := client.Get(existingURL.String())
@@ -106,7 +106,7 @@ func getExistingSecurityGroup(ctx context.Context, client *http.Client, baseURL 
 	}
 
 	var responseData struct {
-		Resources []securityGroupDefinition `json:"resources"`
+		Resources []SecurityGroupDefinition `json:"resources"`
 	}
 	err = json.NewDecoder(resp.Body).Decode(&responseData)
 	if err != nil {
@@ -115,7 +115,7 @@ func getExistingSecurityGroup(ctx context.Context, client *http.Client, baseURL 
 
 	fmt.Printf("Got security groups: %+v\n", responseData)
 	for _, resource := range responseData.Resources {
-		if resource.Entity.Name == securityGroupName {
+		if resource.Entity.Name == SecurityGroupName {
 			return resource.Metadata.GUID, nil
 		}
 	}
@@ -123,11 +123,11 @@ func getExistingSecurityGroup(ctx context.Context, client *http.Client, baseURL 
 	return "", nil
 }
 
-// createOrUpdateSecurityGroup creates a new security group, or updates an
+// CreateOrUpdateSecurityGroup creates a new security group, or updates an
 // existing security group if one already exists.  The security group definition
 // is read from the io.Reader.
-func createOrUpdateSecurityGroup(ctx context.Context, client *http.Client, baseURL *url.URL, contentReader io.Reader) (string, error) {
-	groupID, err := getExistingSecurityGroup(ctx, client, baseURL)
+func CreateOrUpdateSecurityGroup(ctx context.Context, client *http.Client, baseURL *url.URL, contentReader io.Reader) (string, error) {
+	groupID, err := GetExistingSecurityGroup(ctx, client, baseURL)
 	if err != nil {
 		return "", err
 	}
@@ -158,7 +158,7 @@ func createOrUpdateSecurityGroup(ctx context.Context, client *http.Client, baseU
 		return "", fmt.Errorf("got response %s", resp.Status)
 	}
 
-	var resultingSecurityGroup securityGroupDefinition
+	var resultingSecurityGroup SecurityGroupDefinition
 	err = json.NewDecoder(resp.Body).Decode(&resultingSecurityGroup)
 	if err != nil {
 		return "", fmt.Errorf("updated security group (%s) but failed to read response: %w", resp.Status, err)
@@ -195,7 +195,7 @@ func bindDefaultSecurityGroup(ctx context.Context, lifecycle lifecycleType, grou
 // phases.  It requres the addresses and port that the target (CredHub) is
 // listening on.
 func SetupCredHubApplicationSecurityGroups(ctx context.Context, client *http.Client, ports []PortInfo) error {
-	var link ccEndpointLinkData
+	var link CCEndpointLinkData
 	err := quarks.ResolveLink(ctx, ccEntanglementName, &link)
 	if err != nil {
 		return fmt.Errorf("could not get CC link: %w", err)
@@ -208,14 +208,14 @@ func SetupCredHubApplicationSecurityGroups(ctx context.Context, client *http.Cli
 		),
 	}
 
-	contents := buildSecurityGroup(ports)
+	contents := BuildSecurityGroup(ports)
 	contentBytes, err := json.Marshal(contents)
 	if err != nil {
 		return fmt.Errorf("could not build security group definition: %w", err)
 	}
 	contentReader := bytes.NewReader(contentBytes)
 
-	groupID, err := createOrUpdateSecurityGroup(ctx, client, baseURL, contentReader)
+	groupID, err := CreateOrUpdateSecurityGroup(ctx, client, baseURL, contentReader)
 	if err != nil {
 		return err
 	}

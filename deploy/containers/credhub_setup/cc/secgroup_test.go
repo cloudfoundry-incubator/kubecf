@@ -1,4 +1,4 @@
-package cc
+package cc_test
 
 import (
 	"bytes"
@@ -8,19 +8,20 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 
-	"credhub_setup/quarks/testhelpers"
+	"credhub_setup/cc"
+	cchelpers "credhub_setup/cc/testhelpers"
+	quarkshelpers "credhub_setup/quarks/testhelpers"
 )
 
 type mockCC struct {
 	*http.ServeMux
-	securityGroups []*securityGroupDefinition
+	securityGroups []*cc.SecurityGroupDefinition
 	defaultGroups  map[string]map[string]struct{}
 }
 
@@ -59,7 +60,7 @@ func (m *mockCC) handleNoID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *mockCC) handleList(w http.ResponseWriter, r *http.Request) {
-	groups := make([]*securityGroupDefinition, 0, len(m.securityGroups))
+	groups := make([]*cc.SecurityGroupDefinition, 0, len(m.securityGroups))
 	query := r.URL.Query().Get("q")
 	if query == "" {
 		copy(groups, m.securityGroups)
@@ -93,7 +94,7 @@ func (m *mockCC) handleList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *mockCC) handleCreate(w http.ResponseWriter, r *http.Request) {
-	newGroup := securityGroupDefinition{}
+	newGroup := cc.SecurityGroupDefinition{}
 	err := json.NewDecoder(r.Body).Decode(&newGroup.Entity)
 	if err != nil {
 		msg := fmt.Sprintf("could not read entity: %v", err)
@@ -180,8 +181,8 @@ func (m *mockCC) getGroupIDFromRequest(r *http.Request) string {
 	return r.URL.Path
 }
 
-func (m *mockCC) findGroup(fn func(*securityGroupDefinition) bool) (*securityGroupDefinition, error) {
-	var result *securityGroupDefinition
+func (m *mockCC) findGroup(fn func(*cc.SecurityGroupDefinition) bool) (*cc.SecurityGroupDefinition, error) {
+	var result *cc.SecurityGroupDefinition
 	for _, group := range m.securityGroups {
 		if fn(group) {
 			if result != nil {
@@ -193,8 +194,8 @@ func (m *mockCC) findGroup(fn func(*securityGroupDefinition) bool) (*securityGro
 	return result, nil
 }
 
-func (m *mockCC) findGroupByID(groupID string) (*securityGroupDefinition, error) {
-	group, err := m.findGroup(func(group *securityGroupDefinition) bool {
+func (m *mockCC) findGroupByID(groupID string) (*cc.SecurityGroupDefinition, error) {
+	group, err := m.findGroup(func(group *cc.SecurityGroupDefinition) bool {
 		return group.Metadata.GUID == groupID
 	})
 	if err != nil {
@@ -213,16 +214,16 @@ func TestGetExistingSecurityGroup(t *testing.T) {
 	baseURL, err := url.Parse(server.URL)
 	require.NoError(t, err, "could not parse server URL")
 	client := server.Client()
-	groupID, err := getExistingSecurityGroup(ctx, client, baseURL)
+	groupID, err := cc.GetExistingSecurityGroup(ctx, client, baseURL)
 	require.NoError(t, err, "could not get group ID")
 	require.Empty(t, groupID, "got unexpected group ID")
 
-	newEntity := buildSecurityGroup(
-		[]PortInfo{PortInfo{Addresses: []string{"1"}, Port: 80}})
+	newEntity := cc.BuildSecurityGroup(
+		[]cc.PortInfo{cc.PortInfo{Addresses: []string{"1"}, Port: 80}})
 	entityBytes, err := json.Marshal(newEntity)
 	require.NoError(t, err, "could not marshal sample data")
 	entityReader := bytes.NewReader(entityBytes)
-	createdID, err := createOrUpdateSecurityGroup(ctx, client, baseURL, entityReader)
+	createdID, err := cc.CreateOrUpdateSecurityGroup(ctx, client, baseURL, entityReader)
 	require.NoError(t, err, "could not create security group")
 	require.NotEmpty(t, createdID, "empty group ID returned after creation")
 
@@ -231,12 +232,12 @@ func TestGetExistingSecurityGroup(t *testing.T) {
 	require.NotNil(t, createdGroup, "could not find created group")
 	require.Equal(t, createdGroup.Entity, newEntity)
 
-	updatedEntity := buildSecurityGroup(
-		[]PortInfo{PortInfo{Addresses: []string{"hello"}, Port: 443}})
+	updatedEntity := cc.BuildSecurityGroup(
+		[]cc.PortInfo{cc.PortInfo{Addresses: []string{"hello"}, Port: 443}})
 	entityBytes, err = json.Marshal(updatedEntity)
 	require.NoError(t, err, "could not marshal sample data")
 	entityReader = bytes.NewReader(entityBytes)
-	updatedID, err := createOrUpdateSecurityGroup(ctx, client, baseURL, entityReader)
+	updatedID, err := cc.CreateOrUpdateSecurityGroup(ctx, client, baseURL, entityReader)
 	require.NoError(t, err, "could not update security group")
 	require.Equal(t, createdID, updatedID, "got different ID on update")
 
@@ -249,36 +250,29 @@ func TestGetExistingSecurityGroup(t *testing.T) {
 func TestSetupCredHubApplicationSecurityGroups(t *testing.T) {
 	t.Parallel()
 
-	mockCCInstance := newMockCC()
-	server := httptest.NewTLSServer(mockCCInstance)
-	defer server.Close()
-
-	baseURL, err := url.Parse(server.URL)
-	require.NoError(t, err, "could not parse server URL")
-
-	endpointData := ccEndpointLinkData{}
-	endpointData.CC.InternalServiceHostname = baseURL.Hostname()
-	port, err := strconv.Atoi(baseURL.Port())
-	require.NoError(t, err, "could not convert port number")
-	endpointData.CC.PublicTLS.Port = port
-
-	ctx, fakeMount, err := testhelpers.GenerateFakeMount(context.Background(), "deployment-name", t)
+	ctx, fakeMount, err := quarkshelpers.GenerateFakeMount(context.Background(), "deployment-name", t)
 	require.NoError(t, err, "could not set up temporary mount directorry")
 	defer fakeMount.CleanUp()
+
+	mockCCInstance := newMockCC()
+	server, endpointData, err := cchelpers.NewMockServer(ctx, t, mockCCInstance)
+	require.NoError(t, err, "could not create mock CC server")
+	defer server.Close()
+
 	err = fakeMount.WriteLink("cloud_controller_https_endpoint", endpointData)
 	require.NoError(t, err, "could not write fake CC mount")
 
 	client := server.Client()
 
-	err = SetupCredHubApplicationSecurityGroups(ctx, client,
-		[]PortInfo{PortInfo{Addresses: []string{"1"}, Port: 22}})
+	err = cc.SetupCredHubApplicationSecurityGroups(ctx, client,
+		[]cc.PortInfo{cc.PortInfo{Addresses: []string{"1"}, Port: 22}})
 	require.NoError(t, err, "could not set up credhub security groups")
 
-	group, err := mockCCInstance.findGroup(func(group *securityGroupDefinition) bool {
-		return group.Entity.Name == securityGroupName
+	group, err := mockCCInstance.findGroup(func(group *cc.SecurityGroupDefinition) bool {
+		return group.Entity.Name == cc.SecurityGroupName
 	})
-	require.NoError(t, err, "could not find group %s by name", securityGroupName)
-	require.NotNil(t, group, "group %s was not found", securityGroupName)
+	require.NoError(t, err, "could not find group %s by name", cc.SecurityGroupName)
+	require.NotNil(t, group, "group %s was not found", cc.SecurityGroupName)
 	require.Len(t, group.Entity.Rules, 1, "unexpected rules")
 	rule := group.Entity.Rules[0]
 	require.Equal(t, "1", rule.Destination)
@@ -291,15 +285,15 @@ func TestSetupCredHubApplicationSecurityGroups(t *testing.T) {
 	}
 
 	// Do it again and check for updates
-	err = SetupCredHubApplicationSecurityGroups(ctx, client,
-		[]PortInfo{PortInfo{Addresses: []string{"irc"}, Port: 6667}})
+	err = cc.SetupCredHubApplicationSecurityGroups(ctx, client,
+		[]cc.PortInfo{cc.PortInfo{Addresses: []string{"irc"}, Port: 6667}})
 	require.NoError(t, err, "could not set up credhub security groups")
 
-	group, err = mockCCInstance.findGroup(func(group *securityGroupDefinition) bool {
-		return group.Entity.Name == securityGroupName
+	group, err = mockCCInstance.findGroup(func(group *cc.SecurityGroupDefinition) bool {
+		return group.Entity.Name == cc.SecurityGroupName
 	})
-	require.NoError(t, err, "could not find group %s by name", securityGroupName)
-	require.NotNil(t, group, "group %s was not found", securityGroupName)
+	require.NoError(t, err, "could not find group %s by name", cc.SecurityGroupName)
+	require.NotNil(t, group, "group %s was not found", cc.SecurityGroupName)
 	require.Len(t, group.Entity.Rules, 1, "unexpected rules")
 	rule = group.Entity.Rules[0]
 	require.Equal(t, "irc", rule.Destination)

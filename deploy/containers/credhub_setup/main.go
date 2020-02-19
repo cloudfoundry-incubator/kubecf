@@ -13,6 +13,9 @@ import (
 )
 
 func process(ctx context.Context) error {
+	ctx, cancelFunc := context.WithCancel(ctx)
+	defer cancelFunc()
+
 	err := setupResolver(ctx)
 	if err != nil {
 		return fmt.Errorf("could not set up custom DNS resolver: %w", err)

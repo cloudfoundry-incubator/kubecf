@@ -1,21 +1,22 @@
 package uaa
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/json"
-	"encoding/pem"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"credhub_setup/cc"
+	cchelpers "credhub_setup/cc/testhelpers"
+	quarkshelpers "credhub_setup/quarks/testhelpers"
 )
 
 type mockAuthServer struct {
@@ -67,7 +68,7 @@ func (m *mockAuthServer) handleInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m.jsonResponse(w, ccInfoData{
+	m.jsonResponse(w, cc.CCInfoData{
 		AuthorizationEndpoint: m.server.URL,
 		TokenEndpoint:         m.server.URL,
 	})
@@ -135,46 +136,41 @@ func (m *mockAuthServer) handleUnexpectedPath(w http.ResponseWriter, r *http.Req
 
 func TestAuthenticate(t *testing.T) {
 	t.Parallel()
+
+	ctx, fakeMount, err := quarkshelpers.GenerateFakeMount(
+		context.Background(),
+		"deployment",
+		t)
+	require.NoError(t, err, "could not set up temporary mount directory")
+	defer fakeMount.CleanUp()
+
 	m := newMockAuthServer()
-	server := httptest.NewTLSServer(m)
+	server, ccLink, err := cchelpers.NewMockServer(ctx, t, m)
+	require.NoError(t, err, "could not create mock CC server")
 	defer server.Close()
 	m.server = server
 
-	serverURL, err := url.Parse(server.URL)
-	require.NoError(t, err, "error parsing server url")
-	m.url = serverURL
-
-	certBytes := bytes.Buffer{}
-	pem.Encode(&certBytes, &pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: server.Certificate().Raw,
-	})
-
-	ccLink := ccEndpointLinkData{}
-	ccLink.CC.InternalServiceHostname = serverURL.Hostname()
-	ccLink.CC.PublicTLS.CACert = certBytes.String()
-	port, err := strconv.Atoi(serverURL.Port())
-	require.NoError(t, err, "could not convert server port number")
-	ccLink.CC.PublicTLS.Port = port
-
-	fakeMount, err := generateFakeMount("deployment", t)
-	require.NoError(t, err, "could not set up temporary mount directory")
-	defer fakeMount.cleanup()
-	err = fakeMount.writeLink("cloud_controller_https_endpoint", ccLink)
+	err = fakeMount.WriteLink("cloud_controller_https_endpoint", ccLink)
 	require.NoError(t, err, "could not write CC link")
-	err = fakeMount.writeFile("run/uaa-ca-cert/ca.crt", certBytes.Bytes())
+	err = fakeMount.WriteFile("run/uaa-ca-cert/ca.crt", []byte(ccLink.CC.PublicTLS.CACert))
 	require.NoError(t, err, "could not write UAA CA cert")
 
-	ctx := context.WithValue(context.Background(), overrideMountRoot, fakeMount.workDir)
-	pingURL := serverURL.ResolveReference(&url.URL{Path: "/ping"})
+	ccClient, err := cc.NewHTTPClient(ctx)
+	require.NoError(t, err, "could not create unauthenticated CC client")
 
-	client, err := authenticate(ctx, "bad client ID", "bad client secret")
+	baseURL, err := url.Parse(server.URL)
+	require.NoError(t, err, "could not parse server URL")
+
+	tokenURL := baseURL.ResolveReference(&url.URL{Path: "/oauth/token"})
+	pingURL := baseURL.ResolveReference(&url.URL{Path: "/ping"})
+
+	client, err := Authenticate(ctx, ccClient, tokenURL, "bad client ID", "bad client secret")
 	require.NoError(t, err, "bad credentials should not fail auth client")
 	require.NotNil(t, client, "got no client")
 	_, err = client.Get(pingURL.String())
 	assert.Error(t, err, "ping should fail with bad credentials")
 
-	client, err = authenticate(ctx, m.clientID, m.clientSecret)
+	client, err = Authenticate(ctx, ccClient, tokenURL, m.clientID, m.clientSecret)
 	require.NoError(t, err, "could not auth")
 	require.NotNil(t, client, "got no client")
 
