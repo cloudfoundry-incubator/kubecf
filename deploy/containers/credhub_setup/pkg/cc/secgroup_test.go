@@ -14,9 +14,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"credhub_setup/cc"
-	cchelpers "credhub_setup/cc/testhelpers"
-	quarkshelpers "credhub_setup/quarks/testhelpers"
+	"credhub_setup/pkg/cc"
+	cchelpers "credhub_setup/pkg/cc/testhelpers"
+	quarkshelpers "credhub_setup/pkg/quarks/testhelpers"
 )
 
 type mockCC struct {

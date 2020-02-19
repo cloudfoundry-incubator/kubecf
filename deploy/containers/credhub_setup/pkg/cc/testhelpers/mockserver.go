@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"testing"
 
-	quarkshelpers "credhub_setup/quarks/testhelpers"
+	quarkshelpers "credhub_setup/pkg/quarks/testhelpers"
 )
 
 // NewMockServer creates a new mock cloud controller server  that has no

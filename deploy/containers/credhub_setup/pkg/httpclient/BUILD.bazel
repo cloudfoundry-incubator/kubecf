@@ -3,10 +3,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "go_default_library",
     srcs = ["client.go"],
-    importpath = "credhub_setup/httpclient",
+    importpath = "credhub_setup/pkg/httpclient",
     visibility = ["//visibility:public"],
     deps = [
-        "//quarks:go_default_library",
+        "//pkg/quarks:go_default_library",
     ],
 )
 
@@ -14,5 +14,8 @@ go_test(
     name = "go_default_test",
     srcs = ["client_test.go"],
     embed = [":go_default_library"],
-    deps = ["@com_github_stretchr_testify//require:go_default_library"],
+    deps = [
+        "//pkg/quarks:go_default_library",
+        "@com_github_stretchr_testify//require:go_default_library",
+    ],
 )

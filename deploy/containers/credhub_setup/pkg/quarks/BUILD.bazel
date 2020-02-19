@@ -9,7 +9,7 @@ go_library(
         "mount.go",
         "resolver.go",
     ],
-    importpath = "credhub_setup/quarks",
+    importpath = "credhub_setup/pkg/quarks",
     visibility = ["//visibility:public"],
 )
 
@@ -22,6 +22,7 @@ go_test(
     ],
     embed = [":go_default_library"],
     deps = [
+        "//pkg/quarks/testhelpers:go_default_library",
         "@com_github_stretchr_testify//assert:go_default_library",
         "@com_github_stretchr_testify//require:go_default_library",
     ],

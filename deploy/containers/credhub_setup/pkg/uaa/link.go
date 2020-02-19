@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"credhub_setup/quarks"
+	"credhub_setup/pkg/quarks"
 )
 
 // GetUAAAddrs retrieves the UAA IP addresses and port required for credhub

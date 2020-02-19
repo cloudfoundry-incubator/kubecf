@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "doc.go",
+        "link.go",
+    ],
+    importpath = "credhub_setup/pkg/credhub",
+    visibility = ["//visibility:public"],
+    deps = ["//pkg/quarks:go_default_library"],
+)

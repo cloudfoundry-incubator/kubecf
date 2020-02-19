@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"credhub_setup/quarks"
+	"credhub_setup/pkg/quarks"
 )
 
 func TestGetMountRootFromContext(t *testing.T) {

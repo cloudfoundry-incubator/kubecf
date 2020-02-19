@@ -1,4 +1,4 @@
-package main
+package credhub
 
 // credhub_info.go contains functions to determine the credhub information
 // (addresses and port) required for our security groups.
@@ -9,16 +9,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"credhub_setup/quarks"
+	"credhub_setup/pkg/quarks"
 )
-
-// credhubLinkData is the quarks entanglement data structure for the credhub link
-type credhubLinkData struct {
-	CredHub struct {
-		InternalURL string `json:"internal_url"`
-		Port        int    `json:"port"`
-	} `json:"credhub"`
-}
 
 // resolveCredHubAddrsGivenLink returns the IP addresses of the credhub service.
 func resolveCredHubAddrsGivenLink(ctx context.Context, link *quarks.Link) ([]string, error) {
@@ -43,8 +35,8 @@ func resolveCredHubAddrsGivenLink(ctx context.Context, link *quarks.Link) ([]str
 	return addrs, nil
 }
 
-// resolveCredHubInfo returns the IP addresses of the CredHub service and the port.
-func resolveCredHubInfo(ctx context.Context) ([]string, int, error) {
+// ResolveCredHubInfo returns the IP addresses of the CredHub service and the port.
+func ResolveCredHubInfo(ctx context.Context) ([]string, int, error) {
 	link, err := quarks.ResolveLink(ctx, "credhub", "credhub")
 	if err != nil {
 		return nil, 0, err

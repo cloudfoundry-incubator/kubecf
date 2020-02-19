@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"credhub_setup/quarks"
+	"credhub_setup/pkg/quarks"
 )
 
 // MakeHTTPClientWithCA returns a new *http.Client that only accepts the given

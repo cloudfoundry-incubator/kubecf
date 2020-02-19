@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"credhub_setup/httpclient"
-	"credhub_setup/quarks"
+	"credhub_setup/pkg/httpclient"
+	"credhub_setup/pkg/quarks"
 )
 
 const (

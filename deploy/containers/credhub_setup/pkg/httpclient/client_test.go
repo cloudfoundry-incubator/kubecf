@@ -18,7 +18,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"credhub_setup/quarks"
+	"credhub_setup/pkg/quarks"
 )
 
 func TestMakeHTTPClientWithCA(t *testing.T) {

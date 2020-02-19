@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"credhub_setup/quarks"
-	"credhub_setup/quarks/testhelpers"
+	"credhub_setup/pkg/quarks"
+	"credhub_setup/pkg/quarks/testhelpers"
 )
 
 func TestResolveLink(t *testing.T) {

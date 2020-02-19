@@ -11,7 +11,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"credhub_setup/quarks"
+	"credhub_setup/pkg/quarks"
 )
 
 // FakeMountType is the a structure for maintaining information about a fake

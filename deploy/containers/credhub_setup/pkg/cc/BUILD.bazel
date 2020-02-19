@@ -3,26 +3,28 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "go_default_library",
     srcs = [
-        "auth.go",
         "doc.go",
         "link.go",
+        "secgroup.go",
     ],
-    importpath = "credhub_setup/uaa",
+    importpath = "credhub_setup/pkg/cc",
     visibility = ["//visibility:public"],
     deps = [
-        "//httpclient:go_default_library",
-        "//quarks:go_default_library",
-        "@org_golang_x_oauth2//:go_default_library",
-        "@org_golang_x_oauth2//clientcredentials:go_default_library",
+        "//pkg/httpclient:go_default_library",
+        "//pkg/quarks:go_default_library",
     ],
 )
 
 go_test(
     name = "go_default_test",
-    srcs = ["auth_test.go"],
+    srcs = [
+        "link_test.go",
+        "secgroup_test.go",
+    ],
     embed = [":go_default_library"],
     deps = [
-        "@com_github_stretchr_testify//assert:go_default_library",
+        "//pkg/cc/testhelpers:go_default_library",
+        "//pkg/quarks/testhelpers:go_default_library",
         "@com_github_stretchr_testify//require:go_default_library",
     ],
 )

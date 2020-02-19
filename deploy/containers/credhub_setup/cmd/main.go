@@ -9,19 +9,16 @@ import (
 	"net/url"
 	"os"
 
-	"credhub_setup/cc"
-	"credhub_setup/uaa"
+	"credhub_setup/pkg/cc"
+	"credhub_setup/pkg/credhub"
+	"credhub_setup/pkg/uaa"
 )
 
 func process(ctx context.Context) error {
 	ctx, cancelFunc := context.WithCancel(ctx)
 	defer cancelFunc()
 
-	err := setupResolver(ctx)
-	if err != nil {
-		return fmt.Errorf("could not set up custom DNS resolver: %w", err)
-	}
-	credhubAddrs, credhubPort, err := resolveCredHubInfo(ctx)
+	credhubAddrs, credhubPort, err := credhub.ResolveCredHubInfo(ctx)
 	if err != nil {
 		return err
 	}

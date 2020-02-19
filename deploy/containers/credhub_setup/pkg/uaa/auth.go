@@ -11,8 +11,8 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 
-	"credhub_setup/httpclient"
-	"credhub_setup/quarks"
+	"credhub_setup/pkg/httpclient"
+	"credhub_setup/pkg/quarks"
 )
 
 // Authenticate with UAA, returning a suitable HTTP client.

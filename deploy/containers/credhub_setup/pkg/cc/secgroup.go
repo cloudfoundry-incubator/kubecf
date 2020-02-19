@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"credhub_setup/quarks"
+	"credhub_setup/pkg/quarks"
 )
 
 // securityGroupRule is a single rule in a security group definition
