@@ -1,7 +1,0 @@
-package(default_visibility = ["//visibility:private"])
-
-load(":def.bzl", "deploy_drone_server")
-
-deploy_drone_server(
-    name = "server",
-)
