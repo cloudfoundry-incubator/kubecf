@@ -2,30 +2,7 @@
 - type: remove
   path: /instance_groups/name=database
 
-# Remove database links.
-- type: replace
-  path: /instance_groups/name=uaa/jobs/name=uaa/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=silk-controller/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=api/jobs/name=policy-server/consumes?
-  value: {database: nil}
-
-{{- if .Values.features.external_database.enabled -}}
+{{ if .Values.features.external_database.enabled -}}
 # Remove the database variables.
 - type: remove
   path: /variables/name=cf_mysql_mysql_admin_password
