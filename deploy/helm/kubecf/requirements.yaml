@@ -1,5 +1,5 @@
 dependencies:
   - name: percona-xtradb-cluster
-    version: ">= 1.0.3"
+    version: "= 1.0.3"
     condition: features.embedded_database.enabled
     repository: "@stable"
