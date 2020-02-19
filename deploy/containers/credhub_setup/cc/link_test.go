@@ -49,9 +49,8 @@ func TestGetTokenURL(t *testing.T) {
 	expectedTokenURL := baseURL.ResolveReference(&url.URL{Path: "/oauth/token"})
 	require.NoError(t, err, "could not parse base URL")
 	mux.HandleFunc("/v2/info", func(w http.ResponseWriter, req *http.Request) {
-		_ = json.NewEncoder(w).Encode(cc.CCInfoData{
-			AuthorizationEndpoint: "",
-			TokenEndpoint:         baseURL.String(),
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"token_endpoint": baseURL.String(),
 		})
 	})
 

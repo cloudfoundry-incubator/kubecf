@@ -23,7 +23,7 @@ type ccEndpointLinkData struct {
 	} `json:"cc"`
 }
 
-type CCInfoData struct {
+type ccInfoData struct {
 	AuthorizationEndpoint string `json:"authorization_endpoint"`
 	TokenEndpoint         string `json:"token_endpoint"`
 }
@@ -81,7 +81,7 @@ func GetTokenURL(ctx context.Context, ccClient *http.Client) (*url.URL, error) {
 		return nil, fmt.Errorf("could not get CC info: %w", err)
 	}
 
-	var ccInfo CCInfoData
+	var ccInfo ccInfoData
 	err = json.NewDecoder(infoResp.Body).Decode(&ccInfo)
 	if err != nil {
 		return nil, fmt.Errorf("could not read CC info response: %w", err)

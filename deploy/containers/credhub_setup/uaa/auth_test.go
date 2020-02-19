@@ -69,9 +69,9 @@ func (m *mockAuthServer) handleInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m.jsonResponse(w, cc.CCInfoData{
-		AuthorizationEndpoint: m.server.URL,
-		TokenEndpoint:         m.server.URL,
+	m.jsonResponse(w, map[string]interface{}{
+		"authorization_endpoint": m.server.URL,
+		"token_endpoint":         m.server.URL,
 	})
 }
 
