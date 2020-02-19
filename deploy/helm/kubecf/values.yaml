@@ -308,7 +308,7 @@ dependencies:
     enabled: true
     repository: file://percona-xtradb-cluster
 
-# Configuration for the embedded database solution using the pxc subchart
+# Configuration for the embedded database solution using the PXC sub-chart.
 percona-xtradb-cluster:
   replicas: 1
 
@@ -330,4 +330,3 @@ percona-xtradb-cluster:
       ssl-ca=/ssl/ca.pem
       ssl-cert=/ssl/server-cert.pem
       ssl-key=/ssl/server-key.pem
-
