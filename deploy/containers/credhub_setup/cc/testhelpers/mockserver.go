@@ -14,6 +14,8 @@ import (
 	"credhub_setup/cc"
 )
 
+// NewMockServer creates a new mock cloud controller server  that has no
+// handlers installed, but does have the appropriate BOSH link structure.
 func NewMockServer(ctx context.Context, t *testing.T, handler http.Handler) (*httptest.Server, *cc.CCEndpointLinkData, error) {
 	server := httptest.NewTLSServer(handler)
 

@@ -53,7 +53,7 @@ type PortInfo struct {
 type lifecycleType string
 
 const (
-	// The name of the security group to create / update
+	// SecurityGroupName is the name of the security group to create / update
 	SecurityGroupName = "credhub-internal"
 
 	// The name of the BOSH link

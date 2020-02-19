@@ -22,7 +22,6 @@ import (
 type mockAuthServer struct {
 	*http.ServeMux
 	server       *httptest.Server
-	url          *url.URL
 	clientID     string
 	clientSecret string
 	accessToken  string
