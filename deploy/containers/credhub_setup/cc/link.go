@@ -11,9 +11,9 @@ import (
 	"credhub_setup/quarks"
 )
 
-// CEndpointLinkData describes the data returned from the cloud controller BOSH
+// ccEndpointLinkData describes the data returned from the cloud controller BOSH
 // link (ccEntanglementName)
-type CCEndpointLinkData struct {
+type ccEndpointLinkData struct {
 	CC struct {
 		InternalServiceHostname string `json:"internal_service_hostname"`
 		PublicTLS               struct {
@@ -28,8 +28,8 @@ type CCInfoData struct {
 	TokenEndpoint         string `json:"token_endpoint"`
 }
 
-func getCCLinkData(ctx context.Context) (*CCEndpointLinkData, error) {
-	var link CCEndpointLinkData
+func getCCLinkData(ctx context.Context) (*ccEndpointLinkData, error) {
+	var link ccEndpointLinkData
 	err := quarks.ResolveLink(ctx, "cloud_controller_https_endpoint", &link)
 	if err != nil {
 		return nil, fmt.Errorf("could not get link: %w", err)

@@ -24,12 +24,9 @@ func TestNewHTTPClient(t *testing.T) {
 	require.NoError(t, err, "could not generate fake mount")
 	defer fakeMount.CleanUp()
 
-	server, link, err := cchelpers.NewMockServer(ctx, t, nil)
+	server, err := cchelpers.NewMockServer(ctx, t, fakeMount, nil)
 	require.NoError(t, err, "could not create mock server with endpoint data")
 	defer server.Close()
-
-	err = fakeMount.WriteLink("cloud_controller_https_endpoint", link)
-	require.NoError(t, err, "could not write BOSH link information")
 
 	client, err := cc.NewHTTPClient(ctx)
 	require.NoError(t, err, "could not create new HTTP client")
@@ -44,12 +41,9 @@ func TestGetTokenURL(t *testing.T) {
 	defer fakeMount.CleanUp()
 
 	mux := http.NewServeMux()
-	server, linkData, err := cchelpers.NewMockServer(ctx, t, mux)
+	server, err := cchelpers.NewMockServer(ctx, t, fakeMount, mux)
 	require.NoError(t, err, "could not set up mock CC server")
 	defer server.Close()
-
-	err = fakeMount.WriteLink("cloud_controller_https_endpoint", linkData)
-	require.NoError(t, err, "could not write CC BOSH link data")
 
 	baseURL, err := url.Parse(server.URL)
 	expectedTokenURL := baseURL.ResolveReference(&url.URL{Path: "/oauth/token"})

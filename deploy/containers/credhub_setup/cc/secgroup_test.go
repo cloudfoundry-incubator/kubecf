@@ -255,12 +255,9 @@ func TestSetupCredHubApplicationSecurityGroups(t *testing.T) {
 	defer fakeMount.CleanUp()
 
 	mockCCInstance := newMockCC()
-	server, endpointData, err := cchelpers.NewMockServer(ctx, t, mockCCInstance)
+	server, err := cchelpers.NewMockServer(ctx, t, fakeMount, mockCCInstance)
 	require.NoError(t, err, "could not create mock CC server")
 	defer server.Close()
-
-	err = fakeMount.WriteLink("cloud_controller_https_endpoint", endpointData)
-	require.NoError(t, err, "could not write fake CC mount")
 
 	client := server.Client()
 

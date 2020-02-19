@@ -11,33 +11,45 @@ import (
 	"strconv"
 	"testing"
 
-	"credhub_setup/cc"
+	quarkshelpers "credhub_setup/quarks/testhelpers"
 )
 
 // NewMockServer creates a new mock cloud controller server  that has no
 // handlers installed, but does have the appropriate BOSH link structure.
-func NewMockServer(ctx context.Context, t *testing.T, handler http.Handler) (*httptest.Server, *cc.CCEndpointLinkData, error) {
+func NewMockServer(ctx context.Context, t *testing.T, fakeMount *quarkshelpers.FakeMountType, handler http.Handler) (*httptest.Server, error) {
 	server := httptest.NewTLSServer(handler)
 
 	baseURL, err := url.Parse(server.URL)
 	if err != nil {
-		return nil, nil, fmt.Errorf("could not parse server URL: %w", err)
+		return nil, fmt.Errorf("could not parse server URL: %w", err)
 	}
 
-	endpointData := cc.CCEndpointLinkData{}
-	endpointData.CC.InternalServiceHostname = baseURL.Hostname()
 	port, err := strconv.Atoi(baseURL.Port())
 	if err != nil {
-		return nil, nil, fmt.Errorf("could not convert port number: %w", err)
+		return nil, fmt.Errorf("could not convert port number: %w", err)
 	}
-	endpointData.CC.PublicTLS.Port = port
 
 	certBytes := bytes.Buffer{}
 	pem.Encode(&certBytes, &pem.Block{
 		Type:  "CERTIFICATE",
 		Bytes: server.Certificate().Raw,
 	})
-	endpointData.CC.PublicTLS.CACert = certBytes.String()
 
-	return server, &endpointData, nil
+	err = fakeMount.WriteLink(
+		"cloud_controller_https_endpoint",
+		map[string]interface{}{
+			"cc": map[string]interface{}{
+				"internal_service_hostname": baseURL.Hostname(),
+				"public_tls": map[string]interface{}{
+					"ca_cert": certBytes.String(),
+					"port":    port,
+				},
+			},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return server, nil
 }

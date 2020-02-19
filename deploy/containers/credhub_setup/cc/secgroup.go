@@ -195,7 +195,7 @@ func bindDefaultSecurityGroup(ctx context.Context, lifecycle lifecycleType, grou
 // phases.  It requres the addresses and port that the target (CredHub) is
 // listening on.
 func SetupCredHubApplicationSecurityGroups(ctx context.Context, client *http.Client, ports []PortInfo) error {
-	var link CCEndpointLinkData
+	var link ccEndpointLinkData
 	err := quarks.ResolveLink(ctx, ccEntanglementName, &link)
 	if err != nil {
 		return fmt.Errorf("could not get CC link: %w", err)

@@ -1,9 +1,11 @@
 package uaa
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -144,14 +146,18 @@ func TestAuthenticate(t *testing.T) {
 	defer fakeMount.CleanUp()
 
 	m := newMockAuthServer()
-	server, ccLink, err := cchelpers.NewMockServer(ctx, t, m)
+	server, err := cchelpers.NewMockServer(ctx, t, fakeMount, m)
 	require.NoError(t, err, "could not create mock CC server")
 	defer server.Close()
 	m.server = server
 
-	err = fakeMount.WriteLink("cloud_controller_https_endpoint", ccLink)
-	require.NoError(t, err, "could not write CC link")
-	err = fakeMount.WriteFile("run/uaa-ca-cert/ca.crt", []byte(ccLink.CC.PublicTLS.CACert))
+	certBytes := bytes.Buffer{}
+	pem.Encode(&certBytes, &pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: server.Certificate().Raw,
+	})
+
+	err = fakeMount.WriteFile("run/uaa-ca-cert/ca.crt", certBytes.Bytes())
 	require.NoError(t, err, "could not write UAA CA cert")
 
 	ccClient, err := cc.NewHTTPClient(ctx)
