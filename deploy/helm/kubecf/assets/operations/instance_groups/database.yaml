@@ -280,7 +280,7 @@
 # Override the address and CA cert with the one from the PXC sub-chart.
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_host?
-  value: &pxc-cluster-address {{ .Release.Name }}-pxc.{{ .Release.Namespace }}.svc.cluster.local
+  value: &pxc-cluster-address {{ .Release.Name }}-pxc.{{ .Release.Namespace }}
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/ca_cert?
   value: &pxc-cluster-ca ((pxc-certs/ca.pem))
