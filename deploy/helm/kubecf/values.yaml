@@ -230,14 +230,13 @@ features:
   autoscaler:
     enabled: false
 
+  # embedded_database enables the embedded PXC sub-chart. Disabling it allows using an external, already seeded,
+  # database.
   embedded_database:
     enabled: true
 
-  # external_database disables the embedded database and allows using an external, already seeded,
-  # database.
-  # The database type can be either 'mysql' or 'postgres'.
+  # The external database type can be either 'mysql' or 'postgres'.
   external_database:
-    enabled: false
     type: ~
     host: ~
     port: ~

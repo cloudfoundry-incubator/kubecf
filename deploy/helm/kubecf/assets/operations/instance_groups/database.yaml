@@ -2,7 +2,87 @@
 - type: remove
   path: /instance_groups/name=database
 
-{{ if .Values.features.external_database.enabled -}}
+{{ if .Values.features.embedded_database.enabled -}}
+# Override the address and CA cert with the one from the PXC sub-chart.
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_host?
+  value: &pxc-cluster-address {{ .Release.Name }}-pxc.{{ .Release.Namespace }}
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/ca_cert?
+  value: &pxc-cluster-ca ((pxc-certs/ca.pem))
+
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa?/ca_certs
+  value:
+  - *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
+  value: *pxc-cluster-ca
+
+
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/host?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/host?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/database/host
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/database/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/host
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/ca_cert?
+  value: *pxc-cluster-ca
+{{ else -}}
 # Remove the database variables.
 - type: remove
   path: /variables/name=cf_mysql_mysql_admin_password
@@ -275,86 +355,4 @@
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/require_tls?
   value: false
-
-{{- else -}}
-# Override the address and CA cert with the one from the PXC sub-chart.
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_host?
-  value: &pxc-cluster-address {{ .Release.Name }}-pxc.{{ .Release.Namespace }}
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/ca_cert?
-  value: &pxc-cluster-ca ((pxc-certs/ca.pem))
-
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host?
-  value: *pxc-cluster-address
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/ca_cert?
-  value: *pxc-cluster-ca
-
-- type: replace
-  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/address?
-  value: *pxc-cluster-address
-- type: replace
-  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa?/ca_certs
-  value:
-  - *pxc-cluster-ca
-
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/address?
-  value: *pxc-cluster-address
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ca_cert?
-  value: *pxc-cluster-ca
-
-- type: replace
-  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/address?
-  value: *pxc-cluster-address
-- type: replace
-  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/ca_cert?
-  value: *pxc-cluster-ca
-
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/address?
-  value: *pxc-cluster-address
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ca_cert?
-  value: *pxc-cluster-ca
-
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
-  value: *pxc-cluster-address
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
-  value: *pxc-cluster-ca
-
-
-- type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/host?
-  value: *pxc-cluster-address
-- type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
-  value: *pxc-cluster-ca
-
-- type: replace
-  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/host?
-  value: *pxc-cluster-address
-- type: replace
-  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
-  value: *pxc-cluster-ca
-
-- type: replace
-  path: /instance_groups/name=api/jobs/name=policy-server/properties/database/host
-  value: *pxc-cluster-address
-- type: replace
-  path: /instance_groups/name=api/jobs/name=policy-server/properties/database/ca_cert?
-  value: *pxc-cluster-ca
-
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/host
-  value: *pxc-cluster-address
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/ca_cert?
-  value: *pxc-cluster-ca
-
 {{- end }}
