@@ -380,9 +380,4 @@
   path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/ca_cert?
   value: *pxc-cluster-ca
 
-{{- $root := . -}}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/database_*" }}
-{{ $root.Files.Get $path }}
-{{- end }}
-
 {{- end }}
