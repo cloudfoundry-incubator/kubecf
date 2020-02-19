@@ -27,7 +27,11 @@ func resolveCredHubAddrsGivenLink(ctx context.Context, link credhubLinkData) ([]
 			link.CredHub.InternalURL, err)
 	}
 
-	addrs, err := quarks.ResolveHostToAddrs(ctx, credhubURL.Hostname())
+	resolver, err := quarks.NewResolver(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("could not create DNS resolver: %w", err)
+	}
+	addrs, err := resolver.LookupHost(ctx, credhubURL.Hostname())
 	if err != nil {
 		return nil, fmt.Errorf("could not resolve credhub hostname: %w", err)
 	}
