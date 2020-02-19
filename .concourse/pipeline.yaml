@@ -14,6 +14,14 @@ resources:
   source:
     branch: master
     uri: https://github.com/SUSE/kubecf
+- name: kubecf-pr
+  type: pull-request
+  check_every: 10m
+  source:
+    repository: SUSE/kubecf
+    access_token: ((github-access-token))
+    labels: ["Trigger: CI"]
+    disable_forks: false
 - name: catapult
   type: git
   source:
@@ -55,14 +63,354 @@ test_args: &test_args
   make recover tests-kubecf
 
 jobs:
+- name: deploy-diego-pr
+  public: true
+  serial: true
+  serial_groups: [tests-diego-pr]
+  plan:
+  - get: kubecf-pr
+    trigger: true
+  - get: catapult
+  - put: kubecf-pr
+    params:
+      path: kubecf-pr
+      status: pending
+      context: deploy-diego-pr
+  - task: deploy-diego-pr
+    privileged: true
+    timeout: 2h30m
+    input_mapping:
+      kubecf: kubecf-pr
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: kubecf
+      - name: catapult
+      outputs:
+      - name: output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        QUIET_OUTPUT: true
+        ENABLE_EIRINI: false
+        CLUSTER_NAME: kubecf-diego-pr
+      run:
+        path: "/bin/bash"
+        args: *deploy_args
+    on_success:
+      put: kubecf-pr
+      params: &success-pr
+        path: kubecf-pr
+        status: success
+        context: deploy-diego-pr
+    on_failure:
+      put: kubecf-pr
+      params: &failure-pr
+        path: kubecf-pr
+        status: failure
+        context: deploy-diego-pr
+- name: smoke-tests-diego-pr
+  public: true
+  serial: true
+  serial_groups: [tests-diego-pr]
+  plan:
+  - get: kubecf-pr
+    passed:
+    - deploy-diego-pr
+    trigger: true
+  - get: catapult
+  - put: kubecf-pr
+    params:
+      path: kubecf-pr
+      status: pending
+      context: smoke-tests-diego-pr
+  - task: test-diego
+    privileged: true
+    timeout: 1h30m
+    input_mapping:
+      kubecf: kubecf-pr
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kubecf
+      outputs:
+      - name: output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: smokes
+        CLUSTER_NAME: kubecf-diego-pr
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: kubecf-pr
+      params:
+        <<: *success-pr
+        context: smoke-tests-diego-pr
+    on_failure:
+      put: kubecf-pr
+      params:
+        <<: *failure-pr
+        context: smoke-tests-diego-pr
+- name: cf-acceptance-tests-diego-pr
+  public: true
+  serial: true
+  serial_groups: [tests-diego-pr]
+  plan:
+  - get: kubecf-pr
+    passed:
+    - smoke-tests-diego-pr
+    trigger: true
+  - get: catapult
+  - put: kubecf-pr
+    params:
+      path: kubecf-pr
+      status: pending
+      context: cf-acceptance-tests-diego-pr
+  - task: test-diego
+    privileged: true
+    input_mapping:
+      kubecf: kubecf-pr
+    timeout: 5h30m
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kubecf
+      outputs:
+      - name: output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: cats
+        CLUSTER_NAME: kubecf-diego-pr
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: kubecf-pr
+      params:
+        <<: *success-pr
+        context: cf-acceptance-tests-diego-pr
+    on_failure:
+      put: kubecf-pr
+      params:
+        <<: *failure-pr
+        context: cf-acceptance-tests-diego-pr
+# Eirini
+- name: deploy-eirini-pr
+  public: true
+  serial: true
+  serial_groups: [tests-eirini-pr]
+  plan:
+  - get: kubecf-pr
+    trigger: true
+  - get: catapult
+  - put: kubecf-pr
+    params:
+      path: kubecf-pr
+      status: pending
+      context: deploy-eirini-pr
+  - task: deploy
+    timeout: 2h30m
+    privileged: true
+    input_mapping:
+      kubecf: kubecf-pr
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: kubecf
+      - name: catapult
+      outputs:
+      - name: output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        ENABLE_EIRINI: true
+        CLUSTER_NAME: kubecf-eirini-pr
+      run:
+        path: "/bin/bash"
+        args: *deploy_args
+    on_success:
+      put: kubecf-pr
+      params:
+        <<: *success-pr
+        context: deploy-eirini-pr
+    on_failure:
+      put: kubecf-pr
+      params:
+        <<: *failure-pr
+        context: deploy-eirini-pr
+- name: smoke-tests-eirini-pr
+  public: true
+  serial: true
+  serial_groups: [tests-eirini-pr]
+  plan:
+  - get: kubecf-pr
+    passed:
+    - deploy-eirini-pr
+    trigger: true
+  - get: catapult
+  - put: kubecf-pr
+    params:
+      path: kubecf-pr
+      status: pending
+      context: smoke-tests-eirini-pr
+  - task: test
+    privileged: true
+    input_mapping:
+      kubecf: kubecf-pr
+    timeout: 1h30m
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kubecf
+      outputs:
+      - name: mail-output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: smokes
+        CLUSTER_NAME: kubecf-eirini-pr
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: kubecf-pr
+      params:
+        <<: *success-pr
+        context: smoke-tests-eirini-pr
+    on_failure:
+      put: kubecf-pr
+      params:
+        <<: *failure-pr
+        context: smoke-tests-eirini-pr
+- name: cf-acceptance-tests-eirini-pr
+  public: true
+  serial: true
+  serial_groups: [tests-eirini-pr]
+  plan:
+  - get: kubecf-pr
+    passed:
+    - smoke-tests-eirini-pr
+    trigger: true
+  - get: catapult
+  - put: kubecf-pr
+    params:
+      path: kubecf-pr
+      status: pending
+      context: cf-acceptance-tests-eirini-pr
+  - task: test
+    timeout: 5h30m
+    privileged: true
+    input_mapping:
+      kubecf: kubecf-pr
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kubecf-pr
+      outputs:
+      - name: mail-output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: cats
+        CLUSTER_NAME: kubecf-eirini-pr
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: kubecf-pr
+      params:
+        <<: *success-pr
+        context: cf-acceptance-tests-eirini-pr
+    on_failure:
+      put: kubecf-pr
+      params:
+        <<: *failure-pr
+        context: cf-acceptance-tests-eirini-pr
 
 # Diego
+- name: lint-master
+  public: true
+  serial: true
+  serial_groups: [lint-master]
+  plan:
+  - get: kubecf-master
+    trigger: true
+  - put: status.src
+    params: &lint-master
+      context: lint-master
+      description: "Linting"
+      path: kubecf-master/.git/short_ref
+      state: pending
+  - task: lint-master
+    input_mapping:
+      kubecf: kubecf-master
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: thulioassis/bazel-docker-image
+          tag: 2.0.0
+      inputs:
+      - name: kubecf
+      run:
+        path: "/bin/bash"
+        args:
+          - -xce
+          - |
+            cd kubecf
+            ./dev/linters/shellcheck.sh
+            ./dev/linters/yamllint.sh
+            ./dev/linters/helmlint.sh
+    on_success:
+      put: status.src
+      params:
+        <<: *lint-master
+        state: success
+    on_failure:
+      put: status.src
+      params:
+        <<: *lint-master
+        state: failure
 - name: deploy-diego-master
   public: true
   serial: true
-  serial_groups: [tests-diego]
+  serial_groups: [tests-diego-master]
   plan:
   - get: kubecf-master
+    passed:
+    - lint-master
     trigger: true
   - get: catapult
   - put: status.src
@@ -73,7 +421,7 @@ jobs:
       state: pending
   - task: deploy-diego-master
     privileged: true
-    timeout: 1h30m
+    timeout: 2h30m
     input_mapping:
       kubecf: kubecf-master
     config:
@@ -83,7 +431,7 @@ jobs:
         source:
           repository: splatform/catapult
       inputs:
-      - name: kubecf-master
+      - name: kubecf
       - name: catapult
       outputs:
       - name: output
@@ -109,7 +457,7 @@ jobs:
 - name: smoke-tests-diego-master
   public: true
   serial: true
-  serial_groups: [tests-diego]
+  serial_groups: [tests-diego-master]
   plan:
   - get: kubecf-master
     passed:
@@ -125,6 +473,8 @@ jobs:
   - task: test-diego
     privileged: true
     timeout: 1h30m
+    input_mapping:
+      kubecf: kubecf-master
     config:
       platform: linux
       image_resource:
@@ -157,7 +507,7 @@ jobs:
 - name: cf-acceptance-tests-diego-master
   public: true
   serial: true
-  serial_groups: [tests-diego]
+  serial_groups: [tests-diego-master]
   plan:
   - get: kubecf-master
     passed:
@@ -173,6 +523,8 @@ jobs:
   - task: test-diego
     privileged: true
     timeout: 5h30m
+    input_mapping:
+      kubecf: kubecf-master
     config:
       platform: linux
       image_resource:
@@ -181,7 +533,7 @@ jobs:
           repository: splatform/catapult
       inputs:
       - name: catapult
-      - name: kubecf-master
+      - name: kubecf
       outputs:
       - name: output
       params:
@@ -206,10 +558,12 @@ jobs:
 - name: deploy-eirini-master
   public: true
   serial: true
-  serial_groups: [tests-eirini]
+  serial_groups: [tests-eirini-master]
   plan:
   - get: kubecf-master
     trigger: true
+    passed:
+    - lint-master
   - get: catapult
   - put: status.src
     params: &eirini_deploy
@@ -218,7 +572,7 @@ jobs:
       path: kubecf-master/.git/short_ref
       state: pending
   - task: deploy
-    timeout: 1h30m
+    timeout: 2h30m
     privileged: true
     input_mapping:
       kubecf: kubecf-master
@@ -229,7 +583,7 @@ jobs:
         source:
           repository: splatform/catapult
       inputs:
-      - name: kubecf-master
+      - name: kubecf
       - name: catapult
       outputs:
       - name: output
@@ -254,7 +608,7 @@ jobs:
 - name: smoke-tests-eirini-master
   public: true
   serial: true
-  serial_groups: [tests-eirini]
+  serial_groups: [tests-eirini-master]
   plan:
   - get: kubecf-master
     passed:
@@ -270,6 +624,8 @@ jobs:
   - task: test
     privileged: true
     timeout: 1h30m
+    input_mapping:
+      kubecf: kubecf-master
     config:
       platform: linux
       image_resource:
@@ -302,7 +658,7 @@ jobs:
 - name: cf-acceptance-tests-eirini-master
   public: true
   serial: true
-  serial_groups: [tests-eirini]
+  serial_groups: [tests-eirini-master]
   plan:
   - get: kubecf-master
     passed:
@@ -317,6 +673,8 @@ jobs:
       state: pending
   - task: test
     timeout: 5h30m
+    input_mapping:
+      kubecf: kubecf-master
     privileged: true
     config:
       platform: linux
@@ -326,7 +684,7 @@ jobs:
           repository: splatform/catapult
       inputs:
       - name: catapult
-      - name: kubecf-master
+      - name: kubecf
       outputs:
       - name: mail-output
       params:
