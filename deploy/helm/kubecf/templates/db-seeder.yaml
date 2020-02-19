@@ -1,4 +1,19 @@
+
+{{- define "volumeMount" }}
+- name: {{ .name}}-database-password
+  mountPath: "/passwords/{{ .path }}"
+  readOnly: true
+{{- end }}
+
 {{- if .Values.features.embedded_database.enabled -}}
+{{- $databases := list (dict "name" "cloud-controller" "path" "cloud_controller" "secretName" "cc") }}
+{{- $databases := append $databases (dict "name" "diego" "path" "diego" "secretName" "diego") }}
+{{- $databases := append $databases (dict "name" "network-connectivity" "path" "network_connectivity" "secretName" "network-connectivity") }}
+{{- $databases := append $databases (dict "name" "network-policy" "path" "network_policy" "secretName" "network-policy") }}
+{{- $databases := append $databases (dict "name" "routing-api" "path" "routing-api" "secretName" "routing-api") }}
+{{- $databases := append $databases (dict "name" "uaa" "path" "uaa" "secretName" "uaa") }}
+{{- $databases := append $databases (dict "name" "locket" "path" "locket" "secretName" "locket") }}
+{{- $databases := append $databases (dict "name" "credhub" "path" "credhub" "secretName" "credhub") }}
 
 apiVersion: batch/v1
 kind: Job
@@ -21,30 +36,11 @@ spec:
         - name: NAMESPACE
           value: {{ .Release.Namespace }}
         volumeMounts:
-        - name: cloud-controller-database-password
-          mountPath: "/passwords/cloud_controller"
+        {{- range $database := $databases }}
+        - name: {{ .name}}-database-password
+          mountPath: "/passwords/{{ .path }}"
           readOnly: true
-        - name: diego-database-password
-          mountPath: "/passwords/diego"
-          readOnly: true
-        - name: network-connectivity-database-password
-          mountPath: "/passwords/network_connectivity"
-          readOnly: true
-        - name: network-policy-database-password
-          mountPath: "/passwords/network_policy"
-          readOnly: true
-        - name: routing-api-database-password
-          mountPath: "/passwords/routing-api"
-          readOnly: true
-        - name: uaa-database-password
-          mountPath: "/passwords/uaa"
-          readOnly: true
-        - name: locket-database-password
-          mountPath: "/passwords/locket"
-          readOnly: true
-        - name: credhub-database-password
-          mountPath: "/passwords/credhub"
-          readOnly: true
+        {{- end }}
         command:
         - "/bin/bash"
         - "-c"
@@ -52,30 +48,11 @@ spec:
           {{- .Files.Get "assets/scripts/jobs/pxc/seeder.sh" | nindent 10 }}
 
       volumes:
-      - name: cloud-controller-database-password
+      {{- range $database := $databases }}
+      - name: {{ .name }}-database-password
         secret:
-          secretName: {{ .Release.Namespace }}.var-cc-database-password
-      - name: diego-database-password
-        secret:
-          secretName: {{ .Release.Namespace }}.var-diego-database-password
-      - name: network-connectivity-database-password
-        secret:
-          secretName: {{ .Release.Namespace }}.var-network-connectivity-database-password
-      - name: network-policy-database-password
-        secret:
-          secretName: {{ .Release.Namespace }}.var-network-policy-database-password
-      - name: routing-api-database-password
-        secret:
-          secretName: {{ .Release.Namespace }}.var-routing-api-database-password
-      - name: uaa-database-password
-        secret:
-          secretName: {{ .Release.Namespace }}.var-uaa-database-password
-      - name: locket-database-password
-        secret:
-          secretName: {{ .Release.Namespace }}.var-locket-database-password
-      - name: credhub-database-password
-        secret:
-          secretName: {{ .Release.Namespace }}.var-credhub-database-password
+          secretName: {{ $.Release.Namespace }}.var-{{ .secretName }}-database-password
+      {{- end }}
       restartPolicy: Never
 
 {{- end -}}
