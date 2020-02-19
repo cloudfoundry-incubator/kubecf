@@ -10,50 +10,51 @@ workspace_status(
 
 gazelle(
     name = "gazelle",
-    prefix = "github.com/SUSE/kubecf/deploy/containers/credhub_setup",
+    prefix = "credhub_setup",
 )
 
 go_library(
     name = "credhub_setup_lib",
     srcs = [
-        "auth.go",
         "credhub_info.go",
         "dns.go",
         "main.go",
-        "secgroup.go",
     ],
-    importpath = "github.com/SUSE/kubecf/deploy/containers/credhub_setup",
+    importpath = "credhub_setup",
+    visibility = ["//visibility:private"],
     deps = [
-        "@org_golang_x_oauth2//:go_default_library",
-        "@org_golang_x_oauth2//clientcredentials:go_default_library",
+        "//cc:go_default_library",
+        "//quarks:go_default_library",
+        "//uaa:go_default_library",
     ],
 )
 
 go_binary(
     name = "credhub_setup",
     embed = [":credhub_setup_lib"],
+    goarch = "amd64",
+    goos = "linux",
     pure = "on",
     static = "on",
-    goos = "linux",
-    goarch = "amd64",
     visibility = ["//visibility:private"],
 )
 
 container_image(
     name = "image",
+    entrypoint = ["/credhub_setup"],
     files = [":credhub_setup"],
     visibility = ["//visibility:public"],
 )
 
 gomplate_library(
     name = "manifest",
-    templates = {
-        ":manifest.tmpl.yaml": "credhub_setup.yaml",
+    datasources = {
+        "//:workspace_status": "workspace_status",
     },
     left_delim = "<<",
     right_delim = ">>",
-    datasources = {
-        "//:workspace_status": "workspace_status",
+    templates = {
+        ":manifest.tmpl.yaml": "credhub_setup.yaml",
     },
     visibility = ["//visibility:public"],
 )
