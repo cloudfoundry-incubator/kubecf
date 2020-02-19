@@ -30,6 +30,7 @@ func Authenticate(ctx context.Context, ccClient *http.Client, tokenURL *url.URL,
 		return nil, fmt.Errorf("error reading UAA CA certificate: %w", err)
 	}
 	uaaClient, err := httpclient.MakeHTTPClientWithCA(
+		ctx,
 		tokenURL.Hostname(),
 		uaaCABytes)
 	if err != nil {

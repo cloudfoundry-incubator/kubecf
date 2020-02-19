@@ -2,6 +2,7 @@ package httpclient
 
 import (
 	"bytes"
+	"context"
 	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/x509"
@@ -16,10 +17,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"credhub_setup/quarks"
 )
 
 func TestMakeHTTPClientWithCA(t *testing.T) {
 	t.Parallel()
+
+	ctx := context.WithValue(context.Background(), quarks.ResolverSkipBOSHDNS, struct{}{})
+
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "ok")
 	}))
@@ -41,12 +47,16 @@ func TestMakeHTTPClientWithCA(t *testing.T) {
 		wg.Add(1)
 		defer wg.Done()
 		t.Parallel()
+
 		certBytes := bytes.Buffer{}
 		pem.Encode(&certBytes, &pem.Block{
 			Type:  "CERTIFICATE",
 			Bytes: server.Certificate().Raw,
 		})
-		client, err := MakeHTTPClientWithCA(serverURL.Hostname(), certBytes.Bytes())
+		client, err := MakeHTTPClientWithCA(
+			ctx,
+			serverURL.Hostname(),
+			certBytes.Bytes())
 		require.NoError(t, err, "failed to make HTTP client")
 
 		resp, err := client.Get(server.URL)
@@ -59,12 +69,16 @@ func TestMakeHTTPClientWithCA(t *testing.T) {
 		wg.Add(1)
 		defer wg.Done()
 		t.Parallel()
+
 		certBytes := bytes.Buffer{}
 		pem.Encode(&certBytes, &pem.Block{
 			Type:  "CERTIFICATE",
 			Bytes: []byte("This is an invalid certificate"),
 		})
-		_, err := MakeHTTPClientWithCA(serverURL.Hostname(), certBytes.Bytes())
+		_, err := MakeHTTPClientWithCA(
+			ctx,
+			serverURL.Hostname(),
+			certBytes.Bytes())
 		require.Error(t, err, "got HTTP client with invalid CA certificate")
 	})
 
@@ -89,7 +103,10 @@ func TestMakeHTTPClientWithCA(t *testing.T) {
 			Type:  "CERTIFICATE",
 			Bytes: cert,
 		})
-		client, err := MakeHTTPClientWithCA(serverURL.Hostname(), certBytes.Bytes())
+		client, err := MakeHTTPClientWithCA(
+			ctx,
+			serverURL.Hostname(),
+			certBytes.Bytes())
 		require.NoError(t, err, "could not create HTTP client with incorrect CA certificate")
 		require.NotNil(t, client, "did not create HTTP client even though no errors reported")
 		_, err = client.Get(server.URL)

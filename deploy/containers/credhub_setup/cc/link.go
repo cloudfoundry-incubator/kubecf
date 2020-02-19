@@ -56,6 +56,7 @@ func NewHTTPClient(ctx context.Context) (*http.Client, error) {
 		return nil, err
 	}
 	client, err := httpclient.MakeHTTPClientWithCA(
+		ctx,
 		link.CC.InternalServiceHostname,
 		[]byte(link.CC.PublicTLS.CACert))
 	if err != nil {
