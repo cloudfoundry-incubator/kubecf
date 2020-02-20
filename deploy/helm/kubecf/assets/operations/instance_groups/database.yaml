@@ -278,7 +278,7 @@
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
 {{- end }}
 - type: replace
-  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/skip_ssl_validation?
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/skip_hostname_validation?
   value: {{ if .Values.features.external_database.require_ssl }}false{{ else }}true{{ end }}
 
 - type: replace
