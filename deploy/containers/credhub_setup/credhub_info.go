@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strconv"
 
 	"credhub_setup/quarks"
 )
@@ -20,11 +21,15 @@ type credhubLinkData struct {
 }
 
 // resolveCredHubAddrsGivenLink returns the IP addresses of the credhub service.
-func resolveCredHubAddrsGivenLink(ctx context.Context, link credhubLinkData) ([]string, error) {
-	credhubURL, err := url.Parse(link.CredHub.InternalURL)
+func resolveCredHubAddrsGivenLink(ctx context.Context, link *quarks.Link) ([]string, error) {
+	rawURL, err := link.Read("credhub.internal_url")
+	if err != nil {
+		return nil, fmt.Errorf("could not read credhub link URL: %w", err)
+	}
+	credhubURL, err := url.Parse(string(rawURL))
 	if err != nil {
 		return nil, fmt.Errorf("could not parse credhub link URL %s: %w",
-			link.CredHub.InternalURL, err)
+			string(rawURL), err)
 	}
 
 	resolver, err := quarks.NewResolver(ctx)
@@ -40,8 +45,7 @@ func resolveCredHubAddrsGivenLink(ctx context.Context, link credhubLinkData) ([]
 
 // resolveCredHubInfo returns the IP addresses of the CredHub service and the port.
 func resolveCredHubInfo(ctx context.Context) ([]string, int, error) {
-	var link credhubLinkData
-	err := quarks.ResolveLink(ctx, "credhub", &link)
+	link, err := quarks.ResolveLink(ctx, "credhub", "credhub")
 	if err != nil {
 		return nil, 0, err
 	}
@@ -50,5 +54,14 @@ func resolveCredHubInfo(ctx context.Context) ([]string, int, error) {
 	if err != nil {
 		return nil, 0, fmt.Errorf("could not resolve credhub address: %w", err)
 	}
-	return credHubAddrs, link.CredHub.Port, nil
+
+	rawPort, err := link.Read("credhub.port")
+	if err != nil {
+		return nil, 0, fmt.Errorf("could not read credhub link port: %w", err)
+	}
+	port, err := strconv.Atoi(string(rawPort))
+	if err != nil {
+		return nil, 0, fmt.Errorf("could not parse credhub link port: %w", err)
+	}
+	return credHubAddrs, port, nil
 }

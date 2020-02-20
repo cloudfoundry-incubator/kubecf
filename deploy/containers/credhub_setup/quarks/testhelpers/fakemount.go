@@ -98,7 +98,11 @@ func (m *FakeMountType) WriteFile(path string, contents interface{}) error {
 
 // WriteLink writes a link.yaml file used for quarks entanglements into the fake
 // mount.  This is a helper method for frequently-used logic.
-func (m *FakeMountType) WriteLink(name string, contents interface{}) error {
-	path := filepath.Join("quarks", "link", m.deploymentName, name, "link.yaml")
-	return m.WriteFile(path, contents)
+func (m *FakeMountType) WriteLink(linkType, linkName, key string, contents []byte) error {
+	dir := filepath.Join(
+		"quarks",
+		"link",
+		m.deploymentName,
+		fmt.Sprintf("%s-%s", linkType, linkName))
+	return m.WriteFile(filepath.Join(dir, key), contents)
 }

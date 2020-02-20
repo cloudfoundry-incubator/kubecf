@@ -7,6 +7,7 @@ metadata:
 spec:
   template:
     metadata:
+      name: {{ .Release.Name }}-credhub-setup-pod
       annotations:
         quarks.cloudfoundry.org/consumes: >
           [
@@ -43,7 +44,7 @@ spec:
             path: deployment-name
       - name: uaa-ca-cert
         secret:
-          secretName: {{ .Release.Name }}.var-router-ca
+          secretName: {{ .Release.Name }}.var-uaa-ca
           items:
           - key: certificate
             path: ca.crt

@@ -127,7 +127,7 @@ func (r *Resolver) dialForDNS(ctx context.Context, network, address string) (net
 		defer r.mut.Unlock()
 		addr := net.JoinHostPort(r.addrs[r.index], "53")
 		r.index++
-		if r.index > len(r.addrs) {
+		if r.index >= len(r.addrs) {
 			r.index = 0
 		}
 		return addr

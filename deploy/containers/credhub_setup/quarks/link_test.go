@@ -14,20 +14,23 @@ import (
 func TestResolveLink(t *testing.T) {
 	t.Parallel()
 
+	const linkType = "linkType"
 	const linkName = "linkName"
+	const linkKey = "some.link"
 	const deploymentName = "deploymentName"
-	var expected, actual struct {
-		Field string `json:"field"`
-	}
-	expected.Field = "hello"
+	expected := []byte("hello")
 
 	ctx, fakeMount, err := testhelpers.GenerateFakeMount(context.Background(), deploymentName, t)
 	require.NoError(t, err, "could not set up temporary mount directory")
 	defer fakeMount.CleanUp()
-	err = fakeMount.WriteLink(linkName, expected)
+	err = fakeMount.WriteLink(linkType, linkName, linkKey, expected)
 	require.NoError(t, err, "could not write fake link")
 
-	err = quarks.ResolveLink(ctx, linkName, &actual)
-	assert.NoError(t, err, "unexpected error resolving link")
-	require.Equal(t, expected, actual, "unexpected link result")
+	link, err := quarks.ResolveLink(ctx, linkType, linkName)
+	require.NoError(t, err, "unexpected error resolving link")
+	require.NotNil(t, link, "resolved link but get nil")
+
+	actual, err := link.Read(linkKey)
+	require.NoError(t, err, "unexpected error reading link")
+	assert.Equal(t, expected, actual, "unexpected link result")
 }

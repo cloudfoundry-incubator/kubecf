@@ -4,11 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 
 	"credhub_setup/httpclient"
 	"credhub_setup/quarks"
+)
+
+const (
+	// The name of the BOSH link
+	ccEntanglementName = "cloud_controller_https_endpoint"
 )
 
 // ccEndpointLinkData describes the data returned from the cloud controller BOSH
@@ -28,24 +34,23 @@ type ccInfoData struct {
 	TokenEndpoint         string `json:"token_endpoint"`
 }
 
-func getCCLinkData(ctx context.Context) (*ccEndpointLinkData, error) {
-	var link ccEndpointLinkData
-	err := quarks.ResolveLink(ctx, "cloud_controller_https_endpoint", &link)
+func getCCLinkData(ctx context.Context) (*quarks.Link, error) {
+	link, err := quarks.ResolveLink(ctx,ccEntanglementName, ccEntanglementName)
 	if err != nil {
 		return nil, fmt.Errorf("could not get link: %w", err)
 	}
 	// Do some sanity checking for empty fields; if they are empty, then we are
 	// probably reading an invalid link.
-	if link.CC.InternalServiceHostname == "" {
-		return nil, fmt.Errorf("empty internal CC host name")
+	if _, err := link.Read("cc.internal_service_hostname"); err != nil {
+		return nil, fmt.Errorf("could not read internal CC host name: %w", err)
 	}
-	if link.CC.PublicTLS.CACert == "" {
-		return nil, fmt.Errorf("empty internal CC CA certificate")
+	if _, err := link.Read("cc.public_tls.ca_cert"); err != nil {
+		return nil, fmt.Errorf("could not read internal CC CA certificate: %w", err)
 	}
-	if link.CC.PublicTLS.Port == 0 {
-		return nil, fmt.Errorf("empty internal CC port")
+	if _, err := link.Read("cc.public_tls.port"); err != nil {
+		return nil, fmt.Errorf("could not read internal CC port: %w", err)
 	}
-	return &link, nil
+	return link, nil
 }
 
 // NewHTTPClient returns a HTTP client that is set up to communicate with
@@ -55,10 +60,15 @@ func NewHTTPClient(ctx context.Context) (*http.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	client, err := httpclient.MakeHTTPClientWithCA(
-		ctx,
-		link.CC.InternalServiceHostname,
-		[]byte(link.CC.PublicTLS.CACert))
+	hostname, err := link.Read("cc.internal_service_hostname")
+	if err != nil {
+		return nil, fmt.Errorf("could not read internal CC host name: %w", err)
+	}
+	caCert, err := link.Read("cc.public_tls.ca_cert")
+	if err != nil {
+		return nil, fmt.Errorf("could not read internal CC CA certificate: %w", err)
+	}
+	client, err := httpclient.MakeHTTPClientWithCA(ctx, string(hostname), caCert)
 	if err != nil {
 		return nil, fmt.Errorf("could not create HTTP client with CA: %w", err)
 	}
@@ -71,9 +81,18 @@ func GetTokenURL(ctx context.Context, ccClient *http.Client) (*url.URL, error) {
 	if err != nil {
 		return nil, err
 	}
+	hostname, err := link.Read("cc.internal_service_hostname")
+	if err != nil {
+		return nil, fmt.Errorf("could not read internal CC host name: %w", err)
+	}
+	port, err := link.Read("cc.public_tls.port")
+	if err != nil {
+		return nil, fmt.Errorf("could not read internal CC port: %w", err)
+	}
+
 	ccURL := url.URL{
 		Scheme: "https",
-		Host:   fmt.Sprintf("%s:%d", link.CC.InternalServiceHostname, link.CC.PublicTLS.Port),
+		Host:   net.JoinHostPort(string(hostname), string(port)),
 		Path:   "/v2/info",
 	}
 	infoResp, err := ccClient.Get(ccURL.String())

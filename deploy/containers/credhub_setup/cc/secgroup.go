@@ -56,9 +56,6 @@ const (
 	// SecurityGroupName is the name of the security group to create / update
 	SecurityGroupName = "credhub-internal"
 
-	// The name of the BOSH link
-	ccEntanglementName = "cloud_controller_https_endpoint"
-
 	// The phases for the security group to bind to
 	lifecycleRunning = lifecycleType("running")
 	lifecycleStaging = lifecycleType("staging")
@@ -195,17 +192,23 @@ func bindDefaultSecurityGroup(ctx context.Context, lifecycle lifecycleType, grou
 // phases.  It requres the addresses and port that the target (CredHub) is
 // listening on.
 func SetupCredHubApplicationSecurityGroups(ctx context.Context, client *http.Client, ports []PortInfo) error {
-	var link ccEndpointLinkData
-	err := quarks.ResolveLink(ctx, ccEntanglementName, &link)
+	link, err := quarks.ResolveLink(ctx, ccEntanglementName, ccEntanglementName)
 	if err != nil {
 		return fmt.Errorf("could not get CC link: %w", err)
 	}
+
+	hostname, err := link.Read("cc.internal_service_hostname")
+	if err != nil {
+		return fmt.Errorf("could not read internal CC host name: %w", err)
+	}
+	port, err := link.Read("cc.public_tls.port")
+	if err != nil {
+		return fmt.Errorf("could not read internal CC port: %w", err)
+	}
+
 	baseURL := &url.URL{
 		Scheme: "https",
-		Host: net.JoinHostPort(
-			link.CC.InternalServiceHostname,
-			fmt.Sprintf("%d", link.CC.PublicTLS.Port),
-		),
+		Host: net.JoinHostPort(string(hostname), string(port)),
 	}
 
 	contents := BuildSecurityGroup(ports)

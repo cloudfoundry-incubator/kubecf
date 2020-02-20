@@ -35,20 +35,16 @@ func NewMockServer(ctx context.Context, t *testing.T, fakeMount *quarkshelpers.F
 		Bytes: server.Certificate().Raw,
 	})
 
-	err = fakeMount.WriteLink(
-		"cloud_controller_https_endpoint",
-		map[string]interface{}{
-			"cc": map[string]interface{}{
-				"internal_service_hostname": baseURL.Hostname(),
-				"public_tls": map[string]interface{}{
-					"ca_cert": certBytes.String(),
-					"port":    port,
-				},
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
+	for k, v := range map[string][]byte{
+		"internal_service_hostname": []byte(baseURL.Hostname()),
+		"public_tls.ca_cert": certBytes.Bytes(),
+		"public_tls.port": []byte(fmt.Sprintf("%d", port)),
+	} {
+		const name = "cloud_controller_https_endpoint"
+		err := fakeMount.WriteLink(name, name, fmt.Sprintf("cc.%s", k), v)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return server, nil
