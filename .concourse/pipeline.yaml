@@ -54,6 +54,7 @@ deploy_args: &deploy_args
 - -xce
 - |
   export SCF_LOCAL=$PWD/kubecf
+  export SCF_CHART="$(readlink -f s3.kubecf/*.tgz)"
   pushd catapult
   export SCF_OPERATOR=true
   export FORCE_DELETE=true
@@ -213,7 +214,6 @@ jobs:
         QUIET_OUTPUT: true
         ENABLE_EIRINI: false
         CLUSTER_NAME: kubecf-diego-pr
-        SCF_CHART: "s3.kubecf/kubecf-v*.tgz"
       run:
         path: "/bin/bash"
         args: *deploy_args
@@ -362,7 +362,6 @@ jobs:
         EKCP_HOST: ((ekcp-host))
         ENABLE_EIRINI: true
         CLUSTER_NAME: kubecf-eirini-pr
-        SCF_CHART: "s3.kubecf/kubecf-v*.tgz"
       run:
         path: "/bin/bash"
         args: *deploy_args
@@ -607,7 +606,6 @@ jobs:
         QUIET_OUTPUT: true
         ENABLE_EIRINI: false
         CLUSTER_NAME: kubecf-diego-master
-        SCF_CHART: "s3.kubecf/kubecf-v*.tgz"
       run:
         path: "/bin/bash"
         args: *deploy_args
@@ -758,7 +756,6 @@ jobs:
         EKCP_HOST: ((ekcp-host))
         ENABLE_EIRINI: true
         CLUSTER_NAME: kubecf-eirini-master
-        SCF_CHART: "s3.kubecf/kubecf-v*.tgz"
       run:
         path: "/bin/bash"
         args: *deploy_args
