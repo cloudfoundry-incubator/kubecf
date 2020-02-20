@@ -63,7 +63,7 @@ deploy_args: &deploy_args
   export QUIET_OUTPUT=true
   # Bring up a k8s cluster and builds+deploy kubecf
   # See: https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
-  make k8s scf-build
+  make k8s scf
 
 test_args: &test_args
 - -xce
@@ -123,20 +123,75 @@ jobs:
         path: kubecf-pr
         context: lint-pr
         status: failure
-- name: deploy-diego-pr
-  public: true
+- name: build-pr
+  public: false # TODO: public or not?
   plan:
   - get: kubecf-pr
-    trigger: true
     passed:
     - lint-pr
+    trigger: true
+  - put: kubecf-pr
+    params: &success-pr
+      path: kubecf-pr
+      status: pending
+      context: build-pr
+  - task: build-pr
+    input_mapping:
+      kubecf: kubecf-pr
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: thulioassis/bazel-docker-image
+          tag: 2.0.0
+      inputs:
+      - name: kubecf
+      outputs:
+      - name: output
+      run:
+        path: "/bin/bash"
+        args:
+        - -xce
+        - |
+          cd kubecf
+          ./dev/build.sh ../output
+    on_success:
+      put: kubecf-pr
+      params: &success-pr
+        path: kubecf-pr
+        status: success
+        context: build-pr
+    on_failure:
+      put: kubecf-pr
+      params: &success-pr
+        path: kubecf-pr
+        status: failure
+        context: build-pr
+  - put: s3.kubecf
+    params:
+      file: output/kubecf-v*.tgz
+      acl: public-read
+  - put: s3.kubecf-bundle
+    params:
+      file: output/kubecf-bundle-v*.tgz
+      acl: public-read
+- name: deploy-diego-pr
+  serial_groups: [diego-pr]
+  public: true
+  plan:
+  - get: s3.kubecf
+    passed:
+    - build-pr
+    trigger: true
+  - get: kubecf-pr
   - get: catapult
   - put: kubecf-pr
     params:
       path: kubecf-pr
       status: pending
       context: deploy-diego-pr
-  - task: deploy-diego-pr
+  - task: deploy
     privileged: true
     timeout: 2h30m
     input_mapping:
@@ -158,6 +213,7 @@ jobs:
         QUIET_OUTPUT: true
         ENABLE_EIRINI: false
         CLUSTER_NAME: kubecf-diego-pr
+        SCF_CHART: "s3.kubecf/kubecf-v*.tgz"
       run:
         path: "/bin/bash"
         args: *deploy_args
@@ -174,6 +230,7 @@ jobs:
         status: failure
         context: deploy-diego-pr
 - name: smoke-tests-diego-pr
+  serial_groups: [diego-pr]
   public: true
   plan:
   - get: kubecf-pr
@@ -221,6 +278,7 @@ jobs:
         <<: *failure-pr
         context: smoke-tests-diego-pr
 - name: cf-acceptance-tests-diego-pr
+  serial_groups: [diego-pr]
   public: true
   plan:
   - get: kubecf-pr
@@ -269,12 +327,14 @@ jobs:
         context: cf-acceptance-tests-diego-pr
 # Eirini
 - name: deploy-eirini-pr
+  serial_groups: [eirini-pr]
   public: true
   plan:
-  - get: kubecf-pr
-    trigger: true
+  - get: s3.kubecf
     passed:
-    - lint-pr
+    - build-pr
+    trigger: true
+  - get: kubecf-pr
   - get: catapult
   - put: kubecf-pr
     params:
@@ -302,6 +362,7 @@ jobs:
         EKCP_HOST: ((ekcp-host))
         ENABLE_EIRINI: true
         CLUSTER_NAME: kubecf-eirini-pr
+        SCF_CHART: "s3.kubecf/kubecf-v*.tgz"
       run:
         path: "/bin/bash"
         args: *deploy_args
@@ -316,6 +377,7 @@ jobs:
         <<: *failure-pr
         context: deploy-eirini-pr
 - name: smoke-tests-eirini-pr
+  serial_groups: [eirini-pr]
   public: true
   plan:
   - get: kubecf-pr
@@ -363,6 +425,7 @@ jobs:
         <<: *failure-pr
         context: smoke-tests-eirini-pr
 - name: cf-acceptance-tests-eirini-pr
+  serial_groups: [eirini-pr]
   public: true
   plan:
   - get: kubecf-pr
@@ -506,12 +569,14 @@ jobs:
       file: output/kubecf-bundle-v*.tgz
       acl: public-read
 - name: deploy-diego-master
+  serial_groups: [diego-master]
   public: true
   plan:
-  - get: kubecf-master
+  - get: s3.kubecf
     passed:
     - build-master
     trigger: true
+  - get: kubecf-master
   - get: catapult
   - put: status.src
     params: &diego_deploy
@@ -519,7 +584,7 @@ jobs:
       description: "Diego deploy"
       path: kubecf-master/.git/short_ref
       state: pending
-  - task: deploy-diego-master
+  - task: deploy
     privileged: true
     timeout: 2h30m
     input_mapping:
@@ -533,6 +598,7 @@ jobs:
       inputs:
       - name: kubecf
       - name: catapult
+      - name: s3.kubecf
       outputs:
       - name: output
       params:
@@ -541,6 +607,7 @@ jobs:
         QUIET_OUTPUT: true
         ENABLE_EIRINI: false
         CLUSTER_NAME: kubecf-diego-master
+        SCF_CHART: "s3.kubecf/kubecf-v*.tgz"
       run:
         path: "/bin/bash"
         args: *deploy_args
@@ -555,6 +622,7 @@ jobs:
         <<: *diego_deploy
         state: failure
 - name: smoke-tests-diego-master
+  serial_groups: [diego-master]
   public: true
   plan:
   - get: kubecf-master
@@ -603,6 +671,7 @@ jobs:
         <<: *diego_smoke
         state: failure
 - name: cf-acceptance-tests-diego-master
+  serial_groups: [diego-master]
   public: true
   plan:
   - get: kubecf-master
@@ -652,12 +721,14 @@ jobs:
         state: failure
 # Eirini
 - name: deploy-eirini-master
+  serial_groups: [eirini-master]
   public: true
   plan:
-  - get: kubecf-master
-    trigger: true
+  - get: s3.kubecf
     passed:
     - build-master
+    trigger: true
+  - get: kubecf-master
   - get: catapult
   - put: status.src
     params: &eirini_deploy
@@ -679,6 +750,7 @@ jobs:
       inputs:
       - name: kubecf
       - name: catapult
+      - name: s3.kubecf
       outputs:
       - name: output
       params:
@@ -686,6 +758,7 @@ jobs:
         EKCP_HOST: ((ekcp-host))
         ENABLE_EIRINI: true
         CLUSTER_NAME: kubecf-eirini-master
+        SCF_CHART: "s3.kubecf/kubecf-v*.tgz"
       run:
         path: "/bin/bash"
         args: *deploy_args
@@ -700,6 +773,7 @@ jobs:
         <<: *eirini_deploy
         state: failure
 - name: smoke-tests-eirini-master
+  serial_groups: [eirini-master]
   public: true
   plan:
   - get: kubecf-master
@@ -748,6 +822,7 @@ jobs:
         <<: *eirini_smoke
         state: failure
 - name: cf-acceptance-tests-eirini-master
+  serial_groups: [eirini-master]
   public: true
   plan:
   - get: kubecf-master
