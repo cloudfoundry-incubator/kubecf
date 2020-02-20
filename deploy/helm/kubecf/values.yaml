@@ -64,6 +64,12 @@ releases:
     version: v0.0.8
   cf-acceptance-tests:
     version: 0.0.9
+  # pxc is not a BOSH release.
+  pxc:
+    image:
+      repository: "splatform/percona-xtradb-cluster"
+      tag: 0.0.2
+      pullPolicy: IfNotPresent
   eirini:
     version: 0.0.25
   loggregator:
@@ -169,6 +175,10 @@ sizing:
     instances: ~
   credhub:
     instances: ~
+  database:
+    instances: ~
+    persistence:
+      size: 20Gi
   diego_api:
     instances: ~
   diego_cell:
@@ -301,31 +311,3 @@ k8s-host-url: ""
 k8s-service-token: ""
 k8s-service-username: ""
 k8s-node-ca: ""
-
-dependencies:
-  - name: percona-xtradb-cluster
-    enabled: true
-    repository: file://percona-xtradb-cluster
-
-# Configuration for the embedded database solution using the PXC sub-chart.
-percona-xtradb-cluster:
-  replicas: 1
-
-  image:
-    repository: "splatform/percona-xtradb-cluster"
-    tag: 0.0.2
-
-  ssl:
-    enabled: true
-    secret: kubecf.var-pxc-certs
-
-  persistence:
-    enabled: true
-    size: 20Gi
-
-  configFiles:
-    ssl.cnf: |+
-      [mysqld]
-      ssl-ca=/ssl/ca.pem
-      ssl-cert=/ssl/server-cert.pem
-      ssl-key=/ssl/server-key.pem

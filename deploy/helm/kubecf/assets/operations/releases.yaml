@@ -28,16 +28,6 @@
 {{- $releases = append $releases "log-cache" }}
 {{- $releases = append $releases "cf-cli" }}
 
-# Remove the PXC release and related variables.
-- type: remove
-  path: /releases/name=pxc
-- type: remove
-  path: /variables/name=pxc_galera_ca
-- type: remove
-  path: /variables/name=galera_server_certificate
-- type: remove
-  path: /variables/name=mysql_server_certificate
-
 # Add the cf-acceptance-tests-release.
 {{- if .Values.testing.cf_acceptance_tests.enabled }}
 {{- $releases = append $releases "cf-acceptance-tests" }}
