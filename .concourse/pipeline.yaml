@@ -286,13 +286,62 @@ jobs:
         <<: *failure-pr
         context: smoke-tests-diego-pr
 
-- name: cf-acceptance-tests-diego-pr
+- name: smoke-tests-post-rotate-diego-pr
   serial_groups: [diego-pr]
   public: true
   plan:
   - get: kubecf-pr
     passed:
     - smoke-tests-diego-pr
+    trigger: true
+  - get: catapult
+  - put: kubecf-pr
+    params:
+      path: kubecf-pr
+      status: pending
+      context: smoke-tests-post-rotate-diego-pr
+  - task: test-diego
+    privileged: true
+    timeout: 1h30m
+    input_mapping:
+      kubecf: kubecf-pr
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kubecf
+      outputs:
+      - name: output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: smokes
+        CLUSTER_NAME: kubecf-diego-pr
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: kubecf-pr
+      params:
+        <<: *success-pr
+        context: smoke-tests-post-rotate-diego-pr
+    on_failure:
+      put: kubecf-pr
+      params:
+        <<: *failure-pr
+        context: smoke-tests-post-rotate-diego-pr
+
+- name: cf-acceptance-tests-diego-pr
+  serial_groups: [diego-pr]
+  public: true
+  plan:
+  - get: kubecf-pr
+    passed:
+    - smoke-tests-post-rotate-diego-pr
     trigger: true
   - get: catapult
   - put: kubecf-pr
@@ -436,13 +485,62 @@ jobs:
         <<: *failure-pr
         context: smoke-tests-eirini-pr
 
-- name: cf-acceptance-tests-eirini-pr
+- name: smoke-tests-post-rotate-eirini-pr
   serial_groups: [eirini-pr]
   public: true
   plan:
   - get: kubecf-pr
     passed:
     - smoke-tests-eirini-pr
+    trigger: true
+  - get: catapult
+  - put: kubecf-pr
+    params:
+      path: kubecf-pr
+      status: pending
+      context: smoke-tests-post-rotate-eirini-pr
+  - task: test
+    privileged: true
+    input_mapping:
+      kubecf: kubecf-pr
+    timeout: 1h30m
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kubecf
+      outputs:
+      - name: mail-output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: smokes
+        CLUSTER_NAME: kubecf-eirini-pr
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: kubecf-pr
+      params:
+        <<: *success-pr
+        context: smoke-tests-post-rotate-eirini-pr
+    on_failure:
+      put: kubecf-pr
+      params:
+        <<: *failure-pr
+        context: smoke-tests-post-rotate-eirini-pr
+
+- name: cf-acceptance-tests-eirini-pr
+  serial_groups: [eirini-pr]
+  public: true
+  plan:
+  - get: kubecf-pr
+    passed:
+    - smoke-tests-post-rotate-eirini-pr
     trigger: true
   - get: catapult
   - put: kubecf-pr
@@ -686,13 +784,63 @@ jobs:
         <<: *diego_smoke
         state: failure
 
-- name: cf-acceptance-tests-diego-master
+- name: smoke-tests-post-rotate-diego-master
   serial_groups: [diego-master]
   public: true
   plan:
   - get: kubecf-master
     passed:
     - smoke-tests-diego-master
+    trigger: true
+  - get: catapult
+  - put: status.src
+    params: &diego_smoke_post
+      context: smoke-diego
+      description: "Diego smoke"
+      path: kubecf-master/.git/short_ref
+      state: pending
+  - task: test-diego
+    privileged: true
+    timeout: 1h30m
+    input_mapping:
+      kubecf: kubecf-master
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kubecf
+      outputs:
+      - name: output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: smokes
+        CLUSTER_NAME: kubecf-diego-master
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: status.src
+      params:
+        <<: *diego_smoke_post
+        state: success
+    on_failure:
+      put: status.src
+      params:
+        <<: *diego_smoke_post
+        state: failure
+
+- name: cf-acceptance-tests-diego-master
+  serial_groups: [diego-master]
+  public: true
+  plan:
+  - get: kubecf-master
+    passed:
+    - smoke-tests-post-rotate-diego-master
     trigger: true
   - get: catapult
   - put: status.src
@@ -840,13 +988,63 @@ jobs:
         <<: *eirini_smoke
         state: failure
 
-- name: cf-acceptance-tests-eirini-master
+- name: smoke-tests-post-rotate-eirini-master
   serial_groups: [eirini-master]
   public: true
   plan:
   - get: kubecf-master
     passed:
     - smoke-tests-eirini-master
+    trigger: true
+  - get: catapult
+  - put: status.src
+    params: &eirini_smoke_post
+      context: smoke-eirini
+      description: "Eirini smoke"
+      path: kubecf-master/.git/short_ref
+      state: pending
+  - task: test
+    privileged: true
+    timeout: 1h30m
+    input_mapping:
+      kubecf: kubecf-master
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kubecf
+      outputs:
+      - name: mail-output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: smokes
+        CLUSTER_NAME: kubecf-eirini-master
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: status.src
+      params:
+        <<: *eirini_smoke_post
+        state: success
+    on_failure:
+      put: status.src
+      params:
+        <<: *eirini_smoke_post
+        state: failure
+
+- name: cf-acceptance-tests-eirini-master
+  serial_groups: [eirini-master]
+  public: true
+  plan:
+  - get: kubecf-master
+    passed:
+    - smoke-tests-post-rotate-eirini-master
     trigger: true
   - get: catapult
   - put: status.src
