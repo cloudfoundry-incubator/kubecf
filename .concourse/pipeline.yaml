@@ -114,13 +114,13 @@ jobs:
           ./dev/linters/helmlint.sh
     on_success:
       put: kubecf-pr
-      params:
+      params: &success-pr
         path: kubecf-pr
         context: lint-pr
         status: success
     on_failure:
       put: kubecf-pr
-      params:
+      params: &failure-pr
         path: kubecf-pr
         context: lint-pr
         status: failure
@@ -132,7 +132,7 @@ jobs:
     - lint-pr
     trigger: true
   - put: kubecf-pr
-    params: &success-pr
+    params:
       path: kubecf-pr
       status: pending
       context: build-pr
@@ -159,15 +159,13 @@ jobs:
           ./dev/build.sh ../output
     on_success:
       put: kubecf-pr
-      params: &success-pr
-        path: kubecf-pr
-        status: success
+      params:
+        <<: *success-pr
         context: build-pr
     on_failure:
       put: kubecf-pr
-      params: &success-pr
-        path: kubecf-pr
-        status: failure
+      params:
+        <<: *failure-pr
         context: build-pr
   - put: s3.kubecf
     params:
@@ -219,15 +217,13 @@ jobs:
         args: *deploy_args
     on_success:
       put: kubecf-pr
-      params: &success-pr
-        path: kubecf-pr
-        status: success
+      params:
+        <<: *success-pr
         context: deploy-diego-pr
     on_failure:
       put: kubecf-pr
-      params: &failure-pr
-        path: kubecf-pr
-        status: failure
+      params:
+        <<: *failure-pr
         context: deploy-diego-pr
 - name: smoke-tests-diego-pr
   serial_groups: [diego-pr]
