@@ -89,12 +89,12 @@ jobs:
       run:
         path: "/bin/bash"
         args:
-          - -xce
-          - |
-            cd kubecf
-            ./dev/linters/shellcheck.sh
-            ./dev/linters/yamllint.sh
-            ./dev/linters/helmlint.sh
+        - -xce
+        - |
+          cd kubecf
+          ./dev/linters/shellcheck.sh
+          ./dev/linters/yamllint.sh
+          ./dev/linters/helmlint.sh
     on_success:
       put: kubecf-pr
       params:
@@ -421,12 +421,12 @@ jobs:
       run:
         path: "/bin/bash"
         args:
-          - -xce
-          - |
-            cd kubecf
-            ./dev/linters/shellcheck.sh
-            ./dev/linters/yamllint.sh
-            ./dev/linters/helmlint.sh
+        - -xce
+        - |
+          cd kubecf
+          ./dev/linters/shellcheck.sh
+          ./dev/linters/yamllint.sh
+          ./dev/linters/helmlint.sh
     on_success:
       put: status.src
       params:
@@ -466,10 +466,10 @@ jobs:
       run:
         path: "/bin/bash"
         args:
-          - -xce
-          - |
-            cd kubecf
-            ./dev/build.sh ../output
+        - -xce
+        - |
+          cd kubecf
+          ./dev/build.sh ../output
     on_success:
       put: status.src
       params:
