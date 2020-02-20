@@ -1,6 +1,6 @@
 # Post-publish pipeline
 
-[This pipeline](https://concourse.suse.dev/teams/main/pipelines/post-publish)
+[This pipeline](https://concourse.suse.dev/teams/main/pipelines/kubecf)
 runs smoke and cf-acceptance tests against Eirini and Diego-enabled
 KubeCF clusters deployed on Kind.
 
@@ -39,5 +39,5 @@ If you wish to deploy the pipeline on Concourse, run the following
 command:
 
 ```
-fly -t target set-pipeline -c post_publish.yaml -p post-publish
+fly -t target set-pipeline -c pipeline.yaml -p kubecf
 ```
