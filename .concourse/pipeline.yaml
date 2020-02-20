@@ -3,17 +3,20 @@ resource_types:
   type: docker-image
   source:
     repository: teliaoss/github-pr-resource
+
 - name: github-status
   type: docker-image
   source:
     repository: resource/github-status
     tag: release
+
 resources:
 - name: kubecf-master
   type: git
   source:
     branch: master
     uri: https://github.com/SUSE/kubecf
+
 - name: kubecf-pr
   type: pull-request
   check_every: 10m
@@ -22,12 +25,14 @@ resources:
     access_token: ((github-access-token))
     labels: ["Trigger: CI"]
     disable_forks: false
+
 - name: catapult
   type: git
   source:
     uri: https://github.com/SUSE/catapult
   version:
     ref: 05b6a6ff325993a3f97f173b6c048af416a0274a
+
 - name: status.src
   type: github-status
   source:
@@ -42,6 +47,7 @@ resources:
     secret_access_key: ((aws-secret-key))
     region_name: eu-central-1
     regexp: kubecf-v(.*).tgz
+
 - name: s3.kubecf-bundle
   type: s3
   source:
@@ -50,6 +56,7 @@ resources:
     secret_access_key: ((aws-secret-key))
     region_name: eu-central-1
     regexp: kubecf-bundle-v(.*).tgz
+
 deploy_args: &deploy_args
 - -xce
 - |
@@ -79,8 +86,10 @@ test_args: &test_args
   # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
   make recover tests-kubecf
 
+
 jobs:
 # PRs
+
 - name: lint-pr
   public: true
   plan:
@@ -124,6 +133,7 @@ jobs:
         path: kubecf-pr
         context: lint-pr
         status: failure
+
 - name: build-pr
   public: false # TODO: public or not?
   plan:
@@ -175,6 +185,7 @@ jobs:
     params:
       file: output/kubecf-bundle-v*.tgz
       acl: public-read
+
 - name: deploy-diego-pr
   serial_groups: [diego-pr]
   public: true
@@ -225,6 +236,7 @@ jobs:
       params:
         <<: *failure-pr
         context: deploy-diego-pr
+
 - name: smoke-tests-diego-pr
   serial_groups: [diego-pr]
   public: true
@@ -273,6 +285,7 @@ jobs:
       params:
         <<: *failure-pr
         context: smoke-tests-diego-pr
+
 - name: cf-acceptance-tests-diego-pr
   serial_groups: [diego-pr]
   public: true
@@ -321,7 +334,9 @@ jobs:
       params:
         <<: *failure-pr
         context: cf-acceptance-tests-diego-pr
+
 # Eirini
+
 - name: deploy-eirini-pr
   serial_groups: [eirini-pr]
   public: true
@@ -371,6 +386,7 @@ jobs:
       params:
         <<: *failure-pr
         context: deploy-eirini-pr
+
 - name: smoke-tests-eirini-pr
   serial_groups: [eirini-pr]
   public: true
@@ -419,6 +435,7 @@ jobs:
       params:
         <<: *failure-pr
         context: smoke-tests-eirini-pr
+
 - name: cf-acceptance-tests-eirini-pr
   serial_groups: [eirini-pr]
   public: true
@@ -469,6 +486,7 @@ jobs:
         context: cf-acceptance-tests-eirini-pr
 
 # Master
+
 - name: lint-master
   public: true
   plan:
@@ -511,6 +529,7 @@ jobs:
       params:
         <<: *lint-master
         state: failure
+
 - name: build-master
   public: false # TODO: public or not?
   plan:
@@ -563,6 +582,7 @@ jobs:
     params:
       file: output/kubecf-bundle-v*.tgz
       acl: public-read
+
 - name: deploy-diego-master
   serial_groups: [diego-master]
   public: true
@@ -615,6 +635,7 @@ jobs:
       params:
         <<: *diego_deploy
         state: failure
+
 - name: smoke-tests-diego-master
   serial_groups: [diego-master]
   public: true
@@ -664,6 +685,7 @@ jobs:
       params:
         <<: *diego_smoke
         state: failure
+
 - name: cf-acceptance-tests-diego-master
   serial_groups: [diego-master]
   public: true
@@ -713,7 +735,9 @@ jobs:
       params:
         <<: *diego_cats
         state: failure
+
 # Eirini
+
 - name: deploy-eirini-master
   serial_groups: [eirini-master]
   public: true
@@ -765,6 +789,7 @@ jobs:
       params:
         <<: *eirini_deploy
         state: failure
+
 - name: smoke-tests-eirini-master
   serial_groups: [eirini-master]
   public: true
@@ -814,6 +839,7 @@ jobs:
       params:
         <<: *eirini_smoke
         state: failure
+
 - name: cf-acceptance-tests-eirini-master
   serial_groups: [eirini-master]
   public: true
