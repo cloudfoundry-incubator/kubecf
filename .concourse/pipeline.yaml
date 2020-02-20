@@ -437,12 +437,55 @@ jobs:
       params:
         <<: *lint-master
         state: failure
+- name: build-master
+  public: false # TODO: public or not?
+  plan:
+  - get: kubecf-master
+    passed:
+    - lint-master
+  - put: status.src
+    params: &build-master
+      context: build-master
+      description: "Building"
+      path: kubecf-master/.git/short_ref
+      state: pending
+  - task: build-master
+    input_mapping:
+      kubecf: kubecf-master
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: thulioassis/bazel-docker-image
+          tag: 2.0.0
+      inputs:
+      - name: kubecf
+      outputs:
+      - name: output
+      run:
+        path: "/bin/bash"
+        args:
+          - -xce
+          - |
+            cd kubecf
+            ./dev/build.sh ../output
+    on_success:
+      put: status.src
+      params:
+        <<: *build-master
+        state: success
+    on_failure:
+      put: status.src
+      params:
+        <<: *build-master
+        state: failure
 - name: deploy-diego-master
   public: true
   plan:
   - get: kubecf-master
     passed:
-    - lint-master
+    - build-master
     trigger: true
   - get: catapult
   - put: status.src
@@ -589,7 +632,7 @@ jobs:
   - get: kubecf-master
     trigger: true
     passed:
-    - lint-master
+    - build-master
   - get: catapult
   - put: status.src
     params: &eirini_deploy
