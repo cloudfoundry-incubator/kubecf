@@ -34,6 +34,22 @@ resources:
     repo: SUSE/kubecf
     access_token: ((github-access-token))
 
+- name: s3.kubecf
+  type: s3
+  source:
+    bucket: kubecf-ci
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    region_name: eu-central-1
+    regexp: kubecf-v(.*).tgz
+- name: s3.kubecf-bundle
+  type: s3
+  source:
+    bucket: kubecf-ci
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    region_name: eu-central-1
+    regexp: kubecf-bundle-v(.*).tgz
 deploy_args: &deploy_args
 - -xce
 - |
@@ -443,6 +459,7 @@ jobs:
   - get: kubecf-master
     passed:
     - lint-master
+    trigger: true
   - put: status.src
     params: &build-master
       context: build-master
@@ -480,6 +497,14 @@ jobs:
       params:
         <<: *build-master
         state: failure
+  - put: s3.kubecf
+    params:
+      file: output/kubecf-v*.tgz
+      acl: public-read
+  - put: s3.kubecf-bundle
+    params:
+      file: output/kubecf-bundle-v*.tgz
+      acl: public-read
 - name: deploy-diego-master
   public: true
   plan:
