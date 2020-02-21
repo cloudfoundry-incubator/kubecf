@@ -3,6 +3,13 @@
 - path: /instance_groups/-
   type: replace
   value:
+    azs:
+    - z1
+    env:
+      bosh:
+        agent:
+          settings:
+            serviceAccountName: {{ .Release.Name }}-tests-sits
     instances: 1
     jobs:
     - name: sync-integration-tests
@@ -13,15 +20,17 @@
         sync_integration_tests:
           bbs:
             svc:
-              name: diego-api-bbs
+              name: {{ .Release.Namespace }}-diego-api
               namespace: {{ .Release.Namespace }}
               port: 8889
           config:
             bbs_client_cert_contents: ((diego_bbs_client.certificate))
             bbs_client_key_contents: ((diego_bbs_client.private_key))
+            cf_admin_user: admin
             cf_admin_password: ((cf_admin_password))
             cf_api: api.((system_domain))
             cf_apps_domain: ((system_domain))
+            cf_skip_ssl_validation: true
           setup:
             flake_attempts: 3
             nodes: 4
