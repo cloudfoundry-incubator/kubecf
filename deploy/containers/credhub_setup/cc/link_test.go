@@ -2,12 +2,8 @@ package cc_test
 
 import (
 	"context"
-	"encoding/json"
-	"net/http"
-	"net/url"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"credhub_setup/cc"
@@ -31,30 +27,4 @@ func TestNewHTTPClient(t *testing.T) {
 	client, err := cc.NewHTTPClient(ctx)
 	require.NoError(t, err, "could not create new HTTP client")
 	require.NotNil(t, client)
-}
-
-func TestGetTokenURL(t *testing.T) {
-	t.Parallel()
-	ctx := context.Background()
-	ctx, fakeMount, err := quarkshelpers.GenerateFakeMount(ctx, "token-url", t)
-	require.NoError(t, err, "could not set up fake mount")
-	defer fakeMount.CleanUp()
-
-	mux := http.NewServeMux()
-	server, err := cchelpers.NewMockServer(ctx, t, fakeMount, mux)
-	require.NoError(t, err, "could not set up mock CC server")
-	defer server.Close()
-
-	baseURL, err := url.Parse(server.URL)
-	expectedTokenURL := baseURL.ResolveReference(&url.URL{Path: "/oauth/token"})
-	require.NoError(t, err, "could not parse base URL")
-	mux.HandleFunc("/v2/info", func(w http.ResponseWriter, req *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{
-			"token_endpoint": baseURL.String(),
-		})
-	})
-
-	tokenURL, err := cc.GetTokenURL(ctx, server.Client())
-	require.NoError(t, err, "could not get token URL")
-	assert.Equal(t, expectedTokenURL, tokenURL, "got unexpected token URL")
 }

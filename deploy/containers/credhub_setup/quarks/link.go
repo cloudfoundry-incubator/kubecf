@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 )
 
+// Link describes a quarks link; data can be read from it.
 type Link struct {
 	path string
 }
@@ -20,11 +21,11 @@ func ResolveLink(ctx context.Context, linkType, linkName string) (*Link, error) 
 		return nil, err
 	}
 	linkPath := filepath.Join(
-		mountRoot, 
+		mountRoot,
 		"quarks", "link",
-		deploymentName, 
+		deploymentName,
 		fmt.Sprintf("%s-%s", linkType, linkName))
-	
+
 	info, err := os.Stat(linkPath)
 	if err != nil {
 		filepath.Walk(filepath.Join(mountRoot, "quarks", "link"), func(path string, info os.FileInfo, err error) error {
@@ -37,11 +38,6 @@ func ResolveLink(ctx context.Context, linkType, linkName string) (*Link, error) 
 		return nil, fmt.Errorf("link %s is not a directory", linkPath)
 	}
 	return &Link{path: linkPath}, nil
-}
-
-func (l *Link) Open(path string) (*os.File, error) {
-	linkPath := filepath.Join(l.path, path)
-	return os.Open(linkPath)
 }
 
 func (l *Link) Read(path string) ([]byte, error) {

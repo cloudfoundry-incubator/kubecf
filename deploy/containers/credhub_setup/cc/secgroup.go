@@ -208,7 +208,7 @@ func SetupCredHubApplicationSecurityGroups(ctx context.Context, client *http.Cli
 
 	baseURL := &url.URL{
 		Scheme: "https",
-		Host: net.JoinHostPort(string(hostname), string(port)),
+		Host:   net.JoinHostPort(string(hostname), string(port)),
 	}
 
 	contents := BuildSecurityGroup(ports)

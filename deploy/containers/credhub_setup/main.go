@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 
 	"credhub_setup/cc"
@@ -34,7 +35,7 @@ func process(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	tokenURL, err := cc.GetTokenURL(ctx, unauthenticatedCCClient)
+	tokenURL, err := url.Parse("https://uaa.service.cf.internal:8443/oauth/token")
 	if err != nil {
 		return err
 	}
