@@ -40,7 +40,7 @@ func GenerateFakeMount(ctx context.Context, deploymentName string, t *testing.T)
 		}
 	}()
 
-	podInfoDir := filepath.Join(workDir, "run/pod-info")
+	podInfoDir := filepath.Join(workDir, "run", "pod-info")
 	err = os.MkdirAll(podInfoDir, 0755)
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not create fake pod info directory: %w", err)

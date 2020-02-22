@@ -24,7 +24,7 @@ func Authenticate(ctx context.Context, ccClient *http.Client, tokenURL *url.URL,
 		Scopes:       []string{"cloud_controller.admin"},
 	}
 
-	certPath := filepath.Join(quarks.GetMountRootFromContext(ctx), "run/uaa-ca-cert/ca.crt")
+	certPath := filepath.Join(quarks.GetMountRootFromContext(ctx), "run", "uaa-ca-cert", "ca.crt")
 	uaaCABytes, err := ioutil.ReadFile(certPath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading UAA CA certificate: %w", err)
