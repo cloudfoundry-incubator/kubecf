@@ -84,7 +84,7 @@ releases:
   sle15:
     version: "10.93"
   sync-integration-tests:
-    version: v0.0.2
+    version: v0.0.3
   suse-staticfile-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.5.2.1"
