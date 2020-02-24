@@ -4,6 +4,33 @@
 - type: remove
   path: /instance_groups/name=database
 
+
+{{- if .Values.features.credhub.enabled -}}
+- type: remove
+  path: /variables/name=credhub_database_password
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/type
+  value: {{ .Values.features.external_database.type | quote }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/port
+  value: {{ .Values.features.external_database.port }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/database
+  value: {{ .Values.features.external_database.databases.credhub.name | quote }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/host
+  value: {{ .Values.features.external_database.host | quote }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/password
+  value: {{ .Values.features.external_database.databases.credhub.password | quote }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/username
+  value: {{ .Values.features.external_database.databases.credhub.username | quote }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/require_tls?
+  value: false
+{{- end }}
+
 # Remove the database variables.
 - type: remove
   path: /variables/name=cf_mysql_mysql_admin_password
@@ -25,8 +52,6 @@
   path: /variables/name=locket_database_password
 - type: remove
   path: /variables/name=cc_database_password
-- type: remove
-  path: /variables/name=credhub_database_password
 - type: remove
   path: /variables/name=diego_database_password
 - type: remove
@@ -393,10 +418,14 @@
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/username
   value: {{ .Values.features.external_database.databases.credhub.username | quote }}
 {{ if .Values.features.external_database.ca_cert -}}
+
+{{- if .Values.features.credhub.enabled -}}
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
   value: |
     {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+{{- end }}
+
 {{- else }}
 - type: remove
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
@@ -451,9 +480,6 @@
             - name: cloud_controller
               username: cloud_controller
               password: "((cc_database_password))"
-            - name: credhub
-              password: ((credhub_database_password))
-              username: credhub
             - name: diego
               username: diego
               password: "((diego_database_password))"
@@ -476,6 +502,16 @@
               ca_certificate: "((pxc_server_ca.certificate))"
               server_certificate: "((mysql_server_certificate.certificate))"
               server_key: "((mysql_server_certificate.private_key))"
+
+
+{{- if .Values.features.credhub.enabled }}
+- path: /instance_groups/name=database/jobs/name=mysql/properties/cf_mysql/mysql/seeded_databases/-
+  type: replace
+  value:
+    name: credhub
+    password: ((credhub_database_password))
+    username: credhub
+{{- end }}
 
 # Add quarks properties. It adds the BPM configuration as cf-mysql-release lacks
 # support for it upstream.

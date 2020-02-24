@@ -17,7 +17,7 @@
           credhub_client: credhub_admin_client
           credhub_mode: assisted
           credhub_secret: ((credhub_admin_client_secret))
-          include: '+credhub,+tcp_routing'
+          include: '+tcp_routing'
           skip_ssl_validation: true
         bpm:
           enabled: true
@@ -30,5 +30,22 @@
     update:
       serial: true
     vm_type: minimal
+
+{{- if .Values.features.credhub.enabled -}}
+
+- path: /instance_groups/name=acceptance-tests/jobs/name=acceptance-tests/properties/acceptance_tests/credhub_client?
+  type: replace
+  value: credhub_admin_client
+- path: /instance_groups/name=acceptance-tests/jobs/name=acceptance-tests/properties/acceptance_tests/credhub_mode?
+  type: replace
+  value: assisted
+- path: /instance_groups/name=acceptance-tests/jobs/name=acceptance-tests/properties/acceptance_tests/credhub_secret?
+  type: replace
+  value: ((credhub_admin_client_secret))
+- path: /instance_groups/name=acceptance-tests/jobs/name=acceptance-tests/properties/acceptance_tests/include?
+  type: replace
+  value: '+credhub,+tcp_routing'
+
+{{- end }}
 
 {{- end }}
