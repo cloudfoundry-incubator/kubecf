@@ -33,4 +33,6 @@ set_values = set_values.map do |key, value|
 end
 args.concat(*set_values)
 
+puts "CMD #{args}"
+
 exit Process.wait2(Process.spawn(*args)).last.exitstatus

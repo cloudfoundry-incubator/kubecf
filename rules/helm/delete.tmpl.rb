@@ -9,4 +9,6 @@ namespace = '[[namespace]]'
 
 args = [helm, 'delete', install_name, '--namespace', namespace]
 
+puts "CMD #{args}"
+
 exit Process.wait2(Process.spawn(*args)).last.exitstatus
