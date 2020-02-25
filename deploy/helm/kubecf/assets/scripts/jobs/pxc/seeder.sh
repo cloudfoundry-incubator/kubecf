@@ -14,12 +14,14 @@ databases=(
   "credhub"
 )
 
+echo "Waiting for database to be ready..."
 until echo "SELECT 'Ready!'" | mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD}"; do
-  echo "database not ready.."
   sleep 1
 done
 
 mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD}" \
+  1> /dev/null \
+  2> /dev/null \
   < <(
     for database in ${databases[*]}; do
       password=$(</passwords/${database}/password)
@@ -29,4 +31,4 @@ mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD
       echo "GRANT ALL ON \`${database}\`.* TO '${database}'@'%';"
     done
   )
-echo "done."
+echo "Done!"
