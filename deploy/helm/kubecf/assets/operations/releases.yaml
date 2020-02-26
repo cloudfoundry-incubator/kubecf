@@ -62,6 +62,14 @@
     name: brain-tests
 {{- end }}
 
+{{- if .Values.testing.sync_integration_tests.enabled }}
+{{- $releases = append $releases "sync-integration-tests" }}
+- path: /releases/-
+  type: replace
+  value:
+    name: sync-integration-tests
+{{- end }}
+
 # Add app-autoscaler related releases.
 {{- if .Values.features.autoscaler.enabled }}
 {{- $releases = append $releases "app-autoscaler" }}

@@ -1,3 +1,3 @@
-KubeCF follows the CNCF Code of Conduct.
+KubeCF follows the CloudFoundry Foundation [Code of Conduct](https://www.cloudfoundry.org/code-of-conduct/).
 
-Unacceptable behavior may be reported by contacting the SUSE via <security@suse.com>
+Unacceptable behavior may be reported by contacting the CloudFoundry Foundation via <conduct@cloudfoundry.org>.
