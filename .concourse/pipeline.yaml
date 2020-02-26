@@ -76,7 +76,7 @@ deploy_args: &deploy_args
   export BACKEND=ekcp
   export DOCKER_ORG=cap-staging
   export QUIET_OUTPUT=true
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | sed 's/.json$//g' | cut -c1-18)"
+  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | xargs basename | sed 's/.json$//g' | cut -c1-18)"
   pushd catapult
   # Bring up a k8s cluster and builds+deploy kubecf
   # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
@@ -90,7 +90,7 @@ test_args: &test_args
   export SCF_LOCAL="${PWD}/commit-to-test"
   export KUBECF_NAMESPACE="scf"
   export QUIET_OUTPUT=true
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | sed 's/.json$//g' | cut -c1-18)"
+  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | xargs basename | sed 's/.json$//g' | cut -c1-18)"
   pushd catapult
   # Grabs back a deployed cluster and runs test suites on it
   # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
@@ -101,7 +101,7 @@ rotate_args: &rotate_args
 - |
   export BACKEND=ekcp
   export KUBECF_NAMESPACE="scf"
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | sed 's/.json$//g' | cut -c1-18)"
+  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | xargs basename | sed 's/.json$//g' | cut -c1-18)"
   pushd catapult
   make recover
   source build*/.envrc
@@ -195,6 +195,7 @@ jobs:
       params:
         description: "Lint was successful"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
         state: "success"
         contexts: "lint"
     on_failure:
@@ -202,6 +203,7 @@ jobs:
       params:
         description: "Lint failed"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
         state: "failure"
         contexts: "lint"
 - name: build
@@ -235,6 +237,7 @@ jobs:
       params:
         description: "Build was successful"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
         state: "success"
         contexts: "build"
     on_failure:
@@ -245,6 +248,7 @@ jobs:
           state: "failure"
           contexts: "build"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
   - put: s3.kubecf
     params:
       file: output/kubecf-v*.tgz
@@ -296,6 +300,7 @@ jobs:
         description: "Deploying with Diego was successful"
         state: "success"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
         contexts: "deploy-diego"
     on_failure:
       do:
@@ -303,6 +308,7 @@ jobs:
         params:
           description: "Deploying with Diego failed"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
           state: "failure"
           contexts: "deploy-diego"
       - task: cleanup-cluster
@@ -322,7 +328,7 @@ jobs:
             args:
             - -ce
             - |
-              export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | sed 's/.json$//g' | cut -c1-18)"
+              export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | xargs basename | sed 's/.json$//g' | cut -c1-18)"
               curl -X DELETE -s "http://${EKCP_HOST}/${CLUSTER_NAME}"
 
 - name: smoke-tests-diego
@@ -363,6 +369,7 @@ jobs:
         description: "Smoke tests on Diego were successful"
         state: "success"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
         contexts: "smoke-diego"
     on_failure:
       do:
@@ -370,6 +377,7 @@ jobs:
         params:
           description: "Smoke tests on Diego failed"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
           state: "failure"
           contexts: "smoke-diego"
       - task: cleanup-cluster
@@ -416,6 +424,7 @@ jobs:
         description: "Rotating secrets on Diego was successful"
         state: "success"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
         contexts: "rotate-diego"
     on_failure:
       do:
@@ -423,6 +432,7 @@ jobs:
         params:
           description: "Rotating secrets on Diego failed"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
           state: "failure"
           contexts: "rotate-diego"
       - task: cleanup-cluster
@@ -470,6 +480,7 @@ jobs:
         description: "Smoke tests on Diego after rotating secrets was successful"
         state: "success"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
         contexts: "smoke-rotated-diego"
     on_failure:
       do:
@@ -477,6 +488,7 @@ jobs:
         params:
           description: "Smoke tests on Diego after rotating secrets failed"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
           state: "failure"
           contexts: "smoke-rotated-diego"
       - task: cleanup-cluster
@@ -525,6 +537,7 @@ jobs:
         state: "success"
         contexts: "acceptance-diego"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
     on_failure:
       do:
       - put: commit-to-test
@@ -532,6 +545,7 @@ jobs:
           description: "Acceptance tests on Diego failed"
           state: "failure"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
           contexts: "acceptance-diego"
       - task: cleanup-cluster
         config:
@@ -598,12 +612,14 @@ jobs:
         state: "success"
         contexts: "deploy-eirini"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
     on_failure:
       do:
       - put: commit-to-test
         params:
           description: "Deploying Eirini failed"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
           state: "failure"
           contexts: "deploy-eirini"
       - task: cleanup-cluster
@@ -652,6 +668,7 @@ jobs:
         state: "success"
         contexts: "smoke-eirini"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
     on_failure:
       do:
       - put: commit-to-test
@@ -660,6 +677,7 @@ jobs:
           state: "failure"
           contexts: "smoke-eirini"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
       - task: cleanup-cluster
         config:
           <<: *cleanup-cluster
@@ -705,6 +723,7 @@ jobs:
         state: "success"
         contexts: "rotate-eirini"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
     on_failure:
       do:
       - put: commit-to-test
@@ -712,6 +731,7 @@ jobs:
           description: "Rotating secrets on Eirini failed"
           state: "failure"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
           contexts: "rotate-eirini"
       - task: cleanup-cluster
         config:
@@ -759,6 +779,7 @@ jobs:
         state: "success"
         contexts: "smoke-rotated-eirini"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
     on_failure:
       do:
       - put: commit-to-test
@@ -766,6 +787,7 @@ jobs:
           description: "Smoke tests after rotating secrets on Eirini failed"
           state: "failure"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
           contexts: "smoke-rotated-eirini"
       - task: cleanup-cluster
         config:
@@ -813,6 +835,7 @@ jobs:
         state: "success"
         contexts: "acceptance-eirini"
         commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
     on_failure:
       do:
       - put: commit-to-test
@@ -820,6 +843,7 @@ jobs:
           description: "Acceptance tests on Eirini failed"
           state: "failure"
           commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
           contexts: "acceptance-eirini"
       - task: cleanup-cluster
         config:
