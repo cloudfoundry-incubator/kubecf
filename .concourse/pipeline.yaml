@@ -93,6 +93,7 @@ test_args: &test_args
   export QUIET_OUTPUT=true
   export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
                        xargs basename | sed 's/.json$//g' | cut -c1-18)"
+  export KUBECF_CHECKOUT="${PWD}/commit-to-test"
   pushd catapult
   # Grabs back a deployed cluster and runs test suites on it
   # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
@@ -105,6 +106,7 @@ rotate_args: &rotate_args
   export KUBECF_NAMESPACE="scf"
   export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
                        xargs basename | sed 's/.json$//g' | cut -c1-18)"
+  export KUBECF_CHECKOUT="${PWD}/commit-to-test"
   pushd catapult
   make recover
   source build*/.envrc
