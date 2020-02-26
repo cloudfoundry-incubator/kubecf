@@ -23,6 +23,15 @@ mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD
   1> /dev/null \
   2> /dev/null \
   < <(
+    echo "\
+      CREATE DATABASE kubecf;
+      USE kubecf;
+      CREATE TABLE db_leader_election (
+        anchor tinyint(3) unsigned NOT NULL,
+        host varchar(128) NOT NULL,
+        last_seen_active timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (anchor)
+      );"
     for database in ${databases[*]}; do
       password=$(</passwords/${database}/password)
 
