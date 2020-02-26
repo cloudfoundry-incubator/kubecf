@@ -1,4 +1,4 @@
-# Extra job to configure credhub access
+# Extra job to configure credhub access.
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -7,7 +7,7 @@ metadata:
 spec:
   template:
     metadata:
-      name: {{ .Release.Name }}-credhub-setup-pod
+      name: {{ .Release.Name }}-credhub-setup
       annotations:
         quarks.cloudfoundry.org/consumes: >
           [

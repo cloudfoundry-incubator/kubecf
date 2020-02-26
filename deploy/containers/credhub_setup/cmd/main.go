@@ -60,8 +60,7 @@ func process(ctx context.Context) error {
 		},
 	}
 
-	err = cc.SetupCredHubApplicationSecurityGroups(ctx, client, ports)
-	if err != nil {
+	if err := cc.SetupCredHubApplicationSecurityGroups(ctx, client, ports); err != nil {
 		return fmt.Errorf("error setting security groups: %w", err)
 	}
 	return nil
@@ -69,8 +68,7 @@ func process(ctx context.Context) error {
 
 func main() {
 	ctx := context.Background()
-	err := process(ctx)
-	if err != nil {
+	if err := process(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, "Could not set up CredHub application security groups: %v", err)
 		os.Exit(1)
 	}

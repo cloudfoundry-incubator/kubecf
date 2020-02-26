@@ -3,7 +3,7 @@
 set -o errexit -o nounset
 
 # call the executable to make sure it works, because the eval() later doesn't
-# actually guarantee that it does
+# actually guarantee that it does.
 "${MINIKUBE}" status >/dev/null
 
 # shellcheck disable=SC2046

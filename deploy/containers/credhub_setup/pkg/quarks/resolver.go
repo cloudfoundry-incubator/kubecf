@@ -16,12 +16,12 @@ var (
 	ResolverSkipBOSHDNS = struct{}{}
 
 	// ResolverOverride is a context key to use when testing to use the
-	// specified ResolverHostLookuper for upstream lookups
+	// specified ResolverHostLookuper for upstream lookups.
 	ResolverOverride = struct{}{}
 )
 
 // ResolverHostLookuper is an interface for a struct that implements the
-// net.Resolver.LookupHost method
+// net.Resolver.LookupHost method.
 type ResolverHostLookuper interface {
 	// LookupHost looks up the specified host name, as net.Resolver.LookupHost.
 	LookupHost(context.Context, string) ([]string, error)

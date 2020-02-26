@@ -40,7 +40,7 @@ func ResolveLink(ctx context.Context, linkType, linkName string) (*Link, error) 
 	return &Link{path: linkPath}, nil
 }
 
-// Read a BOSH link and return the contents
+// Read a BOSH link and return the contents.
 func (l *Link) Read(path string) ([]byte, error) {
 	linkPath := filepath.Join(l.path, path)
 	return ioutil.ReadFile(linkPath)

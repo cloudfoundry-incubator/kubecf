@@ -31,7 +31,7 @@
           uris:
           - credhub.((system_domain))
 
-# Additional UAA client for the credhub-setup job
+# Additional UAA client for the credhub-setup job.
 - type: replace
   path: /variables/-
   value:

@@ -10,11 +10,11 @@ import (
 )
 
 const (
-	// The name of the BOSH link
+	// The name of the BOSH link.
 	ccEntanglementName = "cloud_controller_https_endpoint"
 )
 
-// NewHTTPClient returns a HTTP client that is set up to communicate with
+// NewHTTPClient returns an HTTP client that is set up to communicate with
 // (unauthenticated) endpoints on the cloud controller.
 func NewHTTPClient(ctx context.Context) (*http.Client, error) {
 	link, err := quarks.ResolveLink(ctx, ccEntanglementName, ccEntanglementName)

@@ -16,7 +16,7 @@ import (
 	"credhub_setup/pkg/quarks"
 )
 
-// securityGroupRule is a single rule in a security group definition
+// securityGroupRule is a single rule in a security group definition.
 type securityGroupRule struct {
 	Protocol    string `json:"protocol"`
 	Destination string `json:"destination"`
@@ -26,14 +26,14 @@ type securityGroupRule struct {
 }
 
 // securityGroupEntity is a security group definition excluding standard
-// metadata
+// metadata.
 type securityGroupEntity struct {
 	Name  string              `json:"name"`
 	Rules []securityGroupRule `json:"rules"`
 }
 
 // SecurityGroupDefinition is a security group definition as returned from the
-// CF API
+// CF API.
 type SecurityGroupDefinition struct {
 	Metadata struct {
 		GUID string `json:"guid"`
@@ -53,10 +53,10 @@ type PortInfo struct {
 type lifecycleType string
 
 const (
-	// SecurityGroupName is the name of the security group to create / update
+	// SecurityGroupName is the name of the security group to create / update.
 	SecurityGroupName = "credhub-internal"
 
-	// The phases for the security group to bind to
+	// The phases for the security group to bind to.
 	lifecycleRunning = lifecycleType("running")
 	lifecycleStaging = lifecycleType("staging")
 )
@@ -75,7 +75,7 @@ func BuildSecurityGroup(ports []PortInfo) securityGroupEntity {
 			entries = append(entries, securityGroupRule{
 				Protocol:    "tcp",
 				Destination: addr,
-				Ports:       fmt.Sprintf("%d", info.Port),
+				Ports:       strconv.Itoa(info.Port),
 				Description: desc,
 			})
 		}
