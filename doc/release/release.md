@@ -9,7 +9,7 @@ KubeCF follows the [semver](https://semver.org/) for versioning and does it auto
 
 ## Releasing
 
-A *release* branch is created from the *master* and it can ONLY contain fixes on it. When fixes are added, then a manual cherry-pick to the *master* will happen immediately after releasing.
+A *release* branch is created from the *master* and can ONLY get bug-fix commits. When fixes are added, then a manual cherry-pick to the *master* will happen immediately after.
 
 
 If the *release* branch name is not semver compatible, a version 0.0.0 will be associated to the KubeCF package indicating an **UNOFFICIAL** package release.
