@@ -130,8 +130,8 @@ project = struct(
         ),
         "cf_deployment": struct(
             urls = ["https://github.com/cloudfoundry/cf-deployment/archive/v{version}.tar.gz"],
-            version = "12.18.0",
-            sha256 = "1aeb7fa2bbd78ac4837c2aeaa4b9dc9567bc498f08f7fd744da556e672788991",
+            version = "12.33.0",
+            sha256 = "e411e8a2e770e9e0c5ecff4d39d0f1e479a67fe150130c339de16fc6583b160a",
             strip_prefix = "cf-deployment-{version}",
             build_file_content = """
 package(default_visibility = ["//visibility:public"])
