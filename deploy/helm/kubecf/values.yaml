@@ -68,7 +68,7 @@ releases:
       os: opensuse-42.3
       version: 36.g03b4653-30.80-7.0.0_372.ge3509601
   cf-acceptance-tests:
-    version: 0.0.9
+    version: 0.0.10
   # TODO: cf-mysql must switch to SLE15 stemcell once the compilation failures are resolved.
   cf-mysql:
     version: 36.19.0
