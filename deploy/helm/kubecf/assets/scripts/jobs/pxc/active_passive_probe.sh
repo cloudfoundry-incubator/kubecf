@@ -9,4 +9,9 @@ leader=$(mysql -sN <<EOF
 EOF
 )
 
-[ "${leader}" == "${HOSTNAME}" ]
+if [[ "${$?}" != "0" ]]; then
+  # the kubecf database doesn't seem to be ready. make the first node the master
+  [[ ${HOSTNAME} == *-0 ]]
+else
+  [[ "${leader}" == "${HOSTNAME}" ]]
+fi
