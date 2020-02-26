@@ -30,6 +30,6 @@ A minor or a patch release can occur during a version life cyle and if so, a *re
 
 ## Github Release
 
-After having the release template ready and the CI pipeline on Gitlab checked, it's time to create a new release on Github and for that just go to the Github project release [page](https://github.com/SUSE/kubecf/releases) and do your magic.
+After having the release template ready and the CI pipeline checked, it's time to create a new release on Github and for that, just go to the Github project release [page](https://github.com/SUSE/kubecf/releases) and do your magic.
 
 v0.0.0-alpha draft can be used as guideline and don't forget to open PR against this document if you have better ideas and/or if you find any incorrections.
