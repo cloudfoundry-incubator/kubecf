@@ -259,7 +259,7 @@ jobs:
       acl: public-read
 
 - name: deploy-diego
-  serial_groups: [diego]
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -332,7 +332,7 @@ jobs:
               curl -X DELETE -s "http://${EKCP_HOST}/${CLUSTER_NAME}"
 
 - name: smoke-tests-diego
-  serial_groups: [diego]
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -386,10 +386,17 @@ jobs:
           params:
             CLUSTER_NAME_PREFIX: "kubecf-diego"
             EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-diego"
+          EKCP_HOST: ((ekcp-host))
 
 - name: ccdb-rotate-diego
   public: true
-  serial_groups: [diego]
+  max_in_flight: 2
   plan:
   - get: commit-to-test
     passed:
@@ -441,9 +448,16 @@ jobs:
           params:
             CLUSTER_NAME_PREFIX: "kubecf-diego"
             EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-diego"
+          EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-post-rotate-diego
-  serial_groups: [diego]
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -497,9 +511,16 @@ jobs:
           params:
             CLUSTER_NAME_PREFIX: "kubecf-diego"
             EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-diego"
+          EKCP_HOST: ((ekcp-host))
 
 - name: cf-acceptance-tests-diego
-  serial_groups: [diego]
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -553,9 +574,16 @@ jobs:
           params:
             CLUSTER_NAME_PREFIX: "kubecf-diego"
             EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-diego"
+          EKCP_HOST: ((ekcp-host))
 
 - name: cleanup-diego-cluster
-  serial_groups: [diego]
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -571,7 +599,7 @@ jobs:
 
 # Eirini
 - name: deploy-eirini
-  serial_groups: [eirini]
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -628,9 +656,16 @@ jobs:
           params:
             CLUSTER_NAME_PREFIX: "kubecf-eirini"
             EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-eirini"
+          EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-eirini
-  serial_groups: [eirini]
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -684,10 +719,17 @@ jobs:
           params:
             CLUSTER_NAME_PREFIX: "kubecf-eirini"
             EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-eirini"
+          EKCP_HOST: ((ekcp-host))
 
 - name: ccdb-rotate-eirini
   public: true
-  serial_groups: [eirini]
+  max_in_flight: 2
   plan:
   - get: commit-to-test
     passed:
@@ -739,9 +781,16 @@ jobs:
           params:
             CLUSTER_NAME_PREFIX: "kubecf-eirini"
             EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-eirini"
+          EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-post-rotate-eirini
-  serial_groups: [eirini]
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -795,9 +844,16 @@ jobs:
           params:
             CLUSTER_NAME_PREFIX: "kubecf-eirini"
             EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-eirini"
+          EKCP_HOST: ((ekcp-host))
 
 - name: cf-acceptance-tests-eirini
-  serial_groups: [eirini]
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -851,9 +907,16 @@ jobs:
           params:
             CLUSTER_NAME_PREFIX: "kubecf-eirini"
             EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-eirini"
+          EKCP_HOST: ((ekcp-host))
 
 - name: cleanup-eirini-cluster
-  serial_groups: [eirini]
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
