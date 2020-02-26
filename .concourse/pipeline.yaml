@@ -76,8 +76,7 @@ deploy_args: &deploy_args
   export BACKEND=ekcp
   export DOCKER_ORG=cap-staging
   export QUIET_OUTPUT=true
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat commit-to-test/*.json | \
-    jq -r .commit_sha | cut -c1-7)"
+  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | sed 's/.json$//g' | cut -c1-18)"
   pushd catapult
   # Bring up a k8s cluster and builds+deploy kubecf
   # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
@@ -91,8 +90,7 @@ test_args: &test_args
   export SCF_LOCAL="${PWD}/commit-to-test"
   export KUBECF_NAMESPACE="scf"
   export QUIET_OUTPUT=true
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat commit-to-test/*.json | \
-    jq -r .commit_sha | cut -c1-7)"
+  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | sed 's/.json$//g' | cut -c1-18)"
   pushd catapult
   # Grabs back a deployed cluster and runs test suites on it
   # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
@@ -103,8 +101,7 @@ rotate_args: &rotate_args
 - |
   export BACKEND=ekcp
   export KUBECF_NAMESPACE="scf"
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat commit-to-test/*.json | \
-    jq -r .commit_sha | cut -c1-7)"
+  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | sed 's/.json$//g' | cut -c1-18)"
   pushd catapult
   make recover
   source build*/.envrc
@@ -325,8 +322,7 @@ jobs:
             args:
             - -ce
             - |
-              export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat commit-to-test/*.json | \
-                jq -r .commit_sha | cut -c1-7)"
+              export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | sed 's/.json$//g' | cut -c1-18)"
               curl -X DELETE -s "http://${EKCP_HOST}/${CLUSTER_NAME}"
 
 - name: smoke-tests-diego
