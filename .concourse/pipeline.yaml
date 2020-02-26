@@ -237,12 +237,13 @@ jobs:
         state: "success"
         contexts: "build"
     on_failure:
-      put: commit-to-test
-      params:
-        description: "Build failed"
-        state: "failure"
-        contexts: "build"
-        commit_path: "commit-to-test/.git/resource/ref"
+      do:
+      - put: commit-to-test
+        params:
+          description: "Build failed"
+          state: "failure"
+          contexts: "build"
+          commit_path: "commit-to-test/.git/resource/ref"
   - put: s3.kubecf
     params:
       file: output/kubecf-v*.tgz
@@ -296,12 +297,33 @@ jobs:
         commit_path: "commit-to-test/.git/resource/ref"
         contexts: "deploy-diego"
     on_failure:
-      put: commit-to-test
-      params:
-        description: "Deploying with Diego failed"
-        commit_path: "commit-to-test/.git/resource/ref"
-        state: "failure"
-        contexts: "deploy-diego"
+      do:
+      - put: commit-to-test
+        params:
+          description: "Deploying with Diego failed"
+          commit_path: "commit-to-test/.git/resource/ref"
+          state: "failure"
+          contexts: "deploy-diego"
+      - task: cleanup-cluster
+        config: &cleanup-cluster
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: splatform/catapult
+          inputs:
+          - name: commit-to-test
+          params:
+            EKCP_HOST: ((ekcp-host))
+            CLUSTER_NAME_PREFIX: "kubecf-diego"
+          run:
+            path: "/bin/bash"
+            args:
+            - -ce
+            - |
+              export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat commit-to-test/*.json | \
+                jq -r .commit_sha | cut -c1-7)"
+              curl -X DELETE -s "http://${EKCP_HOST}/${CLUSTER_NAME}"
 
 - name: smoke-tests-diego
   serial_groups: [diego]
@@ -343,12 +365,19 @@ jobs:
         commit_path: "commit-to-test/.git/resource/ref"
         contexts: "smoke-diego"
     on_failure:
-      put: commit-to-test
-      params:
-        description: "Smoke tests on Diego failed"
-        commit_path: "commit-to-test/.git/resource/ref"
-        state: "failure"
-        contexts: "smoke-diego"
+      do:
+      - put: commit-to-test
+        params:
+          description: "Smoke tests on Diego failed"
+          commit_path: "commit-to-test/.git/resource/ref"
+          state: "failure"
+          contexts: "smoke-diego"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            EKCP_HOST: ((ekcp-host))
 
 - name: ccdb-rotate-diego
   public: true
@@ -389,12 +418,19 @@ jobs:
         commit_path: "commit-to-test/.git/resource/ref"
         contexts: "rotate-diego"
     on_failure:
-      put: commit-to-test
-      params:
-        description: "Rotating secrets on Diego failed"
-        commit_path: "commit-to-test/.git/resource/ref"
-        state: "failure"
-        contexts: "rotate-diego"
+      do:
+      - put: commit-to-test
+        params:
+          description: "Rotating secrets on Diego failed"
+          commit_path: "commit-to-test/.git/resource/ref"
+          state: "failure"
+          contexts: "rotate-diego"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-post-rotate-diego
   serial_groups: [diego]
@@ -436,12 +472,19 @@ jobs:
         commit_path: "commit-to-test/.git/resource/ref"
         contexts: "smoke-rotated-diego"
     on_failure:
-      put: commit-to-test
-      params:
-        description: "Smoke tests on Diego after rotating secrets failed"
-        commit_path: "commit-to-test/.git/resource/ref"
-        state: "failure"
-        contexts: "smoke-rotated-diego"
+      do:
+      - put: commit-to-test
+        params:
+          description: "Smoke tests on Diego after rotating secrets failed"
+          commit_path: "commit-to-test/.git/resource/ref"
+          state: "failure"
+          contexts: "smoke-rotated-diego"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            EKCP_HOST: ((ekcp-host))
 
 - name: cf-acceptance-tests-diego
   serial_groups: [diego]
@@ -483,13 +526,34 @@ jobs:
         contexts: "acceptance-diego"
         commit_path: "commit-to-test/.git/resource/ref"
     on_failure:
-      put: commit-to-test
-      params:
-        description: "Acceptance tests on Diego failed"
-        state: "failure"
-        commit_path: "commit-to-test/.git/resource/ref"
-        contexts: "acceptance-diego"
+      do:
+      - put: commit-to-test
+        params:
+          description: "Acceptance tests on Diego failed"
+          state: "failure"
+          commit_path: "commit-to-test/.git/resource/ref"
+          contexts: "acceptance-diego"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            EKCP_HOST: ((ekcp-host))
 
+- name: cleanup-diego-cluster
+  serial_groups: [diego]
+  public: true
+  plan:
+  - get: commit-to-test
+    passed:
+    - cf-acceptance-tests-diego
+    trigger: true
+  - task: cleanup-cluster
+    config:
+      <<: *cleanup-cluster
+      params:
+        CLUSTER_NAME_PREFIX: "kubecf-diego"
+        EKCP_HOST: ((ekcp-host))
 
 # Eirini
 - name: deploy-eirini
@@ -535,12 +599,19 @@ jobs:
         contexts: "deploy-eirini"
         commit_path: "commit-to-test/.git/resource/ref"
     on_failure:
-      put: commit-to-test
-      params:
-        description: "Deploying Eirini failed"
-        commit_path: "commit-to-test/.git/resource/ref"
-        state: "failure"
-        contexts: "deploy-eirini"
+      do:
+      - put: commit-to-test
+        params:
+          description: "Deploying Eirini failed"
+          commit_path: "commit-to-test/.git/resource/ref"
+          state: "failure"
+          contexts: "deploy-eirini"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-eirini"
+            EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-eirini
   serial_groups: [eirini]
@@ -582,12 +653,19 @@ jobs:
         contexts: "smoke-eirini"
         commit_path: "commit-to-test/.git/resource/ref"
     on_failure:
-      put: commit-to-test
-      params:
-        description: "Smoke tests on Eirini failed"
-        state: "failure"
-        contexts: "smoke-eirini"
-        commit_path: "commit-to-test/.git/resource/ref"
+      do:
+      - put: commit-to-test
+        params:
+          description: "Smoke tests on Eirini failed"
+          state: "failure"
+          contexts: "smoke-eirini"
+          commit_path: "commit-to-test/.git/resource/ref"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-eirini"
+            EKCP_HOST: ((ekcp-host))
 
 - name: ccdb-rotate-eirini
   public: true
@@ -628,12 +706,19 @@ jobs:
         contexts: "rotate-eirini"
         commit_path: "commit-to-test/.git/resource/ref"
     on_failure:
-      put: commit-to-test
-      params:
-        description: "Rotating secrets on Eirini failed"
-        state: "failure"
-        commit_path: "commit-to-test/.git/resource/ref"
-        contexts: "rotate-eirini"
+      do:
+      - put: commit-to-test
+        params:
+          description: "Rotating secrets on Eirini failed"
+          state: "failure"
+          commit_path: "commit-to-test/.git/resource/ref"
+          contexts: "rotate-eirini"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-eirini"
+            EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-post-rotate-eirini
   serial_groups: [eirini]
@@ -675,12 +760,19 @@ jobs:
         contexts: "smoke-rotated-eirini"
         commit_path: "commit-to-test/.git/resource/ref"
     on_failure:
-      put: commit-to-test
-      params:
-        description: "Smoke tests after rotating secrets on Eirini failed"
-        state: "failure"
-        commit_path: "commit-to-test/.git/resource/ref"
-        contexts: "smoke-rotated-eirini"
+      do:
+      - put: commit-to-test
+        params:
+          description: "Smoke tests after rotating secrets on Eirini failed"
+          state: "failure"
+          commit_path: "commit-to-test/.git/resource/ref"
+          contexts: "smoke-rotated-eirini"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-eirini"
+            EKCP_HOST: ((ekcp-host))
 
 - name: cf-acceptance-tests-eirini
   serial_groups: [eirini]
@@ -722,9 +814,31 @@ jobs:
         contexts: "acceptance-eirini"
         commit_path: "commit-to-test/.git/resource/ref"
     on_failure:
-      put: commit-to-test
+      do:
+      - put: commit-to-test
+        params:
+          description: "Acceptance tests on Eirini failed"
+          state: "failure"
+          commit_path: "commit-to-test/.git/resource/ref"
+          contexts: "acceptance-eirini"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-eirini"
+            EKCP_HOST: ((ekcp-host))
+
+- name: cleanup-eirini-cluster
+  serial_groups: [eirini]
+  public: true
+  plan:
+  - get: commit-to-test
+    passed:
+    - cf-acceptance-tests-eirini
+    trigger: true
+  - task: cleanup-cluster
+    config:
+      <<: *cleanup-cluster
       params:
-        description: "Acceptance tests on Eirini failed"
-        state: "failure"
-        commit_path: "commit-to-test/.git/resource/ref"
-        contexts: "acceptance-eirini"
+        CLUSTER_NAME_PREFIX: "kubecf-eirini"
+        EKCP_HOST: ((ekcp-host))
