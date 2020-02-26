@@ -270,6 +270,8 @@ features:
   # The database type can be either 'mysql' or 'postgres'.
   external_database:
     enabled: false
+    require_ssl: false
+    ca_cert: ~
     type: ~
     host: ~
     port: ~

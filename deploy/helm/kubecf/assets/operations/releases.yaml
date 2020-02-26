@@ -36,7 +36,6 @@
   path: /releases/-
   value:
     name: cf-mysql
-{{- else }}
 # Remove the PXC release and related variables.
 - type: remove
   path: /releases/name=pxc
