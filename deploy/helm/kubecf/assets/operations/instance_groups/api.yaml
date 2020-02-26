@@ -13,34 +13,34 @@
     docker: docker_app_lifecycle/docker_app_lifecycle.tgz
 {{- end }}
 
+{{- $path := "/var/vcap/data/shared-packages/" }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/install_buildpacks
   value:
   ## Order is important here
   - name: staticfile_buildpack
-    file: /var/vcap/data/shared-packages/staticfile-buildpack/packages/staticfile-buildpack-cflinuxfs3/staticfile_buildpack-cflinuxfs3-v1.5.1.zip
+    file: {{ $path }}{{ (index .Values.releases "staticfile-buildpack").file }}
   - name: java_buildpack
-    file: /var/vcap/data/shared-packages/java-buildpack/packages/java-buildpack-cflinuxfs3/java-buildpack-cflinuxfs3-v4.26.zip
+    file: {{ $path }}{{ (index .Values.releases "java-buildpack").file }}
   - name: ruby_buildpack
-    file: /var/vcap/data/shared-packages/ruby-buildpack/packages/ruby-buildpack-cflinuxfs3/ruby_buildpack-cflinuxfs3-v1.8.2.zip
+    file: {{ $path }}{{ (index .Values.releases "ruby-buildpack").file }}
   - name: dotnet-core_buildpack
-    file: /var/vcap/data/shared-packages/dotnet-core-buildpack/packages/dotnet-core-buildpack-cflinuxfs3/dotnet-core_buildpack-cflinuxfs3-v2.3.2.zip
+    file: {{ $path }}{{ (index .Values.releases "dotnet-core-buildpack").file }}
   - name: nodejs_buildpack
-    file: /var/vcap/data/shared-packages/nodejs-buildpack/packages/nodejs-buildpack-cflinuxfs3/nodejs_buildpack-cflinuxfs3-v1.7.4.zip
+    file: {{ $path }}{{ (index .Values.releases "nodejs-buildpack").file }}
   - name: go_buildpack
-    file: /var/vcap/data/shared-packages/go-buildpack/packages/go-buildpack-cflinuxfs3/go_buildpack-cflinuxfs3-v1.9.3.zip
+    file: {{ $path }}{{ (index .Values.releases "go-buildpack").file }}
   - name: python_buildpack
-    file: /var/vcap/data/shared-packages/python-buildpack/packages/python-buildpack-cflinuxfs3/python_buildpack-cflinuxfs3-v1.7.2.zip
+    file: {{ $path }}{{ (index .Values.releases "python-buildpack").file }}
   - name: php_buildpack
-    file: /var/vcap/data/shared-packages/php-buildpack/packages/php-buildpack-cflinuxfs3/php_buildpack-cflinuxfs3-v4.4.2.zip
+    file: {{ $path }}{{ (index .Values.releases "php-buildpack").file }}
   - name: nginx_buildpack
-    file: /var/vcap/data/shared-packages/nginx-buildpack/packages/nginx-buildpack-cflinuxfs3/nginx_buildpack-cflinuxfs3-v1.1.1.zip
+    file: {{ $path }}{{ (index .Values.releases "nginx-buildpack").file }}
   - name: r_buildpack
-    file: /var/vcap/data/shared-packages/r-buildpack/packages/r-buildpack-cflinuxfs3/r_buildpack-cflinuxfs3-v1.1.0.zip
+    file: {{ $path }}{{ (index .Values.releases "r-buildpack").file }}
   - name: binary_buildpack
-    file: /var/vcap/data/shared-packages/binary-buildpack/packages/binary-buildpack-cflinuxfs3/binary_buildpack-cflinuxfs3-v1.0.35.zip
+    file: {{ $path }}{{ (index .Values.releases "binary-buildpack").file }}
 {{- if .Values.features.suse_buildpacks.enabled }}
-{{- $path := "/var/vcap/data/shared-packages/" }}
   - name: staticfile_buildpack
     file: {{ $path }}{{ (index .Values.releases "suse-staticfile-buildpack").file }}
   - name: java_buildpack
