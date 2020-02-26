@@ -329,7 +329,7 @@ jobs:
             - -ce
             - |
               export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | xargs basename | sed 's/.json$//g' | cut -c1-18)"
-              curl -X DELETE -s "http://${EKCP_HOST}/${CLUSTER_NAME}"
+              curl -X DELETE -s "http://${EKCP_HOST}/${CLUSTER_NAME}" | jq -r .Output
 
 - name: smoke-tests-diego
   max_in_flight: 2
