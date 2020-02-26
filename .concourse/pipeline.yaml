@@ -70,15 +70,15 @@ deploy_args: &deploy_args
 - |
   export SCF_LOCAL="${PWD}/commit-to-test"
   export SCF_CHART="$(readlink -f s3.kubecf/*.tgz)"
-  pushd catapult
   export SCF_OPERATOR=true
   export FORCE_DELETE=true
   export SCF_TESTGROUP=true
   export BACKEND=ekcp
   export DOCKER_ORG=cap-staging
   export QUIET_OUTPUT=true
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat ../commit-to-test/*.json | \
+  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat commit-to-test/*.json | \
     jq -r .commit_sha | cut -c1-7)"
+  pushd catapult
   # Bring up a k8s cluster and builds+deploy kubecf
   # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
   make k8s scf
@@ -88,9 +88,10 @@ test_args: &test_args
 - |
   export BACKEND=ekcp
   export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
+  export SCF_LOCAL="${PWD}/commit-to-test"
   export KUBECF_NAMESPACE="scf"
   export QUIET_OUTPUT=true
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat ../commit-to-test/*.json | \
+  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat commit-to-test/*.json | \
     jq -r .commit_sha | cut -c1-7)"
   pushd catapult
   # Grabs back a deployed cluster and runs test suites on it
@@ -102,9 +103,12 @@ rotate_args: &rotate_args
 - |
   export BACKEND=ekcp
   export KUBECF_NAMESPACE="scf"
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat ../commit-to-test/*.json | \
+  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(cat commit-to-test/*.json | \
     jq -r .commit_sha | cut -c1-7)"
   pushd catapult
+  make recover
+  source build*/.envrc
+
   "${KUBECF_CHECKOUT}/testing/ccdb_key_rotation/rotate-ccdb-keys-test.sh"
 
 jobs:
@@ -258,10 +262,10 @@ jobs:
   public: true
   plan:
   - get: commit-to-test
+    trigger: true
     passed:
     - build
   - get: s3.kubecf
-    trigger: true
     passed:
     - build
   - get: catapult
@@ -561,10 +565,10 @@ jobs:
   public: true
   plan:
   - get: commit-to-test
+    trigger: true
     passed:
     - build
   - get: s3.kubecf
-    trigger: true
     passed:
     - build
   - get: catapult
