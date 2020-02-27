@@ -1022,8 +1022,6 @@ jobs:
   - put: s3.kubecf
     params:
       file: s3.kubecf-ci/kubecf-v*.tgz
-      acl: public-read
   - put: s3.kubecf-bundle
     params:
       file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
-      acl: public-read
