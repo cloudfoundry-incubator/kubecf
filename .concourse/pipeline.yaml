@@ -107,6 +107,8 @@ rotate_args: &rotate_args
   export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
                        xargs basename | sed 's/.json$//g' | cut -c1-18)"
   export KUBECF_CHECKOUT="${PWD}/commit-to-test"
+  export KUBECF_INSTALL_NAME="susecf-scf"
+
   pushd catapult
   make recover
   source build*/.envrc
