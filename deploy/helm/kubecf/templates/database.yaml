@@ -152,7 +152,6 @@ spec:
     app: {{ .Release.Name }}-database
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
     app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    quarks.cloudfoundry.org/pod-active: active
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksStatefulSet
