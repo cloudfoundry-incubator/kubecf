@@ -1,5 +1,3 @@
-[![pipeline status](https://gitlab.com/susecf/kubecf/badges/master/pipeline.svg)](https://gitlab.com/susecf/kubecf/pipelines)
-
 # KubeCF
 
 ## Introduction
