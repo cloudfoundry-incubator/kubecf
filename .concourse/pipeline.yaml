@@ -927,7 +927,7 @@ jobs:
   - get: commit-to-test
     passed:
     - smoke-tests-eirini
-    trigger: true
+    # trigger: true
   - get: s3.kubecf-ci
     passed:
     - smoke-tests-eirini
@@ -994,7 +994,8 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-post-rotate-eirini
+    # - smoke-tests-post-rotate-eirini
+    - smoke-tests-eirini
     trigger: true
   - task: cleanup-cluster
     config:
