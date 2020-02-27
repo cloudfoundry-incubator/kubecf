@@ -19,19 +19,19 @@ const (
 func NewHTTPClient(ctx context.Context) (*http.Client, error) {
 	link, err := quarks.ResolveLink(ctx, ccEntanglementName, ccEntanglementName)
 	if err != nil {
-		return nil, fmt.Errorf("could not get link: %w", err)
+		return nil, fmt.Errorf("failed to create HTTP client: %w", err)
 	}
 	hostname, err := link.Read("cc.internal_service_hostname")
 	if err != nil {
-		return nil, fmt.Errorf("could not read internal CC host name: %w", err)
+		return nil, fmt.Errorf("failed to create HTTP client: internal CC host name: %w", err)
 	}
 	caCert, err := link.Read("cc.public_tls.ca_cert")
 	if err != nil {
-		return nil, fmt.Errorf("could not read internal CC CA certificate: %w", err)
+		return nil, fmt.Errorf("failed to create HTTP client: internal CC CA certificate: %w", err)
 	}
 	client, err := httpclient.MakeHTTPClientWithCA(ctx, string(hostname), caCert)
 	if err != nil {
-		return nil, fmt.Errorf("could not create HTTP client with CA: %w", err)
+		return nil, fmt.Errorf("failed to create HTTP client: %w", err)
 	}
 	return client, nil
 }

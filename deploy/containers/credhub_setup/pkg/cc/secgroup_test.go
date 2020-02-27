@@ -219,7 +219,7 @@ func TestGetExistingSecurityGroup(t *testing.T) {
 	require.Empty(t, groupID, "got unexpected group ID")
 
 	newEntity := cc.BuildSecurityGroup(
-		[]cc.PortInfo{cc.PortInfo{Addresses: []string{"1"}, Port: 80}})
+		[]cc.EndpointInfo{cc.EndpointInfo{Addresses: []string{"1"}, Port: 80}})
 	entityBytes, err := json.Marshal(newEntity)
 	require.NoError(t, err, "could not marshal sample data")
 	entityReader := bytes.NewReader(entityBytes)
@@ -233,7 +233,7 @@ func TestGetExistingSecurityGroup(t *testing.T) {
 	require.Equal(t, createdGroup.Entity, newEntity)
 
 	updatedEntity := cc.BuildSecurityGroup(
-		[]cc.PortInfo{cc.PortInfo{Addresses: []string{"hello"}, Port: 443}})
+		[]cc.EndpointInfo{cc.EndpointInfo{Addresses: []string{"hello"}, Port: 443}})
 	entityBytes, err = json.Marshal(updatedEntity)
 	require.NoError(t, err, "could not marshal sample data")
 	entityReader = bytes.NewReader(entityBytes)
@@ -262,7 +262,7 @@ func TestSetupCredHubApplicationSecurityGroups(t *testing.T) {
 	client := server.Client()
 
 	err = cc.SetupCredHubApplicationSecurityGroups(ctx, client,
-		[]cc.PortInfo{cc.PortInfo{Addresses: []string{"1"}, Port: 22}})
+		[]cc.EndpointInfo{cc.EndpointInfo{Addresses: []string{"1"}, Port: 22}})
 	require.NoError(t, err, "could not set up credhub security groups")
 
 	group, err := mockCCInstance.findGroup(func(group *cc.SecurityGroupDefinition) bool {
@@ -283,7 +283,7 @@ func TestSetupCredHubApplicationSecurityGroups(t *testing.T) {
 
 	// Do it again and check for updates
 	err = cc.SetupCredHubApplicationSecurityGroups(ctx, client,
-		[]cc.PortInfo{cc.PortInfo{Addresses: []string{"irc"}, Port: 6667}})
+		[]cc.EndpointInfo{cc.EndpointInfo{Addresses: []string{"irc"}, Port: 6667}})
 	require.NoError(t, err, "could not set up credhub security groups")
 
 	group, err = mockCCInstance.findGroup(func(group *cc.SecurityGroupDefinition) bool {

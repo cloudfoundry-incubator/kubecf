@@ -18,7 +18,7 @@ func ResolveLink(ctx context.Context, linkType, linkName string) (*Link, error) 
 	mountRoot := GetMountRootFromContext(ctx)
 	deploymentName, err := GetDeploymentName(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to resolve BOSH link %s: %w", linkName, err)
 	}
 	linkPath := filepath.Join(
 		mountRoot,
@@ -28,14 +28,12 @@ func ResolveLink(ctx context.Context, linkType, linkName string) (*Link, error) 
 
 	info, err := os.Stat(linkPath)
 	if err != nil {
-		filepath.Walk(filepath.Join(mountRoot, "quarks", "link"), func(path string, info os.FileInfo, err error) error {
-			fmt.Printf("%s\n", path)
-			return nil
-		})
-		return nil, fmt.Errorf("could not read link data %s: %w", linkPath, err)
+		// os.Stat() fills the error with the path already.
+		return nil, fmt.Errorf("failed to resolve BOSH link %s: %w", linkName, err)
 	}
 	if !info.IsDir() {
-		return nil, fmt.Errorf("link %s is not a directory", linkPath)
+		err = fmt.Errorf("%s is not a directory", linkPath)
+		return nil, fmt.Errorf("failed to resolve BOSH link %s: %w", linkName, err)
 	}
 	return &Link{path: linkPath}, nil
 }
@@ -43,5 +41,9 @@ func ResolveLink(ctx context.Context, linkType, linkName string) (*Link, error) 
 // Read a BOSH link and return the contents.
 func (l *Link) Read(path string) ([]byte, error) {
 	linkPath := filepath.Join(l.path, path)
-	return ioutil.ReadFile(linkPath)
+	result, err := ioutil.ReadFile(linkPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read link %s: %w", path, err)
+	}
+	return result, nil
 }

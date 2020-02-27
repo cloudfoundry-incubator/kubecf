@@ -15,11 +15,11 @@ func GetUAAAddrs(ctx context.Context) ([]string, int, error) {
 	// internal secret... which all have too much details.
 	resolver, err := quarks.NewResolver(ctx)
 	if err != nil {
-		return nil, 0, fmt.Errorf("could not create DNS resolver: %w", err)
+		return nil, 0, fmt.Errorf("failed to get UAA address: %w", err)
 	}
 	uaaAddrs, err := resolver.LookupHost(ctx, "uaa.service.cf.internal")
 	if err != nil {
-		return nil, 0, fmt.Errorf("could not resolve UAA address: %w", err)
+		return nil, 0, fmt.Errorf("failed to get UAA address: %w", err)
 	}
 	return uaaAddrs, 8443, nil
 }

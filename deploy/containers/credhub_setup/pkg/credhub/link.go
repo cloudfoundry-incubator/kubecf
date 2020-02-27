@@ -1,8 +1,5 @@
 package credhub
 
-// credhub_info.go contains functions to determine the credhub information
-// (addresses and port) required for our security groups.
-
 import (
 	"context"
 	"fmt"
@@ -14,23 +11,24 @@ import (
 
 // resolveCredHubAddrsGivenLink returns the IP addresses of the credhub service.
 func resolveCredHubAddrsGivenLink(ctx context.Context, link *quarks.Link) ([]string, error) {
+	const errorMessage = "failed to resolve credhub addresses"
 	rawURL, err := link.Read("credhub.internal_url")
 	if err != nil {
-		return nil, fmt.Errorf("could not read credhub link URL: %w", err)
+		return nil, fmt.Errorf("%s: could not read URL: %w", errorMessage, err)
 	}
 	credhubURL, err := url.Parse(string(rawURL))
 	if err != nil {
-		return nil, fmt.Errorf("could not parse credhub link URL %s: %w",
-			string(rawURL), err)
+		return nil, fmt.Errorf("%s: could not parse URL %s: %w",
+			errorMessage, string(rawURL), err)
 	}
 
 	resolver, err := quarks.NewResolver(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("could not create DNS resolver: %w", err)
+		return nil, fmt.Errorf("%s: %w", errorMessage, err)
 	}
 	addrs, err := resolver.LookupHost(ctx, credhubURL.Hostname())
 	if err != nil {
-		return nil, fmt.Errorf("could not resolve credhub hostname: %w", err)
+		return nil, fmt.Errorf("%s: %w", errorMessage, err)
 	}
 	return addrs, nil
 }
@@ -44,16 +42,16 @@ func ResolveCredHubInfo(ctx context.Context) ([]string, int, error) {
 
 	credHubAddrs, err := resolveCredHubAddrsGivenLink(ctx, link)
 	if err != nil {
-		return nil, 0, fmt.Errorf("could not resolve credhub address: %w", err)
+		return nil, 0, fmt.Errorf("failed to resolve credhub info: %w", err)
 	}
 
 	rawPort, err := link.Read("credhub.port")
 	if err != nil {
-		return nil, 0, fmt.Errorf("could not read credhub link port: %w", err)
+		return nil, 0, fmt.Errorf("failed to resolve credhub info: %w", err)
 	}
 	port, err := strconv.Atoi(string(rawPort))
 	if err != nil {
-		return nil, 0, fmt.Errorf("could not parse credhub link port: %w", err)
+		return nil, 0, fmt.Errorf("failed to resolve credhub info: %w", err)
 	}
 	return credHubAddrs, port, nil
 }

@@ -14,7 +14,7 @@ func GetDeploymentName(ctx context.Context) (string, error) {
 	deploymentFileName := filepath.Join(mountRoot, "run", "pod-info", "deployment-name")
 	deploymentNameBytes, err := ioutil.ReadFile(deploymentFileName)
 	if err != nil {
-		return "", fmt.Errorf("could not read deployment name: %w", err)
+		return "", fmt.Errorf("failed to read deployment name: %w", err)
 	}
 	return string(deploymentNameBytes), nil
 }

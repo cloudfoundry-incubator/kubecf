@@ -47,20 +47,20 @@ func process(ctx context.Context) error {
 		return err
 	}
 
-	ports := []cc.PortInfo{
-		cc.PortInfo{
+	endpoints := []cc.EndpointInfo{
+		cc.EndpointInfo{
 			Addresses:   credhubAddrs,
 			Port:        credhubPort,
 			Description: "CredHub service access",
 		},
-		cc.PortInfo{
+		cc.EndpointInfo{
 			Addresses:   uaaAddrs,
 			Port:        uaaPort,
 			Description: "UAA service access",
 		},
 	}
 
-	if err := cc.SetupCredHubApplicationSecurityGroups(ctx, client, ports); err != nil {
+	if err := cc.SetupCredHubApplicationSecurityGroups(ctx, client, endpoints); err != nil {
 		return fmt.Errorf("error setting security groups: %w", err)
 	}
 	return nil

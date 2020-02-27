@@ -27,14 +27,14 @@ func Authenticate(ctx context.Context, ccClient *http.Client, tokenURL *url.URL,
 	certPath := filepath.Join(quarks.GetMountRootFromContext(ctx), "run", "uaa-ca-cert", "ca.crt")
 	uaaCABytes, err := ioutil.ReadFile(certPath)
 	if err != nil {
-		return nil, fmt.Errorf("error reading UAA CA certificate: %w", err)
+		return nil, fmt.Errorf("failed to authenticate: could not read UAA certificate %s: %w", certPath, err)
 	}
 	uaaClient, err := httpclient.MakeHTTPClientWithCA(
 		ctx,
 		tokenURL.Hostname(),
 		uaaCABytes)
 	if err != nil {
-		return nil, fmt.Errorf("could not add UAA CA: %w", err)
+		return nil, fmt.Errorf("failed to authenticate: %w", err)
 	}
 	uaaContext := context.WithValue(ctx, oauth2.HTTPClient, uaaClient)
 

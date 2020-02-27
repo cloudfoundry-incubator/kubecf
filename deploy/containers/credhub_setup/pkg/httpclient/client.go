@@ -17,11 +17,11 @@ func MakeHTTPClientWithCA(ctx context.Context, serverName string, caCert []byte)
 	certPool := x509.NewCertPool()
 	ok := certPool.AppendCertsFromPEM(caCert)
 	if !ok {
-		return nil, fmt.Errorf("could not append CA cert")
+		return nil, fmt.Errorf("failed to create HTTP client: could not append CA cert")
 	}
 	resolver, err := quarks.NewResolver(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create HTTP client: %w", err)
 	}
 	return &http.Client{
 		Transport: &http.Transport{

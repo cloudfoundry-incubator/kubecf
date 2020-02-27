@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"credhub_setup/pkg/quarks"
 )
@@ -41,8 +42,10 @@ type SecurityGroupDefinition struct {
 	Entity securityGroupEntity `json:"entity"`
 }
 
-// PortInfo describes a port to be opened
-type PortInfo struct {
+// EndpointInfo describes an endpoint we should expose in the application
+// security groups, consisting of a host name, a port, and a description.  The
+// host name, however, is expressed as the IP addresses it resolves to.
+type EndpointInfo struct {
 	Addresses   []string
 	Port        int
 	Description string
@@ -64,18 +67,18 @@ const (
 // BuildSecurityGroup constructs the security group entity (as required to be
 // uploaded to the CC API) for apps to be able to communicate with CredHub,
 // given the addresses for CredHub and the port it's listening on.
-func BuildSecurityGroup(ports []PortInfo) securityGroupEntity {
+func BuildSecurityGroup(endpoints []EndpointInfo) securityGroupEntity {
 	var entries []securityGroupRule
-	for _, info := range ports {
-		for _, addr := range info.Addresses {
-			desc := info.Description
+	for _, endpoint := range endpoints {
+		for _, addr := range endpoint.Addresses {
+			desc := endpoint.Description
 			if desc == "" {
 				desc = "CredHub service access"
 			}
 			entries = append(entries, securityGroupRule{
 				Protocol:    "tcp",
 				Destination: addr,
-				Ports:       strconv.Itoa(info.Port),
+				Ports:       strconv.Itoa(endpoint.Port),
 				Description: desc,
 			})
 		}
@@ -99,7 +102,7 @@ func GetExistingSecurityGroup(ctx context.Context, client *http.Client, baseURL 
 	fmt.Printf("Checking for existing groups via %s\n", existingURL)
 	resp, err := client.Get(existingURL.String())
 	if err != nil {
-		return "", fmt.Errorf("could not get existing security groups: %w", err)
+		return "", fmt.Errorf("failed to get existing security groups: %w", err)
 	}
 
 	var responseData struct {
@@ -107,7 +110,7 @@ func GetExistingSecurityGroup(ctx context.Context, client *http.Client, baseURL 
 	}
 	err = json.NewDecoder(resp.Body).Decode(&responseData)
 	if err != nil {
-		return "", fmt.Errorf("could not read existing security groups: %w", err)
+		return "", fmt.Errorf("failed to get existing security groups: %w", err)
 	}
 
 	fmt.Printf("Got security groups: %+v\n", responseData)
@@ -144,21 +147,23 @@ func CreateOrUpdateSecurityGroup(ctx context.Context, client *http.Client, baseU
 	updateURL = baseURL.ResolveReference(updateURL)
 	req, err := http.NewRequestWithContext(ctx, method, updateURL.String(), contentReader)
 	if err != nil {
-		return "", fmt.Errorf("could not create update request: %w", err)
+		return "", fmt.Errorf("failed to create or update security group: could not create request: %w", err)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("could not submit update request: %w", err)
+		return "", fmt.Errorf("failed to create or update security group: %w", err)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		return "", fmt.Errorf("got response %s", resp.Status)
+		err = fmt.Errorf("got unexpected response: %s", resp.Status)
+		return "", fmt.Errorf("failed to create or update security group: %w", err)
 	}
 
 	var resultingSecurityGroup SecurityGroupDefinition
 	err = json.NewDecoder(resp.Body).Decode(&resultingSecurityGroup)
 	if err != nil {
-		return "", fmt.Errorf("updated security group (%s) but failed to read response: %w", resp.Status, err)
+		err = fmt.Errorf("failed to read response: %w", err)
+		return "", fmt.Errorf("failed to create or update security group: %w", err)
 	}
 	fmt.Printf("Succesfully updated security group: %s / %+v\n", resp.Status, resultingSecurityGroup)
 
@@ -174,14 +179,15 @@ func bindDefaultSecurityGroup(ctx context.Context, lifecycle lifecycleType, grou
 	})
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut, bindURL.String(), nil)
 	if err != nil {
-		return fmt.Errorf("failed to create %s security group request: %w", lifecycle, err)
+		return fmt.Errorf("failed to bind %s security group: could not create request: %w", lifecycle, err)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("could not set %s security group: %w", lifecycle, err)
+		return fmt.Errorf("failed to bind %s security group: %w", lifecycle, err)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		return fmt.Errorf("error setting %s security group: %s", lifecycle, resp.Status)
+		err = fmt.Errorf("got unexpected response: %s", resp.Status)
+		return fmt.Errorf("failed to bind %s security group: %w", lifecycle, err)
 	}
 	fmt.Printf("Successfully bound %s security group: %s\n", lifecycle, resp.Status)
 	return nil
@@ -191,19 +197,19 @@ func bindDefaultSecurityGroup(ctx context.Context, lifecycle lifecycleType, grou
 // appropriate security group exists and is bound to the appropriate lifecycle
 // phases.  It requres the addresses and port that the target (CredHub) is
 // listening on.
-func SetupCredHubApplicationSecurityGroups(ctx context.Context, client *http.Client, ports []PortInfo) error {
+func SetupCredHubApplicationSecurityGroups(ctx context.Context, client *http.Client, endpoints []EndpointInfo) error {
 	link, err := quarks.ResolveLink(ctx, ccEntanglementName, ccEntanglementName)
 	if err != nil {
-		return fmt.Errorf("could not get CC link: %w", err)
+		return fmt.Errorf("failed to setup security groups: %w", err)
 	}
 
 	hostname, err := link.Read("cc.internal_service_hostname")
 	if err != nil {
-		return fmt.Errorf("could not read internal CC host name: %w", err)
+		return fmt.Errorf("failed to setup security groups: could not read internal CC host name: %w", err)
 	}
 	port, err := link.Read("cc.public_tls.port")
 	if err != nil {
-		return fmt.Errorf("could not read internal CC port: %w", err)
+		return fmt.Errorf("failed to setup security groups: could not read internal CC port: %w", err)
 	}
 
 	baseURL := &url.URL{
@@ -211,22 +217,22 @@ func SetupCredHubApplicationSecurityGroups(ctx context.Context, client *http.Cli
 		Host:   net.JoinHostPort(string(hostname), string(port)),
 	}
 
-	contents := BuildSecurityGroup(ports)
+	contents := BuildSecurityGroup(endpoints)
 	contentBytes, err := json.Marshal(contents)
 	if err != nil {
-		return fmt.Errorf("could not build security group definition: %w", err)
+		return fmt.Errorf("failed to setup security groups: marshaling security groups: %w", err)
 	}
 	contentReader := bytes.NewReader(contentBytes)
 
 	groupID, err := CreateOrUpdateSecurityGroup(ctx, client, baseURL, contentReader)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to setup security groups: %w", err)
 	}
 
 	for _, lifecycle := range []lifecycleType{lifecycleRunning, lifecycleStaging} {
 		err = bindDefaultSecurityGroup(ctx, lifecycle, groupID, client, baseURL)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to setup security groups: %w", err)
 		}
 	}
 

@@ -52,7 +52,7 @@ func NewResolver(ctx context.Context) (*Resolver, error) {
 
 	deploymentName, err := GetDeploymentName(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create DNS resolver: %w", err)
 	}
 
 	nameServer := fmt.Sprintf("%s-bosh-dns", deploymentName)
@@ -77,7 +77,7 @@ func NewResolver(ctx context.Context) (*Resolver, error) {
 		break
 	}
 	if err != nil {
-		return nil, fmt.Errorf("could not look up DNS server %s: %w", nameServer, err)
+		return nil, fmt.Errorf("failed to create DNS resolver: could not look up DNS server %s: %w", nameServer, err)
 	}
 
 	result := &Resolver{
@@ -102,11 +102,11 @@ func (r *Resolver) LookupHost(ctx context.Context, hostname string) ([]string, e
 		}
 		var dnsError *net.DNSError
 		if !errors.As(err, &dnsError) {
-			return nil, fmt.Errorf("could not lookup host %s: %w", hostname, err)
+			return nil, fmt.Errorf("failed to lookup host %s: %w", hostname, err)
 		}
 		if !(dnsError.Temporary() || dnsError.IsNotFound) {
 			// Unexpected DNS error; report and die
-			return nil, fmt.Errorf("error looking up host %s: %w", hostname, err)
+			return nil, fmt.Errorf("failed to lookup host %s: %w", hostname, err)
 		}
 		// If CredHub has not finished starting up, DNS resolution will fail
 		// (even though the credhub service address is fixed); wait a bit and
