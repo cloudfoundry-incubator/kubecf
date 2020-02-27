@@ -409,7 +409,7 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-diego
+    - cf-acceptance-tests-diego
     trigger: true
   - get: s3.kubecf
   - get: catapult
@@ -534,7 +534,7 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-post-rotate-diego
+    - smoke-tests-diego
     trigger: true
   - get: s3.kubecf
   - get: catapult
@@ -597,7 +597,7 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - cf-acceptance-tests-diego
+    - smoke-tests-post-rotate-diego
     trigger: true
   - task: cleanup-cluster
     config:
@@ -742,7 +742,7 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-eirini
+    - cf-acceptance-tests-eirini
     trigger: true
   - get: s3.kubecf
   - get: catapult
@@ -867,7 +867,7 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-post-rotate-eirini
+    - smoke-tests-eirini
     trigger: true
   - get: s3.kubecf
   - get: catapult
@@ -930,7 +930,7 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - cf-acceptance-tests-eirini
+    - smoke-tests-post-rotate-eirini
     trigger: true
   - task: cleanup-cluster
     config:
