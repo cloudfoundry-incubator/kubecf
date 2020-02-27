@@ -111,7 +111,8 @@ rotate_args: &rotate_args
   make recover
   source build*/.envrc
 
-  "${KUBECF_CHECKOUT}/testing/ccdb_key_rotation/rotate-ccdb-keys-test.sh"
+  pushd "${KUBECF_CHECKOUT}"
+  testing/ccdb_key_rotation/rotate-ccdb-keys-test.sh
 
 jobs:
 - name: queue-pr
