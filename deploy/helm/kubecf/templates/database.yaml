@@ -188,7 +188,12 @@ spec:
         app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
         helm.sh/chart: {{ include "kubecf.chart" . }}
     spec:
-      replicas: {{ default 1 .Values.sizing.database.instances }}
+      {{- with $replicas := default 1 .Values.sizing.database.instances }}
+      {{- if eq (mod $replicas 2) 0 }}
+      {{- fail "The number of database instances must be odd to avoid split-brain" }}
+      {{- end }}
+      replicas: {{ $replicas }}
+      {{- end }}
       selector:
         matchLabels:
           app: {{ .Release.Name }}-database
