@@ -1,5 +1,3 @@
-[![pipeline status](https://gitlab.com/susecf/kubecf/badges/master/pipeline.svg)](https://gitlab.com/susecf/kubecf/pipelines)
-
 # KubeCF
 
 ## Introduction
@@ -13,6 +11,11 @@ under [Project Quarks].
 [KubeCF]:                   https://github.com/SUSE/kubecf
 [Cloud Foundry Operator]:   https://github.com/cloudfoundry-incubator/cf-operator/
 [Project Quarks]:           https://www.cloudfoundry.org/project-quarks/
+[Docs]:                     https://kubecf.suse.dev/
+
+## Documentation
+
+The Community documentation website is [available here](https://kubecf.suse.dev/).
 
 ## Contributing to KubeCF development
 

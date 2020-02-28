@@ -202,12 +202,10 @@ echo "Chart file ... $(blue "${chart_file}")"
 echo
 
 # Upgrade deployment to the modified key labels.
-bazel run @helm//:binary -- \
-      upgrade "${KUBECF_INSTALL_NAME}" "${chart_file}" \
+helm upgrade "${KUBECF_INSTALL_NAME}" "${chart_file}" \
       --namespace "${KUBECF_NAMESPACE}" \
       --reuse-values \
-      --values "${VALUES_FILE}" \
-      --wait
+      --values "${VALUES_FILE}"
 
 echo
 echo Upgraded
