@@ -363,6 +363,13 @@ jobs:
               export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
                                    xargs basename | sed 's/.json$//g' | cut -c1-18)"
               curl -X DELETE -s "http://${EKCP_HOST}/${CLUSTER_NAME}" | jq -r .Output
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-diego"
+          EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-diego
   max_in_flight: 2
