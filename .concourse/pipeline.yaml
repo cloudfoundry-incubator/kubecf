@@ -176,6 +176,7 @@ jobs:
         acceptance-diego,deploy-eirini,smoke-eirini,rotate-eirini,
         smoke-rotated-eirini,acceptance-eirini
       trigger: "PR"
+      metadata_path: "kubecf-pr/.git/resource/url"
 - name: queue-master
   public: true
   plan:
