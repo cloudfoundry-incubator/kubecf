@@ -1009,20 +1009,43 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-      - cf-acceptance-tests-diego
-      # TODO: Uncomment as soon as eirini tests are green
-      # TODO: Does this work? It might check the wrong thing
-      # - cf-acceptance-tests-eirini
+    - cf-acceptance-tests-diego
+    # TODO: Uncomment as soon as eirini tests are green
+    # TODO: Does this work? It might check the wrong thing
+    # - cf-acceptance-tests-eirini
     trigger: true
   - get: s3.kubecf-ci
     passed:
-      - cf-acceptance-tests-diego
+    - cf-acceptance-tests-diego
   - get: s3.kubecf-ci-bundle
     passed:
-      - cf-acceptance-tests-diego
-  - put: s3.kubecf
-    params:
-      file: s3.kubecf-ci/kubecf-v*.tgz
-  - put: s3.kubecf-bundle
-    params:
-      file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
+    - cf-acceptance-tests-diego
+  - task: check-if-build-is-master
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: commit-to-test
+      run:
+        path: "/bin/bash"
+        args:
+        - -xce
+        - |
+          if [ "$(cat commit-to-test/*-*.json | jq -r .trigger)" == "master" ]; then
+            echo "It was a master branch build, we will publish the artifact."
+            exit 0
+          else
+            echo "It was not a master build, we will not publish the artifact."
+            exit 1
+          fi
+    on_success:
+      do:
+      - put: s3.kubecf
+        params:
+          file: s3.kubecf-ci/kubecf-v*.tgz
+      - put: s3.kubecf-bundle
+        params:
+          file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
