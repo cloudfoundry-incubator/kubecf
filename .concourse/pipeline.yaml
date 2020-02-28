@@ -163,7 +163,7 @@ jobs:
         args:
         - -xce
         - |
-          curl -s -X GET "https://api.github.com/repos/${REPO}/pulls/$(cat kubecf-pr/.git/resource/pr)" | \
+          curl -s -L -X GET "https://api.github.com/repos/${REPO}/pulls/$(cat kubecf-pr/.git/resource/pr)" | \
             jq -r .head.repo.full_name > output/remote
   - put: commit-to-test
     params: &commit-status
