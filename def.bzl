@@ -130,8 +130,8 @@ project = struct(
         ),
         "cf_deployment": struct(
             urls = ["https://github.com/cloudfoundry/cf-deployment/archive/v{version}.tar.gz"],
-            version = "12.18.0",
-            sha256 = "1aeb7fa2bbd78ac4837c2aeaa4b9dc9567bc498f08f7fd744da556e672788991",
+            version = "12.33.0",
+            sha256 = "e411e8a2e770e9e0c5ecff4d39d0f1e479a67fe150130c339de16fc6583b160a",
             strip_prefix = "cf-deployment-{version}",
             build_file_content = """
 package(default_visibility = ["//visibility:public"])
@@ -176,9 +176,9 @@ filegroup(
     # Additional files we need to download
     external_files = {
         "cf_operator": struct(
-            urls = ["https://cf-operators.s3.amazonaws.com/release/helm-charts/cf-operator-{version}.tgz"],
-            sha256 = "5bf0b698bc1f984f3f98a60d636ad5820b7486cfd426597b9ca64f69b01b6e96",
-            version = "3.0.0%2B0.g4e1038ed",
+            urls = ["https://s3.amazonaws.com/cf-operators/release/helm-charts/cf-operator-{version}.tgz"],
+            sha256 = "f1714017219bab26214924e04800b2d20ac585d0c0ac7e8411fc345774b5eda8",
+            version = "3.1.0%2B0.gd5ad8a7d",
         ),
         "kube_dashboard": struct(
             urls = ["https://raw.githubusercontent.com/kubernetes/dashboard/{version}/aio/deploy/recommended.yaml"],

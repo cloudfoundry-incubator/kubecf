@@ -1,12 +1,12 @@
 # Contributing to KubeCF
 
-First, thanks for taking the time to contribute to this project 💪🥳 Open source community is part of the SUSE core and your help is highly appreciated - kudos!
+First, thanks for taking the time to contribute to the project! Your support is highly appreciated - kudos!
 
 The following is a set of guidelines for contributing to KubeCF and its modules. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
 
 ## How to contribute
 
-Before kicking the ball, please **do NOT report security vulnerabilities in public issues**! Instead, report with the SUSE team first <security@suse.com> and give us some time to fix it in a fashion time matter before disclosing it to the public.
+Before kicking the ball, please **do NOT report security vulnerabilities in public issues**! Instead, report with the CloudFoundry Foundation team first <security@cloudfoundry.org> and give us some time to fix it in a fashion time matter before disclosing it to the public. For more information check the CloudFoundry Security [page](https://www.cloudfoundry.org/security/).
 
 When contributing to this repository, please first discuss the changes through an existent Github issue with the main contributers.
 
