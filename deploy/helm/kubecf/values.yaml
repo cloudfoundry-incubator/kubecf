@@ -225,6 +225,20 @@ services:
       start: 20000
       end: 20008
 
+router:
+  # tls is an array of objects containing the `crt` and `key` keys. E.g.
+  # router:
+  #   tls:
+  #   - crt: |
+  #       -----BEGIN CERTIFICATE-----
+  #       ...
+  #       -----END CERTIFICATE-----
+  #     key: |
+  #       -----BEGIN PRIVATE KEY-----
+  #       ...
+  #       -----END PRIVATE KEY-----
+  tls: []
+
 features:
   eirini:
     enabled: false
