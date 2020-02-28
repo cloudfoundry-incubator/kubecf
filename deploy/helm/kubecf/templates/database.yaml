@@ -320,14 +320,14 @@ spec:
               storage: {{ .Values.sizing.database.persistence.size | quote }}
 ---
 {{- $databases := (list "" | compact) }}
-{{- $databases = mustAppend $databases (dict "name" "cloud-controller" "path" "cloud_controller" "secretName" "cc") }}
-{{- $databases = mustAppend $databases (dict "name" "diego" "path" "diego" "secretName" "diego") }}
-{{- $databases = mustAppend $databases (dict "name" "network-connectivity" "path" "network_connectivity" "secretName" "network-connectivity") }}
-{{- $databases = mustAppend $databases (dict "name" "network-policy" "path" "network_policy" "secretName" "network-policy") }}
-{{- $databases = mustAppend $databases (dict "name" "routing-api" "path" "routing-api" "secretName" "routing-api") }}
-{{- $databases = mustAppend $databases (dict "name" "uaa" "path" "uaa" "secretName" "uaa") }}
-{{- $databases = mustAppend $databases (dict "name" "locket" "path" "locket" "secretName" "locket") }}
-{{- $databases = mustAppend $databases (dict "name" "credhub" "path" "credhub" "secretName" "credhub") }}
+{{- $databases = append $databases (dict "name" "cloud-controller" "path" "cloud_controller" "secretName" "cc") }}
+{{- $databases = append $databases (dict "name" "diego" "path" "diego" "secretName" "diego") }}
+{{- $databases = append $databases (dict "name" "network-connectivity" "path" "network_connectivity" "secretName" "network-connectivity") }}
+{{- $databases = append $databases (dict "name" "network-policy" "path" "network_policy" "secretName" "network-policy") }}
+{{- $databases = append $databases (dict "name" "routing-api" "path" "routing-api" "secretName" "routing-api") }}
+{{- $databases = append $databases (dict "name" "uaa" "path" "uaa" "secretName" "uaa") }}
+{{- $databases = append $databases (dict "name" "locket" "path" "locket" "secretName" "locket") }}
+{{- $databases = append $databases (dict "name" "credhub" "path" "credhub" "secretName" "credhub") }}
 
 apiVersion: batch/v1
 kind: Job
