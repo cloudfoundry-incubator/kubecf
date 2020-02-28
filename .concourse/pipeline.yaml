@@ -29,13 +29,13 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/SUSE/kubecf
+    uri: https://github.com/cloudfoundry-incubator/kubecf
 
 - name: kubecf-pr
   type: pull-request
   check_every: 10m
   source:
-    repository: SUSE/kubecf
+    repository: cloudfoundry-incubator/kubecf
     access_token: ((github-access-token))
     labels: ["Trigger: CI"]
     disable_forks: false
@@ -157,7 +157,7 @@ jobs:
       - name: output
       params:
         GITHUB_ACCESS_TOKEN: ((github-access-token))
-        REPO: "SUSE/kubecf"
+        REPO: "cloudfoundry-incubator/kubecf"
       run:
         path: "/bin/bash"
         args:
@@ -187,7 +187,7 @@ jobs:
     params:
       <<: *commit-status
       commit_path: "kubecf-master/.git/ref"
-      remote: "SUSE/kubecf"
+      remote: "cloudfoundry-incubator/kubecf"
       remote_path: ""
       description: "Queued"
       state: "pending"
