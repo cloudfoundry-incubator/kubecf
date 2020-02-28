@@ -33,7 +33,7 @@ mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD
         PRIMARY KEY (anchor)
       );"
     for database in ${databases[*]}; do
-      password=$(</passwords/${database}/password)
+      password=$(</passwords/"${database}"/password)
 
       echo "CREATE USER \`${database}\` IDENTIFIED BY '${password}';"
       echo "CREATE DATABASE IF NOT EXISTS \`${database}\`;"

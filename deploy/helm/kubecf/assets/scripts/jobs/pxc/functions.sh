@@ -32,14 +32,14 @@ init_mysql() {
     # if we have CLUSTER_JOIN - then we do not need to perform datadir initialize
     # the data will be copied from another node
     if [ ! -e "$DATADIR/mysql" ]; then
-        if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" -a -z "$MYSQL_RANDOM_ROOT_PASSWORD" -a -z "$MYSQL_ROOT_PASSWORD_FILE" ]; then
+        if [ -z "$MYSQL_ROOT_PASSWORD" ] && [ -z "$MYSQL_ALLOW_EMPTY_PASSWORD" ] && [ -z "$MYSQL_RANDOM_ROOT_PASSWORD" ] && [ -z "$MYSQL_ROOT_PASSWORD_FILE" ]; then
             echo >&2 'error: database is uninitialized and password option is not specified '
             echo >&2 '  You need to specify one of MYSQL_ROOT_PASSWORD, MYSQL_ROOT_PASSWORD_FILE,  MYSQL_ALLOW_EMPTY_PASSWORD or MYSQL_RANDOM_ROOT_PASSWORD'
             exit 1
         fi
 
-        if [ ! -z "$MYSQL_ROOT_PASSWORD_FILE" -a -z "$MYSQL_ROOT_PASSWORD" ]; then
-            MYSQL_ROOT_PASSWORD=$(cat $MYSQL_ROOT_PASSWORD_FILE)
+        if [ -n "$MYSQL_ROOT_PASSWORD_FILE" ] && [ -z "$MYSQL_ROOT_PASSWORD" ]; then
+            MYSQL_ROOT_PASSWORD=$(cat "$MYSQL_ROOT_PASSWORD_FILE")
         fi
         mkdir -p "$DATADIR"
 
@@ -59,7 +59,7 @@ init_mysql() {
         mysqld --user=mysql --datadir="$DATADIR" --skip-networking &
         pid="$!"
 
-        mysql=( mysql --protocol=socket -uroot )
+        mysql=( mysql "--protocol=socket" -uroot )
 
         for i in {30..0}; do
             if echo 'SELECT 1' | "${mysql[@]}" &> /dev/null; then
@@ -98,7 +98,7 @@ EOSQL
             echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}'; FLUSH PRIVILEGES;" | "${mysql[@]}"
         fi
 
-        if [ ! -z "$MYSQL_ROOT_PASSWORD" ]; then
+        if [ -n "$MYSQL_ROOT_PASSWORD" ]; then
             mysql+=( -p"${MYSQL_ROOT_PASSWORD}" )
         fi
 
@@ -107,17 +107,17 @@ EOSQL
             mysql+=( "$MYSQL_DATABASE" )
         fi
 
-        if [ "$MYSQL_USER" -a "$MYSQL_PASSWORD" ]; then
-            echo "CREATE USER '"$MYSQL_USER"'@'%' IDENTIFIED BY '"$MYSQL_PASSWORD"' ;" | "${mysql[@]}"
+        if [ "$MYSQL_USER" ] && [ "$MYSQL_PASSWORD" ]; then
+            echo "CREATE USER '""$MYSQL_USER""'@'%' IDENTIFIED BY '""$MYSQL_PASSWORD""' ;" | "${mysql[@]}"
 
             if [ "$MYSQL_DATABASE" ]; then
-                echo "GRANT ALL ON \`"$MYSQL_DATABASE"\`.* TO '"$MYSQL_USER"'@'%' ;" | "${mysql[@]}"
+                echo "GRANT ALL ON \`""$MYSQL_DATABASE""\`.* TO '""$MYSQL_USER""'@'%' ;" | "${mysql[@]}"
             fi
 
             echo 'FLUSH PRIVILEGES ;' | "${mysql[@]}"
         fi
 
-        if [ ! -z "$MYSQL_ONETIME_PASSWORD" ]; then
+        if [ -n "$MYSQL_ONETIME_PASSWORD" ]; then
             "${mysql[@]}" <<-EOSQL
             ALTER USER 'root'@'%' PASSWORD EXPIRE;
 EOSQL

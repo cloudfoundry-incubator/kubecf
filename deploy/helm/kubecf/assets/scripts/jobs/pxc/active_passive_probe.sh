@@ -9,6 +9,7 @@ leader=$(mysql -sN <<EOF
 EOF
 )
 
+# shellcheck disable=SC2181
 if [[ $? != 0 ]]; then
   # the kubecf database doesn't seem to be ready. make the first node the master
   [[ ${HOSTNAME} == *-0 ]] || exit 2
