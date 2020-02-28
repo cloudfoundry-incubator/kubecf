@@ -29,15 +29,14 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/SUSE/kubecf
+    uri: https://github.com/cloudfoundry-incubator/kubecf
 
 - name: kubecf-pr
   type: pull-request
   check_every: 10m
   source:
-    repository: SUSE/kubecf
+    repository: cloudfoundry-incubator/kubecf
     access_token: ((github-access-token))
-    labels: ["Trigger: CI"]
     disable_forks: false
 
 - name: catapult
@@ -47,7 +46,7 @@ resources:
   version:
     ref: eb4b8fe1453c7a5f1c6a2082e5f490dd6e953664
 
-- name: s3.kubecf
+- name: s3.kubecf-ci
   type: s3
   source:
     bucket: kubecf-ci
@@ -56,7 +55,7 @@ resources:
     region_name: eu-central-1
     regexp: kubecf-v(.*).tgz
 
-- name: s3.kubecf-bundle
+- name: s3.kubecf-ci-bundle
   type: s3
   source:
     bucket: kubecf-ci
@@ -65,11 +64,29 @@ resources:
     region_name: eu-central-1
     regexp: kubecf-bundle-v(.*).tgz
 
+- name: s3.kubecf
+  type: s3
+  source:
+    bucket: kubecf
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    region_name: us-west-2
+    regexp: kubecf-v(.*).tgz
+
+- name: s3.kubecf-bundle
+  type: s3
+  source:
+    bucket: kubecf
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    region_name: us-west-2
+    regexp: kubecf-bundle-v(.*).tgz
+
 deploy_args: &deploy_args
 - -xce
 - |
   export SCF_LOCAL="${PWD}/commit-to-test"
-  export SCF_CHART="$(readlink -f s3.kubecf/*.tgz)"
+  export SCF_CHART="$(readlink -f s3.kubecf-ci/*.tgz)"
   export SCF_OPERATOR=true
   export FORCE_DELETE=true
   export SCF_TESTGROUP=true
@@ -93,6 +110,7 @@ test_args: &test_args
   export QUIET_OUTPUT=true
   export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
                        xargs basename | sed 's/.json$//g' | cut -c1-18)"
+  export KUBECF_CHECKOUT="${PWD}/commit-to-test"
   pushd catapult
   # Grabs back a deployed cluster and runs test suites on it
   # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
@@ -105,11 +123,15 @@ rotate_args: &rotate_args
   export KUBECF_NAMESPACE="scf"
   export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
                        xargs basename | sed 's/.json$//g' | cut -c1-18)"
+  export KUBECF_CHECKOUT="${PWD}/commit-to-test"
+  export KUBECF_INSTALL_NAME="susecf-scf"
+
   pushd catapult
   make recover
   source build*/.envrc
 
-  "${KUBECF_CHECKOUT}/testing/ccdb_key_rotation/rotate-ccdb-keys-test.sh"
+  pushd "${KUBECF_CHECKOUT}"
+  testing/ccdb_key_rotation/rotate-ccdb-keys-test.sh
 
 jobs:
 - name: queue-pr
@@ -118,7 +140,9 @@ jobs:
   - get: kubecf-pr
     params:
       integration_tool: checkout
-    trigger: true
+    # We manually trigger PR builds for security reasons
+    # (protect CI infrastructure from malicious commits)
+    trigger: false
   # Use GitHub API to find the remote repository of the PR (it may be a fork)
   # The pr resource doesn't provide this information.
   - task: find-pr-remote
@@ -134,13 +158,13 @@ jobs:
       - name: output
       params:
         GITHUB_ACCESS_TOKEN: ((github-access-token))
-        REPO: "SUSE/kubecf"
+        REPO: "cloudfoundry-incubator/kubecf"
       run:
         path: "/bin/bash"
         args:
         - -xce
         - |
-          curl -s -X GET "https://api.github.com/repos/${REPO}/pulls/$(cat kubecf-pr/.git/resource/pr)" | \
+          curl -s -L -X GET "https://api.github.com/repos/${REPO}/pulls/$(cat kubecf-pr/.git/resource/pr)" | \
             jq -r .head.repo.full_name > output/remote
   - put: commit-to-test
     params: &commit-status
@@ -153,6 +177,7 @@ jobs:
         acceptance-diego,deploy-eirini,smoke-eirini,rotate-eirini,
         smoke-rotated-eirini,acceptance-eirini
       trigger: "PR"
+      metadata_path: "kubecf-pr/.git/resource/url"
 - name: queue-master
   public: true
   plan:
@@ -164,7 +189,7 @@ jobs:
     params:
       <<: *commit-status
       commit_path: "kubecf-master/.git/ref"
-      remote: "SUSE/kubecf"
+      remote: "cloudfoundry-incubator/kubecf"
       remote_path: ""
       description: "Queued"
       state: "pending"
@@ -252,11 +277,11 @@ jobs:
           contexts: "build"
           commit_path: "commit-to-test/.git/resource/ref"
           version_path: "commit-to-test/.git/resource/version"
-  - put: s3.kubecf
+  - put: s3.kubecf-ci
     params:
       file: output/kubecf-v*.tgz
       acl: public-read
-  - put: s3.kubecf-bundle
+  - put: s3.kubecf-ci-bundle
     params:
       file: output/kubecf-bundle-v*.tgz
       acl: public-read
@@ -269,7 +294,10 @@ jobs:
     trigger: true
     passed:
     - build
-  - get: s3.kubecf
+  - get: s3.kubecf-ci
+    passed:
+    - build
+  - get: s3.kubecf-ci-bundle
     passed:
     - build
   - get: catapult
@@ -285,7 +313,7 @@ jobs:
       inputs:
       - name: commit-to-test
       - name: catapult
-      - name: s3.kubecf
+      - name: s3.kubecf-ci
       outputs:
       - name: output
       params:
@@ -343,7 +371,12 @@ jobs:
     passed:
     - deploy-diego
     trigger: true
-  - get: s3.kubecf
+  - get: s3.kubecf-ci
+    passed:
+    - deploy-diego
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - deploy-diego
   - get: catapult
   - task: test-diego
     privileged: true
@@ -404,9 +437,14 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-diego
+    - cf-acceptance-tests-diego
     trigger: true
-  - get: s3.kubecf
+  - get: s3.kubecf-ci
+    passed:
+    - cf-acceptance-tests-diego
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - cf-acceptance-tests-diego
   - get: catapult
   - task: rotate-diego
     privileged: true
@@ -468,7 +506,12 @@ jobs:
     passed:
     - ccdb-rotate-diego
     trigger: true
-  - get: s3.kubecf
+  - get: s3.kubecf-ci
+    passed:
+    - ccdb-rotate-diego
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - ccdb-rotate-diego
   - get: catapult
   - task: test-diego
     privileged: true
@@ -529,9 +572,14 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-post-rotate-diego
+    - smoke-tests-diego
     trigger: true
-  - get: s3.kubecf
+  - get: s3.kubecf-ci
+    passed:
+    - smoke-tests-diego
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - smoke-tests-diego
   - get: catapult
   - task: test-diego
     privileged: true
@@ -592,7 +640,7 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - cf-acceptance-tests-diego
+    - smoke-tests-post-rotate-diego
     trigger: true
   - task: cleanup-cluster
     config:
@@ -610,7 +658,10 @@ jobs:
     trigger: true
     passed:
     - build
-  - get: s3.kubecf
+  - get: s3.kubecf-ci
+    passed:
+    - build
+  - get: s3.kubecf-ci-bundle
     passed:
     - build
   - get: catapult
@@ -626,7 +677,7 @@ jobs:
       inputs:
       - name: commit-to-test
       - name: catapult
-      - name: s3.kubecf
+      - name: s3.kubecf-ci
       outputs:
       - name: output
       params:
@@ -676,7 +727,12 @@ jobs:
     passed:
     - deploy-eirini
     trigger: true
-  - get: s3.kubecf
+  - get: s3.kubecf-ci
+    passed:
+    - deploy-eirini
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - deploy-eirini
   - get: catapult
   - task: test
     privileged: true
@@ -737,9 +793,14 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-eirini
+    - cf-acceptance-tests-eirini
     trigger: true
-  - get: s3.kubecf
+  - get: s3.kubecf-ci
+    passed:
+    - cf-acceptance-tests-eirini
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - cf-acceptance-tests-eirini
   - get: catapult
   - task: rotate-eirini
     privileged: true
@@ -801,7 +862,12 @@ jobs:
     passed:
     - ccdb-rotate-eirini
     trigger: true
-  - get: s3.kubecf
+  - get: s3.kubecf-ci
+    passed:
+    - ccdb-rotate-eirini
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - ccdb-rotate-eirini
   - get: catapult
   - task: test
     privileged: true
@@ -862,9 +928,14 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-post-rotate-eirini
-    trigger: true
-  - get: s3.kubecf
+    - smoke-tests-eirini
+    # trigger: true
+  - get: s3.kubecf-ci
+    passed:
+    - smoke-tests-eirini
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - smoke-tests-eirini
   - get: catapult
   - task: test
     timeout: 5h30m
@@ -925,7 +996,8 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - cf-acceptance-tests-eirini
+    # - smoke-tests-post-rotate-eirini
+    - smoke-tests-eirini
     trigger: true
   - task: cleanup-cluster
     config:
@@ -933,3 +1005,49 @@ jobs:
       params:
         CLUSTER_NAME_PREFIX: "kubecf-eirini"
         EKCP_HOST: ((ekcp-host))
+
+- name: publish
+  public: true
+  plan:
+  - get: commit-to-test
+    passed:
+    - cf-acceptance-tests-diego
+    # TODO: Uncomment as soon as eirini tests are green
+    # TODO: Does this work? It might check the wrong thing
+    # - cf-acceptance-tests-eirini
+    trigger: true
+  - get: s3.kubecf-ci
+    passed:
+    - cf-acceptance-tests-diego
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - cf-acceptance-tests-diego
+  - task: check-if-build-is-master
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: commit-to-test
+      run:
+        path: "/bin/bash"
+        args:
+        - -xce
+        - |
+          if [ "$(cat commit-to-test/*-*.json | jq -r .trigger)" == "master" ]; then
+            echo "It was a master branch build, we will publish the artifact."
+            exit 0
+          else
+            echo "It was not a master build, we will not publish the artifact."
+            exit 1
+          fi
+    on_success:
+      do:
+      - put: s3.kubecf
+        params:
+          file: s3.kubecf-ci/kubecf-v*.tgz
+      - put: s3.kubecf-bundle
+        params:
+          file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
