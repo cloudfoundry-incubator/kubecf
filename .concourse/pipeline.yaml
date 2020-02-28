@@ -194,6 +194,7 @@ jobs:
       description: "Queued"
       state: "pending"
       trigger: "master"
+      metadata_path: ""
 - name: lint
   public: true
   plan:
