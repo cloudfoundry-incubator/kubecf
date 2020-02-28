@@ -37,7 +37,6 @@ resources:
   source:
     repository: cloudfoundry-incubator/kubecf
     access_token: ((github-access-token))
-    labels: ["Trigger: CI"]
     disable_forks: false
 
 - name: catapult
@@ -141,7 +140,9 @@ jobs:
   - get: kubecf-pr
     params:
       integration_tool: checkout
-    trigger: true
+    # We manually trigger PR builds for security reasons
+    # (protect CI infrastructure from malicious commits)
+    trigger: false
   # Use GitHub API to find the remote repository of the PR (it may be a fork)
   # The pr resource doesn't provide this information.
   - task: find-pr-remote
