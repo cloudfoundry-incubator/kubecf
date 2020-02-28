@@ -20,8 +20,8 @@ args = [
   '--namespace', namespace
 ]
 
-args.append('--install') if install
-args.append('--reuse-values') if reuse_values
+args.push('--install') if install
+args.push('--reuse-values') if reuse_values
 
 values = values_paths.split(path_split_delim).map do |path|
   ['--values', path]
