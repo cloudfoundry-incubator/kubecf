@@ -67,9 +67,8 @@ releases:
   # pxc is not a BOSH release.
   pxc:
     image:
-      repository: "splatform/percona-xtradb-cluster"
-      tag: 0.0.2
-      pullPolicy: IfNotPresent
+      repository: "splatform/pxc"
+      tag: 0.9.4
   eirini:
     version: 0.0.25
   loggregator:
