@@ -226,7 +226,7 @@ services:
       end: 20008
 
 router:
-  # tls is an array of objects containing the `crt` and `key` keys. E.g.
+  # tls is an array of objects containing the `key` and `crt` keys. E.g.
   # router:
   #   tls:
   #   - crt: |
