@@ -34,7 +34,7 @@
 {{- end }}
 
 {{- if not .Values.features.credhub.enabled }}
-# Remove directly from the cf-deployment.yml YAML file
+# Remove directly from the cf-deployment.yml YAML file.
 - path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=credhub.service.cf.internal?
   type: remove
 - path: /instance_groups/name=database/jobs/name=pxc-mysql/properties/seeded_databases/name=credhub?

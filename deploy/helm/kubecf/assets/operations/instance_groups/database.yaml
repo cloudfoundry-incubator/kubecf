@@ -4,7 +4,6 @@
 - type: remove
   path: /instance_groups/name=database
 
-
 {{- if .Values.features.credhub.enabled -}}
 - type: remove
   path: /variables/name=credhub_database_password
@@ -503,13 +502,12 @@
               server_certificate: "((mysql_server_certificate.certificate))"
               server_key: "((mysql_server_certificate.private_key))"
 
-
 {{- if .Values.features.credhub.enabled }}
 - path: /instance_groups/name=database/jobs/name=mysql/properties/cf_mysql/mysql/seeded_databases/-
   type: replace
   value:
     name: credhub
-    password: ((credhub_database_password))
+    password: "((credhub_database_password))"
     username: credhub
 {{- end }}
 
