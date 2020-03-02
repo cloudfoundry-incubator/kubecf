@@ -177,7 +177,7 @@ def _upgrade_impl(ctx):
             "[[chart_package]]": ctx.file.chart_package.short_path,
             "[[namespace]]": ctx.attr.namespace,
             "[[install]]": str(ctx.attr.install),
-            "[[reuse_values]]": str(ctx.attr.reuse_values),
+            "[[reset_values]]": str(ctx.attr.reset_values),
             "[[values_paths]]": path_split_delim.join(
                 [values.short_path for values in ctx.files.values]),
             "[[path_split_delim]]": path_split_delim,
@@ -214,9 +214,9 @@ upgrade = rule(
             default = {},
             doc = "A set of key-value pairs to be passed as --set flag to Helm",
         ),
-        "reuse_values": attr.bool(
+        "reset_values": attr.bool(
             default = False,
-            doc = "Whether the Helm upgrade should reuse the values already applied",
+            doc = "Whether the Helm upgrade should reset the values to the ones provided by the chart",
         ),
         "_script_tmpl": attr.label(
             allow_single_file = True,
