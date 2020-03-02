@@ -55,7 +55,17 @@
     ((cc_tls.ca))
     ((uaa_ssl.ca))
     ((network_policy_server_external.ca))
+
+{{- if .Values.features.credhub.enabled -}}
+- path: /instance_groups/name=router/jobs/name=gorouter/properties/router/ca_certs
+  type: replace
+  value: |
+    ((diego_instance_identity_ca.ca))
+    ((cc_tls.ca))
+    ((uaa_ssl.ca))
+    ((network_policy_server_external.ca))
     ((credhub_ca.certificate))
+{{- end }}
 
 # If the router certificate is provided via Helm, don't generate the router_ca and router_ssl
 # certificates. Instead, set the `router.tls_pem` property with the provided values.
