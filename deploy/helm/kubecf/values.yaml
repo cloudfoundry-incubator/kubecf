@@ -63,7 +63,7 @@ releases:
   brain-tests:
     version: v0.0.8
   cf-acceptance-tests:
-    version: 0.0.9
+    version: 0.0.10
   # pxc is not a BOSH release.
   pxc:
     image:
@@ -79,28 +79,6 @@ releases:
     version: "10.93"
   sync-integration-tests:
     version: v0.0.3
-  staticfile-buildpack:
-    file: staticfile-buildpack/packages/staticfile-buildpack-cflinuxfs3/staticfile_buildpack-cflinuxfs3-v1.5.3.zip
-  java-buildpack:
-    file: java-buildpack/packages/java-buildpack-cflinuxfs3/java-buildpack-cflinuxfs3-v4.26.zip
-  ruby-buildpack:
-    file: ruby-buildpack/packages/ruby-buildpack-cflinuxfs3/ruby_buildpack-cflinuxfs3-v1.8.8.zip
-  dotnet-core-buildpack:
-    file: dotnet-core-buildpack/packages/dotnet-core-buildpack-cflinuxfs3/dotnet-core_buildpack-cflinuxfs3-v2.3.4.zip
-  nodejs-buildpack:
-    file: nodejs-buildpack/packages/nodejs-buildpack-cflinuxfs3/nodejs_buildpack-cflinuxfs3-v1.7.9.zip
-  go-buildpack:
-    file: go-buildpack/packages/go-buildpack-cflinuxfs3/go_buildpack-cflinuxfs3-v1.9.5.zip
-  python-buildpack:
-    file: python-buildpack/packages/python-buildpack-cflinuxfs3/python_buildpack-cflinuxfs3-v1.7.6.zip
-  php-buildpack:
-    file: php-buildpack/packages/php-buildpack-cflinuxfs3/php_buildpack-cflinuxfs3-v4.4.6.zip
-  nginx-buildpack:
-    file: nginx-buildpack/packages/nginx-buildpack-cflinuxfs3/nginx_buildpack-cflinuxfs3-v1.1.4.zip
-  r-buildpack:
-    file: r-buildpack/packages/r-buildpack-cflinuxfs3/r_buildpack-cflinuxfs3-v1.1.1.zip
-  binary-buildpack:
-    file: binary-buildpack/packages/binary-buildpack-cflinuxfs3/binary_buildpack-cflinuxfs3-v1.0.36.zip
   suse-staticfile-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.5.2.1"
