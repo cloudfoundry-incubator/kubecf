@@ -85,13 +85,14 @@
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
   value: *pxc-cluster-ca
 
-
+{{- if .Values.features.credhub.enabled }}
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/host?
   value: *pxc-cluster-address
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
   value: *pxc-cluster-ca
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/host?
@@ -142,30 +143,9 @@
 - type: remove
   path: /variables/name=uaa_database_password
 
-{{- if .Values.features.credhub.enabled -}}
+{{- if .Values.features.credhub.enabled }}
 - type: remove
   path: /variables/name=credhub_database_password
-- type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/type
-  value: {{ .Values.features.external_database.type | quote }}
-- type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/port
-  value: {{ .Values.features.external_database.port }}
-- type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/database
-  value: {{ .Values.features.external_database.databases.credhub.name | quote }}
-- type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/host
-  value: {{ .Values.features.external_database.host | quote }}
-- type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/password
-  value: {{ .Values.features.external_database.databases.credhub.password | quote }}
-- type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/username
-  value: {{ .Values.features.external_database.databases.credhub.username | quote }}
-- type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/require_tls?
-  value: false
 {{- end }}
 
 # Replace database config for the jobs.
@@ -479,6 +459,7 @@
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/require_ssl?
   value: {{ .Values.features.external_database.require_ssl }}
 
+{{- if .Values.features.credhub.enabled }}
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/type
   value: {{ .Values.features.external_database.type | quote }}
@@ -498,14 +479,10 @@
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/username
   value: {{ .Values.features.external_database.databases.credhub.username | quote }}
 {{ if .Values.features.external_database.ca_cert -}}
-
-{{- if .Values.features.credhub.enabled -}}
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
   value: |
     {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
-{{- end }}
-
 {{- else }}
 - type: remove
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
@@ -513,5 +490,6 @@
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/require_tls?
   value: {{ .Values.features.external_database.require_ssl }}
+{{- end }}
 
 {{- end }}

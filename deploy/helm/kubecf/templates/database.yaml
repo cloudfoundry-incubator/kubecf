@@ -332,7 +332,10 @@ spec:
 {{- $databases = append $databases (dict "name" "routing-api" "path" "routing-api" "secretName" "routing-api") }}
 {{- $databases = append $databases (dict "name" "uaa" "path" "uaa" "secretName" "uaa") }}
 {{- $databases = append $databases (dict "name" "locket" "path" "locket" "secretName" "locket") }}
+
+{{- if .Values.features.credhub.enabled }}
 {{- $databases = append $databases (dict "name" "credhub" "path" "credhub" "secretName" "credhub") }}
+{{- end }}
 
 apiVersion: batch/v1
 kind: Job
