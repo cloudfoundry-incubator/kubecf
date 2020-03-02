@@ -242,7 +242,8 @@ features:
     enabled: true
   autoscaler:
     enabled: false
-
+  credhub:
+    enabled: true
   # external_database disables the embedded database and allows using an external, already seeded,
   # database.
   # The database type can be either 'mysql' or 'postgres'.
