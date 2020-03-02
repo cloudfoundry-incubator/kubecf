@@ -2,15 +2,13 @@
 
 ## Introduction
 
-[KubeCF] is an open-source initiative from SUSE to move CloudFoundry into Kubernetes space and 
-governed by CloudFoundry incubator.
+KubeCF is a distribution of Cloud Foundry Application Runtime (CFAR) for Kubernetes. 
+It works with the [cf-operator] from [Project Quarks] to deploy and manage releases built from [cf-deployment].
 
-It makes use of the [Cloud Foundry Operator], which is incubating
-under [Project Quarks].
-
-[KubeCF]:                   https://github.com/SUSE/kubecf
-[Cloud Foundry Operator]:   https://github.com/cloudfoundry-incubator/cf-operator/
+[KubeCF]:                   https://github.com/cloudfoundry-incubator/kubecf
+[cf-operator]:   https://github.com/cloudfoundry-incubator/cf-operator/
 [Project Quarks]:           https://www.cloudfoundry.org/project-quarks/
+[cf-deployment]: https://github.com/cloudfoundry/cf-deployment/
 [Docs]:                     https://kubecf.suse.dev/
 
 ## Documentation
@@ -26,15 +24,15 @@ See the [Guide to Contribution](doc/Contribute.md).
 To work with `kubecf`, a variety of supporting tools are required.
 These are:
 
-| Tool         | Notes                                                  |
-|---           |---                                                     |
-|k8s           | The platform to run KubeCF.                            |
-|minikube      | Provider for local k8s clusters.                       |
-|kind          | Provider for local k8s clusters.                       |
-|kubectl       | Client to talk to k8s clusters.                        |
-|Helm          | Handling helm charts.                                  |
-|cf-operator   | Processes BOSH deployments. Maps them to kube objects. |
-|cf-deployment | The CF release at the core of `kubecf`.                |
+| Tool          | Notes                                                  |
+|---            |---                                                     |
+|k8s            | The platform to run KubeCF.                            |
+|minikube       | Provider for local k8s clusters.                       |
+|kind           | Provider for local k8s clusters.                       |
+|kubectl        | Client to talk to k8s clusters.                        |
+|Helm           | Handling helm charts.                                  |
+|[cf-operator]  | Processes BOSH deployments. Maps them to kube objects. |
+|[cf-deployment]| The CF release at the core of `kubecf`.                |
 
 As most of the developers use the `Bazel` build system coming with the
 `kubecf` repository, they implicitly use the versions for the tools
