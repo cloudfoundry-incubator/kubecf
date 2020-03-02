@@ -5,7 +5,9 @@
 {{- $releases = append $releases "cf-smoke-tests" }}
 {{- $releases = append $releases "cf-syslog-drain" }}
 {{- $releases = append $releases "cflinuxfs3" }}
-{{- $releases = append $releases "credhub" }}
+{{- if .Values.features.credhub.enabled }}
+  {{- $releases = append $releases "credhub" }}
+{{- end }}
 {{- $releases = append $releases "diego" }}
 {{- $releases = append $releases "dotnet-core-buildpack" }}
 {{- $releases = append $releases "garden-runc" }}

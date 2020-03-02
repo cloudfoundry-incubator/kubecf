@@ -18,8 +18,12 @@ data:
       path: /instance_groups/name=nats/azs?
     - type: remove
       path: /instance_groups/name=adapter/azs?
+
+    {{- if .Values.features.credhub.enabled }}
     - type: remove
       path: /instance_groups/name=credhub/azs?
+    {{- end }}
+
     - type: remove
       path: /instance_groups/name=diego-api/azs?
     - type: remove

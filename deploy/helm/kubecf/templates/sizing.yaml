@@ -82,6 +82,7 @@ data:
       value: 1
 {{- end }}
 
+{{- if .Values.features.credhub.enabled -}}
 {{- if .Values.sizing.credhub.instances }}
     - type: replace
       path: /instance_groups/name=credhub/instances
@@ -90,6 +91,7 @@ data:
     - type: replace
       path: /instance_groups/name=credhub/instances
       value: 1
+{{- end }}
 {{- end }}
 
 {{- if .Values.features.eirini.enabled }}

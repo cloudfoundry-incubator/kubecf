@@ -14,7 +14,7 @@ helm_upgrade(
     namespace = project.namespace,
     chart_package = "//deploy/helm/kubecf",
     values = glob(["**/*values.yaml"]),
-    reuse_values = True,
+    reset_values = True,
 )
 
 helm_delete(

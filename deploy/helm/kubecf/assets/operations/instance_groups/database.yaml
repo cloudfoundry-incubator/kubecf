@@ -138,11 +138,35 @@
 - type: remove
   path: /variables/name=cc_database_password
 - type: remove
-  path: /variables/name=credhub_database_password
-- type: remove
   path: /variables/name=diego_database_password
 - type: remove
   path: /variables/name=uaa_database_password
+
+{{- if .Values.features.credhub.enabled -}}
+- type: remove
+  path: /variables/name=credhub_database_password
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/type
+  value: {{ .Values.features.external_database.type | quote }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/port
+  value: {{ .Values.features.external_database.port }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/database
+  value: {{ .Values.features.external_database.databases.credhub.name | quote }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/host
+  value: {{ .Values.features.external_database.host | quote }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/password
+  value: {{ .Values.features.external_database.databases.credhub.password | quote }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/username
+  value: {{ .Values.features.external_database.databases.credhub.username | quote }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/require_tls?
+  value: false
+{{- end }}
 
 # Replace database config for the jobs.
 - type: replace
@@ -474,10 +498,14 @@
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/username
   value: {{ .Values.features.external_database.databases.credhub.username | quote }}
 {{ if .Values.features.external_database.ca_cert -}}
+
+{{- if .Values.features.credhub.enabled -}}
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
   value: |
     {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+{{- end }}
+
 {{- else }}
 - type: remove
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?

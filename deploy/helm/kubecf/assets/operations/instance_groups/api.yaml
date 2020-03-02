@@ -63,9 +63,12 @@
     file: {{ $path }}{{ (index .Values.releases "suse-binary-buildpack").file }}
 {{- end }}
 
+
+{{- if .Values.features.credhub.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/credhub_api?/external_url
   value: https://credhub.((system_domain))
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/security_group_definitions/-

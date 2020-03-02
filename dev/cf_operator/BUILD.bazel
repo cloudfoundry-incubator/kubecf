@@ -18,7 +18,7 @@ helm_upgrade(
     set_values = {
         "global.operator.watchNamespace": project.namespace,
     },
-    reuse_values = True,
+    reset_values = True,
 )
 
 helm_delete(
