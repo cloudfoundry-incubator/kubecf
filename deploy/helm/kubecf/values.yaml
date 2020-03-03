@@ -49,7 +49,7 @@ releases:
   brain-tests:
     version: v0.0.8
   cf-acceptance-tests:
-    version: 0.0.10
+    version: 0.0.11
   # pxc is not a BOSH release.
   pxc:
     image:
