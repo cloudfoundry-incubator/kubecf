@@ -337,8 +337,8 @@ spec:
 {{- $databases = append $databases (dict "name" "credhub" "path" "credhub" "secretName" "credhub") }}
 {{- end }}
 
-apiVersion: batch/v1
-kind: Job
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksJob
 metadata:
   name: {{ .Release.Name }}-database-seeder
   namespace: {{ .Release.Namespace | quote }}
@@ -349,40 +349,45 @@ metadata:
     app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
     helm.sh/chart: {{ include "kubecf.chart" . }}
 spec:
+  trigger:
+    strategy: once
+  updateOnConfigChange: true
   template:
     spec:
-      containers:
-      - name: seeder
-        {{- with $image := .Values.releases.pxc.image }}
-        image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
-        imagePullPolicy: {{ $image.pullPolicy | quote }}
-        {{- end }}
-        env:
-        - name: DATABASE_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ $pxc_root_password | quote }}
-              key: password
-        - name: DATABASE_HOST
-          value: {{ printf "%s-database.%s" .Release.Name .Release.Namespace | quote }}
-        volumeMounts:
-        {{- range $database := $databases }}
-        - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
-          mountPath: {{ printf "/passwords/%s" (get $database "path") | quote }}
-          readOnly: true
-        {{- end }}
-        command:
-        - "/bin/bash"
-        - "-c"
-        - |-
-          {{- .Files.Get "assets/scripts/jobs/pxc/seeder.sh" | nindent 10 }}
+      template:
+        spec:
+          containers:
+          - name: seeder
+            {{- with $image := .Values.releases.pxc.image }}
+            image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+            imagePullPolicy: {{ $image.pullPolicy | quote }}
+            {{- end }}
+            env:
+            - name: DATABASE_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $pxc_root_password | quote }}
+                  key: password
+            - name: DATABASE_HOST
+              value: {{ printf "%s-database.%s" .Release.Name .Release.Namespace | quote }}
+            volumeMounts:
+            {{- range $database := $databases }}
+            - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
+              mountPath: {{ printf "/passwords/%s" (get $database "path") | quote }}
+              readOnly: true
+            {{- end }}
+            command:
+            - "/bin/bash"
+            - "-c"
+            - |-
+              {{- .Files.Get "assets/scripts/jobs/pxc/seeder.sh" | nindent 14 }}
 
-      volumes:
-      {{- range $database := $databases }}
-      - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
-        secret:
-          secretName: {{ printf "%s.var-%s-database-password" $.Release.Namespace (get $database "secretName") | quote }}
-      {{- end }}
-      restartPolicy: Never
+          volumes:
+          {{- range $database := $databases }}
+          - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
+            secret:
+              secretName: {{ printf "%s.var-%s-database-password" $.Release.Namespace (get $database "secretName") | quote }}
+          {{- end }}
+          restartPolicy: Never
 
 {{- end -}}
