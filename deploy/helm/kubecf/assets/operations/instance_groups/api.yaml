@@ -63,28 +63,11 @@
     file: {{ $path }}{{ (index .Values.releases "suse-binary-buildpack").file }}
 {{- end }}
 
-
 {{- if .Values.features.credhub.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/credhub_api?/external_url
   value: https://credhub.((system_domain))
 {{- end }}
-
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/security_group_definitions/-
-  value:
-    name: internal
-    rules:
-    - destination: {{ required "A valid 'kube.service_cluster_ip_range' is required!" .Values.kube.service_cluster_ip_range | quote }}
-      protocol: all
-    - destination: {{ required "A valid 'kube.pod_cluster_ip_range' is required!" .Values.kube.pod_cluster_ip_range | quote }}
-      protocol: all
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_running_security_groups/-
-  value: internal
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_staging_security_groups/-
-  value: internal
 
 # These operations set the default values explicitly in order to get the rotate-cc-database-key
 # errand working. Without them, the rotate-cc-database-key errand is not able to resolve the CC BOSH
