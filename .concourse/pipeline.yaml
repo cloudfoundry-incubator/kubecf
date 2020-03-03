@@ -39,6 +39,14 @@ resources:
     access_token: ((github-access-token))
     disable_forks: true # Trigger on kubecf branches only
 
+- name: kubecf-fork-pr
+  type: pull-request
+  check_every: 10m
+  source:
+    repository: cloudfoundry-incubator/kubecf
+    access_token: ((github-access-token))
+    disable_forks: false # Trigger on kubecf branches only
+
 - name: catapult
   type: git
   source:
@@ -176,6 +184,48 @@ jobs:
         smoke-rotated-eirini,acceptance-eirini
       trigger: "PR"
       metadata_path: "kubecf-pr/.git/resource/url"
+- name: queue-fork-pr
+  public: true
+  plan:
+  - get: kubecf-fork-pr
+    params:
+      integration_tool: checkout
+    trigger: false
+  # Use GitHub API to find the remote repository of the PR (it may be a fork)
+  # The pr resource doesn't provide this information.
+  - task: find-pr-remote
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: kubecf-fork-pr
+      outputs:
+      - name: output
+      params:
+        GITHUB_ACCESS_TOKEN: ((github-access-token))
+        REPO: "cloudfoundry-incubator/kubecf"
+      run:
+        path: "/bin/bash"
+        args:
+        - -xce
+        - |
+          curl -s -L -X GET "https://api.github.com/repos/${REPO}/pulls/$(cat kubecf-fork-pr/.git/resource/pr)" | \
+            jq -r .head.repo.full_name > output/remote
+  - put: commit-to-test
+    params: &commit-status
+      commit_path: "kubecf-fork-pr/.git/resource/head_sha"
+      remote_path: "output/remote"
+      description: "Queued"
+      state: "pending"
+      contexts: >
+        lint,build,deploy-diego,smoke-diego,rotate-diego,smoke-rotated-diego,
+        acceptance-diego,deploy-eirini,smoke-eirini,rotate-eirini,
+        smoke-rotated-eirini,acceptance-eirini
+      trigger: "PR"
+      metadata_path: "kubecf-fork-pr/.git/resource/url"
 - name: queue-master
   public: true
   plan:
