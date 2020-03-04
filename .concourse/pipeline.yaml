@@ -50,6 +50,7 @@ resources:
 - name: catapult
   type: git
   source:
+    branch: bisingh/sits
     uri: https://github.com/SUSE/catapult
   version:
     ref: 7eea74f5cab3386b65c08938b25811e99bb829ef
@@ -72,23 +73,23 @@ resources:
     region_name: eu-central-1
     regexp: kubecf-bundle-v(.*).tgz
 
-- name: s3.kubecf
-  type: s3
-  source:
-    bucket: kubecf
-    access_key_id: ((aws-access-key))
-    secret_access_key: ((aws-secret-key))
-    region_name: us-west-2
-    regexp: kubecf-v(.*).tgz
+# - name: s3.kubecf
+#   type: s3
+#   source:
+#     bucket: kubecf
+#     access_key_id: ((aws-access-key))
+#     secret_access_key: ((aws-secret-key))
+#     region_name: us-west-2
+#     regexp: kubecf-v(.*).tgz
 
-- name: s3.kubecf-bundle
-  type: s3
-  source:
-    bucket: kubecf
-    access_key_id: ((aws-access-key))
-    secret_access_key: ((aws-secret-key))
-    region_name: us-west-2
-    regexp: kubecf-bundle-v(.*).tgz
+# - name: s3.kubecf-bundle
+#   type: s3
+#   source:
+#     bucket: kubecf
+#     access_key_id: ((aws-access-key))
+#     secret_access_key: ((aws-secret-key))
+#     region_name: us-west-2
+#     regexp: kubecf-bundle-v(.*).tgz
 
 deploy_args: &deploy_args
 - -xce
@@ -627,7 +628,7 @@ jobs:
           CLUSTER_NAME_PREFIX: "kubecf-diego"
           EKCP_HOST: ((ekcp-host))
 
-- name: cf-acceptance-tests-diego
+- name: sync-integration-tests-diego
   public: true
   plan:
   - get: commit-to-test
@@ -641,6 +642,74 @@ jobs:
   - get: s3.kubecf-ci-bundle
     passed:
     - smoke-tests-diego
+  - get: catapult
+  - task: test-diego
+    privileged: true
+    timeout: 1h30m
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: commit-to-test
+      outputs:
+      - name: output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: sits
+        CLUSTER_NAME_PREFIX: kubecf-diego
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: commit-to-test
+      params:
+        description: "Sync Integration tests on Diego succeeded"
+        state: "success"
+        contexts: "sync-integration-tests-diego"
+        commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
+    on_failure:
+      do:
+      - put: commit-to-test
+        params:
+          description: "Sync Integration tests on Diego failed"
+          state: "failure"
+          commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
+          contexts: "sync-integration-tests-diego"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-diego"
+          EKCP_HOST: ((ekcp-host))
+
+- name: cf-acceptance-tests-diego
+  max_in_flight: 2
+  public: true
+  plan:
+  - get: commit-to-test
+    passed:
+    - sync-integration-tests-diego
+    trigger: true
+  - get: s3.kubecf-ci
+    passed:
+    - sync-integration-tests-diego
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - sync-integration-tests-diego
   - get: catapult
   - task: test-diego
     privileged: true
@@ -984,7 +1053,7 @@ jobs:
           CLUSTER_NAME_PREFIX: "kubecf-eirini"
           EKCP_HOST: ((ekcp-host))
 
-- name: cf-acceptance-tests-eirini
+- name: sync-integration-tests-eirini
   public: true
   plan:
   - get: commit-to-test
@@ -998,6 +1067,74 @@ jobs:
   - get: s3.kubecf-ci-bundle
     passed:
     - smoke-tests-eirini
+  - get: catapult
+  - task: test
+    timeout: 1h30m
+    privileged: true
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: commit-to-test
+      outputs:
+      - name: mail-output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: sits
+        CLUSTER_NAME_PREFIX: kubecf-eirini
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: commit-to-test
+      params:
+        description: "Sync Integration tests on Eirini succeeded"
+        state: "success"
+        contexts: "sync-integration-tests-eirini"
+        commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
+    on_failure:
+      do:
+      - put: commit-to-test
+        params:
+          description: "Sync Integration tests on Eirini failed"
+          state: "failure"
+          commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
+          contexts: "sync-integration-tests-eirini"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-eirini"
+            EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-eirini"
+          EKCP_HOST: ((ekcp-host))
+
+- name: cf-acceptance-tests-eirini
+  public: true
+  plan:
+  - get: commit-to-test
+    passed:
+    - sync-integration-tests-eirini
+    # trigger: true
+    version: "every"
+  - get: s3.kubecf-ci
+    passed:
+    - sync-integration-tests-eirini
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - sync-integration-tests-eirini
   - get: catapult
   - task: test
     timeout: 5h30m
@@ -1053,6 +1190,7 @@ jobs:
           EKCP_HOST: ((ekcp-host))
 
 - name: cleanup-eirini-cluster
+  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -1060,7 +1198,6 @@ jobs:
     # - smoke-tests-post-rotate-eirini
     - smoke-tests-eirini
     trigger: true
-    version: "every"
   - task: cleanup-cluster
     config:
       <<: *cleanup-cluster
@@ -1068,49 +1205,48 @@ jobs:
         CLUSTER_NAME_PREFIX: "kubecf-eirini"
         EKCP_HOST: ((ekcp-host))
 
-- name: publish
-  public: true
-  plan:
-  - get: commit-to-test
-    version: "every"
-    passed:
-    - cf-acceptance-tests-diego
-    # TODO: Uncomment as soon as eirini tests are green
-    # TODO: Does this work? It might check the wrong thing
-    # - cf-acceptance-tests-eirini
-    trigger: true
-  - get: s3.kubecf-ci
-    passed:
-    - cf-acceptance-tests-diego
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - cf-acceptance-tests-diego
-  - task: check-if-build-is-master
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: commit-to-test
-      run:
-        path: "/bin/bash"
-        args:
-        - -xce
-        - |
-          if [ "$(cat commit-to-test/*-*.json | jq -r .trigger)" == "master" ]; then
-            echo "It was a master branch build, we will publish the artifact."
-            exit 0
-          else
-            echo "It was not a master build, we will not publish the artifact."
-            exit 1
-          fi
-    on_success:
-      do:
-      - put: s3.kubecf
-        params:
-          file: s3.kubecf-ci/kubecf-v*.tgz
-      - put: s3.kubecf-bundle
-        params:
-          file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
+# - name: publish
+#   public: true
+#   plan:
+#   - get: commit-to-test
+#     passed:
+#     - cf-acceptance-tests-diego
+#     # TODO: Uncomment as soon as eirini tests are green
+#     # TODO: Does this work? It might check the wrong thing
+#     # - cf-acceptance-tests-eirini
+#     trigger: true
+#   - get: s3.kubecf-ci
+#     passed:
+#     - cf-acceptance-tests-diego
+#   - get: s3.kubecf-ci-bundle
+#     passed:
+#     - cf-acceptance-tests-diego
+#   - task: check-if-build-is-master
+#     config:
+#       platform: linux
+#       image_resource:
+#         type: registry-image
+#         source:
+#           repository: splatform/catapult
+#       inputs:
+#       - name: commit-to-test
+#       run:
+#         path: "/bin/bash"
+#         args:
+#         - -xce
+#         - |
+#           if [ "$(cat commit-to-test/*-*.json | jq -r .trigger)" == "master" ]; then
+#             echo "It was a master branch build, we will publish the artifact."
+#             exit 0
+#           else
+#             echo "It was not a master build, we will not publish the artifact."
+#             exit 1
+#           fi
+#     on_success:
+#       do:
+#       - put: s3.kubecf
+#         params:
+#           file: s3.kubecf-ci/kubecf-v*.tgz
+#       - put: s3.kubecf-bundle
+#         params:
+#           file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
