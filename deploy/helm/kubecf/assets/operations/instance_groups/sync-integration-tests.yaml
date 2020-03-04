@@ -1,4 +1,4 @@
-{{- if .Values.testing.sync_integration_tests.enabled -}}
+{{- if .Values.testing.sync_integration_tests.enabled }}
 
 - path: /instance_groups/-
   type: replace

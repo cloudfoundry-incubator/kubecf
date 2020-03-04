@@ -1,4 +1,4 @@
-{{- if .Values.testing.cf_acceptance_tests.enabled -}}
+{{- if .Values.testing.cf_acceptance_tests.enabled }}
 
 - path: /instance_groups/-
   type: replace

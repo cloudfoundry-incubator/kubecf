@@ -75,7 +75,7 @@
 
 {{- end }}
 
-{{- $root := . -}}
+{{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/uaa_*" }}
 {{ $root.Files.Get $path }}
 {{- end }}

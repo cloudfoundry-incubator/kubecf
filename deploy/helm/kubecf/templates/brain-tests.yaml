@@ -1,4 +1,4 @@
-{{- if .Values.testing.brain_tests.enabled -}}
+{{- if .Values.testing.brain_tests.enabled }}
 
 # Service account, roles, and cluster role for the brain tests.
 # Raw kube objects going into the chart.

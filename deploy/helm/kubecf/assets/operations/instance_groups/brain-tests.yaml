@@ -1,4 +1,4 @@
-{{- if .Values.testing.brain_tests.enabled -}}
+{{- if .Values.testing.brain_tests.enabled }}
 
 - path: /instance_groups/-
   type: replace

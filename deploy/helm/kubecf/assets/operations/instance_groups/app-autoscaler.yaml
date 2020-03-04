@@ -1,5 +1,5 @@
-{{- if .Values.features.autoscaler.enabled -}}
-{{- $root := . -}}
+{{- if .Values.features.autoscaler.enabled }}
+{{- $root := . }}
 
 # Add autoscaler uaa client id and secret
 - type: replace
@@ -1001,7 +1001,7 @@
   path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/cf/skip_ssl_validation?
   value: true
 
-{{- $root := . -}}
+{{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/asdatabase_*" }}
 {{ $root.Files.Get $path }}
 {{- end }}

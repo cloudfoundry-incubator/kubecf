@@ -82,7 +82,7 @@ data:
       value: 1
 {{- end }}
 
-{{- if .Values.features.credhub.enabled -}}
+{{- if .Values.features.credhub.enabled }}
 {{- if .Values.sizing.credhub.instances }}
     - type: replace
       path: /instance_groups/name=credhub/instances
@@ -125,12 +125,6 @@ data:
       value: 1
 {{- end }}
 
-{{- if not .Values.features.external_database.enabled }}
-    - type: replace
-      path: /instance_groups/name=database/instances
-      value: 1
-{{- end }}
-
 {{- if .Values.sizing.diego_api.instances }}
     - type: replace
       path: /instance_groups/name=diego-api/instances
@@ -141,7 +135,7 @@ data:
       value: 1
 {{- end }}
 
-{{- if not .Values.features.eirini.enabled -}}
+{{- if not .Values.features.eirini.enabled }}
 {{- if .Values.sizing.diego_cell.instances }}
     - type: replace
       path: /instance_groups/name=diego-cell/instances

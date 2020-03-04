@@ -1,4 +1,4 @@
-{{- if .Values.testing.sync_integration_tests.enabled -}}
+{{- if .Values.testing.sync_integration_tests.enabled }}
 
 # Service account, roles, and cluster role for the sync integration tests.
 # Raw kube objects going into the chart.
