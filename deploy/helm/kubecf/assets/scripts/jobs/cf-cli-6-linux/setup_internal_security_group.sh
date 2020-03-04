@@ -4,7 +4,7 @@ set -o errexit -o nounset -o xtrace
 
 export PATH="${CF_CLI_PATH}:${PATH}"
 
-until curl --insecure --fail --silent --head "${CF_API}"; do
+until curl --insecure --fail --silent --head "${CF_API}/v2/info"; do
     sleep 1
 done
 
