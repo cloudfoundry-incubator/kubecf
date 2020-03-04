@@ -157,7 +157,20 @@ jobs:
         args:
           - -xce
           - |
-            {{ print $obtain_ekcp $import_eks $test }}
+            {{- print $obtain_ekcp -}}
+            {{- if eq $Backend "caasp4" -}}
+            {{- print $import_caasp4 -}}
+            {{end}}
+            {{- if eq $Backend "eks" -}}
+            {{- print $import_eks -}}
+            {{end}}
+            {{- if eq $Backend "gke" -}}
+            {{- print $import_gke -}}
+            {{end}}
+            {{- if eq $Backend "aks" -}}
+            {{- print $import_aks -}}
+            {{end}}
+            {{- print $deploy }}
 
 - name: smoke-tests-diego-{{$Backend}}
   serial_groups: [diego-{{$Backend}}]
@@ -196,7 +209,20 @@ jobs:
         args:
           - -xce
           - |
-            {{ print $obtain_ekcp $import_eks $test }}
+            {{- print $obtain_ekcp -}}
+            {{- if eq $Backend "caasp4" -}}
+            {{- print $import_caasp4 -}}
+            {{end}}
+            {{- if eq $Backend "eks" -}}
+            {{- print $import_eks -}}
+            {{end}}
+            {{- if eq $Backend "gke" -}}
+            {{- print $import_gke -}}
+            {{end}}
+            {{- if eq $Backend "aks" -}}
+            {{- print $import_aks -}}
+            {{end}}
+            {{- print $test }}
 
 - name: cf-acceptance-tests-diego-{{$Backend}}
   serial_groups: [diego-{{$Backend}}]
@@ -235,7 +261,20 @@ jobs:
         args:
           - -xce
           - |
-            {{ print $obtain_ekcp $import_eks $test }}
+            {{- print $obtain_ekcp -}}
+            {{- if eq $Backend "caasp4" -}}
+            {{- print $import_caasp4 -}}
+            {{end}}
+            {{- if eq $Backend "eks" -}}
+            {{- print $import_eks -}}
+            {{end}}
+            {{- if eq $Backend "gke" -}}
+            {{- print $import_gke -}}
+            {{end}}
+            {{- if eq $Backend "aks" -}}
+            {{- print $import_aks -}}
+            {{end}}
+            {{- print $test }}
 
 - name: upgrade-diego-{{$Backend}}
   serial_groups: [diego-{{$Backend}}]
@@ -274,7 +313,20 @@ jobs:
         args:
           - -xce
           - |
-            {{ print $obtain_ekcp $import_eks $upgrade }}
+            {{- print $obtain_ekcp -}}
+            {{- if eq $Backend "caasp4" -}}
+            {{- print $import_caasp4 -}}
+            {{end}}
+            {{- if eq $Backend "eks" -}}
+            {{- print $import_eks -}}
+            {{end}}
+            {{- if eq $Backend "gke" -}}
+            {{- print $import_gke -}}
+            {{end}}
+            {{- if eq $Backend "aks" -}}
+            {{- print $import_aks -}}
+            {{end}}
+            {{- print $upgrade }}
 
 - name: stratos-diego-{{$Backend}}
   serial_groups: [diego-{{$Backend}}]
@@ -313,6 +365,19 @@ jobs:
         args:
           - -xce
           - |
-            {{ print $obtain_ekcp $import_eks $stratos }}
+            {{- print $obtain_ekcp -}}
+            {{- if eq $Backend "caasp4" -}}
+            {{- print $import_caasp4 -}}
+            {{end}}
+            {{- if eq $Backend "eks" -}}
+            {{- print $import_eks -}}
+            {{end}}
+            {{- if eq $Backend "gke" -}}
+            {{- print $import_gke -}}
+            {{end}}
+            {{- if eq $Backend "aks" -}}
+            {{- print $import_aks -}}
+            {{end}}
+            {{- print $stratos }}
 
 {{ end }}
