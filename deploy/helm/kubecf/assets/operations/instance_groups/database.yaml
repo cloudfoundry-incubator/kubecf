@@ -1,34 +1,121 @@
-{{- if .Values.features.external_database.enabled -}}
-
-# Remove the database instance group.
+# Remove database instance group and variables.
 - type: remove
   path: /instance_groups/name=database
 
-{{- if .Values.features.credhub.enabled -}}
+# Remove the PXC release and related variables.
 - type: remove
-  path: /variables/name=credhub_database_password
+  path: /releases/name=pxc
+- type: remove
+  path: /variables/name=pxc_galera_ca
+- type: remove
+  path: /variables/name=pxc_server_ca
+- type: remove
+  path: /variables/name=galera_server_certificate
+- type: remove
+  path: /variables/name=mysql_server_certificate
+
+{{- if .Values.features.embedded_database.enabled }}
+
+# Add certificates for PXC.
 - type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/type
-  value: {{ .Values.features.external_database.type | quote }}
+  path: /variables/-
+  value:
+    name: pxc_ca
+    type: certificate
+    options:
+      common_name: pxc_ca
+      is_ca: true
 - type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/port
-  value: {{ .Values.features.external_database.port }}
+  path: /variables/-
+  value:
+    name: pxc_tls
+    type: certificate
+    options:
+      ca: pxc_ca
+      common_name: &pxc-cluster-address {{ .Release.Name }}-database.{{ .Release.Namespace }}
+
+# Override the address and CA cert with the one from PXC.
 - type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/database
-  value: {{ .Values.features.external_database.databases.credhub.name | quote }}
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_host?
+  value: *pxc-cluster-address
 - type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/host
-  value: {{ .Values.features.external_database.host | quote }}
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/ca_cert?
+  value: &pxc-cluster-ca ((pxc_tls.ca))
+
 - type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/password
-  value: {{ .Values.features.external_database.databases.credhub.password | quote }}
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host?
+  value: *pxc-cluster-address
 - type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/username
-  value: {{ .Values.features.external_database.databases.credhub.username | quote }}
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/ca_cert?
+  value: *pxc-cluster-ca
+
 - type: replace
-  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/require_tls?
-  value: false
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa?/ca_certs
+  value:
+  - *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
+  value: *pxc-cluster-ca
+
+{{- if .Values.features.credhub.enabled }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/host?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
+  value: *pxc-cluster-ca
 {{- end }}
+
+- type: replace
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/host?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/database/host
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=api/jobs/name=policy-server/properties/database/ca_cert?
+  value: *pxc-cluster-ca
+
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/host
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/ca_cert?
+  value: *pxc-cluster-ca
+
+{{- else }}
 
 # Remove the database variables.
 - type: remove
@@ -55,37 +142,11 @@
   path: /variables/name=diego_database_password
 - type: remove
   path: /variables/name=uaa_database_password
-- type: remove
-  path: /variables/name=pxc_galera_ca
-- type: remove
-  path: /variables/name=pxc_server_ca
-- type: remove
-  path: /variables/name=galera_server_certificate
-- type: remove
-  path: /variables/name=mysql_server_certificate
 
-# Remove database links.
-- type: replace
-  path: /instance_groups/name=uaa/jobs/name=uaa/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=silk-controller/consumes?
-  value: {database: nil}
-- type: replace
-  path: /instance_groups/name=api/jobs/name=policy-server/consumes?
-  value: {database: nil}
+{{- if .Values.features.credhub.enabled }}
+- type: remove
+  path: /variables/name=credhub_database_password
+{{- end }}
 
 # Replace database config for the jobs.
 - type: replace
@@ -398,6 +459,7 @@
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/require_ssl?
   value: {{ .Values.features.external_database.require_ssl }}
 
+{{- if .Values.features.credhub.enabled }}
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/type
   value: {{ .Values.features.external_database.type | quote }}
@@ -417,14 +479,10 @@
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/username
   value: {{ .Values.features.external_database.databases.credhub.username | quote }}
 {{ if .Values.features.external_database.ca_cert -}}
-
-{{- if .Values.features.credhub.enabled -}}
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
   value: |
     {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
-{{- end }}
-
 {{- else }}
 - type: remove
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
@@ -432,130 +490,6 @@
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/require_tls?
   value: {{ .Values.features.external_database.require_ssl }}
-
-{{- else -}}
-
-# Override the addresses for the jobs under the scheduler instance group.
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
-  value: sql-db.service.cf.internal
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/address
-  value: sql-db.service.cf.internal
-
-# Configure the persistent disk in the way that cf-operator can provision.
-- type: replace
-  path: /instance_groups/name=database/persistent_disk?
-  value: 20480 # 20GB
-{{- if .Values.kube.storage_class }}
-- type: replace
-  path: /instance_groups/name=database/persistent_disk_type
-  value: {{ .Values.kube.storage_class }}
-{{- else }}
-- type: remove
-  path: /instance_groups/name=database/persistent_disk_type
-{{- end }}
-
-# Replace the jobs using the cf-mysql-release.
-- type: replace
-  path: /instance_groups/name=database/jobs
-  value:
-    - name: mysql
-      release: cf-mysql
-      properties:
-        cf_mysql:
-          mysql:
-            enable_galera: false
-            admin_password: "((cf_mysql_mysql_admin_password))"
-            port: 3306
-            binlog_enabled: false
-            cluster_health:
-              password: "((cf_mysql_mysql_cluster_health_password))"
-            galera_healthcheck:
-              db_password: "((cf_mysql_mysql_galera_healthcheck_password))"
-              endpoint_username: galera_healthcheck
-              endpoint_password: "((cf_mysql_mysql_galera_healthcheck_endpoint_password))"
-            seeded_databases:
-            - name: cloud_controller
-              username: cloud_controller
-              password: "((cc_database_password))"
-            - name: diego
-              username: diego
-              password: "((diego_database_password))"
-            - name: network_connectivity
-              username: network_connectivity
-              password: "((network_connectivity_database_password))"
-            - name: network_policy
-              username: network_policy
-              password: "((network_policy_database_password))"
-            - name: routing-api
-              username: routing-api
-              password: "((routing_api_database_password))"
-            - name: uaa
-              username: uaa
-              password: "((uaa_database_password))"
-            - name: locket
-              username: locket
-              password: "((locket_database_password))"
-            tls:
-              ca_certificate: "((pxc_server_ca.certificate))"
-              server_certificate: "((mysql_server_certificate.certificate))"
-              server_key: "((mysql_server_certificate.private_key))"
-
-{{- if .Values.features.credhub.enabled }}
-- path: /instance_groups/name=database/jobs/name=mysql/properties/cf_mysql/mysql/seeded_databases/-
-  type: replace
-  value:
-    name: credhub
-    password: "((credhub_database_password))"
-    username: credhub
-{{- end }}
-
-# Add quarks properties. It adds the BPM configuration as cf-mysql-release lacks
-# support for it upstream.
-- type: replace
-  path: /instance_groups/name=database/jobs/name=mysql/properties/quarks?
-  value:
-    ports:
-    - name: mysql
-      protocol: TCP
-      internal: 3306
-    run:
-      healthcheck:
-        mariadb:
-          readiness:
-            exec:
-              command:
-              - /var/vcap/packages/mariadb/bin/mysqladmin
-              - --defaults-file=/var/vcap/jobs/mysql/config/mylogin.cnf
-              - ping
-          liveness:
-            # Check for mysql, as we go through a bunch of control scripts
-            # before the actual database server is run; ensure that all of that
-            # is succeeding and we actually have a DB.
-            # Note that we avoid the use of `pidof` here, as it attempts to use
-            # SYS_PTRACE capabilities, which triggers the docker-default
-            # AppArmor profile (but does not appear to be harmful).
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - grep -P '^[^\0]*/mysqld\0' /proc/*/cmdline
-    bpm:
-      processes:
-      - name: mariadb
-        limits:
-          open_files: 1048576
-        persistent_disk: true
-        executable: /bin/bash
-        args:
-          - -c
-          - |-
-            {{- .Files.Get "assets/scripts/jobs/mariadb/bpm_process.sh" | nindent 12 }}
-
-{{- $root := . -}}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/database_*" }}
-{{ $root.Files.Get $path }}
 {{- end }}
 
 {{- end }}

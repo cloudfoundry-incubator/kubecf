@@ -60,21 +60,15 @@ releases:
     version: 3.0.0
   bits-service:
     version: 2.28.0
-  # TODO: brains-tests must switch to SLE15 stemcell once the compilation failures are resolved.
-  # check: https://github.com/SUSE/kubecf/issues/270
   brain-tests:
-    version: v0.0.6
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_372.ge3509601
+    version: v0.0.8
   cf-acceptance-tests:
     version: 0.0.10
-  # TODO: cf-mysql must switch to SLE15 stemcell once the compilation failures are resolved.
-  cf-mysql:
-    version: 36.19.0
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+  # pxc is not a BOSH release.
+  pxc:
+    image:
+      repository: "splatform/pxc"
+      tag: 0.9.4
   eirini:
     version: 0.0.25
   loggregator:
@@ -182,6 +176,10 @@ sizing:
     instances: ~
   credhub:
     instances: ~
+  database:
+    instances: ~
+    persistence:
+      size: 20Gi
   diego_api:
     instances: ~
   diego_cell:
@@ -244,9 +242,11 @@ features:
     enabled: false
   credhub:
     enabled: true
-  # external_database disables the embedded database and allows using an external, already seeded,
-  # database.
-  # The database type can be either 'mysql' or 'postgres'.
+  # embedded_database enables the embedded PXC sub-chart. Disabling it allows using an external, already seeded,
+  embedded_database:
+    enabled: true
+
+  # The external database type can be either 'mysql' or 'postgres'.
   external_database:
     enabled: false
     require_ssl: false
