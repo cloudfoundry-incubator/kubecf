@@ -56,7 +56,7 @@
     ((uaa_ssl.ca))
     ((network_policy_server_external.ca))
 
-{{- if .Values.features.credhub.enabled -}}
+{{- if .Values.features.credhub.enabled }}
 - path: /instance_groups/name=router/jobs/name=gorouter/properties/router/ca_certs
   type: replace
   value: |
@@ -67,7 +67,7 @@
     ((credhub_ca.certificate))
 {{- end }}
 
-{{- $root := . -}}
+{{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/router_*" }}
 {{ $root.Files.Get $path }}
 {{- end }}

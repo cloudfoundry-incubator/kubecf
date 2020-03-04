@@ -1,4 +1,4 @@
-{{- if .Values.features.eirini.enabled -}}
+{{- if .Values.features.eirini.enabled }}
 
 # Add quarks information to the Bits Service jobs.
 - type: replace
@@ -57,7 +57,7 @@
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/bits_service?/enabled?
   value: false
 
-{{- $root := . -}}
+{{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/bits_*" }}
 {{ $root.Files.Get $path }}
 {{- end }}

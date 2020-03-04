@@ -32,7 +32,7 @@
   value: [/bin/sh, -c, ss -nlu src localhost:8125 | grep :8125]
 
 
-{{- $root := . -}}
+{{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/uaa_*" }}
 {{ $root.Files.Get $path }}
 {{- end }}
