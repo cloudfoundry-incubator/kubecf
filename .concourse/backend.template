@@ -1,5 +1,4 @@
 ---
-
 resource_types:
 - name: pull-request
   type: docker-image
@@ -118,11 +117,15 @@ resources:
 ` }}
 
 jobs:
-{{ range $i, $Backend := (ds "BACKEND").backend -}}
+{{ range $i, $Backend := (ds "BACKEND").backend -}} # for all backends
 
-# {{$Backend}}
+{{ range $j, $HAflag := (ds "HA").ha -}} # for ha
 
-- name: deploy-diego-{{$Backend}}
+{{ range $j, $Eiriniflag := (ds "EIRINI").eirini -}} # for eirini
+
+# {{$Backend}}-{{$HAflag}}
+
+- name: deploy-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
   public: false
   plan:
   - get: s3.kubecf-bundle
@@ -150,8 +153,15 @@ jobs:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
         EKCP_HOST: ((ekcp-host))
+{{- if eq $Eiriniflag "eirini" }}
+        ENABLE_EIRINI: true
+{{ else }}
         ENABLE_EIRINI: false
-        CLUSTER_NAME: product-release-diego-{{$Backend}}
+{{- end }}
+{{- if eq $HAflag "ha" }}
+        HA: true
+{{- end }}
+        CLUSTER_NAME: product-release-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
       run:
         path: "/bin/bash"
         args:
@@ -172,16 +182,16 @@ jobs:
             {{end}}
             {{- print $deploy }}
 
-- name: smoke-tests-diego-{{$Backend}}
-  serial_groups: [diego-{{$Backend}}]
+- name: smoke-tests-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
+  serial_groups: [{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}]
   public: false
   plan:
   - get: kubecf-master
     passed:
-    - deploy-diego-{{$Backend}}
+    - deploy-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
     trigger: true
   - get: catapult
-  - task: test-diego
+  - task: test-{{$Eiriniflag}}
     privileged: true
     timeout: 1h30m
     input_mapping:
@@ -201,9 +211,16 @@ jobs:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
         EKCP_HOST: ((ekcp-host))
+{{- if eq $Eiriniflag "eirini" }}
+        ENABLE_EIRINI: true
+{{ else }}
         ENABLE_EIRINI: false
+{{- end }}
+{{- if eq $HAflag "ha" }}
+        HA: true
+{{- end }}
         TEST_SUITE: smokes
-        CLUSTER_NAME: product-release-diego-{{$Backend}}
+        CLUSTER_NAME: product-release-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
       run:
         path: "/bin/bash"
         args:
@@ -224,16 +241,16 @@ jobs:
             {{end}}
             {{- print $test }}
 
-- name: cf-acceptance-tests-diego-{{$Backend}}
-  serial_groups: [diego-{{$Backend}}]
+- name: cf-acceptance-tests-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
+  serial_groups: [{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}]
   public: false
   plan:
   - get: kubecf-master
     passed:
-    - smoke-tests-diego-{{$Backend}}
+    - smoke-tests-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
     trigger: true
   - get: catapult
-  - task: test-diego
+  - task: test-{{$Eiriniflag}}
     privileged: true
     timeout: 5h30m
     input_mapping:
@@ -253,9 +270,16 @@ jobs:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
         EKCP_HOST: ((ekcp-host))
+{{- if eq $Eiriniflag "eirini" }}
+        ENABLE_EIRINI: true
+{{ else }}
         ENABLE_EIRINI: false
+{{- end }}
+{{- if eq $HAflag "ha" }}
+        HA: true
+{{- end }}
         TEST_SUITE: cats
-        CLUSTER_NAME: product-release-diego-{{$Backend}}
+        CLUSTER_NAME: product-release-diego-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
       run:
         path: "/bin/bash"
         args:
@@ -276,16 +300,16 @@ jobs:
             {{end}}
             {{- print $test }}
 
-- name: upgrade-diego-{{$Backend}}
-  serial_groups: [diego-{{$Backend}}]
+- name: upgrade-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
+  serial_groups: [{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}]
   public: false
   plan:
   - get: kubecf-master
     passed:
-    - cf-acceptance-tests-diego-{{$Backend}}
+    - cf-acceptance-tests-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
     trigger: true
   - get: catapult
-  - task: upgrade-diego
+  - task: upgrade-{{$Eiriniflag}}
     privileged: true
     timeout: 5h30m
     input_mapping:
@@ -305,9 +329,18 @@ jobs:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
         EKCP_HOST: ((ekcp-host))
+{{- if eq $Eiriniflag "eirini" }}
+        ENABLE_EIRINI: true
+{{ else }}
+        ENABLE_EIRINI: false
+{{- end }}
+{{- if eq $HAflag "ha" }}
+        HA: true
+{{- end }}
+        TEST_SUITE: cats
         TEST_SUITE: cats
         BACKEND: {{$Backend}}
-        CLUSTER_NAME: product-release-diego-{{$Backend}}
+        CLUSTER_NAME: product-release-diego-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
       run:
         path: "/bin/bash"
         args:
@@ -328,16 +361,16 @@ jobs:
             {{end}}
             {{- print $upgrade }}
 
-- name: stratos-diego-{{$Backend}}
-  serial_groups: [diego-{{$Backend}}]
+- name: stratos-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
+  serial_groups: [{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}]
   public: false
   plan:
   - get: kubecf-master
     passed:
-    - upgrade-diego-{{$Backend}}
+    - upgrade-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
     trigger: true
   - get: catapult
-  - task: stratos-diego
+  - task: stratos-{{$Eiriniflag}}
     privileged: true
     timeout: 5h30m
     input_mapping:
@@ -357,9 +390,16 @@ jobs:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
         EKCP_HOST: ((ekcp-host))
+{{- if eq $Eiriniflag "eirini" }}
+        ENABLE_EIRINI: true
+{{ else }}
         ENABLE_EIRINI: false
+{{- end }}
+{{- if eq $HAflag "ha" }}
+        HA: true
+{{- end }}
         TEST_SUITE: cats
-        CLUSTER_NAME: product-release-diego-{{$Backend}}
+        CLUSTER_NAME: product-release-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
       run:
         path: "/bin/bash"
         args:
@@ -380,4 +420,6 @@ jobs:
             {{end}}
             {{- print $stratos }}
 
-{{ end }}
+{{ end }} # end eirini
+{{ end }} # end ha
+{{ end }} # end backend
