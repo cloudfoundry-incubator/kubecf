@@ -13,139 +13,42 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 data:
   ops: |
-{{- if .Values.sizing.adapter.instances }}
-    - type: replace
-      path: /instance_groups/name=adapter/instances
-      value: {{.Values.sizing.adapter.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=adapter/instances
-      value: 1
-{{- end }}
+    {{- $instance_groups := list }}
 
-{{- if .Values.sizing.api.instances }}
-    - type: replace
-      path: /instance_groups/name=api/instances
-      value: {{.Values.sizing.api.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=api/instances
-      value: 1
-{{- end }}
+    {{- /* Core instance groups that always exist */}}
+    {{- $instance_groups = append $instance_groups "adapter" }}
+    {{- $instance_groups = append $instance_groups "api" }}
+    {{- $instance_groups = append $instance_groups "auctioneer" }}
+    {{- $instance_groups = append $instance_groups "cc-worker" }}
+    {{- $instance_groups = append $instance_groups "diego-api" }}
+    {{- $instance_groups = append $instance_groups "log-api" }}
+    {{- $instance_groups = append $instance_groups "nats" }}
+    {{- $instance_groups = append $instance_groups "router" }}
+    {{- $instance_groups = append $instance_groups "routing-api" }}
+    {{- $instance_groups = append $instance_groups "scheduler" }}
+    {{- $instance_groups = append $instance_groups "uaa" }}
+    {{- $instance_groups = append $instance_groups "tcp-router" }}
 
-{{- if .Values.features.autoscaler.enabled }}
-{{- if .Values.sizing.asapi.instances }}
-    - type: replace
-      path: /instance_groups/name=asapi/instances
-      value: {{.Values.sizing.asapi.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=asapi/instances
-      value: 1
-{{- end }}
-{{- if .Values.sizing.asactors.instances }}
-    - type: replace
-      path: /instance_groups/name=asactors/instances
-      value: {{.Values.sizing.asactors.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=asactors/instances
-      value: 1
-{{- end }}
-{{- if .Values.sizing.asmetrics.instances }}
-    - type: replace
-      path: /instance_groups/name=asmetrics/instances
-      value: {{.Values.sizing.asmetrics.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=asmetrics/instances
-      value: 1
-{{- end }}
-{{- if .Values.sizing.asnozzle.instances }}
-    - type: replace
-      path: /instance_groups/name=asnozzle/instances
-      value: {{.Values.sizing.asnozzle.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=asnozzle/instances
-      value: 1
-{{- end }}
-{{- end }}
+    {{- /* Autoscaler-only instance groups */}}
+    {{- if .Values.features.autoscaler.enabled }}
+    {{- $instance_groups = append $instance_groups "asapi" }}
+    {{- $instance_groups = append $instance_groups "asactors" }}
+    {{- $instance_groups = append $instance_groups "asmetrics" }}
+    {{- $instance_groups = append $instance_groups "asnozzle" }}
+    {{- end }}{{/* if autoscaler */}}
 
-{{- if .Values.sizing.auctioneer.instances }}
-    - type: replace
-      path: /instance_groups/name=auctioneer/instances
-      value: {{.Values.sizing.auctioneer.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=auctioneer/instances
-      value: 1
-{{- end }}
+    {{- /* CredHub */}}
+    {{- if .Values.features.credhub.enabled }}
+    {{- $instance_groups = append $instance_groups "credhub" }}
+    {{- end }}{{/* if credhub */}}
 
-{{- if .Values.features.credhub.enabled }}
-{{- if .Values.sizing.credhub.instances }}
-    - type: replace
-      path: /instance_groups/name=credhub/instances
-      value: {{.Values.sizing.credhub.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=credhub/instances
-      value: 1
-{{- end }}
-{{- end }}
-
-{{- if .Values.features.eirini.enabled }}
-{{- if .Values.sizing.bits.instances }}
-    - type: replace
-      path: /instance_groups/name=bits/instances
-      value: {{.Values.sizing.bits.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=bits/instances
-      value: 1
-{{- end }}
-{{- if .Values.sizing.eirini.instances }}
-    - type: replace
-      path: /instance_groups/name=eirini/instances
-      value: {{.Values.sizing.eirini.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=eirini/instances
-      value: 1
-{{- end }}
-{{- end }}
-
-{{- if .Values.sizing.cc_worker.instances }}
-    - type: replace
-      path: /instance_groups/name=cc-worker/instances
-      value: {{.Values.sizing.cc_worker.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=cc-worker/instances
-      value: 1
-{{- end }}
-
-{{- if .Values.sizing.diego_api.instances }}
-    - type: replace
-      path: /instance_groups/name=diego-api/instances
-      value: {{.Values.sizing.diego_api.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=diego-api/instances
-      value: 1
-{{- end }}
-
-{{- if not .Values.features.eirini.enabled }}
-{{- if .Values.sizing.diego_cell.instances }}
-    - type: replace
-      path: /instance_groups/name=diego-cell/instances
-      value: {{.Values.sizing.diego_cell.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=diego-cell/instances
-      value: 1
-{{- end }}
-{{- end }}
+    {{- /* Instances groups where existance depends on whether Eirini is enabled */}}
+    {{- if .Values.features.eirini.enabled }}
+    {{- $instance_groups = append $instance_groups "bits" }}
+    {{- $instance_groups = append $instance_groups "eirini" }}
+    {{- else }}
+    {{- $instance_groups = append $instance_groups "diego-cell" }}
+    {{- end }}{{/* if eirini */}}
 
     # Temporarily fixes https://github.com/SUSE/kubecf/issues/241.
     # TODO: properly investigate and fix log-cache.
@@ -153,72 +56,15 @@ data:
       path: /instance_groups/name=doppler/instances
       value: 1
 
-{{- if .Values.sizing.log_api.instances }}
+{{- $root := . }}
+{{- range $instance_group := $instance_groups }}
+{{- if index (snakecase $instance_group | index $root.Values.sizing) "instances" | kindIs "invalid" | not }}
     - type: replace
-      path: /instance_groups/name=log-api/instances
-      value: {{.Values.sizing.log_api.instances}}
-{{- else if not .Values.high_availability }}
+      path: /instance_groups/name={{ $instance_group }}/instances
+      value: {{ index (snakecase $instance_group | index $root.Values.sizing) "instances" }}
+{{- else if not $root.Values.high_availability }}
     - type: replace
-      path: /instance_groups/name=log-api/instances
+      path: /instance_groups/name={{ $instance_group }}/instances
       value: 1
-{{- end }}
-
-{{- if .Values.sizing.nats.instances }}
-    - type: replace
-      path: /instance_groups/name=nats/instances
-      value: {{.Values.sizing.nats.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=nats/instances
-      value: 1
-{{- end }}
-
-{{- if .Values.sizing.router.instances }}
-    - type: replace
-      path: /instance_groups/name=router/instances
-      value: {{.Values.sizing.router.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=router/instances
-      value: 1
-{{- end }}
-
-{{- if .Values.sizing.routing_api.instances }}
-    - type: replace
-      path: /instance_groups/name=routing-api/instances
-      value: {{.Values.sizing.routing_api.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=routing-api/instances
-      value: 1
-{{- end }}
-
-{{- if .Values.sizing.scheduler.instances }}
-    - type: replace
-      path: /instance_groups/name=scheduler/instances
-      value: {{.Values.sizing.scheduler.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=scheduler/instances
-      value: 1
-{{- end }}
-
-{{- if .Values.sizing.uaa.instances }}
-    - type: replace
-      path: /instance_groups/name=uaa/instances
-      value: {{.Values.sizing.uaa.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=uaa/instances
-      value: 1
-{{- end }}
-
-{{- if .Values.sizing.tcp_router.instances }}
-    - type: replace
-      path: /instance_groups/name=tcp-router/instances
-      value: {{.Values.sizing.tcp_router.instances}}
-{{- else if not .Values.high_availability }}
-    - type: replace
-      path: /instance_groups/name=tcp-router/instances
-      value: 1
-{{- end }}
+{{- end }}{{/* if */}}
+{{- end }}{{/* range $instance_group */}}
