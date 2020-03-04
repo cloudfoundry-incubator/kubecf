@@ -1,13 +1,13 @@
-{{- if .Values.features.embedded_database.enabled -}}
+{{- if .Values.features.embedded_database.enabled }}
 
-{{- $pxc_ca := printf "%s.var-pxc-ca" .Release.Name -}}
-{{- $pxc_tls := printf "%s.var-pxc-tls" .Release.Name -}}
-{{- $pxc_root_password := printf "%s.var-pxc-root-password" .Release.Name -}}
-{{- $pxc_password := printf "%s.var-pxc-password" .Release.Name -}}
-{{- $xtrabackup_password := printf "%s.var-xtrabackup-password" .Release.Name -}}
-{{- $repl_service := printf "%s-database-repl" .Release.Name -}}
-{{- $pxc_config_files := printf "%s-database-config-files" .Release.Name -}}
-{{- $pxc_startup_scripts := printf "%s-database-startup-scripts" .Release.Name -}}
+{{- $pxc_ca := printf "%s.var-pxc-ca" .Release.Name }}
+{{- $pxc_tls := printf "%s.var-pxc-tls" .Release.Name }}
+{{- $pxc_root_password := printf "%s.var-pxc-root-password" .Release.Name }}
+{{- $pxc_password := printf "%s.var-pxc-password" .Release.Name }}
+{{- $xtrabackup_password := printf "%s.var-xtrabackup-password" .Release.Name }}
+{{- $repl_service := printf "%s-database-repl" .Release.Name }}
+{{- $pxc_config_files := printf "%s-database-config-files" .Release.Name }}
+{{- $pxc_startup_scripts := printf "%s-database-startup-scripts" .Release.Name }}
 
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
@@ -390,4 +390,4 @@ spec:
           {{- end }}
           restartPolicy: Never
 
-{{- end -}}
+{{- end }}

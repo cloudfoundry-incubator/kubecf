@@ -1,4 +1,4 @@
-{{- $service := index .Values.services "tcp-router" -}}
+{{- $service := index .Values.services "tcp-router" }}
 
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/router_groups/name=default-tcp/reservable_ports

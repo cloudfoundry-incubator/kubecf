@@ -1,4 +1,4 @@
-{{- if .Values.features.eirini.enabled -}}
+{{- if .Values.features.eirini.enabled }}
 
 # Add the eirini BOSH DNS alias.
 - type: replace
@@ -327,7 +327,7 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/app_ssh/host_key_fingerprint?
   value: '((eirini_ssh_proxy_key.public_key_fingerprint))'
 
-{{- $root := . -}}
+{{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/eirini_*" }}
 {{ $root.Files.Get $path }}
 {{- end }}
