@@ -132,14 +132,14 @@ roleRef:
   kind: "Role"
   name: "{{ .Release.Name }}-test-role-sits"
 
-# Cluster role "test-cluster-role" only used by account "tests-sits"
+# Cluster role "tests-sits-cluster-role" only used by account "tests-sits"
 ---
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "ClusterRole"
 metadata:
-  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
+  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-cluster-role"
   labels:
-    app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
+    app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-cluster-role"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -199,14 +199,14 @@ rules:
   - "get"
   - "list"
 
-# Cluster role binding for service account "tests-sits" and cluster role "test-cluster-role"
+# Cluster role binding for service account "tests-sits" and cluster role "tests-sits-cluster-role"
 ---
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "ClusterRoleBinding"
 metadata:
-  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-test-cluster-role-cluster-binding"
+  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-cluster-binding"
   labels:
-    app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-test-cluster-role-cluster-binding"
+    app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-cluster-binding"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -219,6 +219,6 @@ subjects:
 roleRef:
   kind: "ClusterRole"
   apiGroup: "rbac.authorization.k8s.io"
-  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
+  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-cluster-role"
 
 {{- end }}
