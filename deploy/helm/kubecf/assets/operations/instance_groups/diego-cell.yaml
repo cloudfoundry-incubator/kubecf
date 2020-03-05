@@ -67,7 +67,7 @@
         exec:
           command: [sh, -c, 'ss -nlt sport = 17019 | grep "LISTEN.*:17019"']
 
-{{if .Values.testing.brain_tests.enabled -}}
+{{- if .Values.testing.brain_tests.enabled}}
 # For brain tests, allow garden access to the insecure registry they will create.
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/insecure_docker_registry_list?
