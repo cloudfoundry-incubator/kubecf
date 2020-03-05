@@ -77,6 +77,8 @@
               fieldPath: metadata.name
         - name: PORTS
           value: *uaa_https_port
+        - name: DATA_DIR
+          value: /var/vcap/data/uaa-internal-security-group-setup
 
 {{- end }}
 

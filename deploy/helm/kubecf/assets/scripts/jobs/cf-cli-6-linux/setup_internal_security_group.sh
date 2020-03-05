@@ -5,7 +5,8 @@ set -o errexit -o nounset -o pipefail
 
 export PATH="${CF_CLI_PATH}:${PATH}"
 
-cf_api_ca_cert_pem="/etc/ssl/cf_api_ca_cert.pem"
+cf_api_ca_cert_pem="${DATA_DIR}/cf_api_ca_cert.pem"
+mkdir -p "$(dirname "${cf_api_ca_cert_pem}")"
 echo -n "${CF_API_CA_CERT}" > "${cf_api_ca_cert_pem}"
 export SSL_CERT_FILE="${cf_api_ca_cert_pem}"
 

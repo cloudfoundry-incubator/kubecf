@@ -77,6 +77,8 @@
               fieldPath: metadata.name
         - name: PORTS
           value: *credhub_port
+        - name: DATA_DIR
+          value: /var/vcap/data/credhub-internal-security-group-setup
 
 {{- else }}
 
