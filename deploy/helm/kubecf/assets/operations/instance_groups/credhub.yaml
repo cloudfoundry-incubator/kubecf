@@ -1,12 +1,13 @@
 ---
 {{- if .Values.features.credhub.enabled }}
+
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/quarks?
   value:
     ports:
     - name: credhub
       protocol: TCP
-      internal: 8844
+      internal: &credhub_port 8844
     run:
       healthcheck:
         credhub:
@@ -24,16 +25,56 @@
       route_registrar:
         routes:
         - name: credhub
-          tls_port: 8844
+          tls_port: *credhub_port
           server_cert_domain_san: credhub.service.cf.internal
           registration_interval: 10s
           tags:
             component: credhub
           uris:
           - credhub.((system_domain))
-{{- end }}
 
-{{- if not .Values.features.credhub.enabled }}
+- type: replace
+  path: /instance_groups/name=credhub/jobs/-
+  value:
+    name: cf-cli-6-linux
+    release: cf-cli
+    properties:
+      quarks:
+        bpm:
+          processes:
+          - name: credhub-internal-security-group-setup
+            executable: /bin/bash
+            args:
+            - -c
+            - |-
+              {{- .Files.Get "assets/scripts/jobs/cf-cli-6-linux/setup_internal_security_group.sh" | nindent 14 }}
+        envs:
+        - name: CF_CLI_PATH
+          value: /var/vcap/packages/cf-cli-6-linux/bin
+        - name: CF_API
+          value: https://api.((system_domain))
+        - name: CF_USERNAME
+          value: admin
+        - name: CF_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ printf "%s.var-cf-admin-password" .Release.Name | quote }}
+              key: password
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: PORTS
+          value: *credhub_port
+
+{{- else }}
+
 # Remove directly from the cf-deployment.yml YAML file.
 - path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=credhub.service.cf.internal?
   type: remove
@@ -63,4 +104,5 @@
   type: remove
 - path: /releases/name=credhub?
   type: remove
+
 {{- end }}
