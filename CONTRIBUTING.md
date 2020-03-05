@@ -40,6 +40,7 @@ Please refer to [Code of Conduct](code-of-conduct.md)
 
 - [Bugs][1]
 - [Features][2]
+- [More detailed Contibuting guide][doc/Contribute.md]
 
 [1]: https://github.com/issues?utf8=%E2%9C%93&q=repo%3ASUSE%2Fkubecf+is%3Aopen+is%3Aissue+label%3A%22bug+%F0%9F%90%9B%22
 
