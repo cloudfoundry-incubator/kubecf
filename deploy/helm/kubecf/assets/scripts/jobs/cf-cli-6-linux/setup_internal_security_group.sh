@@ -31,4 +31,11 @@ else
     cf update-security-group "${sec_group_name}" <(echo -n "${sec_group_json}")
 fi
 
+cleanup() {
+    cf unbind-staging-security-group "${sec_group_name}"
+    cf unbind-running-security-group "${sec_group_name}"
+    cf delete-security-group -f "${sec_group_name}"
+}
+trap cleanup EXIT
+
 tail --pid 1 --follow /dev/null
