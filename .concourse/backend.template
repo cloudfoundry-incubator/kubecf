@@ -39,6 +39,7 @@ resources:
             # obtain kubeconfig from ekcp
             pushd catapult
             BACKEND=ekcp make recover
+            cp build$CLUSTER_NAME/kubeconfig kubeconfig_$CLUSTER_NAME
 ` }}
 
 {{ $import_gke := `
@@ -46,7 +47,7 @@ resources:
             export BACKEND=gke
             cat '(( gke-key-json ))' > $PWD/gke-key.json
             export GKE_CRED_JSON=$PWD/gke-key.json
-            export KUBECFG=$PWD/buildekcp/kubeconfig
+            export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
             make kubeconfig
 ` }}
 
@@ -55,21 +56,21 @@ resources:
             export BACKEND=eks
             export AWS_ACCESS_KEY_ID='(( aws-ci-chuller-access-key-id ))'
             export AWS_SECRET_ACCESS_KEY='(( aws-ci-chuller-secret-access-key ))'
-            export KUBECFG=$PWD/buildekcp/kubeconfig
+            export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
             make kubeconfig
 ` }}
 
 {{ $import_aks := `
             # create builfolder prepared for aks
             export BACKEND=aks
-            export KUBECFG=$PWD/buildekcp/kubeconfig
+            export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
             make kubeconfig
 ` }}
 
 {{ $import_caasp4 := `
             # create builfolder prepared for caasp4os
             export BACKEND=caasp4os
-            export KUBECFG=$PWD/buildekcp/kubeconfig
+            export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
             make kubeconfig
 ` }}
 
