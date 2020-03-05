@@ -38,7 +38,7 @@ resources:
 {{ $obtain_ekcp := `
             # obtain kubeconfig from ekcp
             pushd catapult
-            BACKEND=ekcp CLUSTER_NAME=ekcp make recover
+            BACKEND=ekcp make recover
 ` }}
 
 {{ $import_gke := `
