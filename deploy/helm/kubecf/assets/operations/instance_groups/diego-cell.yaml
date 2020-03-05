@@ -70,13 +70,11 @@
 {{- if .Values.testing.brain_tests.enabled}}
 # For brain tests, allow garden access to the insecure registry they will create.
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/insecure_docker_registry_list?
-  value:
-  - "insecure-registry.tcp.((system_domain)):20005"
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/insecure_docker_registry_list?/-
+  value: "insecure-registry.tcp.((system_domain)):20005"
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/grootfs?/insecure_docker_registry_list
-  value:
-  - "insecure-registry.tcp.((system_domain)):20005"
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/grootfs?/insecure_docker_registry_list/-
+  value: "insecure-registry.tcp.((system_domain)):20005"
 {{- end}}
 
 # Add quarks properties for route_emitter.
