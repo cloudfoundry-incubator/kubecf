@@ -43,6 +43,7 @@
         bpm:
           processes:
           - name: credhub-internal-security-group-setup
+            ephemeral_disk: true
             executable: /bin/bash
             args:
             - -c
@@ -53,6 +54,11 @@
           value: /var/vcap/packages/cf-cli-6-linux/bin
         - name: CF_API
           value: https://api.((system_domain))
+        - name: CF_API_CA_CERT
+          valueFrom:
+            secretKeyRef:
+              name: {{ printf "%s.var-router-ssl" .Release.Name | quote }}
+              key: ca
         - name: CF_USERNAME
           value: admin
         - name: CF_PASSWORD
@@ -72,6 +78,8 @@
               fieldPath: metadata.name
         - name: PORTS
           value: *credhub_port
+        - name: DATA_DIR
+          value: /var/vcap/data/cf-cli-6-linux
 
 {{- else }}
 
