@@ -4,7 +4,8 @@ set -o errexit -o nounset -o xtrace
 
 export PATH="${CF_CLI_PATH}:${PATH}"
 
-until curl --insecure --fail --silent --head "${CF_API}/v2/info"; do
+echo "Waiting for the API to be accessible..."
+until curl --insecure --fail --head "${CF_API}/v2/info" 1> /dev/null 2> /dev/null; do
     sleep 1
 done
 
