@@ -1,15 +1,20 @@
 #!/bin/bash
 
-set -o errexit -o nounset -o xtrace
+# Never use -x or -o xtrace here because of security reasons.
+set -o errexit -o nounset -o pipefail
 
 export PATH="${CF_CLI_PATH}:${PATH}"
 
+cf_api_ca_cert_pem="/etc/ssl/cf_api_ca_cert.pem"
+echo -n "${CF_API_CA_CERT}" > "${cf_api_ca_cert_pem}"
+export SSL_CERT_FILE="${cf_api_ca_cert_pem}"
+
 echo "Waiting for the API to be accessible..."
-until curl --insecure --fail --head "${CF_API}/v2/info" 1> /dev/null 2> /dev/null; do
+until curl --fail --head "${CF_API}/v2/info" 1> /dev/null 2> /dev/null; do
     sleep 1
 done
 
-cf api --skip-ssl-validation "${CF_API}"
+cf api "${CF_API}"
 cf auth
 
 sec_group_json=$(cat <<EOF
