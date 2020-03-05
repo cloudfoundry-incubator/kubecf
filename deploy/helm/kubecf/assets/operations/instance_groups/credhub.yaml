@@ -43,6 +43,7 @@
         bpm:
           processes:
           - name: credhub-internal-security-group-setup
+            ephemeral_disk: true
             executable: /bin/bash
             args:
             - -c
@@ -78,7 +79,7 @@
         - name: PORTS
           value: *credhub_port
         - name: DATA_DIR
-          value: /var/vcap/data/credhub-internal-security-group-setup
+          value: /var/vcap/data/cf-cli-6-linux
 
 {{- else }}
 

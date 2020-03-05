@@ -43,6 +43,7 @@
         bpm:
           processes:
           - name: uaa-internal-security-group-setup
+            ephemeral_disk: true
             executable: /bin/bash
             args:
             - -c
@@ -78,7 +79,7 @@
         - name: PORTS
           value: *uaa_https_port
         - name: DATA_DIR
-          value: /var/vcap/data/uaa-internal-security-group-setup
+          value: /var/vcap/data/cf-cli-6-linux
 
 {{- end }}
 
