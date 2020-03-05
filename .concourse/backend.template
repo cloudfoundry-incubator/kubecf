@@ -33,6 +33,7 @@ resources:
     region_name: us-west-2
     regexp: kubecf-bundle-v(.*).tgz
 
+{{ $pipelineName := .Env.PIPELINE }}
 
 {{ $obtain_ekcp := `
             # obtain kubeconfig from ekcp
@@ -161,7 +162,7 @@ jobs:
 {{- if eq $HAflag "ha" }}
         HA: true
 {{- end }}
-        CLUSTER_NAME: product-release-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
+        CLUSTER_NAME: {{$pipelineName}}-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
       run:
         path: "/bin/bash"
         args:
@@ -220,7 +221,7 @@ jobs:
         HA: true
 {{- end }}
         TEST_SUITE: smokes
-        CLUSTER_NAME: product-release-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
+        CLUSTER_NAME: {{$pipelineName}}-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
       run:
         path: "/bin/bash"
         args:
@@ -279,7 +280,7 @@ jobs:
         HA: true
 {{- end }}
         TEST_SUITE: cats
-        CLUSTER_NAME: product-release-diego-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
+        CLUSTER_NAME: {{$pipelineName}}-diego-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
       run:
         path: "/bin/bash"
         args:
@@ -340,7 +341,7 @@ jobs:
         TEST_SUITE: cats
         TEST_SUITE: cats
         BACKEND: {{$Backend}}
-        CLUSTER_NAME: product-release-diego-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
+        CLUSTER_NAME: {{$pipelineName}}-diego-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
       run:
         path: "/bin/bash"
         args:
@@ -399,7 +400,7 @@ jobs:
         HA: true
 {{- end }}
         TEST_SUITE: cats
-        CLUSTER_NAME: product-release-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
+        CLUSTER_NAME: {{$pipelineName}}-{{$Eiriniflag}}-{{$Backend}}-{{$HAflag}}
       run:
         path: "/bin/bash"
         args:

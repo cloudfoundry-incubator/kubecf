@@ -3,10 +3,10 @@
 # NOTE to insert clusters by kubeconfig into EKCP (change name of cluster):
 # curl -d "name=post-publish-diego-caasp4&kubeconfig=$(base64 ./kubeconfig)" -X POST http://ain.arch.suse.de:8030/api/v1/cluster/insert
 
-export PIPELINE=product-release
+export PIPELINE="${PIPELINE-product-release}"
 
 # Lets concatenate all the pipelines:
-rm $PIPELINE.yaml
+rm $PIPELINE.yaml || true
 export BACKEND="${BACKEND:-backend: [ caasp4, aks, gke, eks ]}"
 export HA="${HA:-ha: [ sa, ha ]}"
 export EIRINI="${EIRINI:-eirini: [ diego, eirini ]}"
