@@ -135,7 +135,6 @@ jobs:
   - get: kubecf-master
   - get: catapult
   - task: deploy
-    tags: [internaldns]
     privileged: true
     timeout: 2h30m
     input_mapping:
