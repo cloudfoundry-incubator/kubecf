@@ -694,13 +694,13 @@ jobs:
           EKCP_HOST: ((ekcp-host))
 
 - name: cf-acceptance-tests-diego
-  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
     passed:
     - sync-integration-tests-diego
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - sync-integration-tests-diego
@@ -1144,6 +1144,7 @@ jobs:
     # TODO: Does this work? It might check the wrong thing
     # - cf-acceptance-tests-eirini
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - cf-acceptance-tests-diego
