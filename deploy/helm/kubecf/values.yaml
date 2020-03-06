@@ -212,19 +212,26 @@ services:
       start: 20000
       end: 20008
 
-router:
-  # tls is an array of objects containing the `key` and `crt` keys. E.g.
-  # router:
-  #   tls:
-  #   - crt: |
-  #       -----BEGIN CERTIFICATE-----
-  #       ...
-  #       -----END CERTIFICATE-----
-  #     key: |
-  #       -----BEGIN PRIVATE KEY-----
-  #       ...
-  #       -----END PRIVATE KEY-----
-  tls: []
+settings:
+  router:
+    # tls sets up the public TLS for the router. The tls keys:
+    #   ca: the CA in the PEM format. Only required when the certificate is self-signed.
+    #   crt: the certificate in the PEM format. Required.
+    #   key: the private key in the PEM format. Required.
+    tls: {}
+    # ca: |
+    #   -----BEGIN CERTIFICATE-----
+    #   ...
+    #   -----END CERTIFICATE-----
+    # crt: |
+    #   -----BEGIN CERTIFICATE-----
+    #   ...
+    #   -----END CERTIFICATE-----
+    # key: |
+    #   -----BEGIN PRIVATE KEY-----
+    #   ...
+    #   -----END PRIVATE KEY-----
+
 
 features:
   eirini:
