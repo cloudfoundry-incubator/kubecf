@@ -6,7 +6,7 @@
 export PIPELINE="${PIPELINE-product-release}"
 
 # Lets concatenate all the pipelines:
-rm $PIPELINE.yaml || true
+rm $PIPELINE.yaml 2>/dev/null || true
 export BACKEND="${BACKEND:-backend: [ caasp4, aks, gke, eks ]}"
 export OPTIONS="${OPTIONS:-options: [ sa, ha, all ]}"
 export EIRINI="${EIRINI:-eirini: [ diego, eirini ]}"
