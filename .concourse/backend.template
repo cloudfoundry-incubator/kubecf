@@ -112,22 +112,22 @@ resources:
 ` }}
 
 {{ $allbells := `
-            # enable as much options as possible
-            export HA=true
-            export EMBEDDED_UAA=true
-            export AUTOSCALER=true
+        # enable as much options as possible
+        HA: true
+        EMBEDDED_UAA: true
+        AUTOSCALER: true
 ` }}
 
 jobs:
 {{ range $i, $Backend := (ds "BACKEND").backend -}} # for all backends
 
-{{ range $j, $HAFlag := (ds "HA").ha -}} # for ha
+{{ range $j, $OptionsFlag := (ds "OPTIONS").options -}} # for options
 
-{{ range $j, $EiriniFlag := (ds "EIRINI").eirini -}} # for eirini
+{{ range $k, $EiriniFlag := (ds "EIRINI").eirini -}} # for eirini
 
-# {{$Backend}}-{{$HAFlag}}
+# {{$Backend}}-{{$OptionsFlag}}
 
-- name: deploy-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
+- name: deploy-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
   public: false
   plan:
   - get: s3.kubecf-bundle
@@ -160,10 +160,13 @@ jobs:
 {{ else }}
         ENABLE_EIRINI: false
 {{- end }}
-{{- if eq $HAFlag "ha" }}
+{{- if eq $OptionsFlag "ha" }}
         HA: true
 {{- end }}
-        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
+{{- if eq $OptionsFlag "all" }}
+{{- print $allbells -}}
+{{- end }}
+        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -184,13 +187,13 @@ jobs:
             {{end}}
             {{- print $deploy }}
 
-- name: smoke-tests-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
-  serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}]
+- name: smoke-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+  serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
   public: false
   plan:
   - get: kubecf-master
     passed:
-    - deploy-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
+    - deploy-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
     trigger: true
   - get: catapult
   - task: test-{{$EiriniFlag}}
@@ -218,11 +221,14 @@ jobs:
 {{ else }}
         ENABLE_EIRINI: false
 {{- end }}
-{{- if eq $HAFlag "ha" }}
+{{- if eq $OptionsFlag "ha" }}
         HA: true
 {{- end }}
+{{- if eq $OptionsFlag "all" }}
+{{- print $allbells -}}
+{{- end }}
         TEST_SUITE: smokes
-        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
+        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -243,13 +249,13 @@ jobs:
             {{end}}
             {{- print $test }}
 
-- name: cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
-  serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}]
+- name: cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+  serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
   public: false
   plan:
   - get: kubecf-master
     passed:
-    - smoke-tests-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
+    - smoke-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
     trigger: true
   - get: catapult
   - task: test-{{$EiriniFlag}}
@@ -277,11 +283,14 @@ jobs:
 {{ else }}
         ENABLE_EIRINI: false
 {{- end }}
-{{- if eq $HAFlag "ha" }}
+{{- if eq $OptionsFlag "ha" }}
         HA: true
 {{- end }}
+{{- if eq $OptionsFlag "all" }}
+{{- print $allbells -}}
+{{- end }}
         TEST_SUITE: cats
-        CLUSTER_NAME: {{$pipelineName}}-diego-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
+        CLUSTER_NAME: {{$pipelineName}}-diego-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -302,13 +311,13 @@ jobs:
             {{end}}
             {{- print $test }}
 
-- name: upgrade-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
-  serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}]
+- name: upgrade-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+  serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
   public: false
   plan:
   - get: kubecf-master
     passed:
-    - cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
+    - cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
     trigger: true
   - get: catapult
   - task: upgrade-{{$EiriniFlag}}
@@ -336,13 +345,16 @@ jobs:
 {{ else }}
         ENABLE_EIRINI: false
 {{- end }}
-{{- if eq $HAFlag "ha" }}
+{{- if eq $OptionsFlag "ha" }}
         HA: true
+{{- end }}
+{{- if eq $OptionsFlag "all" }}
+{{- print $allbells -}}
 {{- end }}
         TEST_SUITE: cats
         TEST_SUITE: cats
         BACKEND: {{$Backend}}
-        CLUSTER_NAME: {{$pipelineName}}-diego-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
+        CLUSTER_NAME: {{$pipelineName}}-diego-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -363,13 +375,13 @@ jobs:
             {{end}}
             {{- print $upgrade }}
 
-- name: stratos-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
-  serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}]
+- name: stratos-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+  serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
   public: false
   plan:
   - get: kubecf-master
     passed:
-    - upgrade-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
+    - upgrade-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
     trigger: true
   - get: catapult
   - task: stratos-{{$EiriniFlag}}
@@ -397,11 +409,14 @@ jobs:
 {{ else }}
         ENABLE_EIRINI: false
 {{- end }}
-{{- if eq $HAFlag "ha" }}
+{{- if eq $OptionsFlag "ha" }}
         HA: true
 {{- end }}
+{{- if eq $OptionsFlag "all" }}
+{{- print $allbells -}}
+{{- end }}
         TEST_SUITE: cats
-        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$HAFlag}}
+        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -423,5 +438,5 @@ jobs:
             {{- print $stratos }}
 
 {{ end }} # end eirini
-{{ end }} # end ha
+{{ end }} # end options
 {{ end }} # end backend
