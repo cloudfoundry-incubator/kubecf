@@ -52,7 +52,7 @@ resources:
   source:
     uri: https://github.com/SUSE/catapult
   version:
-    ref: eb4b8fe1453c7a5f1c6a2082e5f490dd6e953664
+    ref: 7eea74f5cab3386b65c08938b25811e99bb829ef
 
 - name: s3.kubecf-ci
   type: s3
@@ -97,6 +97,7 @@ deploy_args: &deploy_args
   export SCF_CHART="$(readlink -f s3.kubecf-ci/*.tgz)"
   export SCF_OPERATOR=true
   export FORCE_DELETE=true
+  export HELM_VERSION="v3.1.1"
   export SCF_TESTGROUP=true
   export BACKEND=ekcp
   export DOCKER_ORG=cap-staging
@@ -149,6 +150,7 @@ jobs:
     params:
       integration_tool: checkout
     trigger: true
+    version: "every"
   # Use GitHub API to find the remote repository of the PR (it may be a fork)
   # The pr resource doesn't provide this information.
   - task: find-pr-remote
@@ -248,6 +250,7 @@ jobs:
   plan:
   - get: commit-to-test
     trigger: true
+    version: "every"
   - task: lint
     config:
       platform: linux
@@ -288,6 +291,7 @@ jobs:
   plan:
   - get: commit-to-test
     trigger: true
+    version: "every"
     passed:
     - lint
   - task: build
@@ -341,6 +345,7 @@ jobs:
   plan:
   - get: commit-to-test
     trigger: true
+    version: "every"
     passed:
     - build
   - get: s3.kubecf-ci
@@ -420,13 +425,13 @@ jobs:
           EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-diego
-  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
     passed:
     - deploy-diego
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - deploy-diego
@@ -489,12 +494,12 @@ jobs:
 
 - name: ccdb-rotate-diego
   public: true
-  max_in_flight: 2
   plan:
   - get: commit-to-test
     passed:
     - cf-acceptance-tests-diego
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - cf-acceptance-tests-diego
@@ -555,13 +560,13 @@ jobs:
           EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-post-rotate-diego
-  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
     passed:
     - ccdb-rotate-diego
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - ccdb-rotate-diego
@@ -623,13 +628,13 @@ jobs:
           EKCP_HOST: ((ekcp-host))
 
 - name: cf-acceptance-tests-diego
-  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
     passed:
     - smoke-tests-diego
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - smoke-tests-diego
@@ -691,13 +696,13 @@ jobs:
           EKCP_HOST: ((ekcp-host))
 
 - name: cleanup-diego-cluster
-  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
     passed:
     - smoke-tests-post-rotate-diego
     trigger: true
+    version: "every"
   - task: cleanup-cluster
     config:
       <<: *cleanup-cluster
@@ -712,6 +717,7 @@ jobs:
   plan:
   - get: commit-to-test
     trigger: true
+    version: "every"
     passed:
     - build
   - get: s3.kubecf-ci
@@ -776,13 +782,13 @@ jobs:
           EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-eirini
-  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
     passed:
     - deploy-eirini
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - deploy-eirini
@@ -845,12 +851,12 @@ jobs:
 
 - name: ccdb-rotate-eirini
   public: true
-  max_in_flight: 2
   plan:
   - get: commit-to-test
     passed:
     - cf-acceptance-tests-eirini
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - cf-acceptance-tests-eirini
@@ -911,13 +917,13 @@ jobs:
           EKCP_HOST: ((ekcp-host))
 
 - name: smoke-tests-post-rotate-eirini
-  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
     passed:
     - ccdb-rotate-eirini
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - ccdb-rotate-eirini
@@ -979,13 +985,13 @@ jobs:
           EKCP_HOST: ((ekcp-host))
 
 - name: cf-acceptance-tests-eirini
-  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
     passed:
     - smoke-tests-eirini
     # trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - smoke-tests-eirini
@@ -1047,7 +1053,6 @@ jobs:
           EKCP_HOST: ((ekcp-host))
 
 - name: cleanup-eirini-cluster
-  max_in_flight: 2
   public: true
   plan:
   - get: commit-to-test
@@ -1055,6 +1060,7 @@ jobs:
     # - smoke-tests-post-rotate-eirini
     - smoke-tests-eirini
     trigger: true
+    version: "every"
   - task: cleanup-cluster
     config:
       <<: *cleanup-cluster
@@ -1066,6 +1072,7 @@ jobs:
   public: true
   plan:
   - get: commit-to-test
+    version: "every"
     passed:
     - cf-acceptance-tests-diego
     # TODO: Uncomment as soon as eirini tests are green

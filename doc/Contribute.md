@@ -56,6 +56,9 @@ features, etc. is:
     questions, requesting changes, and generally discussing the
     submission with the submitter and among themselves.
 
+  - PRs from branches of this repository are automatically tested [in the CI](https://concourse.suse.dev/teams/main/pipelines/kubecf).
+    For forks, you should ask a maintainer of this repository to trigger a build. Automated triggers have been disabled for security reasons.
+
   - After all issues with the request are resolved, and CI has passed,
     a developer will merge it into master.
 
