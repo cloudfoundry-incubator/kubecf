@@ -15,7 +15,7 @@ until curl --fail --head "${CF_API}/v2/info" 1> /dev/null 2> /dev/null; do
 done
 
 cf api "${CF_API}"
-cf auth
+cf auth --client-credentials
 
 sec_group_json=$(cat <<EOF
 [{

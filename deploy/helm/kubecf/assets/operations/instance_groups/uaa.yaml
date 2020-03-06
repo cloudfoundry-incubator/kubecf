@@ -60,11 +60,11 @@
               name: {{ printf "%s.var-router-ssl" .Release.Name | quote }}
               key: ca
         - name: CF_USERNAME
-          value: admin
+          value: uaa_setup
         - name: CF_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ printf "%s.var-cf-admin-password" .Release.Name | quote }}
+              name: {{ printf "%s.var-uaa-setup-client-secret" .Release.Name | quote }}
               key: password
         - name: POD_IP
           valueFrom:
@@ -80,6 +80,19 @@
           value: *uaa_https_port
         - name: DATA_DIR
           value: /var/vcap/data/cf-cli-6-linux
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/uaa_setup?
+  value:
+    authorities: cloud_controller.admin
+    authorized-grant-types: client_credentials
+    secret: ((uaa_setup_client_secret))
+
+- type: replace
+  path: /variables/name=uaa_setup_client_secret?
+  value:
+    name: uaa_setup_client_secret
+    type: password
 
 {{- end }}
 
