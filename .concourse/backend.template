@@ -1,4 +1,30 @@
 ---
+
+groups:
+- name: ALL
+  jobs:
+{{ range $_, $Backend := (ds "BACKEND").backend -}} # for all backends
+{{ range $_, $Jobs := slice "deploy" "smoke-tests" "cf-acceptance-tests" "upgrade" "stratos" -}} # for jobs
+{{ range $_, $EiriniFlag := (ds "EIRINI").eirini -}} # for eirini
+{{ range $_, $OptionsFlag := (ds "OPTIONS").options -}} # for options
+    - {{$Jobs}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+{{ end }} # end jobs
+{{ end }} # end eirini
+{{ end }} # end options
+{{ end }} # end backend
+{{ range $_, $Backend := (ds "BACKEND").backend -}} # for all backends
+- name: {{$Backend}}
+  jobs:
+{{ range $_, $Jobs := slice "deploy" "smoke-tests" "cf-acceptance-tests" "upgrade" "stratos" -}} # for jobs
+{{ range $_, $EiriniFlag := (ds "EIRINI").eirini -}} # for eirini
+{{ range $_, $OptionsFlag := (ds "OPTIONS").options -}} # for options
+    - {{$Jobs}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+{{ end }} # end jobs
+{{ end }} # end eirini
+{{ end }} # end options
+{{ end }} # end backend
+
+
 resource_types:
 - name: pull-request
   type: docker-image
