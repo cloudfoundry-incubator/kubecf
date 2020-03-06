@@ -30,23 +30,6 @@
 {{- $releases = append $releases "log-cache" }}
 {{- $releases = append $releases "cf-cli" }}
 
-
-# Add the cf-mysql-release.
-{{- if not .Values.features.external_database.enabled }}
-{{- $releases = append $releases "cf-mysql" }}
-- type: replace
-  path: /releases/-
-  value:
-    name: cf-mysql
-# Remove the PXC release and related variables.
-- type: remove
-  path: /releases/name=pxc
-- type: remove
-  path: /variables/name=pxc_galera_ca
-- type: remove
-  path: /variables/name=galera_server_certificate
-{{- end }}
-
 # Add the cf-acceptance-tests-release.
 {{- if .Values.testing.cf_acceptance_tests.enabled }}
 {{- $releases = append $releases "cf-acceptance-tests" }}
@@ -100,18 +83,17 @@
   {{- end }}
 
 # Loop over the releases, replacing the url and stemcell, and the version when appropriate.
-{{- $root := . }}
 {{- range $release := $releases }}
 - type: replace
   path: /releases/name={{ $release }}/url?
-  value: {{ include "kubecf.releaseURLLookup" (list $root.Values.releases $release) }}
+  value: {{ include "kubecf.releaseURLLookup" (list $.Values.releases $release) }}
 - type: replace
   path: /releases/name={{ $release }}/stemcell?
-  value: {{ include "kubecf.stemcellLookup" (list $root.Values.releases $release) }}
-{{- if (index $root.Values.releases $release).version }}
+  value: {{ include "kubecf.stemcellLookup" (list $.Values.releases $release) }}
+{{- if (index $.Values.releases $release).version }}
 - type: replace
   path: /releases/name={{ $release }}/version?
-  value: {{ (index $root.Values.releases $release).version | quote }}
+  value: {{ (index $.Values.releases $release).version | quote }}
 {{- end }}
 - type: remove
   path: /releases/name={{ $release }}/sha1?

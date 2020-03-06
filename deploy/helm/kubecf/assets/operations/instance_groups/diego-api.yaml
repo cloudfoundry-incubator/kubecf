@@ -62,23 +62,19 @@
     ports:
     - name: cell-bbs-api
       protocol: TCP
-      internal: 8889
-    run:
-      healthcheck:
-        bbs:
-          readiness:
-            # The /ping endpoint on the healthcheck endpoint is unusable for this readiness probe as
-            # it always returns success if the server it up and running. The port 8889, on the other
-            # hand, is useful because bbs will start listening on it only if it acquired the lock
-            # via locket.
-            tcpSocket:
-              port: 8889
-
+      internal: 8889 # If you change this values, change the probe below too
+    activePassiveProbes:
+      bbs-bbs:
+        exec:
+          command:
+          - bash
+          - -ce
+          - "head -c0 </dev/tcp/${HOSTNAME}/8889"
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []
 
-{{- $root := . -}}
+{{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-api_*" }}
 {{ $root.Files.Get $path }}
 {{- end }}

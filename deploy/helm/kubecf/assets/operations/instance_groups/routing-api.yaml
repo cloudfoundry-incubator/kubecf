@@ -12,20 +12,19 @@
     - name: routing-api
       protocol: TCP
       internal: 3000
-    run:
-      healthcheck:
-        routing-api:
-          readiness:
-            # routing-api does not expose a health check endpoint.
-            tcpSocket:
-              port: 3000
-
+    activePassiveProbes:
+      routing-api-routing-api:
+        exec:
+          command:
+          - bash
+          - -ce
+          - "head -c0 </dev/tcp/${HOSTNAME}/3000 "
 # Set the alias routing-api.service.cf.internal instance group to routing-api.
 - type: replace
   path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=routing-api.service.cf.internal/targets/0/instance_group
   value: routing-api
 
-{{- $root := . -}}
+{{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/routing-api_*" }}
 {{ $root.Files.Get $path }}
 {{- end }}

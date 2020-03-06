@@ -17,7 +17,7 @@
 {{- $buildpacks = append $buildpacks "suse-nginx-buildpack" }}
 {{- $buildpacks = append $buildpacks "suse-binary-buildpack" }}
 
-{{- $root := . -}}
+{{- $root := . }}
 {{- range $buildpack := $buildpacks }}
 - type: replace
   path: /releases/-

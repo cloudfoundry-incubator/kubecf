@@ -29,20 +29,6 @@ kube:
   # The storage class to be used for the instance groups that need it (e.g. bits, database and
   # singleton-blobstore). If it's not set, the default storage class will be used.
   storage_class: ~
-  # The service_cluster_ip_range and pod_cluster_ip_range are used by the internal security group
-  # definition to allow apps to communicate with internal service brokers (e.g. credhub).
-  # service_cluster_ip_range can be fetched with the following command, assuming that the API
-  # server started with the `--service-cluster-ip-range` flag:
-  # kubectl cluster-info dump --output yaml \
-  #   | awk 'match($0, /service-cluster-ip-range=(.*)/, range) { print range[1] }'
-  # The default value for `--service-cluster-ip-range` is 10.0.0.0/24.
-  service_cluster_ip_range: ~
-  # pod_cluster_ip_range can be fetched with the following command, assuming that the controller
-  # manager started with the `--cluster-cidr` flag:
-  # kubectl cluster-info dump --output yaml \
-  #   | awk 'match($0, /cluster-cidr=(.*)/, range) { print range[1] }'
-  # There is no default value for `--cluster-cidr`.
-  pod_cluster_ip_range: ~
   # The psp key contains the configuration related to Pod Security Policies. By default, a PSP will
   # be generated with the necessary permissions for running KubeCF. To pass an existing PSP and
   # prevent KubeCF from creating a new one, set the kube.psp.default with the PSP name.
@@ -60,21 +46,18 @@ releases:
     version: 3.0.0
   bits-service:
     version: 2.28.0
-  # TODO: brains-tests must switch to SLE15 stemcell once the compilation failures are resolved.
-  # check: https://github.com/SUSE/kubecf/issues/270
   brain-tests:
-    version: v0.0.6
-    stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_372.ge3509601
+    version: v0.0.8
   cf-acceptance-tests:
-    version: 0.0.10
-  # TODO: cf-mysql must switch to SLE15 stemcell once the compilation failures are resolved.
-  cf-mysql:
-    version: 36.19.0
+    version: 0.0.11
     stemcell:
-      os: opensuse-42.3
-      version: 36.g03b4653-30.80-7.0.0_360.g0ec8d681
+      os: SLE_15_SP1
+      version: 23.10-7.0.0_374.gb8e8e6af
+  # pxc is not a BOSH release.
+  pxc:
+    image:
+      repository: "splatform/pxc"
+      tag: 0.9.4
   eirini:
     version: 0.0.25
   loggregator:
@@ -182,6 +165,10 @@ sizing:
     instances: ~
   credhub:
     instances: ~
+  database:
+    instances: ~
+    persistence:
+      size: 20Gi
   diego_api:
     instances: ~
   diego_cell:
@@ -258,9 +245,11 @@ features:
     enabled: false
   credhub:
     enabled: true
-  # external_database disables the embedded database and allows using an external, already seeded,
-  # database.
-  # The database type can be either 'mysql' or 'postgres'.
+  # embedded_database enables the embedded PXC sub-chart. Disabling it allows using an external, already seeded,
+  embedded_database:
+    enabled: true
+
+  # The external database type can be either 'mysql' or 'postgres'.
   external_database:
     enabled: false
     require_ssl: false

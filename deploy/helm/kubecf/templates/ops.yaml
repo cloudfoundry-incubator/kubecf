@@ -1,5 +1,5 @@
 # This template creates a ConfigMap for each ops file under assets/operations.
-{{- define "kubecf.ops" -}}
+{{- define "kubecf.ops" }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -15,10 +15,10 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" .Root }}
 data:
   ops: |-
-    {{- tpl (.Root.Files.Get .Path) .Root | nindent 4 -}}
-{{- end -}}
+    {{- tpl (.Root.Files.Get .Path) .Root | nindent 4 }}
+{{- end }}
 
-{{- $root := . -}}
+{{- $root := . }}
 
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/unordered/move_auctioneer.yaml") }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/unordered/move_routing_api.yaml") }}
