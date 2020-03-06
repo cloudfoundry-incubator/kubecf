@@ -386,7 +386,7 @@ spec:
           {{- range $database := $databases }}
           - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
             secret:
-              secretName: {{ printf "%s.var-%s-database-password" $.Release.Namespace (get $database "secretName") | quote }}
+              secretName: {{ printf "%s.var-%s-database-password" $.Release.Name (get $database "secretName") | quote }}
           {{- end }}
           restartPolicy: Never
 
