@@ -119,11 +119,11 @@ resources:
 ` }}
 
 jobs:
-{{ range $i, $Backend := (ds "BACKEND").backend -}} # for all backends
+{{ range $_, $Backend := (ds "BACKEND").backend -}} # for all backends
 
-{{ range $j, $OptionsFlag := (ds "OPTIONS").options -}} # for options
+{{ range $_, $OptionsFlag := (ds "OPTIONS").options -}} # for options
 
-{{ range $k, $EiriniFlag := (ds "EIRINI").eirini -}} # for eirini
+{{ range $_, $EiriniFlag := (ds "EIRINI").eirini -}} # for eirini
 
 # {{$Backend}}-{{$OptionsFlag}}
 
