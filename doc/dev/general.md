@@ -82,7 +82,7 @@ This again uses helm and a released helm chart.
 ```shell
 helm install --name kubecf \
      --namespace kubecf \
-     https://scf-v3.s3.amazonaws.com/scf-3.0.0-82165ef3.tgz \
+     https://kubecf.s3.amazonaws.com/kubecf-v0.0.0-998b961.tgz \
      --set "system_domain=kubecf.suse.dev"
 ```
 
