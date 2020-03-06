@@ -21,6 +21,7 @@
           {{- end }}
           include: '+tcp_routing'
           skip_ssl_validation: true
+          timeout_scale: 3
         bpm:
           enabled: true
       release: cf-acceptance-tests
