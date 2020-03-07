@@ -8,24 +8,38 @@ For production systems, where certificates signed by a well-known certificate au
 KubeCF allows those certificates to be passed via Helm properties. To do so, set the values:
 
 ```yaml
-router:
-  tls:
-  - crt: |
-      -----BEGIN CERTIFICATE-----
-      ... cert_1
-      -----END CERTIFICATE-----
-    key: |
-      -----BEGIN PRIVATE KEY-----
-      ... cert_key_1
-      -----END PRIVATE KEY-----
-  - crt: |
-      -----BEGIN CERTIFICATE-----
-      ... cert_2
-      -----END CERTIFICATE-----
-    key: |
-      -----BEGIN PRIVATE KEY-----
-      ... cert_key_2
-      -----END PRIVATE KEY-----
+settings:
+  router:
+    tls:
+      crt: |
+        -----BEGIN CERTIFICATE-----
+        ...
+        -----END CERTIFICATE-----
+      key: |
+        -----BEGIN PRIVATE KEY-----
+        ...
+        -----END PRIVATE KEY-----
 ```
 
 The certificates must be valid for `((system_domain))` and `*.((system_domain))`.
+
+For production systems using TLS certificates signed by an internal certificate authority, the `ca`
+property can also be set under `tls`. To do so, set the values:
+
+```yaml
+settings:
+  router:
+    tls:
+      ca: |
+        -----BEGIN CERTIFICATE-----
+        ...
+        -----END CERTIFICATE-----
+      crt: |
+        -----BEGIN CERTIFICATE-----
+        ...
+        -----END CERTIFICATE-----
+      key: |
+        -----BEGIN PRIVATE KEY-----
+        ...
+        -----END PRIVATE KEY-----
+```
