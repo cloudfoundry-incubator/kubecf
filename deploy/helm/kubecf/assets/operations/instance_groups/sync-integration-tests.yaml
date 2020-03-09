@@ -20,7 +20,7 @@
         sync_integration_tests:
           bbs:
             svc:
-              name: {{ .Release.Namespace }}-diego-api
+              name: {{ .Release.Name }}-diego-api
               namespace: {{ .Release.Namespace }}
               port: 8889
           config:
