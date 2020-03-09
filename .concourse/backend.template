@@ -316,7 +316,7 @@ jobs:
 {{- print $allbells -}}
 {{- end }}
         TEST_SUITE: cats
-        CLUSTER_NAME: {{$pipelineName}}-diego-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -380,7 +380,7 @@ jobs:
         TEST_SUITE: cats
         TEST_SUITE: cats
         BACKEND: {{$Backend}}
-        CLUSTER_NAME: {{$pipelineName}}-diego-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
