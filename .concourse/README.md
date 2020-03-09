@@ -12,6 +12,16 @@ It uses [Catapult](https://github.com/SUSE/catapult) and requires at least one
 delegate the Kubernetes cluster creation to another machine, so the Concourse
 workers can consume it.
 
+## Run the tests locally
+
+It is possible to run the job of the pipeline locally without having a full 
+Concourse + EKCP deployment. 
+Catapult allows to replicate every step regardless the Kubernetes provider. 
+[See the Catapult wiki page for a short summary on how to run the same tests locally](https://github.com/SUSE/catapult/wiki/KubeCF-testing).
+
+You can also deploy the pipeline in your Concourse instance, 
+the following paragraphs are documenting the needed requirements.
+
 ## Deploy the pipeline
 
 The following section describes the requirements and the steps needed to deploy
