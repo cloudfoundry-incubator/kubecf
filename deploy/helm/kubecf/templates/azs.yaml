@@ -47,7 +47,7 @@ data:
     - type: remove
       path: /instance_groups/name=tcp-router/azs?
 
-    {{- if .Values.features.eirini.enabled }}
+    {{- if and .Values.features.eirini.enabled (not .Values.features.eirini.use_helm_release) }}
     - type: remove
       path: /instance_groups/name=bits/azs?
     - type: remove

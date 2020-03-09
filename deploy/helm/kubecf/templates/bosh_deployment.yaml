@@ -24,7 +24,7 @@ spec:
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
     type: configmap
 {{- end }}
-{{- if .Values.features.eirini.enabled }}
+{{- if and .Values.features.eirini.enabled (not .Values.features.eirini.use_helm_release) }}
   - name: {{ $root.Release.Name }}-ops-use-bits-service
     type: configmap
 {{- end }}
@@ -44,7 +44,7 @@ spec:
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}
-{{- if .Values.features.eirini.enabled }}
+{{- if or (.Values.features.eirini.enabled) }}
   - name: {{ $root.Release.Name }}-ops-remove-diego
     type: configmap
 {{- end }}
