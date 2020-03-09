@@ -102,7 +102,6 @@ resources:
 
 {{ $deploy := `
             # deploy kubecf from chart
-            export SCF_LOCAL=$PWD/kubecf
             export SCF_CHART="$(readlink -f ../s3.kubecf-bundle/*.tgz)"
             export SCF_OPERATOR=true
             export DOCKER_ORG=cap-staging
