@@ -12,6 +12,8 @@ wait_for_file() {
 # shellcheck disable=SC1091
 source /var/vcap/jobs/postgres/bin/pgconfig.sh
 
+chmod -R 700 /var/vcap/store/postgres/
+
 /var/vcap/jobs/postgres/bin/postgres_ctl start
 wait_for_file "${PIDFILE}" || {
   echo "${PIDFILE} did not get created"
