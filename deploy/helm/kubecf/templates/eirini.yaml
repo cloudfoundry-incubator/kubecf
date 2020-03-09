@@ -1,4 +1,4 @@
-{{- if .Values.features.eirini.enabled }}
+{{- if and .Values.features.eirini.enabled (not .Values.features.eirini.use_helm_release) }}
 
 {{- $deployment := include "kubecf.deployment-name" . }}
 

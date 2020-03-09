@@ -24,7 +24,7 @@ spec:
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
     type: configmap
 {{- end }}
-{{- if .Values.features.eirini.enabled }}
+{{- if and .Values.features.eirini.enabled (not .Values.features.eirini.use_helm_release) }}
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/use-bits-service.yml") }}
     type: configmap
 {{- end }}

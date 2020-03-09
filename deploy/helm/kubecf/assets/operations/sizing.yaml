@@ -32,7 +32,7 @@
 {{- end }}{{/* if routing_api */}}
 
 {{- /* Instances groups where existance depends on whether Eirini is enabled */}}
-{{- if .Values.features.eirini.enabled }}
+{{- if and .Values.features.eirini.enabled (not .Values.features.eirini.use_helm_release) }}
 {{- $instance_groups = append $instance_groups "bits" }}
 {{- $instance_groups = append $instance_groups "eirini" }}
 {{- else }}

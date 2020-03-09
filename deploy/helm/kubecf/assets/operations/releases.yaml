@@ -76,7 +76,7 @@
     name: postgres
 {{- end }}
 
-{{- if .Values.features.eirini.enabled }}
+{{- if and .Values.features.eirini.enabled (not .Values.features.eirini.use_helm_release) }}
 {{- $releases = append $releases "bits-service" }}
 {{- $releases = append $releases "eirini" }}
 - type: replace
