@@ -79,8 +79,8 @@ spec:
   ports:
     - protocol: TCP
       name: "https"
-      port: 443
-      targetPort: 2999
+      port: 2222
+      targetPort: 2222
 # A service for eirini-persi
 ---
 apiVersion: v1
