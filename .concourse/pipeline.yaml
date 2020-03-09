@@ -183,7 +183,7 @@ jobs:
       contexts: >
         lint,build,deploy-diego,smoke-diego,rotate-diego,smoke-rotated-diego,
         acceptance-diego,deploy-eirini,smoke-eirini,rotate-eirini,
-        smoke-rotated-eirini,acceptance-eirini
+        smoke-rotated-eirini,acceptance-eirini,sync-integration-tests-diego
       trigger: "PR"
       metadata_path: "kubecf-pr/.git/resource/url"
 - name: queue-fork-pr
@@ -217,15 +217,13 @@ jobs:
           curl -s -L -X GET "https://api.github.com/repos/${REPO}/pulls/$(cat kubecf-fork-pr/.git/resource/pr)" | \
             jq -r .head.repo.full_name > output/remote
   - put: commit-to-test
-    params: &commit-status
+    params:
+      <<: *commit-status
       commit_path: "kubecf-fork-pr/.git/resource/head_sha"
       remote_path: "output/remote"
+      remote: ""
       description: "Queued"
       state: "pending"
-      contexts: >
-        lint,build,deploy-diego,smoke-diego,rotate-diego,smoke-rotated-diego,
-        acceptance-diego,deploy-eirini,smoke-eirini,rotate-eirini,
-        smoke-rotated-eirini,acceptance-eirini
       trigger: "PR"
       metadata_path: "kubecf-fork-pr/.git/resource/url"
 - name: queue-master
@@ -627,7 +625,7 @@ jobs:
           CLUSTER_NAME_PREFIX: "kubecf-diego"
           EKCP_HOST: ((ekcp-host))
 
-- name: cf-acceptance-tests-diego
+- name: sync-integration-tests-diego
   public: true
   plan:
   - get: commit-to-test
@@ -641,6 +639,74 @@ jobs:
   - get: s3.kubecf-ci-bundle
     passed:
     - smoke-tests-diego
+  - get: catapult
+  - task: test-diego
+    privileged: true
+    timeout: 1h30m
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: commit-to-test
+      outputs:
+      - name: output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+        TEST_SUITE: sits
+        CLUSTER_NAME_PREFIX: kubecf-diego
+      run:
+        path: "/bin/bash"
+        args: *test_args
+    on_success:
+      put: commit-to-test
+      params:
+        description: "Sync Integration tests on Diego succeeded"
+        state: "success"
+        contexts: "sync-integration-tests-diego"
+        commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
+    on_failure:
+      do:
+      - put: commit-to-test
+        params:
+          description: "Sync Integration tests on Diego failed"
+          state: "failure"
+          commit_path: "commit-to-test/.git/resource/ref"
+          version_path: "commit-to-test/.git/resource/version"
+          contexts: "sync-integration-tests-diego"
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            EKCP_HOST: ((ekcp-host))
+    on_abort:
+      task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+        params:
+          CLUSTER_NAME_PREFIX: "kubecf-diego"
+          EKCP_HOST: ((ekcp-host))
+
+- name: cf-acceptance-tests-diego
+  public: true
+  plan:
+  - get: commit-to-test
+    passed:
+    - sync-integration-tests-diego
+    trigger: true
+    version: "every"
+  - get: s3.kubecf-ci
+    passed:
+    - sync-integration-tests-diego
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - sync-integration-tests-diego
   - get: catapult
   - task: test-diego
     privileged: true
@@ -1072,13 +1138,13 @@ jobs:
   public: true
   plan:
   - get: commit-to-test
-    version: "every"
     passed:
     - cf-acceptance-tests-diego
     # TODO: Uncomment as soon as eirini tests are green
     # TODO: Does this work? It might check the wrong thing
     # - cf-acceptance-tests-eirini
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - cf-acceptance-tests-diego
