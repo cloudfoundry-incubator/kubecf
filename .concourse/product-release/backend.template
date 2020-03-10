@@ -47,7 +47,7 @@ resources:
 - name: catapult
   type: git
   source:
-    branch: post-publish-example
+    branch: master
     uri: https://github.com/SUSE/catapult
 
 - name: s3.kubecf-bundle
