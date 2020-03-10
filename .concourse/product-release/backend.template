@@ -80,8 +80,8 @@ resources:
 {{ $import_eks := `
             # create builfolder prepared for eks
             export BACKEND=eks
-            export AWS_ACCESS_KEY_ID='(( aws-ci-chuller-access-key-id ))'
-            export AWS_SECRET_ACCESS_KEY='(( aws-ci-chuller-secret-access-key ))'
+            export AWS_ACCESS_KEY_ID='((aws-ci-chuller-access-key-id))'
+            export AWS_SECRET_ACCESS_KEY='((aws-ci-chuller-secret-access-key))'
             export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
             make kubeconfig
 ` }}
