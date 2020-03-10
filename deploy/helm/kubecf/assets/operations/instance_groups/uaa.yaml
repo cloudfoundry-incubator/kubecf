@@ -57,7 +57,11 @@
         - name: CF_API_CA_CERT
           valueFrom:
             secretKeyRef:
+              {{- if .Values.settings.router.tls }}
+              name: {{ printf "%s-router-tls-ca" .Release.Name | quote }}
+              {{- else }}
               name: {{ printf "%s.var-router-ssl" .Release.Name | quote }}
+              {{- end }}
               key: ca
         - name: CF_USERNAME
           value: uaa_setup

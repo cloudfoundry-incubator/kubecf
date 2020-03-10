@@ -98,7 +98,11 @@ spec:
             backend:
               serviceName: "{{ .Release.Name }}-router"
               servicePort: 443
+
 {{- else }}
+# If the ingress feature (ingress-controller) is not enabled, create public services to allow
+# public ingress to the cluster.
+
 ---
 {{- with $service := .Values.services.router }}
 apiVersion: v1
