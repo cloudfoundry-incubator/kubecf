@@ -7,12 +7,12 @@ package_dir = "[[package_dir]]"
 multipath_sep = "[[multipath_sep]]"
 tarsStr = "[[tars]]"
 generatedStr = "[[generated]]"
+version = "[[version]]"
 helm = "[[helm]]"
 output_tgz = "[[output_tgz]]"
 
 # Variables expanded by gomplate.
 git_commit_short = '{{ (ds "workspace_status").STABLE_GIT_COMMIT_SHORT }}'
-git_branch = '{{ (ds "workspace_status").STABLE_GIT_BRANCH }}'
 
 # Create the temporary build directory for joining all the pieces required for packaging.
 tmp_build_dir = Dir.mktmpdir("build-", Dir.getwd)
@@ -47,15 +47,12 @@ begin
     FileUtils.cp(file, build_dir)
   end
 
-  # Handle chart versioning based on git state.
-  version = "v0.0.0-#{git_commit_short}"
-
   # A semver that matches what Helm uses.
   # https://github.com/Masterminds/semver/blob/910aa146bd66780c2815d652b92a7fc5331e533c/version.go#L41-L43
   semver_regex = /^v?([0-9]+)(\.[0-9]+)?(\.[0-9]+)?(-([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?$/
-  if git_branch.match(semver_regex)
-    version = git_branch
-  end
+
+  # Handle chart versioning based on git state if version doesn't match semver.
+  version = "v0.0.0-#{git_commit_short}" unless version.match(semver_regex)
 
   # Package and return the output path.
   package_cmd = <<-EOS

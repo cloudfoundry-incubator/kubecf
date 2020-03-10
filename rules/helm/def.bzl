@@ -15,6 +15,7 @@ def _package_impl(ctx):
             "[[multipath_sep]]": multipath_sep,
             "[[tars]]": multipath_sep.join([f.path for f in ctx.files.tars]),
             "[[generated]]": multipath_sep.join([f.path for f in ctx.files.generated]),
+            "[[version]]": ctx.attr.version,
             "[[helm]]": ctx.executable._helm.path,
             "[[output_tgz]]": output_tgz.path,
         },
@@ -38,6 +39,10 @@ _package = rule(
         "tars": attr.label_list(),
         "package_dir": attr.string(
             mandatory = True,
+        ),
+        "version": attr.string(
+            mandatory = False,
+            default = "",
         ),
         "_helm": attr.label(
             allow_single_file = True,
