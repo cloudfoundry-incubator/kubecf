@@ -216,6 +216,7 @@ settings:
   router:
     # tls sets up the public TLS for the router. The tls keys:
     #   ca: the CA in the PEM format. Not required if the certificate is signed by a well-known authority.
+    #      If you provide a CA cert, it must be self-signed. An intermediate won't work.
     #   crt: the certificate in the PEM format. Required.
     #   key: the private key in the PEM format. Required.
     tls: {}
