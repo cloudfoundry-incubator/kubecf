@@ -31,6 +31,12 @@ resources:
     branch: master
     uri: https://github.com/cloudfoundry-incubator/kubecf
 
+- name: kubecf-v1.0.0
+  type: git
+  source:
+    branch: v1.0.0
+    uri: https://github.com/cloudfoundry-incubator/kubecf
+
 - name: kubecf-pr
   type: pull-request
   check_every: 10m
@@ -242,6 +248,23 @@ jobs:
       description: "Queued"
       state: "pending"
       trigger: "master"
+      metadata_path: ""
+- name: queue-v1.0.0
+  public: true
+  plan:
+  - get: kubecf-v1.0.0
+    params:
+      integration_tool: checkout
+    trigger: true
+  - put: commit-to-test
+    params:
+      <<: *commit-status
+      commit_path: "kubecf-v1.0.0/.git/ref"
+      remote: "cloudfoundry-incubator/kubecf"
+      remote_path: ""
+      description: "Queued"
+      state: "pending"
+      trigger: "v1.0.0"
       metadata_path: ""
 - name: lint
   public: true
