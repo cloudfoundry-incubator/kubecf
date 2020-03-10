@@ -18,6 +18,7 @@ helm_upgrade(
     set_values = {
         "global.operator.watchNamespace": project.namespace,
     },
+    values = glob(["**/*values.yaml"]),
     reset_values = True,
 )
 
