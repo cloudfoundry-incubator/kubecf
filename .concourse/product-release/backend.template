@@ -71,7 +71,7 @@ resources:
 {{ $import_gke := `
             # create builfolder prepared for gke
             export BACKEND=gke
-            cat '(( gke-key-json ))' > $PWD/gke-key.json
+            cat '((gke-key-json))' > $PWD/gke-key.json
             export GKE_CRED_JSON=$PWD/gke-key.json
             export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
             make kubeconfig
