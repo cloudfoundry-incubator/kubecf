@@ -61,7 +61,7 @@ releases:
   bits-service:
     version: 2.28.0
   brain-tests:
-    version: v0.0.8
+    version: v0.0.9
   cf-acceptance-tests:
     version: 0.0.10
   # pxc is not a BOSH release.
