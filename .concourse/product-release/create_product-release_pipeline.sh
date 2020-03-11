@@ -13,7 +13,7 @@ export EIRINI="${EIRINI:-eirini: [ diego, eirini ]}"
 gomplate -d 'BACKEND=env:///BACKEND?type=application/yaml' \
          -d 'OPTIONS=env:///OPTIONS?type=application/yaml' \
          -d 'EIRINI=env:///EIRINI?type=application/yaml' \
-         -f backend.template > "$PIPELINE".yaml
+         -f pipeline.template > "$PIPELINE".yaml
 
 fly -t concourse.suse.dev dp "$PIPELINE".yaml -p "$PIPELINE"
 fly -t concourse.suse.dev sp -c "$PIPELINE".yaml -p "$PIPELINE"
