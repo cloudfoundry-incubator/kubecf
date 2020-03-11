@@ -115,7 +115,6 @@ resources:
             # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
             export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
             export KUBECF_NAMESPACE="scf"
-            export KUBECF_CHECKOUT="$PWD/kubecf"
             export SCF_TESTGROUP=true
             export QUIET_OUTPUT=true
             make tests-kubecf
