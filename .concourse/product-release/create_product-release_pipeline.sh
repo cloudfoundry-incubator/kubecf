@@ -5,8 +5,7 @@
 
 export PIPELINE="${PIPELINE-product-release}"
 
-# Lets concatenate all the pipelines:
-rm $PIPELINE.yaml 2>/dev/null || true
+rm "$PIPELINE".yaml 2>/dev/null || true
 export BACKEND="${BACKEND:-backend: [ caasp4, aks, gke, eks ]}"
 export OPTIONS="${OPTIONS:-options: [ sa, ha, all ]}"
 export EIRINI="${EIRINI:-eirini: [ diego, eirini ]}"
@@ -14,7 +13,7 @@ export EIRINI="${EIRINI:-eirini: [ diego, eirini ]}"
 gomplate -d 'BACKEND=env:///BACKEND?type=application/yaml' \
          -d 'OPTIONS=env:///OPTIONS?type=application/yaml' \
          -d 'EIRINI=env:///EIRINI?type=application/yaml' \
-         -f backend.template > $PIPELINE.yaml
+         -f backend.template > "$PIPELINE".yaml
 
-fly -t concourse.suse.dev dp $PIPELINE.yaml -p $PIPELINE
-fly -t concourse.suse.dev sp -c $PIPELINE.yaml -p $PIPELINE
+fly -t concourse.suse.dev dp "$PIPELINE".yaml -p "$PIPELINE"
+fly -t concourse.suse.dev sp -c "$PIPELINE".yaml -p "$PIPELINE"
