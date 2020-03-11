@@ -190,7 +190,7 @@ jobs:
         HA: true
 {{- end }}
 {{- if eq $OptionsFlag "all" }}
-{{- print $allbells -}}
+{{- print $allbells }}
 {{- end }}
         CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
@@ -251,7 +251,7 @@ jobs:
         HA: true
 {{- end }}
 {{- if eq $OptionsFlag "all" }}
-{{- print $allbells -}}
+{{- print $allbells }}
 {{- end }}
         TEST_SUITE: smokes
         CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
@@ -313,7 +313,7 @@ jobs:
         HA: true
 {{- end }}
 {{- if eq $OptionsFlag "all" }}
-{{- print $allbells -}}
+{{- print $allbells }}
 {{- end }}
         TEST_SUITE: cats
         CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
@@ -375,7 +375,7 @@ jobs:
         HA: true
 {{- end }}
 {{- if eq $OptionsFlag "all" }}
-{{- print $allbells -}}
+{{- print $allbells }}
 {{- end }}
         TEST_SUITE: cats
         TEST_SUITE: cats
@@ -439,7 +439,7 @@ jobs:
         HA: true
 {{- end }}
 {{- if eq $OptionsFlag "all" }}
-{{- print $allbells -}}
+{{- print $allbells }}
 {{- end }}
         TEST_SUITE: cats
         CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
