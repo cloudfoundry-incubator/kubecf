@@ -61,14 +61,14 @@ resources:
 
 {{ $pipelineName := .Env.PIPELINE }}
 
-{{ $obtain_ekcp := `
+{{- $obtain_ekcp := `
             # obtain kubeconfig from ekcp
             pushd catapult
             BACKEND=ekcp make recover
             cp build$CLUSTER_NAME/kubeconfig kubeconfig_$CLUSTER_NAME
 ` }}
 
-{{ $import_gke := `
+{{- $import_gke := `
             # create builfolder prepared for gke
             export BACKEND=gke
             cat '((gke-key-json))' > $PWD/gke-key.json
@@ -77,7 +77,7 @@ resources:
             make kubeconfig
 ` }}
 
-{{ $import_eks := `
+{{- $import_eks := `
             # create builfolder prepared for eks
             export BACKEND=eks
             export AWS_ACCESS_KEY_ID='((aws-ci-chuller-access-key-id))'
@@ -86,21 +86,21 @@ resources:
             make kubeconfig
 ` }}
 
-{{ $import_aks := `
+{{- $import_aks := `
             # create builfolder prepared for aks
             export BACKEND=aks
             export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
             make kubeconfig
 ` }}
 
-{{ $import_caasp4 := `
+{{- $import_caasp4 := `
             # create builfolder prepared for caasp4os
             export BACKEND=caasp4os
             export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
             make kubeconfig
 ` }}
 
-{{ $deploy := `
+{{- $deploy := `
             # deploy kubecf from chart
             export SCF_CHART="$(readlink -f ../s3.kubecf-bundle/*.tgz)"
             export SCF_TESTGROUP=true
@@ -110,7 +110,7 @@ resources:
             make scf
 ` }}
 
-{{ $test := `
+{{- $test := `
             # run test suites on cluster
             # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
             export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
@@ -121,13 +121,13 @@ resources:
             make tests-kubecf
 ` }}
 
-{{ $stratos := `
+{{- $stratos := `
             # deploy stratos console & metrics
             export QUIET_OUTPUT=true
             make stratos metrics
 ` }}
 
-{{ $upgrade := `
+{{- $upgrade := `
             # upgrade kubecf
             export SCF_CHART="$(readlink -f ../s3.kubecf-bundle/*.tgz)"
             export SCF_OPERATOR=true
@@ -137,7 +137,7 @@ resources:
             make scf-upgrade
 ` }}
 
-{{ $allbells := `
+{{- $allbells := `
         # enable as much options as possible
         HA: true
         EMBEDDED_UAA: true
@@ -198,19 +198,19 @@ jobs:
         args:
           - -xce
           - |
-            {{- print $obtain_ekcp -}}
-            {{- if eq $Backend "caasp4" -}}
-            {{- print $import_caasp4 -}}
-            {{end}}
-            {{- if eq $Backend "eks" -}}
-            {{- print $import_eks -}}
-            {{end}}
-            {{- if eq $Backend "gke" -}}
-            {{- print $import_gke -}}
-            {{end}}
-            {{- if eq $Backend "aks" -}}
-            {{- print $import_aks -}}
-            {{end}}
+            {{- print $obtain_ekcp }}
+            {{- if eq $Backend "caasp4" }}
+            {{- print $import_caasp4 }}
+            {{- end }}
+            {{- if eq $Backend "eks" }}
+            {{- print $import_eks }}
+            {{- end }}
+            {{- if eq $Backend "gke" }}
+            {{- print $import_gke }}
+            {{- end }}
+            {{- if eq $Backend "aks" }}
+            {{- print $import_aks }}
+            {{- end }}
             {{- print $deploy }}
 
 - name: smoke-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
@@ -260,19 +260,19 @@ jobs:
         args:
           - -xce
           - |
-            {{- print $obtain_ekcp -}}
-            {{- if eq $Backend "caasp4" -}}
-            {{- print $import_caasp4 -}}
-            {{end}}
-            {{- if eq $Backend "eks" -}}
-            {{- print $import_eks -}}
-            {{end}}
-            {{- if eq $Backend "gke" -}}
-            {{- print $import_gke -}}
-            {{end}}
-            {{- if eq $Backend "aks" -}}
-            {{- print $import_aks -}}
-            {{end}}
+            {{- print $obtain_ekcp }}
+            {{- if eq $Backend "caasp4" }}
+            {{- print $import_caasp4 }}
+            {{- end }}
+            {{- if eq $Backend "eks" }}
+            {{- print $import_eks }}
+            {{- end }}
+            {{- if eq $Backend "gke" }}
+            {{- print $import_gke }}
+            {{- end }}
+            {{- if eq $Backend "aks" }}
+            {{- print $import_aks }}
+            {{- end }}
             {{- print $test }}
 
 - name: cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
@@ -322,19 +322,19 @@ jobs:
         args:
           - -xce
           - |
-            {{- print $obtain_ekcp -}}
-            {{- if eq $Backend "caasp4" -}}
-            {{- print $import_caasp4 -}}
-            {{end}}
-            {{- if eq $Backend "eks" -}}
-            {{- print $import_eks -}}
-            {{end}}
-            {{- if eq $Backend "gke" -}}
-            {{- print $import_gke -}}
-            {{end}}
-            {{- if eq $Backend "aks" -}}
-            {{- print $import_aks -}}
-            {{end}}
+            {{- print $obtain_ekcp }}
+            {{- if eq $Backend "caasp4" }}
+            {{- print $import_caasp4 }}
+            {{- end }}
+            {{- if eq $Backend "eks" }}
+            {{- print $import_eks }}
+            {{- end }}
+            {{- if eq $Backend "gke" }}
+            {{- print $import_gke }}
+            {{- end }}
+            {{- if eq $Backend "aks" }}
+            {{- print $import_aks }}
+            {{- end }}
             {{- print $test }}
 
 - name: upgrade-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
@@ -386,19 +386,19 @@ jobs:
         args:
           - -xce
           - |
-            {{- print $obtain_ekcp -}}
-            {{- if eq $Backend "caasp4" -}}
-            {{- print $import_caasp4 -}}
-            {{end}}
-            {{- if eq $Backend "eks" -}}
-            {{- print $import_eks -}}
-            {{end}}
-            {{- if eq $Backend "gke" -}}
-            {{- print $import_gke -}}
-            {{end}}
-            {{- if eq $Backend "aks" -}}
-            {{- print $import_aks -}}
-            {{end}}
+            {{- print $obtain_ekcp }}
+            {{- if eq $Backend "caasp4" }}
+            {{- print $import_caasp4 }}
+            {{- end }}
+            {{- if eq $Backend "eks" }}
+            {{- print $import_eks }}
+            {{- end }}
+            {{- if eq $Backend "gke" }}
+            {{- print $import_gke }}
+            {{- end }}
+            {{- if eq $Backend "aks" }}
+            {{- print $import_aks }}
+            {{- end }}
             {{- print $upgrade }}
 
 - name: stratos-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
@@ -448,19 +448,19 @@ jobs:
         args:
           - -xce
           - |
-            {{- print $obtain_ekcp -}}
-            {{- if eq $Backend "caasp4" -}}
-            {{- print $import_caasp4 -}}
-            {{end}}
-            {{- if eq $Backend "eks" -}}
-            {{- print $import_eks -}}
-            {{end}}
-            {{- if eq $Backend "gke" -}}
-            {{- print $import_gke -}}
-            {{end}}
-            {{- if eq $Backend "aks" -}}
-            {{- print $import_aks -}}
-            {{end}}
+            {{- print $obtain_ekcp }}
+            {{- if eq $Backend "caasp4" }}
+            {{- print $import_caasp4 }}
+            {{- end }}
+            {{- if eq $Backend "eks" }}
+            {{- print $import_eks }}
+            {{- end }}
+            {{- if eq $Backend "gke" }}
+            {{- print $import_gke }}
+            {{- end }}
+            {{- if eq $Backend "aks" }}
+            {{- print $import_aks }}
+            {{- end }}
             {{- print $stratos }}
 
 {{ end }} # end eirini
