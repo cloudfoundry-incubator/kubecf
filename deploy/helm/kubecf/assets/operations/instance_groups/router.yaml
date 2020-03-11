@@ -67,6 +67,24 @@
     ((credhub_ca.certificate))
 {{- end }}
 
+# If the router certificate is provided via Helm, don't generate the router_ca and router_ssl
+# certificates. router_ssl becomes an implicit variable.
+{{- if .Values.settings.router.tls }}
+- type: remove
+  path: /variables/name=router_ca
+- type: remove
+  path: /variables/name=router_ssl
+{{- with $tls := .Values.settings.router.tls }}
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/tls_pem
+  value:
+  - cert_chain: |
+      {{- $tls.crt | nindent 6 }}
+    private_key: |
+      {{- $tls.key | nindent 6 }}
+{{- end }}
+{{- end }}
+
 {{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/router_*" }}
 {{ $root.Files.Get $path }}

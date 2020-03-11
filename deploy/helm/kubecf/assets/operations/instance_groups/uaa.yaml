@@ -8,7 +8,7 @@
       internal: 8080
     - name: https
       protocol: TCP
-      internal: 8443
+      internal: &uaa_https_port 8443
     run:
       healthcheck:
         uaa:
@@ -31,6 +31,74 @@
   path: /instance_groups/name=uaa/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
   value: [/bin/sh, -c, ss -nlu src localhost:8125 | grep :8125]
 
+{{- if .Values.features.credhub.enabled }}
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/-
+  value:
+    name: cf-cli-6-linux
+    release: cf-cli
+    properties:
+      quarks:
+        bpm:
+          processes:
+          - name: uaa-internal-security-group-setup
+            ephemeral_disk: true
+            executable: /bin/bash
+            args:
+            - -c
+            - |-
+              {{- .Files.Get "assets/scripts/jobs/cf-cli-6-linux/setup_internal_security_group.sh" | nindent 14 }}
+        envs:
+        - name: CF_CLI_PATH
+          value: /var/vcap/packages/cf-cli-6-linux/bin
+        - name: CF_API
+          value: https://api.((system_domain))
+        - name: CF_API_CA_CERT
+          valueFrom:
+            secretKeyRef:
+              {{- if .Values.settings.router.tls }}
+              name: {{ printf "%s-router-tls-ca" .Release.Name | quote }}
+              {{- else }}
+              name: {{ printf "%s.var-router-ssl" .Release.Name | quote }}
+              {{- end }}
+              key: ca
+        - name: CF_USERNAME
+          value: uaa_setup
+        - name: CF_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ printf "%s.var-uaa-setup-client-secret" .Release.Name | quote }}
+              key: password
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: PORTS
+          value: *uaa_https_port
+        - name: DATA_DIR
+          value: /var/vcap/data/cf-cli-6-linux
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/uaa_setup?
+  value:
+    authorities: cloud_controller.admin
+    authorized-grant-types: client_credentials
+    secret: ((uaa_setup_client_secret))
+
+- type: replace
+  path: /variables/name=uaa_setup_client_secret?
+  value:
+    name: uaa_setup_client_secret
+    type: password
+
+{{- end }}
 
 {{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/uaa_*" }}

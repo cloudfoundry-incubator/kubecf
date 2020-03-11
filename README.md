@@ -74,9 +74,11 @@ Last, but not least, __more documentation__ on how to work with
 
 ## Useful Information
 
-| What                       | Where                                                        |
-| -------------------------- | ------------------------------------------------------------ |
-| GitLab Pipeline            | https://gitlab.com/susecf/kubecf/pipelines                   |
-| S3 Bucket with helm charts | https://scf-v3.s3.amazonaws.com/index.html                   |
-| Cloud Foundry Operator     | https://github.com/cloudfoundry-incubator/cf-operator/       |
-| CF Operator Charts         | https://cf-operators.s3.amazonaws.com/helm-charts/index.html |
+| What                                   | Where                                                        |
+| -------------------------------------- | ------------------------------------------------------------ |
+| Concourse Pipeline                     | https://concourse.suse.dev/teams/main/pipelines/kubecf       |
+| S3 Bucket with helm charts<sup>*</sup> | https://kubecf.s3.amazonaws.com/index.html                   |
+| Cloud Foundry Operator                 | https://github.com/cloudfoundry-incubator/cf-operator/       |
+| CF Operator Charts                     | https://cf-operators.s3.amazonaws.com/helm-charts/index.html |
+
+<sub>* The bundle file includes the operator chart</sub>
