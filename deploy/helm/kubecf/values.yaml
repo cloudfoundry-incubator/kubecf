@@ -237,6 +237,7 @@ settings:
 features:
   eirini:
     enabled: false
+    use_helm_release: false
     registry:
       service:
         nodePort: 32123
@@ -328,3 +329,124 @@ k8s-host-url: ""
 k8s-service-token: ""
 k8s-service-username: ""
 k8s-node-ca: ""
+
+eirini:
+  opi:
+    use_registry_ingress: false
+    ingress_endpoint: ~
+    kube:
+      external_ips: []
+    services:
+      loadbalanced: false
+
+    deny_app_ingress: false
+
+    cc_api:
+      serviceName: "kubecf-api"
+
+    staging:
+      enable: true
+      tls:
+        client:
+          secretName: "kubecf.var-eirini-tls-client-cert"
+          certPath: "certificate"
+          keyPath: "private_key"
+        cc_uploader:
+          secretName: "kubecf.var-cc-bridge-cc-uploader"
+          certPath: "certificate"
+          keyPath: "private_key"
+        ca:
+          secretName: "kubecf.var-eirini-tls-client-cert"
+          path: "ca"
+        stagingReporter:
+          secretName: "kubecf.var-eirini-tls-client-cert"
+          certPath: "certificate"
+          keyPath: "private_key"
+          caPath: "ca"
+
+    tls:
+      opiCapiClient:
+        secretName: "kubecf.var-eirini-tls-client-cert"
+        keyPath: "private_key"
+        certPath: "certificate"
+      opiServer:
+        secretName: "kubecf.var-eirini-tls-server-cert"
+        certPath: "certificate"
+        keyPath: "private_key"
+      capi:
+        secretName: "kubecf.var-eirini-tls-server-cert"
+        caPath: "ca"
+      eirini:
+        secretName: "kubecf.var-eirini-tls-server-cert"
+        caPath: "ca"
+
+    events:
+      enable: true
+      tls:
+        capiClient:
+          secretName: "kubecf.var-cc-tls"
+          keyPath: "private_key"
+          certPath: "certificate"
+        capi:
+          secretName: "kubecf.var-cc-tls"
+          caPath: "ca"
+
+    logs:
+      enable: true
+      serviceName: "kubecf-doppler"
+      tls:
+        client:
+          secretName: "kubecf.var-loggregator-tls-agent"
+          keyPath: "private_key"
+          certPath: "certificate"
+        server:
+          secretName: "kubecf.var-loggregator-tls-agent"
+          caPath: "ca"
+
+    metrics:
+      enable: true
+      tls:
+        client:
+          secretName: "kubecf.var-loggregator-tls-doppler"
+          keyPath: "private_key"
+          certPath: "certificate"
+        server:
+          secretName: "kubecf.var-loggregator-tls-doppler"
+          caPath: "ca"
+
+    rootfsPatcher:
+      enable: true
+      timeout: 2m
+
+    routing:
+      enable: true
+      nats:
+        secretName: "kubecf.var-nats-password"
+        passwordPath: "password"
+        serviceName: "kubecf-nats"
+
+    secretSmuggler:
+      enable: false
+
+bits:
+  env:
+    DOMAIN: ~
+  ingress:
+    endpoint: ~
+    use: false
+  kube:
+    external_ips: []
+  services:
+    loadbalanced: false
+
+  blobstore:
+    serviceName: "kubecf-singleton-blobstore"
+    userName: "blobstore-user"
+    secret:
+      name: "kubecf.var-blobstore-admin-users-password"
+      passwordPath: "password"
+  
+  secrets:
+    BITS_SERVICE_SECRET: ~
+    BITS_SERVICE_SIGNING_USER_PASSWORD: ~
+
