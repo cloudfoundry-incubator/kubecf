@@ -197,7 +197,7 @@ jobs:
       run:
         path: "/bin/bash"
         args:
-          - -xce
+          - -c
           - |
             {{- print $obtain_ekcp }}
             {{- if eq $Backend "caasp4" }}
@@ -259,7 +259,7 @@ jobs:
       run:
         path: "/bin/bash"
         args:
-          - -xce
+          - -c
           - |
             {{- print $obtain_ekcp }}
             {{- if eq $Backend "caasp4" }}
@@ -321,7 +321,7 @@ jobs:
       run:
         path: "/bin/bash"
         args:
-          - -xce
+          - -c
           - |
             {{- print $obtain_ekcp }}
             {{- if eq $Backend "caasp4" }}
@@ -385,7 +385,7 @@ jobs:
       run:
         path: "/bin/bash"
         args:
-          - -xce
+          - -c
           - |
             {{- print $obtain_ekcp }}
             {{- if eq $Backend "caasp4" }}
@@ -447,7 +447,7 @@ jobs:
       run:
         path: "/bin/bash"
         args:
-          - -xce
+          - -c
           - |
             {{- print $obtain_ekcp }}
             {{- if eq $Backend "caasp4" }}
