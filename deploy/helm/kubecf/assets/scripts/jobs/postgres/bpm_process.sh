@@ -12,6 +12,8 @@ wait_for_file() {
 # shellcheck disable=SC1091
 source /var/vcap/jobs/postgres/bin/pgconfig.sh
 
+# fixes permissions issue for autoscaler db.
+# https://github.com/cloudfoundry-incubator/kubecf/issues/408
 chmod --recursive 0700 /var/vcap/store/postgres/
 
 /var/vcap/jobs/postgres/bin/postgres_ctl start
