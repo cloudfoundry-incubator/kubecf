@@ -154,7 +154,7 @@ jobs:
 
 # {{$Backend}}-{{$OptionsFlag}}
 
-- name: deploy-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+- name: deploy-{{ $EiriniFlag }}-{{ $Backend }}-{{ $OptionsFlag }}
   public: false
   plan:
   - get: s3.kubecf-bundle
