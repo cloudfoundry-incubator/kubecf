@@ -9,7 +9,7 @@ tests KubeCF on Kubernetes distributions CaaSP4, GKE, EKS, AKS:
 * Upgrades KubeCF deployment.
 * Installs Stratos and metrics.
 
-# Deploying pipeline
+# Deploying the pipeline
 
     $ ./create_product-release_pipeline.sh
 
