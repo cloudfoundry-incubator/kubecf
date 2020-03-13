@@ -2,13 +2,12 @@
 
 [This pipeline](https://concourse.suse.dev/teams/main/pipelines/product-release)
 tests KubeCF on Kubernetes distributions CaaSP4, GKE, EKS, AKS:
-* on Eirini and Diego
-* on Single availability and HA
-* with Autoscaler and embedded UAA
-* Runs Smokes, CATS, Brains, SITS
-* Upgrades KubeCF deployment
-* Installs Stratos and metrics
-* and more
+* Eirini or Diego enabled.
+* Instance groups as single availability or high availability.
+* Autoscaler enabled and disabled,
+* Runs Smokes, CATS, Brain and SITS.
+* Upgrades KubeCF deployment.
+* Installs Stratos and metrics.
 
 # Deploying pipeline
 
