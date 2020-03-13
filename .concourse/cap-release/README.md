@@ -1,4 +1,4 @@
-# Product release pipeline
+# CAP release pipeline
 
 [This pipeline](https://concourse.suse.dev/teams/main/pipelines/product-release)
 tests KubeCF on Kubernetes distributions CaaSP4, GKE, EKS, AKS:
@@ -11,9 +11,9 @@ tests KubeCF on Kubernetes distributions CaaSP4, GKE, EKS, AKS:
 
 # Deploying the pipeline
 
-    $ ./create_product-release_pipeline.sh
+    $ ./create_cap-release_pipeline.sh
 
-If you want your own pipeline: `PIPELINE=yourname ./create_product-release_pipeline.sh`
+If you want your own pipeline: `PIPELINE=yourname ./create_cap-release_pipeline.sh`
 See `BACKEND`, `OPTIONS`, `EIRINI` to disable some features on deployment.
 The new `yourname` pipeline will make use of kuceconfigs uploaded to EKCP
 (http://ain.arch.suse.de:8030/ui) named  `yourname-*`, e.g. `yourname-diego-caasp4-ha`.
@@ -28,7 +28,7 @@ It's still in flux.
 # Current status
 
 For now, the pipeline consumes clusters hardcoded by name: eg
-`product-release-diego-caasp4-ha`.
+`cap-release-diego-caasp4-ha`.
 
 The kubeconfigs for these clusters are stored in EKCP hosts, and are created
 either manually or in an automated way by performing `BACKEND=foo make k8s` with
