@@ -16,7 +16,7 @@ tests KubeCF on Kubernetes distributions CaaSP4, GKE, EKS, AKS:
 If you want your own pipeline: `PIPELINE=yourname ./create_product-release_pipeline.sh`
 See `BACKEND`, `OPTIONS`, `EIRINI` to disable some features on deployment.
 The new `yourname` pipeline will make use of kuceconfigs uploaded to EKCP
-(http://ain.arch.suse.de:8030/ui) named  `yourname-*`, eg `yourname-diego-caasp4-ha`.
+(http://ain.arch.suse.de:8030/ui) named  `yourname-*`, e.g. `yourname-diego-caasp4-ha`.
 So make sure to upload your own kubeconfig from your own cluster, see below.
 
 # Implementation
