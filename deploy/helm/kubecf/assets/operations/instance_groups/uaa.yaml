@@ -50,18 +50,19 @@
             - |-
               {{- .Files.Get "assets/scripts/jobs/cf-cli-6-linux/setup_internal_security_group.sh" | nindent 14 }}
         envs:
-        - name: CF_CLI_PATH
-          value: /var/vcap/packages/cf-cli-6-linux/bin
         - name: CF_API
-          value: https://api.((system_domain))
+          value: https://cloud-controller-ng.service.cf.internal:9024
         - name: CF_API_CA_CERT
           valueFrom:
             secretKeyRef:
-              {{- if .Values.settings.router.tls }}
-              name: {{ printf "%s-router-tls-ca" .Release.Name | quote }}
-              {{- else }}
-              name: {{ printf "%s.var-router-ssl" .Release.Name | quote }}
-              {{- end }}
+              name: {{ printf "%s.var-cc-tls" .Release.Name | quote }}
+              key: ca
+        - name: UAA_URL
+          value: https://uaa.service.cf.internal:8443
+        - name: UAA_CA_CERT
+          valueFrom:
+            secretKeyRef:
+              name: {{ printf "%s.var-uaa-ssl" .Release.Name | quote }}
               key: ca
         - name: CF_USERNAME
           value: uaa_setup
