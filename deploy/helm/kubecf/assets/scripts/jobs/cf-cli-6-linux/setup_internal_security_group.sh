@@ -23,12 +23,15 @@ function wait_for_endpoint() {
         output=$(curl --cacert "${ca_cert}" --fail --head --silent --show-error "${endpoint}" 2>&1)
         code=$?
         set -o errexit
-        if [ "${code}" == "60" ]; then
+        case "${code}" in
+        60)
             >&2 echo "${output}"
-            return 1
-        fi
-        if [ "${code}" == "0" ]; then break; fi
-        sleep 1
+            return 1 ;;
+        0)
+            return 0 ;;
+        *)
+            sleep 1 ;;
+        esac
     done
 }
 
