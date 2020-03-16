@@ -141,7 +141,6 @@ resources:
 {{- $allbells := `
         # enable as much options as possible
         HA: true
-        EMBEDDED_UAA: true
         AUTOSCALER: true
 ` }}
 
