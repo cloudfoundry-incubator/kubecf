@@ -179,6 +179,7 @@ fi
 
 # Wait for the CF API to be accessible.
 echo "Waiting for the API to be accessible..."
+# shellcheck disable=SC2153
 wait_for_endpoint "${cf_api_ca_cert_pem}" "${CF_API}/v2/info"
 
 # Wait for UAA to be accessible.
