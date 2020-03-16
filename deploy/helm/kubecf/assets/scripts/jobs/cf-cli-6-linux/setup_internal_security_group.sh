@@ -9,6 +9,7 @@ function wait_for_endpoint() {
     local ca_cert="$1"
     local endpoint="$2"
     while true; do
+        # Unset errexit to be able to process the error code from curl.
         set +o errexit
         output=$(curl --cacert "${ca_cert}" --fail --head --silent --show-error "${endpoint}" 2>&1)
         code=$?
