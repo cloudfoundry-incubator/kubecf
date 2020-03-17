@@ -51,7 +51,7 @@
   path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/ephemeralAsPVC
   value: true
 - type: replace
-  path: /instance_groups/name=diego-cell/persistent_disk?
+  path: /instance_groups/name=diego-cell/vm_resources/ephemeral_disk_size?
   value: {{ .Values.sizing.diego_cell.ephemeral_disk_size }}
 - type: remove
   path: /instance_groups/name=diego-cell/persistent_disk_type?
