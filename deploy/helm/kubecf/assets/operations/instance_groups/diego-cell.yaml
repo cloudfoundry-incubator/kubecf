@@ -50,13 +50,17 @@
 - type: replace
   path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/ephemeralAsPVC
   value: true
-
 - type: replace
   path: /instance_groups/name=diego-cell/persistent_disk?
-  value: 20480 # 20GB
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk_size }}
 - type: remove
   path: /instance_groups/name=diego-cell/persistent_disk_type?
-  
+{{- if .Values.sizing.diego_cell.ephemeral_disk_storage_class }}
+- type: replace
+  path: /instance_groups/name=diego-cell/persistent_disk_type?
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk_storage_class | quote }}
+{{- end }}
+
 # Temporarily remove garden network_plugin.
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin

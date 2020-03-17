@@ -172,6 +172,10 @@ sizing:
   diego_api:
     instances: ~
   diego_cell:
+    # Size of the ephemeral disk used to store applications
+    ephemeral_disk_size: 40960
+    # The name of the storage class used for the ephemeral disk PVC.
+    ephemeral_disk_storage_class: ~
     instances: ~
   eirini:
     instances: ~
@@ -190,8 +194,7 @@ sizing:
   tcp_router:
     instances: ~
 
-# Service is only valid to set a external endpoints for the instance groups if
-# features.ingress.enabled is false.
+#  External endpoints are created for the instance groups only if features.ingress.enabled is false.
 services:
   router:
     annotations: ~
