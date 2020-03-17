@@ -52,13 +52,13 @@
   value: true
 - type: replace
   path: /instance_groups/name=diego-cell/vm_resources/ephemeral_disk_size?
-  value: {{ .Values.sizing.diego_cell.ephemeral_disk_size }}
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk.size }}
 - type: remove
   path: /instance_groups/name=diego-cell/persistent_disk_type?
-{{- if .Values.sizing.diego_cell.ephemeral_disk_storage_class }}
+{{- if .Values.sizing.diego_cell.ephemeral_disk.storage_class }}
 - type: replace
   path: /instance_groups/name=diego-cell/persistent_disk_type?
-  value: {{ .Values.sizing.diego_cell.ephemeral_disk_storage_class | quote }}
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk.storage_class | quote }}
 {{- end }}
 
 # Temporarily remove garden network_plugin.

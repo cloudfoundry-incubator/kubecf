@@ -175,10 +175,11 @@ sizing:
   diego_api:
     instances: ~
   diego_cell:
-    # Size of the ephemeral disk used to store applications
-    ephemeral_disk_size: 40960
-    # The name of the storage class used for the ephemeral disk PVC.
-    ephemeral_disk_storage_class: ~
+    ephemeral_disk:
+      # Size of the ephemeral disk used to store applications
+      size: 40960
+      # The name of the storage class used for the ephemeral disk PVC.
+      storage_class: ~
     instances: ~
   eirini:
     instances: ~
