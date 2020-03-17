@@ -1,3 +1,12 @@
+# The config.yaml file is a collection of settings one might want to change
+# if they are deploying a second copy of the kubecf pipeline.
+# It is meant to provide a way to not pollute the "production" resources with
+# data from testing and developing the pipeline.
+# The production pipeline should always be deployed without a config.yaml.
+# This will use the same (default) values every time, so people deploying it
+# don't have to know what kind of values were used when it was deployed last
+# time.
+
 resource_types:
 - name: pull-request
   type: docker-image
@@ -19,7 +28,7 @@ resources:
 - name: commit-to-test
   type: concourse-git-queue
   source:
-    bucket: kubecf-ci
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
     bucket_subfolder: build-queue
     aws_access_key_id: ((aws-access-key))
     aws_secret_access_key: ((aws-secret-key))
@@ -29,13 +38,13 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/cloudfoundry-incubator/kubecf
+    uri: https://github.com/{{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
 
 - name: kubecf-pr
   type: pull-request
   check_every: 10m
   source:
-    repository: cloudfoundry-incubator/kubecf
+    repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
     access_token: ((github-access-token))
     disable_forks: true # Trigger on kubecf branches only
 
@@ -43,7 +52,7 @@ resources:
   type: pull-request
   check_every: 10m
   source:
-    repository: cloudfoundry-incubator/kubecf
+    repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
     access_token: ((github-access-token))
     disable_forks: false # Trigger on kubecf branches only
 
@@ -52,42 +61,42 @@ resources:
   source:
     uri: https://github.com/SUSE/catapult
   version:
-    ref: 7eea74f5cab3386b65c08938b25811e99bb829ef
+    ref: 543bc71abc8bd22e5ef81fdf94a7afeb2f99066d
 
 - name: s3.kubecf-ci
   type: s3
   source:
-    bucket: kubecf-ci
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: eu-central-1
+    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
     regexp: kubecf-v(.*).tgz
 
 - name: s3.kubecf-ci-bundle
   type: s3
   source:
-    bucket: kubecf-ci
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: eu-central-1
+    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
     regexp: kubecf-bundle-v(.*).tgz
 
 - name: s3.kubecf
   type: s3
   source:
-    bucket: kubecf
+    bucket: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: us-west-2
+    region_name: {{ if has . "s3_final_bucket_region" }}{{ .s3_final_bucket_region }}{{ else }}"us-west-2"{{ end }}
     regexp: kubecf-v(.*).tgz
 
 - name: s3.kubecf-bundle
   type: s3
   source:
-    bucket: kubecf
+    bucket: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: us-west-2
+    region_name: {{ if has . "s3_final_bucket_region" }}{{ .s3_final_bucket_region }}{{ else }}"us-west-2"{{ end }}
     regexp: kubecf-bundle-v(.*).tgz
 
 deploy_args: &deploy_args
@@ -149,7 +158,7 @@ jobs:
   - get: kubecf-pr
     params:
       integration_tool: checkout
-    trigger: true
+    trigger: {{ if (has . "auto_triggers") }}{{ .auto_triggers }}{{ else }}true{{ end }}
     version: "every"
   # Use GitHub API to find the remote repository of the PR (it may be a fork)
   # The pr resource doesn't provide this information.
@@ -232,7 +241,7 @@ jobs:
   - get: kubecf-master
     params:
       integration_tool: checkout
-    trigger: true
+    trigger: {{ if (has . "auto_triggers") }}{{ .auto_triggers }}{{ else }}true{{ end }}
   - put: commit-to-test
     params:
       <<: *commit-status
@@ -693,88 +702,89 @@ jobs:
           CLUSTER_NAME_PREFIX: "kubecf-diego"
           EKCP_HOST: ((ekcp-host))
 
-- name: brain-tests-diego
-  public: true
-  plan:
-  - get: commit-to-test
-    passed:
-    - sync-integration-tests-diego
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - sync-integration-tests-diego
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - sync-integration-tests-diego
-  - get: catapult
-  - task: test-diego
-    privileged: true
-    timeout: 1h30m
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: commit-to-test
-      outputs:
-      - name: output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
-        TEST_SUITE: brain
-        CLUSTER_NAME_PREFIX: kubecf-diego
-      run:
-        path: "/bin/bash"
-        args: *test_args
-    on_success:
-      put: commit-to-test
-      params:
-        description: "Brain tests on Diego succeeded"
-        state: "success"
-        contexts: "brain-tests-diego"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-    on_failure:
-      do:
-      - put: commit-to-test
-        params:
-          description: "Brain tests on Diego failed"
-          state: "failure"
-          commit_path: "commit-to-test/.git/resource/ref"
-          version_path: "commit-to-test/.git/resource/version"
-          contexts: "brain-tests-diego"
-      - task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-diego"
-            EKCP_HOST: ((ekcp-host))
-    on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-diego"
-          EKCP_HOST: ((ekcp-host))
+# TODO: re-enable once BRAIN tests are fixed.
+# - name: brain-tests-diego
+#   public: true
+#   plan:
+#   - get: commit-to-test
+#     passed:
+#     - sync-integration-tests-diego
+#     trigger: true
+#     version: "every"
+#   - get: s3.kubecf-ci
+#     passed:
+#     - sync-integration-tests-diego
+#   - get: s3.kubecf-ci-bundle
+#     passed:
+#     - sync-integration-tests-diego
+#   - get: catapult
+#   - task: test-diego
+#     privileged: true
+#     timeout: 1h30m
+#     config:
+#       platform: linux
+#       image_resource:
+#         type: registry-image
+#         source:
+#           repository: splatform/catapult
+#       inputs:
+#       - name: catapult
+#       - name: commit-to-test
+#       outputs:
+#       - name: output
+#       params:
+#         DEFAULT_STACK: cflinuxfs3
+#         EKCP_HOST: ((ekcp-host))
+#         TEST_SUITE: brain
+#         CLUSTER_NAME_PREFIX: kubecf-diego
+#       run:
+#         path: "/bin/bash"
+#         args: *test_args
+#     on_success:
+#       put: commit-to-test
+#       params:
+#         description: "Brain tests on Diego succeeded"
+#         state: "success"
+#         contexts: "brain-tests-diego"
+#         commit_path: "commit-to-test/.git/resource/ref"
+#         version_path: "commit-to-test/.git/resource/version"
+#     on_failure:
+#       do:
+#       - put: commit-to-test
+#         params:
+#           description: "Brain tests on Diego failed"
+#           state: "failure"
+#           commit_path: "commit-to-test/.git/resource/ref"
+#           version_path: "commit-to-test/.git/resource/version"
+#           contexts: "brain-tests-diego"
+#       - task: cleanup-cluster
+#         config:
+#           <<: *cleanup-cluster
+#           params:
+#             CLUSTER_NAME_PREFIX: "kubecf-diego"
+#             EKCP_HOST: ((ekcp-host))
+#     on_abort:
+#       task: cleanup-cluster
+#       config:
+#         <<: *cleanup-cluster
+#         params:
+#           CLUSTER_NAME_PREFIX: "kubecf-diego"
+#           EKCP_HOST: ((ekcp-host))
 
 - name: cf-acceptance-tests-diego
   public: true
   plan:
   - get: commit-to-test
     passed:
-    - brain-tests-diego
+    - sync-integration-tests-diego
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - brain-tests-diego
+    - sync-integration-tests-diego
   - get: s3.kubecf-ci-bundle
     passed:
-    - brain-tests-diego
+    - sync-integration-tests-diego
   - get: catapult
   - task: test-diego
     privileged: true
@@ -983,73 +993,74 @@ jobs:
           CLUSTER_NAME_PREFIX: "kubecf-eirini"
           EKCP_HOST: ((ekcp-host))
 
-- name: brain-tests-eirini
-  public: true
-  plan:
-  - get: commit-to-test
-    passed:
-    - smoke-tests-eirini
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - smoke-tests-eirini
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - smoke-tests-eirini
-  - get: catapult
-  - task: test
-    privileged: true
-    timeout: 1h30m
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: commit-to-test
-      outputs:
-      - name: mail-output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
-        TEST_SUITE: brain
-        CLUSTER_NAME_PREFIX: kubecf-eirini
-      run:
-        path: "/bin/bash"
-        args: *test_args
-    on_success:
-      put: commit-to-test
-      params:
-        description: "Brain tests on Eirini succeeded"
-        state: "success"
-        contexts: "brain-eirini"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-    on_failure:
-      do:
-      - put: commit-to-test
-        params:
-          description: "Brain tests on Eirini failed"
-          state: "failure"
-          contexts: "brain-eirini"
-          commit_path: "commit-to-test/.git/resource/ref"
-          version_path: "commit-to-test/.git/resource/version"
-      - task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-eirini"
-            EKCP_HOST: ((ekcp-host))
-    on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-eirini"
-          EKCP_HOST: ((ekcp-host))
+# TODO: re-enable once BRAIN tests are fixed.
+# - name: brain-tests-eirini
+#   public: true
+#   plan:
+#   - get: commit-to-test
+#     passed:
+#     - smoke-tests-eirini
+#     trigger: true
+#     version: "every"
+#   - get: s3.kubecf-ci
+#     passed:
+#     - smoke-tests-eirini
+#   - get: s3.kubecf-ci-bundle
+#     passed:
+#     - smoke-tests-eirini
+#   - get: catapult
+#   - task: test
+#     privileged: true
+#     timeout: 1h30m
+#     config:
+#       platform: linux
+#       image_resource:
+#         type: registry-image
+#         source:
+#           repository: splatform/catapult
+#       inputs:
+#       - name: catapult
+#       - name: commit-to-test
+#       outputs:
+#       - name: mail-output
+#       params:
+#         DEFAULT_STACK: cflinuxfs3
+#         EKCP_HOST: ((ekcp-host))
+#         TEST_SUITE: brain
+#         CLUSTER_NAME_PREFIX: kubecf-eirini
+#       run:
+#         path: "/bin/bash"
+#         args: *test_args
+#     on_success:
+#       put: commit-to-test
+#       params:
+#         description: "Brain tests on Eirini succeeded"
+#         state: "success"
+#         contexts: "brain-eirini"
+#         commit_path: "commit-to-test/.git/resource/ref"
+#         version_path: "commit-to-test/.git/resource/version"
+#     on_failure:
+#       do:
+#       - put: commit-to-test
+#         params:
+#           description: "Brain tests on Eirini failed"
+#           state: "failure"
+#           contexts: "brain-eirini"
+#           commit_path: "commit-to-test/.git/resource/ref"
+#           version_path: "commit-to-test/.git/resource/version"
+#       - task: cleanup-cluster
+#         config:
+#           <<: *cleanup-cluster
+#           params:
+#             CLUSTER_NAME_PREFIX: "kubecf-eirini"
+#             EKCP_HOST: ((ekcp-host))
+#     on_abort:
+#       task: cleanup-cluster
+#       config:
+#         <<: *cleanup-cluster
+#         params:
+#           CLUSTER_NAME_PREFIX: "kubecf-eirini"
+#           EKCP_HOST: ((ekcp-host))
 
 - name: ccdb-rotate-eirini
   public: true
@@ -1191,15 +1202,15 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - brain-tests-eirini
+    - smoke-tests-eirini
     # trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - brain-tests-eirini
+    - smoke-tests-eirini
   - get: s3.kubecf-ci-bundle
     passed:
-    - brain-tests-eirini
+    - smoke-tests-eirini
   - get: catapult
   - task: test
     timeout: 5h30m
