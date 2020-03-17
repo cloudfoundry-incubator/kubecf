@@ -1260,7 +1260,7 @@ jobs:
   - get: commit-to-test
     passed:
     # - smoke-tests-post-rotate-eirini
-    - smoke-tests-eirini
+    - brain-tests-eirini
     trigger: true
     version: "every"
   - task: cleanup-cluster
