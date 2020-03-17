@@ -355,6 +355,9 @@ spec:
   template:
     spec:
       template:
+        metadata:
+          labels:
+            delete: pod
         spec:
           containers:
           - name: seeder
