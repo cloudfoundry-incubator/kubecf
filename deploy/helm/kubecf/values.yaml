@@ -56,7 +56,7 @@ releases:
   # pxc is not a BOSH release.
   pxc:
     image:
-      repository: "splatform/pxc"
+      repository: "cfcontainerization/pxc"
       tag: 0.9.4
   eirini:
     version: 0.0.25
