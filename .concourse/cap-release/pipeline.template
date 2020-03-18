@@ -132,6 +132,7 @@ resources:
             # upgrade kubecf
             export SCF_CHART="$(readlink -f ../s3.kubecf-bundle/*.tgz)"
             export SCF_OPERATOR=true
+            export DOCKER_ORG=cap-staging
             export QUIET_OUTPUT=true
             make scf-chart # this takes the same chart as the deploy step for now
             make scf-gen-config
@@ -341,6 +342,8 @@ jobs:
   serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
   public: false
   plan:
+  - get: s3.kubecf-bundle
+    trigger: false
   - get: kubecf-master
     passed:
     - cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
@@ -360,6 +363,7 @@ jobs:
       inputs:
       - name: catapult
       - name: kubecf
+      - name: s3.kubecf-bundle
       outputs:
       - name: output
       params:
