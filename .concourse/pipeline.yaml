@@ -767,15 +767,15 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - brain-tests-diego
+    - sync-integration-tests-diego
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - brain-tests-diego
+    - sync-integration-tests-diego
   - get: s3.kubecf-ci-bundle
     passed:
-    - brain-tests-diego
+    - sync-integration-tests-diego
   - get: catapult
   - task: test-diego
     privileged: true
@@ -1193,15 +1193,15 @@ jobs:
   plan:
   - get: commit-to-test
     passed:
-    - brain-tests-eirini
+    - smoke-tests-eirini
     # trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - brain-tests-eirini
+    - smoke-tests-eirini
   - get: s3.kubecf-ci-bundle
     passed:
-    - brain-tests-eirini
+    - smoke-tests-eirini
   - get: catapult
   - task: test
     timeout: 5h30m
