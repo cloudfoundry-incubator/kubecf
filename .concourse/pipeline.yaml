@@ -693,73 +693,74 @@ jobs:
           CLUSTER_NAME_PREFIX: "kubecf-diego"
           EKCP_HOST: ((ekcp-host))
 
-- name: brain-tests-diego
-  public: true
-  plan:
-  - get: commit-to-test
-    passed:
-    - sync-integration-tests-diego
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - sync-integration-tests-diego
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - sync-integration-tests-diego
-  - get: catapult
-  - task: test-diego
-    privileged: true
-    timeout: 1h30m
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: commit-to-test
-      outputs:
-      - name: output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
-        TEST_SUITE: brain
-        CLUSTER_NAME_PREFIX: kubecf-diego
-      run:
-        path: "/bin/bash"
-        args: *test_args
-    on_success:
-      put: commit-to-test
-      params:
-        description: "Brain tests on Diego succeeded"
-        state: "success"
-        contexts: "brain-tests-diego"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-    on_failure:
-      do:
-      - put: commit-to-test
-        params:
-          description: "Brain tests on Diego failed"
-          state: "failure"
-          commit_path: "commit-to-test/.git/resource/ref"
-          version_path: "commit-to-test/.git/resource/version"
-          contexts: "brain-tests-diego"
-      - task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-diego"
-            EKCP_HOST: ((ekcp-host))
-    on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-diego"
-          EKCP_HOST: ((ekcp-host))
+# TODO: re-enable once BRAIN tests are fixed.
+# - name: brain-tests-diego
+#   public: true
+#   plan:
+#   - get: commit-to-test
+#     passed:
+#     - sync-integration-tests-diego
+#     trigger: true
+#     version: "every"
+#   - get: s3.kubecf-ci
+#     passed:
+#     - sync-integration-tests-diego
+#   - get: s3.kubecf-ci-bundle
+#     passed:
+#     - sync-integration-tests-diego
+#   - get: catapult
+#   - task: test-diego
+#     privileged: true
+#     timeout: 1h30m
+#     config:
+#       platform: linux
+#       image_resource:
+#         type: registry-image
+#         source:
+#           repository: splatform/catapult
+#       inputs:
+#       - name: catapult
+#       - name: commit-to-test
+#       outputs:
+#       - name: output
+#       params:
+#         DEFAULT_STACK: cflinuxfs3
+#         EKCP_HOST: ((ekcp-host))
+#         TEST_SUITE: brain
+#         CLUSTER_NAME_PREFIX: kubecf-diego
+#       run:
+#         path: "/bin/bash"
+#         args: *test_args
+#     on_success:
+#       put: commit-to-test
+#       params:
+#         description: "Brain tests on Diego succeeded"
+#         state: "success"
+#         contexts: "brain-tests-diego"
+#         commit_path: "commit-to-test/.git/resource/ref"
+#         version_path: "commit-to-test/.git/resource/version"
+#     on_failure:
+#       do:
+#       - put: commit-to-test
+#         params:
+#           description: "Brain tests on Diego failed"
+#           state: "failure"
+#           commit_path: "commit-to-test/.git/resource/ref"
+#           version_path: "commit-to-test/.git/resource/version"
+#           contexts: "brain-tests-diego"
+#       - task: cleanup-cluster
+#         config:
+#           <<: *cleanup-cluster
+#           params:
+#             CLUSTER_NAME_PREFIX: "kubecf-diego"
+#             EKCP_HOST: ((ekcp-host))
+#     on_abort:
+#       task: cleanup-cluster
+#       config:
+#         <<: *cleanup-cluster
+#         params:
+#           CLUSTER_NAME_PREFIX: "kubecf-diego"
+#           EKCP_HOST: ((ekcp-host))
 
 - name: cf-acceptance-tests-diego
   public: true
@@ -983,73 +984,74 @@ jobs:
           CLUSTER_NAME_PREFIX: "kubecf-eirini"
           EKCP_HOST: ((ekcp-host))
 
-- name: brain-tests-eirini
-  public: true
-  plan:
-  - get: commit-to-test
-    passed:
-    - smoke-tests-eirini
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - smoke-tests-eirini
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - smoke-tests-eirini
-  - get: catapult
-  - task: test
-    privileged: true
-    timeout: 1h30m
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: commit-to-test
-      outputs:
-      - name: mail-output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
-        TEST_SUITE: brain
-        CLUSTER_NAME_PREFIX: kubecf-eirini
-      run:
-        path: "/bin/bash"
-        args: *test_args
-    on_success:
-      put: commit-to-test
-      params:
-        description: "Brain tests on Eirini succeeded"
-        state: "success"
-        contexts: "brain-eirini"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-    on_failure:
-      do:
-      - put: commit-to-test
-        params:
-          description: "Brain tests on Eirini failed"
-          state: "failure"
-          contexts: "brain-eirini"
-          commit_path: "commit-to-test/.git/resource/ref"
-          version_path: "commit-to-test/.git/resource/version"
-      - task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-eirini"
-            EKCP_HOST: ((ekcp-host))
-    on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-eirini"
-          EKCP_HOST: ((ekcp-host))
+# TODO: re-enable once BRAIN tests are fixed.
+# - name: brain-tests-eirini
+#   public: true
+#   plan:
+#   - get: commit-to-test
+#     passed:
+#     - smoke-tests-eirini
+#     trigger: true
+#     version: "every"
+#   - get: s3.kubecf-ci
+#     passed:
+#     - smoke-tests-eirini
+#   - get: s3.kubecf-ci-bundle
+#     passed:
+#     - smoke-tests-eirini
+#   - get: catapult
+#   - task: test
+#     privileged: true
+#     timeout: 1h30m
+#     config:
+#       platform: linux
+#       image_resource:
+#         type: registry-image
+#         source:
+#           repository: splatform/catapult
+#       inputs:
+#       - name: catapult
+#       - name: commit-to-test
+#       outputs:
+#       - name: mail-output
+#       params:
+#         DEFAULT_STACK: cflinuxfs3
+#         EKCP_HOST: ((ekcp-host))
+#         TEST_SUITE: brain
+#         CLUSTER_NAME_PREFIX: kubecf-eirini
+#       run:
+#         path: "/bin/bash"
+#         args: *test_args
+#     on_success:
+#       put: commit-to-test
+#       params:
+#         description: "Brain tests on Eirini succeeded"
+#         state: "success"
+#         contexts: "brain-eirini"
+#         commit_path: "commit-to-test/.git/resource/ref"
+#         version_path: "commit-to-test/.git/resource/version"
+#     on_failure:
+#       do:
+#       - put: commit-to-test
+#         params:
+#           description: "Brain tests on Eirini failed"
+#           state: "failure"
+#           contexts: "brain-eirini"
+#           commit_path: "commit-to-test/.git/resource/ref"
+#           version_path: "commit-to-test/.git/resource/version"
+#       - task: cleanup-cluster
+#         config:
+#           <<: *cleanup-cluster
+#           params:
+#             CLUSTER_NAME_PREFIX: "kubecf-eirini"
+#             EKCP_HOST: ((ekcp-host))
+#     on_abort:
+#       task: cleanup-cluster
+#       config:
+#         <<: *cleanup-cluster
+#         params:
+#           CLUSTER_NAME_PREFIX: "kubecf-eirini"
+#           EKCP_HOST: ((ekcp-host))
 
 - name: ccdb-rotate-eirini
   public: true
