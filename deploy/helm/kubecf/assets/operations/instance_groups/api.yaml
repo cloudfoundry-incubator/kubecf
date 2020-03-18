@@ -13,6 +13,13 @@
     docker: docker_app_lifecycle/docker_app_lifecycle.tgz
 {{- end }}
 
+{{- if .Values.testing.brain_tests.enabled}}
+# For brain tests, allow CC access to the insecure registry they will create.
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego/insecure_docker_registry_list?/-
+  value: "insecure-registry.tcp.((system_domain)):20005"
+{{- end}}
+
 {{- $path := "/var/vcap/data/shared-packages/" }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/install_buildpacks
