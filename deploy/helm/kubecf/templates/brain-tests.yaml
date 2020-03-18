@@ -133,6 +133,11 @@ roleRef:
   name: "{{ .Release.Name }}-test-role-brain"
 
 # Cluster role "test-cluster-role" only used by account "tests-brain"
+#
+# __ATTENTION__: The brain tests do things with the cluster which
+# required them to have `cluster-admin` permissions (i.e. root).
+# Enabling them is thus potentially insecure. They should only be
+# activated for isolated testing.
 ---
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "ClusterRole"
@@ -220,5 +225,27 @@ roleRef:
   kind: "ClusterRole"
   apiGroup: "rbac.authorization.k8s.io"
   name: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
+
+# Cluster role binding for service account "tests-brain" and cluster role "cluster-admin"
+---
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: "ClusterRoleBinding"
+metadata:
+  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-brain-cluster-admin-cluster-binding"
+  labels:
+    app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-brain-cluster-admin-cluster-binding"
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+subjects:
+- kind: "ServiceAccount"
+  name: "{{ .Release.Name }}-tests-brain"
+  namespace: {{ .Release.Namespace | quote }}
+roleRef:
+  kind: "ClusterRole"
+  apiGroup: "rbac.authorization.k8s.io"
+  name: "cluster-admin"
 
 {{- end }}
