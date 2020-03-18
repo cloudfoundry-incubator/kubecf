@@ -1,11 +1,10 @@
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
-load("//:def.bzl", "project")
 
 copy_file(
     name = "cf_operator_chart",
     src = "@cf_operator//file",
-    out = project.external_files['cf_operator'].urls[0].rpartition("/")[-1],
+    out = "cf-operator.tgz",
 )
 
 pkg_tar(
