@@ -58,7 +58,7 @@ resources:
   source:
     uri: https://github.com/SUSE/catapult
   version:
-    ref: 7eea74f5cab3386b65c08938b25811e99bb829ef
+    ref: 543bc71abc8bd22e5ef81fdf94a7afeb2f99066d
 
 - name: s3.kubecf-ci
   type: s3
