@@ -1262,7 +1262,7 @@ jobs:
   - get: commit-to-test
     passed:
     # - smoke-tests-post-rotate-eirini
-    - brain-tests-eirini
+    - smoke-tests-eirini
     trigger: true
     version: "every"
   - task: cleanup-cluster
