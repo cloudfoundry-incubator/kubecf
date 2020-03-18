@@ -218,7 +218,7 @@ echo Trigger rotation ...
 echo
 
 # Trigger the actual rotation of the keys
-kubectl patch qjob kubecf-rotate-cc-database-key \
+kubectl patch qjob "${KUBECF_INSTALL_NAME}-rotate-cc-database-key" \
   --namespace "${KUBECF_NAMESPACE}" \
   --type merge \
   --patch '{"spec":{"trigger":{"strategy":"now"}}}'
