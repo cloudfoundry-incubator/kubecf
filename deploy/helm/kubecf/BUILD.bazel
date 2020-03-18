@@ -69,7 +69,7 @@ helm_package(
         ":cf_deployment",
         ":extracted_jobs",
     ],
-    version = "v1.0.0",
+    version = "v1.0.1",
 )
 
 helm_version(
