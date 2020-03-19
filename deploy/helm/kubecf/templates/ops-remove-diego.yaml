@@ -1,4 +1,4 @@
-{{- if .Values.features.eirini.use_helm_release }}
+{{- if .Values.features.eirini.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

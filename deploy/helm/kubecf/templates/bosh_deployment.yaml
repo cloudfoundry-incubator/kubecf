@@ -44,7 +44,7 @@ spec:
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}
-{{- if or (.Values.features.eirini.enabled) }}
+{{- if .Values.features.eirini.enabled }}
   - name: {{ $root.Release.Name }}-ops-remove-diego
     type: configmap
 {{- end }}

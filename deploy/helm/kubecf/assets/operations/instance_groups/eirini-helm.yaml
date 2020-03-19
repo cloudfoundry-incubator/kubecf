@@ -1,56 +1,35 @@
-{{- if .Values.features.eirini-native.enabled }}
-- type: remove
-  path: /instance_groups/name=diego-cell
-
-# Remove bbs from diego-api.
-# TODO: remove bbs in the future - when the clock and worker no longer need it.
-# - type: remove
-#   path: /instance_groups/name=diego-api/jobs/name=bbs
-
-# Remove auctioneer, tps and ssh_proxy from scheduler.
-- type: remove
-  path: /instance_groups/name=auctioneer
-- type: remove
-  path: /instance_groups/name=scheduler/jobs/name=tps
-- type: remove
-  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy
-
-# Enable OPI in CC
-# cloud_controller_ng
+{{- if and (.Values.features.eirini.enabled) (.Values.features.eirini.use_helm_release) }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/enabled?
   value: true
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/url?
-  value: https://eirini-opi.{{ .Release.Namespace }}:8085 
+  value: "https://eirini-opi.{{ .Release.Namespace }}.svc.cluster.local:8085"
 
-  # --- Set endpoints and alternative names for eirini staging.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/webdav_config?/private_endpoint?
-  value: https://{{ .Release.Name }}-singleton-blobstore.{{ .Release.Namespace }}:4443
+  value: "https://{{ .Release.Name }}-singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local:4443"
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config?/private_endpoint?
-  value: https://{{ .Release.Name }}-singleton-blobstore.{{ .Release.Namespace }}:4443
+  value: "https://{{ .Release.Name }}-singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local:4443"
 - type: replace
   path: /variables/name=blobstore_tls/options/alternative_names?/-
-  value: "{{ .Release.Name }}-singleton-blobstore.{{ .Release.Namespace }}"
+  value: "{{ .Release.Name }}-singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
   path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?/-
-  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}"
+  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
-  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}"
+  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
-  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}"
+  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
   path: /variables/name=cc_public_tls/options/alternative_names?/-
-  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}"
+  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
   path: /variables/name=cc_tls/options/alternative_names?/-
-  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}"
-
-  #---------------
+  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}.svc.cluster.local"
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/opi_staging?
@@ -65,13 +44,12 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/ca_cert?
   value: ((eirini_tls_server_cert.ca))
 
-# cloud_controller_worker
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/enabled?
   value: true
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/url?
-  value: https://eirini-opi.{{ .Release.Namespace }}:8085 
+  value: "https://eirini-opi.{{ .Release.Namespace }}.svc.cluster.local:8085" 
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/opi_staging?
   value: true
@@ -85,13 +63,12 @@
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/ca_cert?
   value: ((eirini_tls_server_cert.ca))
 
-# cloud_controller_clock
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/enabled?
   value: true
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/url?
-  value: https://eirini-opi.{{ .Release.Namespace }}:8085 
+  value: "https://eirini-opi.{{ .Release.Namespace }}.svc.cluster.local:8085"
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/opi_staging?
   value: true
@@ -105,7 +82,6 @@
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/ca_cert?
   value: ((eirini_tls_server_cert.ca))
 
-# Make loggregator agent cert validate correctly for fluentd in k8s nodes
 - type: replace
   path: /variables/name=loggregator_tls_agent/options/alternative_names?
   value:
@@ -124,7 +100,7 @@
       ca: service_cf_internal_ca
       common_name: "eirini-opi"
       alternative_names:
-      - eirini-opi.{{ .Release.Namespace }}
+      - "eirini-opi.{{ .Release.Namespace }}.svc.cluster.local"
       extended_key_usage:
       - server_auth
 - type: replace
