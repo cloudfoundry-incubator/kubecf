@@ -1,3 +1,6 @@
+<% require 'yaml' %>
+<% config = YAML.load_file("config.yaml") %>
+
 resource_types:
 - name: pull-request
   type: docker-image
@@ -19,11 +22,11 @@ resources:
 - name: commit-to-test
   type: concourse-git-queue
   source:
-    bucket: kubecf-ci
+    bucket: <%= config["s3_bucket"] || "kubecf-ci" %>
     bucket_subfolder: build-queue
-    aws_access_key_id: ((aws-access-key))
-    aws_secret_access_key: ((aws-secret-key))
-    access_token: ((github-access-token))
+    aws_access_key_id: <%= config["aws_access_key_id"] || "((aws-access-key))" %>
+    aws_secret_access_key: <%= config["aws_secret_access_key"] || "((aws-secret-key))" %>
+    access_token: <%= config["github_access_token"] || "((github-access-token))" %>
 
 - name: kubecf-master
   type: git
