@@ -4,4 +4,4 @@
 # the pipeline. It simply calls "erb" to render the final pipeline definition.
 # It delegated all other options to the real "fly".
 
-fly ${@} --config <(erb pipeline.yaml)
+exec fly ${@} --config <(erb pipeline.yaml.erb)

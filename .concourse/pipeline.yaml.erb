@@ -1,5 +1,13 @@
+# The config.yaml file is a collection of settings one might want to change
+# if they are deploying a second copy of the kubecf pipeline.
+# It is meant to provide a way to not pollute the "production" resources with
+# data from testing and developing the pipeline.
+# The production pipeline should always be deployed without a config.yaml.
+# This will use the same (default) values every time, so people deploying it
+# don't have to know what kind of values were used when it was deployed last
+# time.
 <% require 'yaml' %>
-<% config = YAML.load_file("config.yaml") %>
+<% config = File.file?("config.yaml") ? YAML.load_file("config.yaml") : {} %>
 
 resource_types:
 - name: pull-request
@@ -32,22 +40,22 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/cloudfoundry-incubator/kubecf
+    uri: https://github.com/<%= config["kubecf_repository"] || "cloudfoundry-incubator/kubecf" %>
 
 - name: kubecf-pr
   type: pull-request
   check_every: 10m
   source:
-    repository: cloudfoundry-incubator/kubecf
-    access_token: ((github-access-token))
+    repository: <%= config["kubecf_repository"] || "cloudfoundry-incubator/kubecf" %>
+    access_token: <%= config["github_access_token"] || "((github-access-token))" %>
     disable_forks: true # Trigger on kubecf branches only
 
 - name: kubecf-fork-pr
   type: pull-request
   check_every: 10m
   source:
-    repository: cloudfoundry-incubator/kubecf
-    access_token: ((github-access-token))
+    repository: <%= config["kubecf_repository"] || "cloudfoundry-incubator/kubecf" %>
+    access_token: <%= config["github_access_token"] || "((github-access-token))" %>
     disable_forks: false # Trigger on kubecf branches only
 
 - name: catapult
@@ -60,37 +68,37 @@ resources:
 - name: s3.kubecf-ci
   type: s3
   source:
-    bucket: kubecf-ci
-    access_key_id: ((aws-access-key))
-    secret_access_key: ((aws-secret-key))
-    region_name: eu-central-1
+    bucket: <%= config["s3_bucket"] || "kubecf-ci" %>
+    access_key_id: <%= config["aws_access_key_id"] || "((aws-access-key))" %>
+    secret_access_key: <%= config["aws_secret_access_key"] || "((aws-secret-key))" %>
+    region_name: <%= config["s3_bucket_region"] || "eu-central-1" %>
     regexp: kubecf-v(.*).tgz
 
 - name: s3.kubecf-ci-bundle
   type: s3
   source:
-    bucket: kubecf-ci
-    access_key_id: ((aws-access-key))
-    secret_access_key: ((aws-secret-key))
-    region_name: eu-central-1
+    bucket: <%= config["s3_bucket"] || "kubecf-ci" %>
+    access_key_id: <%= config["aws_access_key_id"] || "((aws-access-key))" %>
+    secret_access_key: <%= config["aws_secret_access_key"] || "((aws-secret-key))" %>
+    region_name: <%= config["s3_bucket_region"] || "eu-central-1" %>
     regexp: kubecf-bundle-v(.*).tgz
 
 - name: s3.kubecf
   type: s3
   source:
-    bucket: kubecf
-    access_key_id: ((aws-access-key))
-    secret_access_key: ((aws-secret-key))
-    region_name: us-west-2
+    bucket: <%= config["s3_final_bucket"] || "kubecf" %>
+    access_key_id: <%= config["aws_access_key_id"] || "((aws-access-key))" %>
+    secret_access_key: <%= config["aws_secret_access_key"] || "((aws-secret-key))" %>
+    region_name: <%= config["s3_final_bucket_region"] || "us-west-2" %>
     regexp: kubecf-v(.*).tgz
 
 - name: s3.kubecf-bundle
   type: s3
   source:
-    bucket: kubecf
-    access_key_id: ((aws-access-key))
-    secret_access_key: ((aws-secret-key))
-    region_name: us-west-2
+    bucket: <%= config["s3_final_bucket"] || "kubecf" %>
+    access_key_id: <%= config["aws_access_key_id"] || "((aws-access-key))" %>
+    secret_access_key: <%= config["aws_secret_access_key"] || "((aws-secret-key))" %>
+    region_name: <%= config["s3_final_bucket_region"] || "us-west-2" %>
     regexp: kubecf-bundle-v(.*).tgz
 
 deploy_args: &deploy_args
@@ -152,7 +160,7 @@ jobs:
   - get: kubecf-pr
     params:
       integration_tool: checkout
-    trigger: true
+    trigger: <%= config["auto_triggers"].nil? ? "true" : config["auto_triggers"] %>
     version: "every"
   # Use GitHub API to find the remote repository of the PR (it may be a fork)
   # The pr resource doesn't provide this information.
@@ -235,7 +243,7 @@ jobs:
   - get: kubecf-master
     params:
       integration_tool: checkout
-    trigger: true
+    trigger: <%= config["auto_triggers"] || "true" %>
   - put: commit-to-test
     params:
       <<: *commit-status
