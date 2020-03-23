@@ -338,6 +338,68 @@ jobs:
             {{- end }}
             {{- print $test }}
 
+- name: sync-integration-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+  serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
+  public: false
+  plan:
+  - get: kubecf-master
+    passed:
+    - cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+    trigger: true
+  - get: catapult
+  - task: test-{{$EiriniFlag}}
+    privileged: true
+    timeout: 5h30m
+    input_mapping:
+      kubecf: kubecf-master
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kubecf
+      outputs:
+      - name: output
+      params:
+        QUIET_OUTPUT: true
+        DEFAULT_STACK: cflinuxfs3
+        EKCP_HOST: ((ekcp-host))
+{{- if eq $EiriniFlag "eirini" }}
+        ENABLE_EIRINI: true
+{{ else }}
+        ENABLE_EIRINI: false
+{{- end }}
+{{- if eq $OptionsFlag "ha" }}
+        HA: true
+{{- end }}
+{{- if eq $OptionsFlag "all" }}
+{{- print $allbells }}
+{{- end }}
+        TEST_SUITE: sits
+        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+      run:
+        path: "/bin/bash"
+        args:
+          - -c
+          - |
+            {{- print $obtain_ekcp }}
+            {{- if eq $Backend "caasp4" }}
+            {{- print $import_caasp4 }}
+            {{- end }}
+            {{- if eq $Backend "eks" }}
+            {{- print $import_eks }}
+            {{- end }}
+            {{- if eq $Backend "gke" }}
+            {{- print $import_gke }}
+            {{- end }}
+            {{- if eq $Backend "aks" }}
+            {{- print $import_aks }}
+            {{- end }}
+            {{- print $test }}
+
 - name: upgrade-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
   serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
   public: false
@@ -346,7 +408,7 @@ jobs:
     trigger: false
   - get: kubecf-master
     passed:
-    - cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+    - sync-integration-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
     trigger: true
   - get: catapult
   - task: upgrade-{{$EiriniFlag}}
