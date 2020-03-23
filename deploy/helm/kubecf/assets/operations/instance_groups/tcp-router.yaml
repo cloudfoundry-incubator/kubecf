@@ -1,8 +1,10 @@
 {{- $service := index .Values.services "tcp-router" }}
 
+{{- if .Values.features.routing_api.enabled }}
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/router_groups/name=default-tcp/reservable_ports
   value: "{{ $service.port_range.start }}-{{ $service.port_range.end }}"
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=tcp-router/jobs/name=tcp_router/properties/quarks?

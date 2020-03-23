@@ -320,7 +320,11 @@ spec:
 {{- $databases = append $databases (dict "name" "diego" "path" "diego" "secretName" "diego") }}
 {{- $databases = append $databases (dict "name" "network-connectivity" "path" "network_connectivity" "secretName" "network-connectivity") }}
 {{- $databases = append $databases (dict "name" "network-policy" "path" "network_policy" "secretName" "network-policy") }}
+
+{{- if .Values.features.routing_api.enabled }}
 {{- $databases = append $databases (dict "name" "routing-api" "path" "routing-api" "secretName" "routing-api") }}
+{{- end }}
+
 {{- $databases = append $databases (dict "name" "uaa" "path" "uaa" "secretName" "uaa") }}
 {{- $databases = append $databases (dict "name" "locket" "path" "locket" "secretName" "locket") }}
 

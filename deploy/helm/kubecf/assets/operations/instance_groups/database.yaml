@@ -94,12 +94,14 @@
   value: *pxc-cluster-ca
 {{- end }}
 
+{{- if .Values.features.routing_api.enabled }}
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/host?
   value: *pxc-cluster-address
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
   value: *pxc-cluster-ca
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/host
@@ -335,6 +337,7 @@
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/require_ssl?
   value: {{ .Values.features.external_database.require_ssl }}
 
+{{- if .Values.features.routing_api.enabled }}
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/type
   value: {{ .Values.features.external_database.type | quote }}
@@ -365,6 +368,7 @@
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/skip_hostname_validation?
   value: {{ if .Values.features.external_database.require_ssl }}false{{ else }}true{{ end }}
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/type
