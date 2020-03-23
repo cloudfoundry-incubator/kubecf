@@ -9,6 +9,8 @@
 | Acceptance Tests on Diego | [![acceptance-diego](https://kubecf-github-status.herokuapp.com/state?context=acceptance-diego)](https://kubecf-github-status.herokuapp.com/url?context=acceptance-diego) |
 | Acceptance Tests on Eirini | [![acceptance-diego](https://kubecf-github-status.herokuapp.com/state?context=acceptance-eirini)](https://kubecf-github-status.herokuapp.com/url?context=acceptance-eirini) |
 
+_[Instructions on how to setup these badges](https://github.com/jimmykarily/github_branch_status)_
+
 ## Introduction
 
 KubeCF is a distribution of Cloud Foundry Application Runtime (CFAR) for Kubernetes. 
