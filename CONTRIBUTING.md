@@ -55,8 +55,7 @@ may be closed or rejected.
 ### Labels
 
 The labels are grouping in: **priority**, **status** and **type**. There're some individual labels like
-**good first issues** or **help wanted**, that can be used but
-are not tracked from a project management perspecitve.
+**good first issues** or **help wanted**, that can be used but are not tracked from a project management perspecitve.
 
 All the grouping labels must contain a short description to help the contributors to understand better the intention of
 each one.
