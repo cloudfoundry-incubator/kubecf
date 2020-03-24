@@ -6,8 +6,6 @@
 # This will use the same (default) values every time, so people deploying it
 # don't have to know what kind of values were used when it was deployed last
 # time.
-<% require 'yaml' %>
-<% config = File.file?("config.yaml") ? YAML.load_file("config.yaml") : {} %>
 
 resource_types:
 - name: pull-request
@@ -30,32 +28,32 @@ resources:
 - name: commit-to-test
   type: concourse-git-queue
   source:
-    bucket: <%= config["s3_bucket"] || "kubecf-ci" %>
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
     bucket_subfolder: build-queue
-    aws_access_key_id: <%= config["aws_access_key_id"] || "((aws-access-key))" %>
-    aws_secret_access_key: <%= config["aws_secret_access_key"] || "((aws-secret-key))" %>
-    access_token: <%= config["github_access_token"] || "((github-access-token))" %>
+    aws_access_key_id: ((aws-access-key))
+    aws_secret_access_key: ((aws-secret-key))
+    access_token: ((github-access-token))
 
 - name: kubecf-master
   type: git
   source:
     branch: master
-    uri: https://github.com/<%= config["kubecf_repository"] || "cloudfoundry-incubator/kubecf" %>
+    uri: https://github.com/{{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
 
 - name: kubecf-pr
   type: pull-request
   check_every: 10m
   source:
-    repository: <%= config["kubecf_repository"] || "cloudfoundry-incubator/kubecf" %>
-    access_token: <%= config["github_access_token"] || "((github-access-token))" %>
+    repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
+    access_token: ((github-access-token))
     disable_forks: true # Trigger on kubecf branches only
 
 - name: kubecf-fork-pr
   type: pull-request
   check_every: 10m
   source:
-    repository: <%= config["kubecf_repository"] || "cloudfoundry-incubator/kubecf" %>
-    access_token: <%= config["github_access_token"] || "((github-access-token))" %>
+    repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
+    access_token: ((github-access-token))
     disable_forks: false # Trigger on kubecf branches only
 
 - name: catapult
@@ -68,37 +66,37 @@ resources:
 - name: s3.kubecf-ci
   type: s3
   source:
-    bucket: <%= config["s3_bucket"] || "kubecf-ci" %>
-    access_key_id: <%= config["aws_access_key_id"] || "((aws-access-key))" %>
-    secret_access_key: <%= config["aws_secret_access_key"] || "((aws-secret-key))" %>
-    region_name: <%= config["s3_bucket_region"] || "eu-central-1" %>
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
     regexp: kubecf-v(.*).tgz
 
 - name: s3.kubecf-ci-bundle
   type: s3
   source:
-    bucket: <%= config["s3_bucket"] || "kubecf-ci" %>
-    access_key_id: <%= config["aws_access_key_id"] || "((aws-access-key))" %>
-    secret_access_key: <%= config["aws_secret_access_key"] || "((aws-secret-key))" %>
-    region_name: <%= config["s3_bucket_region"] || "eu-central-1" %>
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
     regexp: kubecf-bundle-v(.*).tgz
 
 - name: s3.kubecf
   type: s3
   source:
-    bucket: <%= config["s3_final_bucket"] || "kubecf" %>
-    access_key_id: <%= config["aws_access_key_id"] || "((aws-access-key))" %>
-    secret_access_key: <%= config["aws_secret_access_key"] || "((aws-secret-key))" %>
-    region_name: <%= config["s3_final_bucket_region"] || "us-west-2" %>
+    bucket: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    region_name: {{ if has . "s3_final_bucket_region" }}{{ .s3_final_bucket_region }}{{ else }}"us-west-2"{{ end }}
     regexp: kubecf-v(.*).tgz
 
 - name: s3.kubecf-bundle
   type: s3
   source:
-    bucket: <%= config["s3_final_bucket"] || "kubecf" %>
-    access_key_id: <%= config["aws_access_key_id"] || "((aws-access-key))" %>
-    secret_access_key: <%= config["aws_secret_access_key"] || "((aws-secret-key))" %>
-    region_name: <%= config["s3_final_bucket_region"] || "us-west-2" %>
+    bucket: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    region_name: {{ if has . "s3_final_bucket_region" }}{{ .s3_final_bucket_region }}{{ else }}"us-west-2"{{ end }}
     regexp: kubecf-bundle-v(.*).tgz
 
 deploy_args: &deploy_args
@@ -160,7 +158,7 @@ jobs:
   - get: kubecf-pr
     params:
       integration_tool: checkout
-    trigger: <%= config["auto_triggers"].nil? ? "true" : config["auto_triggers"] %>
+    trigger: {{ if (has . "auto_triggers") }}{{ .auto_triggers }}{{ else }}true{{ end }}
     version: "every"
   # Use GitHub API to find the remote repository of the PR (it may be a fork)
   # The pr resource doesn't provide this information.
@@ -243,7 +241,7 @@ jobs:
   - get: kubecf-master
     params:
       integration_tool: checkout
-    trigger: <%= config["auto_triggers"] || "true" %>
+    trigger: {{ if (has . "auto_triggers") }}{{ .auto_triggers }}{{ else }}true{{ end }}
   - put: commit-to-test
     params:
       <<: *commit-status

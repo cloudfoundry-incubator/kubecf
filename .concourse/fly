@@ -4,4 +4,9 @@
 # the pipeline. It simply calls "erb" to render the final pipeline definition.
 # It delegated all other options to the real "fly".
 
-exec fly ${@} --config <(erb pipeline.yaml.erb)
+if [[ -f config.yaml ]]; then
+    exec fly ${@} --config <(gomplate -V -c .=config.yaml -f pipeline.yaml.gomplate)
+else
+    exec fly ${@} --config <(gomplate -V -f pipeline.yaml.gomplate)
+fi
+

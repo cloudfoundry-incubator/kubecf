@@ -3,9 +3,6 @@ s3_bucket: your_bucket_name
 s3_bucket_region: your_bucket_region
 s3_final_bucket: your_bucket_name_for_final_artifacts
 s3_final_bucket_region: the_region_of_the_above_bucket
-aws_access_key_id: aws_access_key_goes_here
-aws_secret_access_key: aws_access_secret_goes_here
-github_access_token: github_access_token_goes_here
 kubecf_repository: your_fork_on_github # e.g. jimmykarily/kubecf
 
 auto_triggers: false # Disable automated triggers when you are developing
