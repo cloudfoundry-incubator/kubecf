@@ -33,11 +33,16 @@
 {{- end }}
 
 {{- else }}
+# Overrides intended to take place on top of the cf-deployment.yml
 - type: remove
   path: /instance_groups/name=api/jobs/name=routing-api
 
 - type: remove
-  path: /instance_groups/name=database/jobs/name=pxc-mysql/properties/seeded_databases/name=routing-api
+  path: /instance_groups/name=database?/jobs/name=pxc-mysql/properties/seeded_databases/name=routing-api
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/routing_api/enabled
+  value: false
 
 - type: remove
   path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=routing-api.service.cf.internal
@@ -47,4 +52,14 @@
 
 - type: remove
   path: /variables/name=routing_api_tls_client
+
+# Disable the tcp-router ig, while there will be none routing-api SSE events to read from.
+- type: remove
+  path: /instance_groups/name=tcp-router
+
+- type: remove
+  path: /variables/name=uaa_clients_tcp_router_secret
+
+- type: remove
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/tcp_router
 {{- end }}

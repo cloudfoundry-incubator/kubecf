@@ -6,6 +6,7 @@
   value: "{{ $service.port_range.start }}-{{ $service.port_range.end }}"
 {{- end }}
 
+{{- if .Values.features.routing_api.enabled }}
 - type: replace
   path: /instance_groups/name=tcp-router/jobs/name=tcp_router/properties/quarks?
   value:
@@ -38,3 +39,4 @@
 - type: replace
   path: /instance_groups/name=tcp-router/env?/bosh/agent/settings/labels/app.kubernetes.io~1version
   value: {{ default .Chart.Version .Chart.AppVersion | quote }}
+{{- end }}
