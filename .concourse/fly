@@ -1,8 +1,14 @@
 #!/bin/bash
-
 # This script should be used instead of Concourse "fly" cli in order to deploy
 # the pipeline. It simply calls "erb" to render the final pipeline definition.
 # It delegated all other options to the real "fly".
+#
+# E.g. ./fly -t target set-pipeline -p kubecf
+
+if ! hash gomplate 2>/dev/null;then
+  echo "gomplate missing. Follow the instructions in https://docs.gomplate.ca/installing/ and install it first."
+  exit 1
+fi
 
 if [[ -f config.yaml ]]; then
     exec fly ${@} --config <(gomplate -V -c .=config.yaml -f pipeline.yaml.gomplate)
