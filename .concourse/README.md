@@ -48,10 +48,10 @@ point to your new EKCP API endpoint.
 ## Deploy on Concourse
 
 If you wish to deploy the pipeline on Concourse, run the following
-command and use the `fly` script in this directory:
+command and use the `fly` script that you can find in this directory:
 
 ```
-./fly -t target set-pipeline -c pipeline.yaml -p kubecf
+./fly -t target set-pipeline -p kubecf
 ```
 
 ## Pipeline development
