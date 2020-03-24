@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script should be used instead of Concourse "fly" cli in order to deploy
-# the pipeline. It simply calls "erb" to render the final pipeline definition.
+# the pipeline. It simply calls "gomplate" to render the final pipeline definition.
 # It delegated all other options to the real "fly".
 #
 # E.g. ./fly -t target set-pipeline -p kubecf
