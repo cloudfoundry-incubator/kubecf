@@ -60,7 +60,15 @@ The labels are grouping in: **priority**, **status** and **type**. There're some
 All the grouping labels must contain a short description to help the contributors to understand better the intention of
 each one.
 
+#### Status
+
+1. **Accepted**: issue was accepted and it may be implemented in near future.
+2. **Need More Info**: issue requires more information to be evaluated.
+3. **Verification Needed**: issue probably waiting for a PR to be merged.
+4. **Validation**: issue has enough information but it requires a discussion before accepted.
+
 [todo] more about the labels grouping in future versions of the document.
+
 
 ### Creating New Issues
 
@@ -85,11 +93,16 @@ issue if not.
 ### The flow
 
 The issue flow is always to the right that means if you pick an issue from the _todo_ queue you should work on it until
-it's ready to be
-reviewed by a peer.
+it's ready to be reviewed by a peer.
 
 If you need to move the issue back to a previous queue then please leave a clear comment stating the reasons, so the
 project core contributors can refine it.
+
+1. pick an issue from the _todo_ queue and move it to the in progress.
+2. add your name to the assign field and other members name if they are paring with you.
+3. create a Pull Request and
+[link](https://help.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue) the open issue
+that will be fixed when merged.
 
 ### Milestone(s)
 
