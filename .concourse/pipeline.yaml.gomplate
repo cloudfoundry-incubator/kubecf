@@ -1,3 +1,12 @@
+# The config.yaml file is a collection of settings one might want to change
+# if they are deploying a second copy of the kubecf pipeline.
+# It is meant to provide a way to not pollute the "production" resources with
+# data from testing and developing the pipeline.
+# The production pipeline should always be deployed without a config.yaml.
+# This will use the same (default) values every time, so people deploying it
+# don't have to know what kind of values were used when it was deployed last
+# time.
+
 resource_types:
 - name: pull-request
   type: docker-image
@@ -19,7 +28,7 @@ resources:
 - name: commit-to-test
   type: concourse-git-queue
   source:
-    bucket: kubecf-ci
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
     bucket_subfolder: build-queue
     aws_access_key_id: ((aws-access-key))
     aws_secret_access_key: ((aws-secret-key))
@@ -29,13 +38,13 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/cloudfoundry-incubator/kubecf
+    uri: https://github.com/{{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
 
 - name: kubecf-pr
   type: pull-request
   check_every: 10m
   source:
-    repository: cloudfoundry-incubator/kubecf
+    repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
     access_token: ((github-access-token))
     disable_forks: true # Trigger on kubecf branches only
 
@@ -43,7 +52,7 @@ resources:
   type: pull-request
   check_every: 10m
   source:
-    repository: cloudfoundry-incubator/kubecf
+    repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
     access_token: ((github-access-token))
     disable_forks: false # Trigger on kubecf branches only
 
@@ -57,37 +66,37 @@ resources:
 - name: s3.kubecf-ci
   type: s3
   source:
-    bucket: kubecf-ci
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: eu-central-1
+    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
     regexp: kubecf-v(.*).tgz
 
 - name: s3.kubecf-ci-bundle
   type: s3
   source:
-    bucket: kubecf-ci
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: eu-central-1
+    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
     regexp: kubecf-bundle-v(.*).tgz
 
 - name: s3.kubecf
   type: s3
   source:
-    bucket: kubecf
+    bucket: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: us-west-2
+    region_name: {{ if has . "s3_final_bucket_region" }}{{ .s3_final_bucket_region }}{{ else }}"us-west-2"{{ end }}
     regexp: kubecf-v(.*).tgz
 
 - name: s3.kubecf-bundle
   type: s3
   source:
-    bucket: kubecf
+    bucket: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: us-west-2
+    region_name: {{ if has . "s3_final_bucket_region" }}{{ .s3_final_bucket_region }}{{ else }}"us-west-2"{{ end }}
     regexp: kubecf-bundle-v(.*).tgz
 
 deploy_args: &deploy_args
@@ -149,7 +158,7 @@ jobs:
   - get: kubecf-pr
     params:
       integration_tool: checkout
-    trigger: true
+    trigger: {{ if (has . "auto_triggers") }}{{ .auto_triggers }}{{ else }}true{{ end }}
     version: "every"
   # Use GitHub API to find the remote repository of the PR (it may be a fork)
   # The pr resource doesn't provide this information.
@@ -232,7 +241,7 @@ jobs:
   - get: kubecf-master
     params:
       integration_tool: checkout
-    trigger: true
+    trigger: {{ if (has . "auto_triggers") }}{{ .auto_triggers }}{{ else }}true{{ end }}
   - put: commit-to-test
     params:
       <<: *commit-status

@@ -9,6 +9,7 @@ password
 *.box
 *.vmdk
 personal-setup
+.concourse/config.yaml
 
 /bazel-*
 /output
