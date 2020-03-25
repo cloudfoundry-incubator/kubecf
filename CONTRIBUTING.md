@@ -3,7 +3,7 @@
 First, thanks for taking the time to contribute to the project! Your support is highly appreciated - kudos!
 
 The following is a set of guidelines for contributing to KubeCF and its modules. These are mostly guidelines, not rules.
-Use your best judgment, and feel free to propose changes to this document in a pull request.
+Use your best judgment and feel free to propose changes to this document in a pull request.
 
 ## How to contribute
 
@@ -15,7 +15,7 @@ When contributing to this repository, please first discuss the changes through a
 
 ## Issues tracker
 
-We're commited to have short and accurate templates for different type issues, in order to gather the required
+We're commited to have short and accurate templates for different type issues in order to gather the required
 information to start a conversation.
 
 Once again, feel free to contribute to improve them by opening a pull request.
@@ -23,17 +23,17 @@ Once again, feel free to contribute to improve them by opening a pull request.
 ### How to report a bug
 
 Start by searching [bugs][1] for some similiar issues and/or extra information. If your search doesn't bring you any
-help then open an issue by selecting the issue type "Bug" and fill the template accurately as possible.
+help, then open an issue by selecting the issue type "Bug" and fill the template accurately as possible.
 
 ### How to suggest a feature/enhancement
 
-If you find yourself wishing for a feature/enhancement that does not exist yet in KubeCF start by run a
-quick [search][2] - you may not be alone! If you ain't any luck, then go ahead and open a new issue by selecting the
+If you find yourself wishing for a feature/enhancement that does not exist yet in KubeCF, start by run a
+quick [search][2] - you may not be alone! If you aren't having any luck, then go ahead and open a new issue by selecting the
 "Feature" issue type and answer some needed questions.
 
 ## Code review process
 
-The core team looks to Pull Requests on a regular basis and in a best effort.
+The core team looks at Pull Requests on a regular basis on a best-effort basis.
 
 ## How are Github issues handled
 
@@ -55,7 +55,7 @@ may be closed or rejected.
 The labels are grouping in: **priority**, **status**, **type** and **size** There're some individual labels like
 **good first issues** or **help wanted**, that can be used but are not tracked from a project management perspecitve.
 
-All the grouping labels must contain a short description to help the contributors to understand better the intention of
+All the grouping labels must contain a short description to help contributors to understand better the intention of
 each one.
 
 #### Status
@@ -69,13 +69,13 @@ each one.
 
 ### Creating New Issues
 
-The issue created on Github will be automatically assigned to the product owner that will evaluate the issue from an
+The issue created on Github will be automatically assigned to the product owner, who will then evaluate the issue from an
 information-gathering perspective.
 
-If an issue doesn't contain any description and/or if the same is not enough to assess then more information will be
+If an issue doesn't contain any description and/or if the same is not enough to assess, then more information will be
 requested to the issue author.
 
-In case of an issue gets labeled "Stale" (more than 60 days without any activity) the product owner will:
+In case of an issue gets labeled "Stale" (more than 60 days without any activity), the product owner will:
 
 1. close the issue in case of lack of information.
 2. close the issue if it's no longer relevant.
@@ -84,8 +84,8 @@ In case of an issue gets labeled "Stale" (more than 60 days without any activity
 ### Where to start
 
 All contributions are welcome but the best place to pick an issue to work on is from the _todo_ queue that is ordered by
-priority, but before you move it to the _in progess_ queue make sure that the story is clear and drop comments on the
-issue if not.
+priority. Before you move it to the _in progess_ queue, make sure that the story is clear. If not, drop comments on the
+issue.
 
 ### How do we estimate
 
@@ -93,14 +93,14 @@ We use t-shirt sizes (XS, S, M, L, XL, XXL)  to determine the Github issue compl
 
 ### The flow
 
-The issue flow is always to the right that means if you pick an issue from the _todo_ queue you should work on it until
+The issue flow is always to the right that means if you pick an issue from the _todo_ queue, you should work on it until
 it's ready to be reviewed by a peer.
 
-If you need to move the issue back to a previous queue then please leave a clear comment stating the reasons, so the
+If you need to move the issue back to a previous queue, then please leave a clear comment stating the reasons so the
 project core contributors can refine it.
 
 1. pick an issue from the _todo_ queue and move it to the in progress.
-2. add your name to the assign field and other members name if they are paring with you.
+2. add your name to the assign field and other members name if they are pairing with you.
 3. create a Pull Request and
 [link](https://help.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue) the open issue
 that will be fixed when merged.
