@@ -8,12 +8,10 @@ Use your best judgment, and feel free to propose changes to this document in a p
 ## How to contribute
 
 Before kicking the ball, please **do NOT report security vulnerabilities in public issues**! Instead, report with the
-CloudFoundry Foundation team first <security@cloudfoundry.org> and give us some time to fix it in a fashion time matter
-before disclosing it to the public. 
+CloudFoundry Foundation team first <security@cloudfoundry.org> and give us some time to fix it in a fashion time matter before disclosing it to the public.
 For more information check the CloudFoundry Security [page](https://www.cloudfoundry.org/security/).
 
-When contributing to this repository, please first discuss the changes through an existent Github issue with the main
-contributers.
+When contributing to this repository, please first discuss the changes through an existent Github issue with the main contributors.
 
 ## Issues tracker
 
@@ -41,20 +39,20 @@ The core team looks to Pull Requests on a regular basis and in a best effort.
 
 ### Queues
 
-1. icebox: contain news issues and issues that are waiting for grooming and not read to start working yet. Some issues
+1. Icebox: contain news issues and issues that are waiting for grooming and not read to start working yet. Some issues
 may be closed or rejected.
 
-2. todo: issues ordered by priority and ready to be picked by contributors.
+2. To Do: issues ordered by priority and ready to be picked by contributors.
 
-3. in progress: issues being implemented.
+3. In progress: issues being implemented.
 
-4. under review: issues waiting to be reviewed.
+4. Under review: issues waiting to be reviewed.
 
-5. done: all issues closed.
+5. Done: all issues closed.
 
 ### Labels
 
-The labels are grouping in: **priority**, **status** and **type**. There're some individual labels like
+The labels are grouping in: **priority**, **status**, **type** and **size** There're some individual labels like
 **good first issues** or **help wanted**, that can be used but are not tracked from a project management perspecitve.
 
 All the grouping labels must contain a short description to help the contributors to understand better the intention of
@@ -68,7 +66,6 @@ each one.
 4. **Validation**: issue has enough information but it requires a discussion before accepted.
 
 [todo] more about the labels grouping in future versions of the document.
-
 
 ### Creating New Issues
 
@@ -89,6 +86,10 @@ In case of an issue gets labeled "Stale" (more than 60 days without any activity
 All contributions are welcome but the best place to pick an issue to work on is from the _todo_ queue that is ordered by
 priority, but before you move it to the _in progess_ queue make sure that the story is clear and drop comments on the
 issue if not.
+
+### How do we estimate
+
+We use t-shirt sizes (XS, S, M, L, XL, XXL)  to determine the Github issue complexity and not the implementation effort, so we can determine if the issue needs to be split in multiple ones and/or if it requires a more extended brainstorm to determine the feasibility of the new feature.
 
 ### The flow
 
