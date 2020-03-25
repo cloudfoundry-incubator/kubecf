@@ -25,6 +25,14 @@ resource_types:
     repository: splatform/concourse-git-queue
 
 resources:
+- name: kind-environments
+  type: pool
+  source:
+    uri: git@github.com:SUSE/cf-ci-pools.git
+    branch: kubecf-kind-pools
+    pool: kind
+    private_key: ((github-private-key))
+
 - name: commit-to-test
   type: concourse-git-queue
   source:
@@ -108,7 +116,7 @@ deploy_args: &deploy_args
   export FORCE_DELETE=true
   export HELM_VERSION="v3.1.1"
   export SCF_TESTGROUP=true
-  export BACKEND=ekcp
+  export BACKEND=kind
   export DOCKER_ORG=cap-staging
   export QUIET_OUTPUT=true
   export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
@@ -116,12 +124,13 @@ deploy_args: &deploy_args
   pushd catapult
   # Bring up a k8s cluster and builds+deploy kubecf
   # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
-  make k8s scf
+  export KUBECFG=../?
+  make kubeconfig scf
 
 test_args: &test_args
 - -xce
 - |
-  export BACKEND=ekcp
+  export BACKEND=kind
   export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
   export SCF_LOCAL="${PWD}/commit-to-test"
   export KUBECF_NAMESPACE="scf"
@@ -130,14 +139,15 @@ test_args: &test_args
                        xargs basename | sed 's/.json$//g' | cut -c1-18)"
   export KUBECF_CHECKOUT="${PWD}/commit-to-test"
   pushd catapult
+  export KUBECFG=../?
   # Grabs back a deployed cluster and runs test suites on it
   # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
-  make recover tests-kubecf
+  make kubeconfig tests-kubecf
 
 rotate_args: &rotate_args
 - -xce
 - |
-  export BACKEND=ekcp
+  export BACKEND=kind
   export KUBECF_NAMESPACE="scf"
   export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
                        xargs basename | sed 's/.json$//g' | cut -c1-18)"
@@ -145,7 +155,8 @@ rotate_args: &rotate_args
   export KUBECF_INSTALL_NAME="susecf-scf"
 
   pushd catapult
-  make recover
+  export KUBECFG=../?
+  make kubeconfig
   source build*/.envrc
 
   pushd "${KUBECF_CHECKOUT}"
@@ -359,6 +370,9 @@ jobs:
   max_in_flight: 2
   public: true
   plan:
+  - put: kind-environments
+    params: {acquire: true}
+    timeout: 2h
   - get: commit-to-test
     trigger: true
     version: "every"
@@ -382,13 +396,13 @@ jobs:
           repository: splatform/catapult
       inputs:
       - name: commit-to-test
+      - name: kind-environments
       - name: catapult
       - name: s3.kubecf-ci
       outputs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
         QUIET_OUTPUT: true
         ENABLE_EIRINI: false
         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
@@ -424,7 +438,6 @@ jobs:
           inputs:
           - name: commit-to-test
           params:
-            EKCP_HOST: ((ekcp-host))
             CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
           run:
             path: "/bin/bash"
@@ -472,7 +485,6 @@ jobs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
         TEST_SUITE: smokes
         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
@@ -502,14 +514,12 @@ jobs:
           <<: *cleanup-cluster
           params:
             CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
-            EKCP_HOST: ((ekcp-host))
     on_abort:
       task: cleanup-cluster
       config:
         <<: *cleanup-cluster
         params:
           CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
-          EKCP_HOST: ((ekcp-host))
 
 - name: ccdb-rotate-{{ $cfScheduler }}
   public: true
@@ -609,7 +619,6 @@ jobs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
         TEST_SUITE: smokes
         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
@@ -639,14 +648,12 @@ jobs:
           <<: *cleanup-cluster
           params:
             CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
-            EKCP_HOST: ((ekcp-host))
     on_abort:
       task: cleanup-cluster
       config:
         <<: *cleanup-cluster
         params:
           CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
-          EKCP_HOST: ((ekcp-host))
 
 - name: sync-integration-tests-{{ $cfScheduler }}
   public: true
@@ -679,7 +686,6 @@ jobs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
         TEST_SUITE: sits
         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
@@ -709,7 +715,6 @@ jobs:
           <<: *cleanup-cluster
           params:
             CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
-            EKCP_HOST: ((ekcp-host))
     on_abort:
       task: cleanup-cluster
       config:
