@@ -353,7 +353,9 @@ jobs:
       file: output/kubecf-bundle-v*.tgz
       acl: public-read
 
-- name: deploy-diego
+{{- range $_, $cfScheduler := slice "diego" "eirini" }}
+
+- name: deploy-{{ $cfScheduler }}
   max_in_flight: 2
   public: true
   plan:
@@ -389,27 +391,29 @@ jobs:
         EKCP_HOST: ((ekcp-host))
         QUIET_OUTPUT: true
         ENABLE_EIRINI: false
-        CLUSTER_NAME_PREFIX: kubecf-diego
+        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *deploy_args
     on_success:
       put: commit-to-test
       params:
-        description: "Deploying with Diego was successful"
+        description: "Deploying with {{ $cfScheduler }} was successful"
         state: "success"
         commit_path: "commit-to-test/.git/resource/ref"
         version_path: "commit-to-test/.git/resource/version"
-        contexts: "deploy-diego"
+        contexts: "deploy-{{ $cfScheduler }}"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     on_failure:
       do:
       - put: commit-to-test
         params:
-          description: "Deploying with Diego failed"
+          description: "Deploying with {{ $cfScheduler }} failed"
           commit_path: "commit-to-test/.git/resource/ref"
           version_path: "commit-to-test/.git/resource/version"
           state: "failure"
-          contexts: "deploy-diego"
+          contexts: "deploy-{{ $cfScheduler }}"
+          github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
       - task: cleanup-cluster
         config: &cleanup-cluster
           platform: linux
@@ -421,7 +425,7 @@ jobs:
           - name: commit-to-test
           params:
             EKCP_HOST: ((ekcp-host))
-            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
           run:
             path: "/bin/bash"
             args:
@@ -435,25 +439,24 @@ jobs:
       config:
         <<: *cleanup-cluster
         params:
-          CLUSTER_NAME_PREFIX: "kubecf-diego"
-          EKCP_HOST: ((ekcp-host))
+          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 
-- name: smoke-tests-diego
+- name: smoke-tests-{{ $cfScheduler }}
   public: true
   plan:
   - get: commit-to-test
     passed:
-    - deploy-diego
+    - deploy-{{ $cfScheduler }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - deploy-diego
+    - deploy-{{ $cfScheduler }}
   - get: s3.kubecf-ci-bundle
     passed:
-    - deploy-diego
+    - deploy-{{ $cfScheduler }}
   - get: catapult
-  - task: test-diego
+  - task: test-{{ $cfScheduler }}
     privileged: true
     timeout: 1h30m
     config:
@@ -471,57 +474,59 @@ jobs:
         DEFAULT_STACK: cflinuxfs3
         EKCP_HOST: ((ekcp-host))
         TEST_SUITE: smokes
-        CLUSTER_NAME_PREFIX: kubecf-diego
+        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *test_args
     on_success:
       put: commit-to-test
       params:
-        description: "Smoke tests on Diego were successful"
+        description: "Smoke tests on {{ $cfScheduler }} were successful"
         state: "success"
         commit_path: "commit-to-test/.git/resource/ref"
         version_path: "commit-to-test/.git/resource/version"
-        contexts: "smoke-diego"
+        contexts: "smoke-{{ $cfScheduler }}"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     on_failure:
       do:
       - put: commit-to-test
         params:
-          description: "Smoke tests on Diego failed"
+          description: "Smoke tests on {{ $cfScheduler }} failed"
           commit_path: "commit-to-test/.git/resource/ref"
           version_path: "commit-to-test/.git/resource/version"
           state: "failure"
-          contexts: "smoke-diego"
+          contexts: "smoke-{{ $cfScheduler }}"
+          github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
       - task: cleanup-cluster
         config:
           <<: *cleanup-cluster
           params:
-            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
             EKCP_HOST: ((ekcp-host))
     on_abort:
       task: cleanup-cluster
       config:
         <<: *cleanup-cluster
         params:
-          CLUSTER_NAME_PREFIX: "kubecf-diego"
+          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
           EKCP_HOST: ((ekcp-host))
 
-- name: ccdb-rotate-diego
+- name: ccdb-rotate-{{ $cfScheduler }}
   public: true
   plan:
   - get: commit-to-test
     passed:
-    - cf-acceptance-tests-diego
+    - cf-acceptance-tests-{{ $cfScheduler }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - cf-acceptance-tests-diego
+    - cf-acceptance-tests-{{ $cfScheduler }}
   - get: s3.kubecf-ci-bundle
     passed:
-    - cf-acceptance-tests-diego
+    - cf-acceptance-tests-{{ $cfScheduler }}
   - get: catapult
-  - task: rotate-diego
+  - task: rotate-{{ $cfScheduler }}
     privileged: true
     timeout: 1h30m
     config:
@@ -537,58 +542,58 @@ jobs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
-        CLUSTER_NAME_PREFIX: kubecf-diego
+        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *rotate_args
     on_success:
       put: commit-to-test
       params:
-        description: "Rotating secrets on Diego was successful"
+        description: "Rotating secrets on {{ $cfScheduler }} was successful"
         state: "success"
         commit_path: "commit-to-test/.git/resource/ref"
         version_path: "commit-to-test/.git/resource/version"
-        contexts: "rotate-diego"
+        contexts: "rotate-{{ $cfScheduler }}"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     on_failure:
       do:
       - put: commit-to-test
         params:
-          description: "Rotating secrets on Diego failed"
+          description: "Rotating secrets on {{ $cfScheduler }} failed"
           commit_path: "commit-to-test/.git/resource/ref"
           version_path: "commit-to-test/.git/resource/version"
           state: "failure"
-          contexts: "rotate-diego"
+          contexts: "rotate-{{ $cfScheduler }}"
+          github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
       - task: cleanup-cluster
         config:
           <<: *cleanup-cluster
           params:
-            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
             EKCP_HOST: ((ekcp-host))
     on_abort:
       task: cleanup-cluster
       config:
         <<: *cleanup-cluster
         params:
-          CLUSTER_NAME_PREFIX: "kubecf-diego"
-          EKCP_HOST: ((ekcp-host))
+          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 
-- name: smoke-tests-post-rotate-diego
+- name: smoke-tests-post-rotate-{{ $cfScheduler }}
   public: true
   plan:
   - get: commit-to-test
     passed:
-    - ccdb-rotate-diego
+    - ccdb-rotate-{{ $cfScheduler }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - ccdb-rotate-diego
+    - ccdb-rotate-{{ $cfScheduler }}
   - get: s3.kubecf-ci-bundle
     passed:
-    - ccdb-rotate-diego
+    - ccdb-rotate-{{ $cfScheduler }}
   - get: catapult
-  - task: test-diego
+  - task: test-{{ $cfScheduler }}
     privileged: true
     timeout: 1h30m
     config:
@@ -606,57 +611,59 @@ jobs:
         DEFAULT_STACK: cflinuxfs3
         EKCP_HOST: ((ekcp-host))
         TEST_SUITE: smokes
-        CLUSTER_NAME_PREFIX: kubecf-diego
+        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *test_args
     on_success:
       put: commit-to-test
       params:
-        description: "Smoke tests on Diego after rotating secrets was successful"
+        description: "Smoke tests on {{ $cfScheduler }} after rotating secrets was successful"
         state: "success"
         commit_path: "commit-to-test/.git/resource/ref"
         version_path: "commit-to-test/.git/resource/version"
-        contexts: "smoke-rotated-diego"
+        contexts: "smoke-rotated-{{ $cfScheduler }}"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     on_failure:
       do:
       - put: commit-to-test
         params:
-          description: "Smoke tests on Diego after rotating secrets failed"
+          description: "Smoke tests on {{ $cfScheduler }} after rotating secrets failed"
           commit_path: "commit-to-test/.git/resource/ref"
           version_path: "commit-to-test/.git/resource/version"
           state: "failure"
-          contexts: "smoke-rotated-diego"
+          contexts: "smoke-rotated-{{ $cfScheduler }}"
+          github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
       - task: cleanup-cluster
         config:
           <<: *cleanup-cluster
           params:
-            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
             EKCP_HOST: ((ekcp-host))
     on_abort:
       task: cleanup-cluster
       config:
         <<: *cleanup-cluster
         params:
-          CLUSTER_NAME_PREFIX: "kubecf-diego"
+          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
           EKCP_HOST: ((ekcp-host))
 
-- name: sync-integration-tests-diego
+- name: sync-integration-tests-{{ $cfScheduler }}
   public: true
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-diego
+    - smoke-tests-{{ $cfScheduler }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - smoke-tests-diego
+    - smoke-tests-{{ $cfScheduler }}
   - get: s3.kubecf-ci-bundle
     passed:
-    - smoke-tests-diego
+    - smoke-tests-{{ $cfScheduler }}
   - get: catapult
-  - task: test-diego
+  - task: test-{{ $cfScheduler }}
     privileged: true
     timeout: 1h30m
     config:
@@ -674,58 +681,59 @@ jobs:
         DEFAULT_STACK: cflinuxfs3
         EKCP_HOST: ((ekcp-host))
         TEST_SUITE: sits
-        CLUSTER_NAME_PREFIX: kubecf-diego
+        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *test_args
     on_success:
       put: commit-to-test
       params:
-        description: "Sync Integration tests on Diego succeeded"
+        description: "Sync Integration tests on {{ $cfScheduler }} succeeded"
         state: "success"
-        contexts: "sync-integration-tests-diego"
+        contexts: "sync-integration-tests-{{ $cfScheduler }}"
         commit_path: "commit-to-test/.git/resource/ref"
         version_path: "commit-to-test/.git/resource/version"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     on_failure:
       do:
       - put: commit-to-test
         params:
-          description: "Sync Integration tests on Diego failed"
+          description: "Sync Integration tests on {{ $cfScheduler }} failed"
           state: "failure"
           commit_path: "commit-to-test/.git/resource/ref"
           version_path: "commit-to-test/.git/resource/version"
-          contexts: "sync-integration-tests-diego"
+          contexts: "sync-integration-tests-{{ $cfScheduler }}"
+          github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
       - task: cleanup-cluster
         config:
           <<: *cleanup-cluster
           params:
-            CLUSTER_NAME_PREFIX: "kubecf-diego"
+            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
             EKCP_HOST: ((ekcp-host))
     on_abort:
       task: cleanup-cluster
       config:
         <<: *cleanup-cluster
         params:
-          CLUSTER_NAME_PREFIX: "kubecf-diego"
-          EKCP_HOST: ((ekcp-host))
+          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 
 # TODO: re-enable once BRAIN tests are fixed.
-# - name: brain-tests-diego
+# - name: brain-tests-{{ $cfScheduler }}
 #   public: true
 #   plan:
 #   - get: commit-to-test
 #     passed:
-#     - sync-integration-tests-diego
+#     - sync-integration-tests-{{ $cfScheduler }}
 #     trigger: true
 #     version: "every"
 #   - get: s3.kubecf-ci
 #     passed:
-#     - sync-integration-tests-diego
+#     - sync-integration-tests-{{ $cfScheduler }}
 #   - get: s3.kubecf-ci-bundle
 #     passed:
-#     - sync-integration-tests-diego
+#     - sync-integration-tests-{{ $cfScheduler }}
 #   - get: catapult
-#   - task: test-diego
+#   - task: test-{{ $cfScheduler }}
 #     privileged: true
 #     timeout: 1h30m
 #     config:
@@ -743,57 +751,57 @@ jobs:
 #         DEFAULT_STACK: cflinuxfs3
 #         EKCP_HOST: ((ekcp-host))
 #         TEST_SUITE: brain
-#         CLUSTER_NAME_PREFIX: kubecf-diego
+#         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
 #       run:
 #         path: "/bin/bash"
 #         args: *test_args
 #     on_success:
 #       put: commit-to-test
 #       params:
-#         description: "Brain tests on Diego succeeded"
+#         description: "Brain tests on {{ $cfScheduler }} succeeded"
 #         state: "success"
-#         contexts: "brain-tests-diego"
+#         contexts: "brain-tests-{{ $cfScheduler }}"
 #         commit_path: "commit-to-test/.git/resource/ref"
 #         version_path: "commit-to-test/.git/resource/version"
 #     on_failure:
 #       do:
 #       - put: commit-to-test
 #         params:
-#           description: "Brain tests on Diego failed"
+#           description: "Brain tests on {{ $cfScheduler }} failed"
 #           state: "failure"
 #           commit_path: "commit-to-test/.git/resource/ref"
 #           version_path: "commit-to-test/.git/resource/version"
-#           contexts: "brain-tests-diego"
+#           contexts: "brain-tests-{{ $cfScheduler }}"
 #       - task: cleanup-cluster
 #         config:
 #           <<: *cleanup-cluster
 #           params:
-#             CLUSTER_NAME_PREFIX: "kubecf-diego"
+#             CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 #             EKCP_HOST: ((ekcp-host))
 #     on_abort:
 #       task: cleanup-cluster
 #       config:
 #         <<: *cleanup-cluster
 #         params:
-#           CLUSTER_NAME_PREFIX: "kubecf-diego"
+#           CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 #           EKCP_HOST: ((ekcp-host))
 
-- name: cf-acceptance-tests-diego
+- name: cf-acceptance-tests-{{ $cfScheduler }}
   public: true
   plan:
   - get: commit-to-test
     passed:
-    - sync-integration-tests-diego
+    - sync-integration-tests-{{ $cfScheduler }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - sync-integration-tests-diego
+    - sync-integration-tests-{{ $cfScheduler }}
   - get: s3.kubecf-ci-bundle
     passed:
-    - sync-integration-tests-diego
+    - sync-integration-tests-{{ $cfScheduler }}
   - get: catapult
-  - task: test-diego
+  - task: test-{{ $cfScheduler }}
     privileged: true
     timeout: 5h30m
     config:
@@ -809,484 +817,57 @@ jobs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
         TEST_SUITE: cats
-        CLUSTER_NAME_PREFIX: kubecf-diego
+        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *test_args
     on_success:
       put: commit-to-test
       params:
-        description: "Acceptance tests on Diego succeeded"
+        description: "Acceptance tests on {{ $cfScheduler }} succeeded"
         state: "success"
-        contexts: "acceptance-diego"
+        contexts: "acceptance-{{ $cfScheduler }}"
         commit_path: "commit-to-test/.git/resource/ref"
         version_path: "commit-to-test/.git/resource/version"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     on_failure:
       do:
       - put: commit-to-test
         params:
-          description: "Acceptance tests on Diego failed"
+          description: "Acceptance tests on {{ $cfScheduler }} failed"
           state: "failure"
           commit_path: "commit-to-test/.git/resource/ref"
           version_path: "commit-to-test/.git/resource/version"
-          contexts: "acceptance-diego"
+          contexts: "acceptance-{{ $cfScheduler }}"
+          github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
       - task: cleanup-cluster
         config:
           <<: *cleanup-cluster
           params:
-            CLUSTER_NAME_PREFIX: "kubecf-diego"
-            EKCP_HOST: ((ekcp-host))
+            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
     on_abort:
       task: cleanup-cluster
       config:
         <<: *cleanup-cluster
         params:
-          CLUSTER_NAME_PREFIX: "kubecf-diego"
-          EKCP_HOST: ((ekcp-host))
+          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 
-- name: cleanup-diego-cluster
+- name: cleanup-{{ $cfScheduler }}-cluster
   public: true
   plan:
   - get: commit-to-test
     passed:
-    - smoke-tests-post-rotate-diego
+    - smoke-tests-post-rotate-{{ $cfScheduler }}
     trigger: true
     version: "every"
   - task: cleanup-cluster
     config:
       <<: *cleanup-cluster
       params:
-        CLUSTER_NAME_PREFIX: "kubecf-diego"
-        EKCP_HOST: ((ekcp-host))
+        CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 
-# Eirini
-- name: deploy-eirini
-  max_in_flight: 2
-  public: true
-  plan:
-  - get: commit-to-test
-    trigger: true
-    version: "every"
-    passed:
-    - build
-  - get: s3.kubecf-ci
-    passed:
-    - build
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - build
-  - get: catapult
-  - task: deploy
-    timeout: 2h30m
-    privileged: true
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: commit-to-test
-      - name: catapult
-      - name: s3.kubecf-ci
-      outputs:
-      - name: output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
-        ENABLE_EIRINI: true
-        CLUSTER_NAME_PREFIX: kubecf-eirini
-      run:
-        path: "/bin/bash"
-        args: *deploy_args
-    on_success:
-      put: commit-to-test
-      params:
-        description: "Deploying Eirini succeeded"
-        state: "success"
-        contexts: "deploy-eirini"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-    on_failure:
-      do:
-      - put: commit-to-test
-        params:
-          description: "Deploying Eirini failed"
-          commit_path: "commit-to-test/.git/resource/ref"
-          version_path: "commit-to-test/.git/resource/version"
-          state: "failure"
-          contexts: "deploy-eirini"
-      - task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-eirini"
-            EKCP_HOST: ((ekcp-host))
-    on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-eirini"
-          EKCP_HOST: ((ekcp-host))
-
-- name: smoke-tests-eirini
-  public: true
-  plan:
-  - get: commit-to-test
-    passed:
-    - deploy-eirini
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - deploy-eirini
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - deploy-eirini
-  - get: catapult
-  - task: test
-    privileged: true
-    timeout: 1h30m
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: commit-to-test
-      outputs:
-      - name: mail-output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
-        TEST_SUITE: smokes
-        CLUSTER_NAME_PREFIX: kubecf-eirini
-      run:
-        path: "/bin/bash"
-        args: *test_args
-    on_success:
-      put: commit-to-test
-      params:
-        description: "Smoke tests on Eirini succeeded"
-        state: "success"
-        contexts: "smoke-eirini"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-    on_failure:
-      do:
-      - put: commit-to-test
-        params:
-          description: "Smoke tests on Eirini failed"
-          state: "failure"
-          contexts: "smoke-eirini"
-          commit_path: "commit-to-test/.git/resource/ref"
-          version_path: "commit-to-test/.git/resource/version"
-      - task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-eirini"
-            EKCP_HOST: ((ekcp-host))
-    on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-eirini"
-          EKCP_HOST: ((ekcp-host))
-
-# TODO: re-enable once BRAIN tests are fixed.
-# - name: brain-tests-eirini
-#   public: true
-#   plan:
-#   - get: commit-to-test
-#     passed:
-#     - smoke-tests-eirini
-#     trigger: true
-#     version: "every"
-#   - get: s3.kubecf-ci
-#     passed:
-#     - smoke-tests-eirini
-#   - get: s3.kubecf-ci-bundle
-#     passed:
-#     - smoke-tests-eirini
-#   - get: catapult
-#   - task: test
-#     privileged: true
-#     timeout: 1h30m
-#     config:
-#       platform: linux
-#       image_resource:
-#         type: registry-image
-#         source:
-#           repository: splatform/catapult
-#       inputs:
-#       - name: catapult
-#       - name: commit-to-test
-#       outputs:
-#       - name: mail-output
-#       params:
-#         DEFAULT_STACK: cflinuxfs3
-#         EKCP_HOST: ((ekcp-host))
-#         TEST_SUITE: brain
-#         CLUSTER_NAME_PREFIX: kubecf-eirini
-#       run:
-#         path: "/bin/bash"
-#         args: *test_args
-#     on_success:
-#       put: commit-to-test
-#       params:
-#         description: "Brain tests on Eirini succeeded"
-#         state: "success"
-#         contexts: "brain-eirini"
-#         commit_path: "commit-to-test/.git/resource/ref"
-#         version_path: "commit-to-test/.git/resource/version"
-#     on_failure:
-#       do:
-#       - put: commit-to-test
-#         params:
-#           description: "Brain tests on Eirini failed"
-#           state: "failure"
-#           contexts: "brain-eirini"
-#           commit_path: "commit-to-test/.git/resource/ref"
-#           version_path: "commit-to-test/.git/resource/version"
-#       - task: cleanup-cluster
-#         config:
-#           <<: *cleanup-cluster
-#           params:
-#             CLUSTER_NAME_PREFIX: "kubecf-eirini"
-#             EKCP_HOST: ((ekcp-host))
-#     on_abort:
-#       task: cleanup-cluster
-#       config:
-#         <<: *cleanup-cluster
-#         params:
-#           CLUSTER_NAME_PREFIX: "kubecf-eirini"
-#           EKCP_HOST: ((ekcp-host))
-
-- name: ccdb-rotate-eirini
-  public: true
-  plan:
-  - get: commit-to-test
-    passed:
-    - cf-acceptance-tests-eirini
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - cf-acceptance-tests-eirini
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - cf-acceptance-tests-eirini
-  - get: catapult
-  - task: rotate-eirini
-    privileged: true
-    timeout: 1h30m
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: commit-to-test
-      outputs:
-      - name: output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
-        CLUSTER_NAME_PREFIX: kubecf-eirini
-      run:
-        path: "/bin/bash"
-        args: *rotate_args
-    on_success:
-      put: commit-to-test
-      params:
-        description: "Rotating secrets on Eirini succeeded"
-        state: "success"
-        contexts: "rotate-eirini"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-    on_failure:
-      do:
-      - put: commit-to-test
-        params:
-          description: "Rotating secrets on Eirini failed"
-          state: "failure"
-          commit_path: "commit-to-test/.git/resource/ref"
-          version_path: "commit-to-test/.git/resource/version"
-          contexts: "rotate-eirini"
-      - task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-eirini"
-            EKCP_HOST: ((ekcp-host))
-    on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-eirini"
-          EKCP_HOST: ((ekcp-host))
-
-- name: smoke-tests-post-rotate-eirini
-  public: true
-  plan:
-  - get: commit-to-test
-    passed:
-    - ccdb-rotate-eirini
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - ccdb-rotate-eirini
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - ccdb-rotate-eirini
-  - get: catapult
-  - task: test
-    privileged: true
-    timeout: 1h30m
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: commit-to-test
-      outputs:
-      - name: mail-output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
-        TEST_SUITE: smokes
-        CLUSTER_NAME_PREFIX: kubecf-eirini
-      run:
-        path: "/bin/bash"
-        args: *test_args
-    on_success:
-      put: commit-to-test
-      params:
-        description: "Smoke tests after rotating secrets on Eirini succeeded"
-        state: "success"
-        contexts: "smoke-rotated-eirini"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-    on_failure:
-      do:
-      - put: commit-to-test
-        params:
-          description: "Smoke tests after rotating secrets on Eirini failed"
-          state: "failure"
-          commit_path: "commit-to-test/.git/resource/ref"
-          version_path: "commit-to-test/.git/resource/version"
-          contexts: "smoke-rotated-eirini"
-      - task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-eirini"
-            EKCP_HOST: ((ekcp-host))
-    on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-eirini"
-          EKCP_HOST: ((ekcp-host))
-
-- name: cf-acceptance-tests-eirini
-  public: true
-  plan:
-  - get: commit-to-test
-    passed:
-    - smoke-tests-eirini
-    # trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - smoke-tests-eirini
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - smoke-tests-eirini
-  - get: catapult
-  - task: test
-    timeout: 5h30m
-    privileged: true
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: commit-to-test
-      outputs:
-      - name: mail-output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
-        TEST_SUITE: cats
-        CLUSTER_NAME_PREFIX: kubecf-eirini
-      run:
-        path: "/bin/bash"
-        args: *test_args
-    on_success:
-      put: commit-to-test
-      params:
-        description: "Acceptance tests on Eirini succeeded"
-        state: "success"
-        contexts: "acceptance-eirini"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-    on_failure:
-      do:
-      - put: commit-to-test
-        params:
-          description: "Acceptance tests on Eirini failed"
-          state: "failure"
-          commit_path: "commit-to-test/.git/resource/ref"
-          version_path: "commit-to-test/.git/resource/version"
-          contexts: "acceptance-eirini"
-      - task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-eirini"
-            EKCP_HOST: ((ekcp-host))
-    on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-eirini"
-          EKCP_HOST: ((ekcp-host))
-
-- name: cleanup-eirini-cluster
-  public: true
-  plan:
-  - get: commit-to-test
-    passed:
-    # - smoke-tests-post-rotate-eirini
-    - smoke-tests-eirini
-    trigger: true
-    version: "every"
-  - task: cleanup-cluster
-    config:
-      <<: *cleanup-cluster
-      params:
-        CLUSTER_NAME_PREFIX: "kubecf-eirini"
-        EKCP_HOST: ((ekcp-host))
+{{ end }} # of range cfscheduler
 
 - name: publish
   public: true
