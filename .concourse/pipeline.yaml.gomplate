@@ -29,7 +29,7 @@ resources:
   type: concourse-git-queue
   source:
     bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
-    bucket_subfolder: build-queue
+    bucket_subfolder: {{ if has . "s3_bucket_folder" }}{{ .s3_bucket_folder }}{{ else }}build-queue{{ end }}
     aws_access_key_id: ((aws-access-key))
     aws_secret_access_key: ((aws-secret-key))
     access_token: ((github-access-token))
@@ -175,7 +175,7 @@ jobs:
       - name: output
       params:
         GITHUB_ACCESS_TOKEN: ((github-access-token))
-        REPO: "cloudfoundry-incubator/kubecf"
+        REPO: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
       run:
         path: "/bin/bash"
         args:
@@ -195,6 +195,7 @@ jobs:
         smoke-rotated-eirini,acceptance-eirini,sync-integration-tests-diego,brain-tests-diego
       trigger: "PR"
       metadata_path: "kubecf-pr/.git/resource/url"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
 - name: queue-fork-pr
   public: true
   plan:
@@ -217,7 +218,7 @@ jobs:
       - name: output
       params:
         GITHUB_ACCESS_TOKEN: ((github-access-token))
-        REPO: "cloudfoundry-incubator/kubecf"
+        REPO: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
       run:
         path: "/bin/bash"
         args:
@@ -235,6 +236,7 @@ jobs:
       state: "pending"
       trigger: "PR"
       metadata_path: "kubecf-fork-pr/.git/resource/url"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
 - name: queue-master
   public: true
   plan:
@@ -246,12 +248,13 @@ jobs:
     params:
       <<: *commit-status
       commit_path: "kubecf-master/.git/ref"
-      remote: "cloudfoundry-incubator/kubecf"
+      remote: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
       remote_path: ""
       description: "Queued"
       state: "pending"
       trigger: "master"
       metadata_path: ""
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
 - name: lint
   public: true
   plan:
@@ -285,6 +288,7 @@ jobs:
         version_path: "commit-to-test/.git/resource/version"
         state: "success"
         contexts: "lint"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     on_failure:
       put: commit-to-test
       params:
@@ -293,6 +297,7 @@ jobs:
         version_path: "commit-to-test/.git/resource/version"
         state: "failure"
         contexts: "lint"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
 - name: build
   public: false # TODO: public or not?
   plan:
@@ -328,6 +333,7 @@ jobs:
         version_path: "commit-to-test/.git/resource/version"
         state: "success"
         contexts: "build"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     on_failure:
       do:
       - put: commit-to-test
@@ -337,6 +343,7 @@ jobs:
           contexts: "build"
           commit_path: "commit-to-test/.git/resource/ref"
           version_path: "commit-to-test/.git/resource/version"
+          github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
   - put: s3.kubecf-ci
     params:
       file: output/kubecf-v*.tgz
