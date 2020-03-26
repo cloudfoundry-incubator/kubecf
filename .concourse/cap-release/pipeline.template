@@ -405,7 +405,7 @@ jobs:
         args:
           - -c
           - |
-            {{- print $obtain_ekcp }}
+            {{- print $obtain_kubeconfig }}
             {{- if eq $Backend "caasp4" }}
             {{- print $import_caasp4 }}
             {{- end }}
