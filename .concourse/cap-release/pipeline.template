@@ -38,12 +38,6 @@ resource_types:
     tag: release
 
 resources:
-- name: kubecf-master
-  type: git
-  source:
-    branch: master
-    uri: https://github.com/SUSE/kubecf
-
 - name: catapult
   type: git
   source:
@@ -171,7 +165,6 @@ jobs:
   plan:
   - get: s3.kubecf-bundle
     trigger: true
-  - get: kubecf-master
   - get: catapult
   - put: {{$Backend}}-pool.kube-hosts
     params: {acquire: true}
@@ -180,7 +173,6 @@ jobs:
     privileged: true
     timeout: 2h30m
     input_mapping:
-      kubecf: kubecf-master
       pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
@@ -189,7 +181,6 @@ jobs:
         source:
           repository: splatform/catapult
       inputs:
-      - name: kubecf
       - name: catapult
       - name: s3.kubecf-bundle
       - name: pool.kube-hosts
@@ -232,9 +223,6 @@ jobs:
   serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
   public: false
   plan:
-  - get: kubecf-master
-    passed:
-    - deploy-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
   - get: catapult
   - get: {{$Backend}}-pool.kube-hosts
     passed:
@@ -244,7 +232,6 @@ jobs:
     privileged: true
     timeout: 1h30m
     input_mapping:
-      kubecf: kubecf-master
       pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
@@ -254,7 +241,6 @@ jobs:
           repository: splatform/catapult
       inputs:
       - name: catapult
-      - name: kubecf
       - name: pool.kube-hosts
       params:
         QUIET_OUTPUT: true
@@ -296,9 +282,6 @@ jobs:
   serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
   public: false
   plan:
-  - get: kubecf-master
-    passed:
-    - smoke-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
   - get: catapult
   - get: {{$Backend}}-pool.kube-hosts
     passed:
@@ -308,7 +291,6 @@ jobs:
     privileged: true
     timeout: 5h30m
     input_mapping:
-      kubecf: kubecf-master
       pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
@@ -318,7 +300,6 @@ jobs:
           repository: splatform/catapult
       inputs:
       - name: catapult
-      - name: kubecf
       - name: pool.kube-hosts
       params:
         QUIET_OUTPUT: true
@@ -360,9 +341,6 @@ jobs:
   serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
   public: false
   plan:
-  - get: kubecf-master
-    passed:
-    - cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
   - get: catapult
   - get: {{$Backend}}-pool.kube-hosts
     passed:
@@ -372,7 +350,6 @@ jobs:
     privileged: true
     timeout: 5h30m
     input_mapping:
-      kubecf: kubecf-master
       pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
@@ -382,7 +359,6 @@ jobs:
           repository: splatform/catapult
       inputs:
       - name: catapult
-      - name: kubecf
       - name: pool.kube-hosts
       params:
         QUIET_OUTPUT: true
@@ -426,9 +402,6 @@ jobs:
   plan:
   - get: s3.kubecf-bundle
     trigger: false
-  - get: kubecf-master
-    passed:
-    - sync-integration-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
   - get: catapult
   - get: {{$Backend}}-pool.kube-hosts
     passed:
@@ -438,7 +411,6 @@ jobs:
     privileged: true
     timeout: 5h30m
     input_mapping:
-      kubecf: kubecf-master
       pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
@@ -448,7 +420,6 @@ jobs:
           repository: splatform/catapult
       inputs:
       - name: catapult
-      - name: kubecf
       - name: s3.kubecf-bundle
       - name: pool.kube-hosts
       params:
@@ -493,9 +464,6 @@ jobs:
   serial_groups: [{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}]
   public: false
   plan:
-  - get: kubecf-master
-    passed:
-    - upgrade-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
   - get: catapult
   - get: {{$Backend}}-pool.kube-hosts
     passed:
@@ -505,7 +473,6 @@ jobs:
     privileged: true
     timeout: 5h30m
     input_mapping:
-      kubecf: kubecf-master
       pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
@@ -515,7 +482,6 @@ jobs:
           repository: splatform/catapult
       inputs:
       - name: catapult
-      - name: kubecf
       - name: pool.kube-hosts
       params:
         QUIET_OUTPUT: true
