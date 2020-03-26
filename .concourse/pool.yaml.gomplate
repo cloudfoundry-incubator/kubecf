@@ -22,14 +22,25 @@ deploy_args: &deploy_args
   export BACKEND=ekcp
   export QUIET_OUTPUT=true
   export CLUSTER_NAME="$CLUSTER_PREFIX-$(date +%s | sha256sum | base64 | head -c 32 ; echo)"
+  CURRENT_CLUSTERS=$(ls kind-environments/kind/**/* | grep -v .keep | wc -l)
+  if [ $CURRENT_CLUSTERS -lt 2 ]; then
+
   pushd catapult
   make k8s
+  else
+    echo "No resources to add"
+    exit 0
+  fi
+
   cp -rfv build*/kubeconfig ../output/metadata
   echo "$CLUSTER_NAME" > ../output/name
 
 jobs:
 - name: create-cluster
+  serial: true
   plan:
+  - get: kind-environments
+    trigger: true
   - get: catapult
   - task: deploy
     privileged: true
@@ -41,6 +52,7 @@ jobs:
         source:
           repository: splatform/catapult
       inputs:
+      - name: kind-environments
       - name: catapult
       outputs:
       - name: output
