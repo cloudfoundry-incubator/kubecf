@@ -59,13 +59,25 @@ resources:
     region_name: us-west-2
     regexp: kubecf-bundle-v(.*).tgz
 
+
+# Pool resource with kube cluster information
+{{ range $_, $Backend := (ds "BACKEND").backend -}} # for all backends
+- name: {{$Backend}}-pool.kube-hosts
+  type: pool
+  source:
+    uri: git@github.com:SUSE/cf-ci-pools.git
+    private_key: ((github-private-key))
+    branch: {{$Backend}}-kube-hosts
+    pool: {{$Backend}}-kube-hosts
+{{end}}
+
 {{ $pipelineName := .Env.PIPELINE }}
 
-{{- $obtain_ekcp := `
-            # obtain kubeconfig from ekcp
+{{- $obtain_kubeconfig := `
+            # obtain kubeconfig from pool
+            pool_file=${pool_file:-pool.kube-hosts/metadata}
+            cp ${pool_file} catapult/kubeconfig_$CLUSTER_NAME
             pushd catapult
-            BACKEND=ekcp make recover
-            cp build$CLUSTER_NAME/kubeconfig kubeconfig_$CLUSTER_NAME
 ` }}
 
 {{- $import_gke := `
@@ -96,7 +108,7 @@ resources:
 ` }}
 
 {{- $import_caasp4 := `
-            # create builfolder prepared for caasp4os
+            # create buildfolder prepared for caasp4os
             export BACKEND=caasp4os
             export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
             make kubeconfig
@@ -161,11 +173,15 @@ jobs:
     trigger: true
   - get: kubecf-master
   - get: catapult
+  - put: {{$Backend}}-pool.kube-hosts
+    params: {acquire: true}
+    timeout: 2m
   - task: deploy
     privileged: true
     timeout: 2h30m
     input_mapping:
       kubecf: kubecf-master
+      pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
       image_resource:
@@ -176,12 +192,10 @@ jobs:
       - name: kubecf
       - name: catapult
       - name: s3.kubecf-bundle
-      outputs:
-      - name: output
+      - name: pool.kube-hosts
       params:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
 {{- if eq $EiriniFlag "eirini" }}
         ENABLE_EIRINI: true
 {{ else }}
@@ -199,7 +213,7 @@ jobs:
         args:
           - -c
           - |
-            {{- print $obtain_ekcp }}
+            {{- print $obtain_kubeconfig }}
             {{- if eq $Backend "caasp4" }}
             {{- print $import_caasp4 }}
             {{- end }}
@@ -221,13 +235,17 @@ jobs:
   - get: kubecf-master
     passed:
     - deploy-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
-    trigger: true
   - get: catapult
+  - get: {{$Backend}}-pool.kube-hosts
+    passed:
+    - deploy-{{ $EiriniFlag }}-{{ $Backend }}-{{ $OptionsFlag }}
+    trigger: true
   - task: test-{{$EiriniFlag}}
     privileged: true
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-master
+      pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
       image_resource:
@@ -237,12 +255,10 @@ jobs:
       inputs:
       - name: catapult
       - name: kubecf
-      outputs:
-      - name: output
+      - name: pool.kube-hosts
       params:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
 {{- if eq $EiriniFlag "eirini" }}
         ENABLE_EIRINI: true
 {{ else }}
@@ -261,7 +277,7 @@ jobs:
         args:
           - -c
           - |
-            {{- print $obtain_ekcp }}
+            {{- print $obtain_kubeconfig }}
             {{- if eq $Backend "caasp4" }}
             {{- print $import_caasp4 }}
             {{- end }}
@@ -283,13 +299,17 @@ jobs:
   - get: kubecf-master
     passed:
     - smoke-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
-    trigger: true
   - get: catapult
+  - get: {{$Backend}}-pool.kube-hosts
+    passed:
+    - smoke-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+    trigger: true
   - task: test-{{$EiriniFlag}}
     privileged: true
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-master
+      pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
       image_resource:
@@ -299,12 +319,10 @@ jobs:
       inputs:
       - name: catapult
       - name: kubecf
-      outputs:
-      - name: output
+      - name: pool.kube-hosts
       params:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
 {{- if eq $EiriniFlag "eirini" }}
         ENABLE_EIRINI: true
 {{ else }}
@@ -323,7 +341,7 @@ jobs:
         args:
           - -c
           - |
-            {{- print $obtain_ekcp }}
+            {{- print $obtain_kubeconfig}}
             {{- if eq $Backend "caasp4" }}
             {{- print $import_caasp4 }}
             {{- end }}
@@ -345,13 +363,17 @@ jobs:
   - get: kubecf-master
     passed:
     - cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
-    trigger: true
   - get: catapult
+  - get: {{$Backend}}-pool.kube-hosts
+    passed:
+    - cf-acceptance-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+    trigger: true
   - task: test-{{$EiriniFlag}}
     privileged: true
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-master
+      pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
       image_resource:
@@ -361,12 +383,10 @@ jobs:
       inputs:
       - name: catapult
       - name: kubecf
-      outputs:
-      - name: output
+      - name: pool.kube-hosts
       params:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
 {{- if eq $EiriniFlag "eirini" }}
         ENABLE_EIRINI: true
 {{ else }}
@@ -409,13 +429,17 @@ jobs:
   - get: kubecf-master
     passed:
     - sync-integration-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
-    trigger: true
   - get: catapult
+  - get: {{$Backend}}-pool.kube-hosts
+    passed:
+    - sync-integration-tests-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+    trigger: true
   - task: upgrade-{{$EiriniFlag}}
     privileged: true
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-master
+      pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
       image_resource:
@@ -426,12 +450,10 @@ jobs:
       - name: catapult
       - name: kubecf
       - name: s3.kubecf-bundle
-      outputs:
-      - name: output
+      - name: pool.kube-hosts
       params:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
 {{- if eq $EiriniFlag "eirini" }}
         ENABLE_EIRINI: true
 {{ else }}
@@ -452,7 +474,7 @@ jobs:
         args:
           - -c
           - |
-            {{- print $obtain_ekcp }}
+            {{- print $obtain_kubeconfig }}
             {{- if eq $Backend "caasp4" }}
             {{- print $import_caasp4 }}
             {{- end }}
@@ -474,13 +496,17 @@ jobs:
   - get: kubecf-master
     passed:
     - upgrade-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
-    trigger: true
   - get: catapult
+  - get: {{$Backend}}-pool.kube-hosts
+    passed:
+    - upgrade-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
+    trigger: true
   - task: stratos-{{$EiriniFlag}}
     privileged: true
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-master
+      pool.kube-hosts: {{$Backend}}-pool.kube-hosts
     config:
       platform: linux
       image_resource:
@@ -490,12 +516,10 @@ jobs:
       inputs:
       - name: catapult
       - name: kubecf
-      outputs:
-      - name: output
+      - name: pool.kube-hosts
       params:
         QUIET_OUTPUT: true
         DEFAULT_STACK: cflinuxfs3
-        EKCP_HOST: ((ekcp-host))
 {{- if eq $EiriniFlag "eirini" }}
         ENABLE_EIRINI: true
 {{ else }}
@@ -514,7 +538,7 @@ jobs:
         args:
           - -c
           - |
-            {{- print $obtain_ekcp }}
+            {{- print $obtain_kubeconfig }}
             {{- if eq $Backend "caasp4" }}
             {{- print $import_caasp4 }}
             {{- end }}
