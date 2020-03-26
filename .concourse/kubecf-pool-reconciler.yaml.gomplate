@@ -1,3 +1,5 @@
+{{ $kind_pool_size := 2 }}
+
 resources:
 - name: kind-environments
   type: pool
@@ -16,14 +18,14 @@ resources:
 
 
 deploy_args: &deploy_args
-- -xce
+- -ce
 - |
   export FORCE_DELETE=true
   export BACKEND=ekcp
   export QUIET_OUTPUT=true
   export CLUSTER_NAME="$CLUSTER_PREFIX-$(date +%s | sha256sum | base64 | head -c 32 ; echo)"
   CURRENT_CLUSTERS=$(ls kind-environments/kind/**/* | grep -v .keep | wc -l)
-  if [ $CURRENT_CLUSTERS -lt 2 ]; then
+  if [ $CURRENT_CLUSTERS -lt {{ $kind_pool_size }} ]; then
 
   pushd catapult
   make k8s
