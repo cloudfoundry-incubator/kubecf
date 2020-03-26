@@ -119,12 +119,12 @@ deploy_args: &deploy_args
   export BACKEND=kind
   export DOCKER_ORG=cap-staging
   export QUIET_OUTPUT=true
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
-                       xargs basename | sed 's/.json$//g' | cut -c1-18)"
+  export CLUSTER_NAME="$(cat kind-environments/name)"
+  export KUBECFG="$(readlink -f kind-environments/metadata)"
   pushd catapult
   # Bring up a k8s cluster and builds+deploy kubecf
   # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
-  export KUBECFG=../?
+  export KUBECFG=../kind-environments/metadata
   make kubeconfig scf
 
 test_args: &test_args
@@ -135,11 +135,10 @@ test_args: &test_args
   export SCF_LOCAL="${PWD}/commit-to-test"
   export KUBECF_NAMESPACE="scf"
   export QUIET_OUTPUT=true
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
-                       xargs basename | sed 's/.json$//g' | cut -c1-18)"
+  export CLUSTER_NAME="$(cat kind-environments/name)"
+  export KUBECFG="$(readlink -f kind-environments/metadata)"
   export KUBECF_CHECKOUT="${PWD}/commit-to-test"
   pushd catapult
-  export KUBECFG=../?
   # Grabs back a deployed cluster and runs test suites on it
   # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
   make kubeconfig tests-kubecf
@@ -149,13 +148,12 @@ rotate_args: &rotate_args
 - |
   export BACKEND=kind
   export KUBECF_NAMESPACE="scf"
-  export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
-                       xargs basename | sed 's/.json$//g' | cut -c1-18)"
+  export CLUSTER_NAME="$(cat kind-environments/name)"
+  export KUBECFG="$(readlink -f kind-environments/metadata)"
   export KUBECF_CHECKOUT="${PWD}/commit-to-test"
   export KUBECF_INSTALL_NAME="susecf-scf"
 
   pushd catapult
-  export KUBECFG=../?
   make kubeconfig
   source build*/.envrc
 
@@ -437,22 +435,28 @@ jobs:
               repository: splatform/catapult
           inputs:
           - name: commit-to-test
+          - name: kind-environments
           params:
             CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+            EKCP_HOST: ((ekcp-host))
           run:
             path: "/bin/bash"
             args:
             - -ce
             - |
-              export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}-$(ls commit-to-test/*.json | \
-                                   xargs basename | sed 's/.json$//g' | cut -c1-18)"
+              export CLUSTER_NAME="$(cat kind-environments/name)"
               curl -X DELETE -s "http://${EKCP_HOST}/${CLUSTER_NAME}" | jq -r .Output
+      - put: kind-environments
+        params: { remove : kind-environments}
     on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      do:
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      - put: kind-environments
+        params: { remove : kind-environments}
 
 - name: smoke-tests-{{ $cfScheduler }}
   public: true
@@ -512,14 +516,15 @@ jobs:
       - task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      - put: kind-environments
+        params: { remove : kind-environments}
     on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      do:
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+      - put: kind-environments
+        params: { remove : kind-environments}
 
 - name: ccdb-rotate-{{ $cfScheduler }}
   public: true
@@ -581,12 +586,15 @@ jobs:
           params:
             CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
             EKCP_HOST: ((ekcp-host))
+      - put: kind-environments
+        params: { remove : kind-environments}
     on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      do:
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+      - put: kind-environments
+        params: { remove : kind-environments}
 
 - name: smoke-tests-post-rotate-{{ $cfScheduler }}
   public: true
@@ -646,14 +654,15 @@ jobs:
       - task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      - put: kind-environments
+        params: { remove : kind-environments}
     on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      do:
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+      - put: kind-environments
+        params: { remove : kind-environments}
 
 - name: sync-integration-tests-{{ $cfScheduler }}
   public: true
@@ -713,14 +722,15 @@ jobs:
       - task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      - put: kind-environments
+        params: { remove : kind-environments}
     on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      do:
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+      - put: kind-environments
+        params: { remove : kind-environments}
 
 # TODO: re-enable once BRAIN tests are fixed.
 # - name: brain-tests-{{ $cfScheduler }}
@@ -849,14 +859,15 @@ jobs:
       - task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      - put: kind-environments
+        params: { remove : kind-environments}
     on_abort:
-      task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+      do:
+      - task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+      - put: kind-environments
+        params: { remove : kind-environments}
 
 - name: cleanup-{{ $cfScheduler }}-cluster
   public: true
@@ -871,6 +882,8 @@ jobs:
       <<: *cleanup-cluster
       params:
         CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+  - put: kind-environments
+    params: { remove : kind-environments}
 
 {{ end }} # of range cfscheduler
 
