@@ -465,6 +465,9 @@ jobs:
 - name: smoke-tests-{{ $cfScheduler }}
   public: true
   plan:
+  - get: kind-environments
+    passed:
+    - deploy-{{ $cfScheduler }}
   - get: commit-to-test
     passed:
     - deploy-{{ $cfScheduler }}
@@ -488,6 +491,7 @@ jobs:
           repository: splatform/catapult
       inputs:
       - name: catapult
+      - name: kind-environments
       - name: commit-to-test
       outputs:
       - name: output
@@ -540,6 +544,9 @@ jobs:
 - name: ccdb-rotate-{{ $cfScheduler }}
   public: true
   plan:
+  - get: kind-environments
+    passed:
+    - cf-acceptance-tests-{{ $cfScheduler }}
   - get: commit-to-test
     passed:
     - cf-acceptance-tests-{{ $cfScheduler }}
@@ -564,6 +571,7 @@ jobs:
       inputs:
       - name: catapult
       - name: commit-to-test
+      - name: kind-environments
       outputs:
       - name: output
       params:
@@ -617,6 +625,9 @@ jobs:
 - name: smoke-tests-post-rotate-{{ $cfScheduler }}
   public: true
   plan:
+  - get: kind-environments
+    passed:
+    - ccdb-rotate-{{ $cfScheduler }}
   - get: commit-to-test
     passed:
     - ccdb-rotate-{{ $cfScheduler }}
@@ -641,6 +652,7 @@ jobs:
       inputs:
       - name: catapult
       - name: commit-to-test
+      - name: kind-environments
       outputs:
       - name: output
       params:
@@ -692,6 +704,9 @@ jobs:
 - name: sync-integration-tests-{{ $cfScheduler }}
   public: true
   plan:
+  - get: kind-environments
+    passed:
+    - smoke-tests-{{ $cfScheduler }}
   - get: commit-to-test
     passed:
     - smoke-tests-{{ $cfScheduler }}
@@ -716,6 +731,7 @@ jobs:
       inputs:
       - name: catapult
       - name: commit-to-test
+      - name: kind-environments
       outputs:
       - name: output
       params:
@@ -836,6 +852,9 @@ jobs:
 - name: cf-acceptance-tests-{{ $cfScheduler }}
   public: true
   plan:
+  - get: kind-environments
+    passed:
+    - sync-integration-tests-{{ $cfScheduler }}
   - get: commit-to-test
     passed:
     - sync-integration-tests-{{ $cfScheduler }}
@@ -859,6 +878,7 @@ jobs:
           repository: splatform/catapult
       inputs:
       - name: catapult
+      - name: kind-environments
       - name: commit-to-test
       outputs:
       - name: output
@@ -911,6 +931,9 @@ jobs:
 - name: cleanup-{{ $cfScheduler }}-cluster
   public: true
   plan:
+  - get: kind-environments
+    passed:
+    - smoke-tests-post-rotate-{{ $cfScheduler }}
   - get: commit-to-test
     passed:
     - smoke-tests-post-rotate-{{ $cfScheduler }}
