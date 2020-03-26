@@ -28,10 +28,11 @@ EOF
 }
 
 init_mysql() {
+    SENTINEL=INIT_MYSQL_DONE
     DATADIR=/var/lib/mysql
     # if we have CLUSTER_JOIN - then we do not need to perform datadir initialize
     # the data will be copied from another node
-    if [ ! -e "$DATADIR/mysql" ]; then
+    if [ ! -e "$DATADIR/$SENTINEL" ]; then
         if [ -z "$MYSQL_ROOT_PASSWORD" ] && [ -z "$MYSQL_ALLOW_EMPTY_PASSWORD" ] && [ -z "$MYSQL_RANDOM_ROOT_PASSWORD" ] && [ -z "$MYSQL_ROOT_PASSWORD_FILE" ]; then
             echo >&2 'error: database is uninitialized and password option is not specified '
             echo >&2 '  You need to specify one of MYSQL_ROOT_PASSWORD, MYSQL_ROOT_PASSWORD_FILE,  MYSQL_ALLOW_EMPTY_PASSWORD or MYSQL_RANDOM_ROOT_PASSWORD'
@@ -130,5 +131,6 @@ EOSQL
         echo
         echo 'MySQL init process done. Ready for start up.'
         echo
+        touch "$DATADIR/$SENTINEL"
     fi
 }
