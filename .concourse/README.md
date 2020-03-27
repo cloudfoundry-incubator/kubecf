@@ -1,8 +1,12 @@
 # Kubecf pipeline
 
+
 test
 test 2
 
+
+test foo
+68aa77b1a6aa8e2af7e875118dc245256064172c
 
 [This pipeline](https://concourse.suse.dev/teams/main/pipelines/kubecf) lints
 builds and tests kubecf both with Eirini and Diego. The clusters used are
