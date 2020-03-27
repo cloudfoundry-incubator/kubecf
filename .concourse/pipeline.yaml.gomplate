@@ -364,12 +364,12 @@ jobs:
 {{- range $_, $cfScheduler := slice "diego" "eirini" }}
 
 - name: deploy-{{ $cfScheduler }}
-  max_in_flight: 2
+  max_in_flight: 1 # Use concourse queue which doesn't timeout
   public: true
   plan:
   - put: kind-environments
     params: {acquire: true}
-    timeout: 2h
+    timeout: 4h
   - get: commit-to-test
     trigger: true
     version: "every"
