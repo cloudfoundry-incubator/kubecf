@@ -1,0 +1,68 @@
+{{ $kind_pool_size := 5 }}
+
+resources:
+- name: kind-environments
+  type: pool
+  source:
+    uri: git@github.com:SUSE/cf-ci-pools.git
+    branch: kubecf-kind-pools
+    pool: kind
+    private_key: ((github-private-key))
+
+- name: catapult
+  type: git
+  source:
+    uri: https://github.com/SUSE/catapult
+  version:
+    ref: 543bc71abc8bd22e5ef81fdf94a7afeb2f99066d
+
+
+deploy_args: &deploy_args
+- -ce
+- |
+  export FORCE_DELETE=true
+  export BACKEND=ekcp
+  export QUIET_OUTPUT=true
+  export CLUSTER_NAME="$CLUSTER_PREFIX-$(date +%s | sha256sum | base64 | head -c 32 ; echo)"
+  CURRENT_CLUSTERS=$(ls kind-environments/kind/**/* | grep -v .keep | wc -l)
+
+  if [ $CURRENT_CLUSTERS -lt {{ $kind_pool_size }} ]; then
+    pushd catapult
+    make k8s
+  else
+    echo "No resources to add"
+    exit 0
+  fi
+
+  cp -rfv build*/kubeconfig ../output/metadata
+  echo "$CLUSTER_NAME" > ../output/name
+
+jobs:
+- name: create-cluster
+  serial: true
+  plan:
+  - get: kind-environments
+    trigger: true
+  - get: catapult
+  - task: deploy
+    privileged: true
+    timeout: 30m
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: kind-environments
+      - name: catapult
+      outputs:
+      - name: output
+      params:
+        EKCP_HOST: ((ekcp-host))
+        CLUSTER_PREFIX: "kind"
+      run:
+        path: "/bin/bash"
+        args: *deploy_args
+  - put: kind-environments
+    params: {add: output}
