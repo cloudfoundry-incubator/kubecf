@@ -8,6 +8,19 @@ project = struct(
 
     # External binaries; see external_binary() invocation in WORKSPACE.
     external_binaries = {
+        "bosh_cli": struct(
+            sha256 = {
+                "darwin": "1d2ced5edc7a9406616df7ad9c0d4e3ade10d66d33e753885ab8e245c037e280",
+                "linux": "ca7580008abfd4942dcb1dd6218bde04d35f727717a7d08a2bc9f7d346bce0f6",
+                "windows": "77c736c15001b1eb320ae61042fb6c72a1addde143e0a9af703ddda35b2c5bce",
+            },
+            url = {
+                "darwin": "https://github.com/cloudfoundry/bosh-cli/releases/download/v{version}/bosh-cli-{version}-darwin-amd64",
+                "linux": "https://github.com/cloudfoundry/bosh-cli/releases/download/v{version}/bosh-cli-{version}-linux-amd64",
+                "windows": "https://github.com/cloudfoundry/bosh-cli/releases/download/v{version}/bosh-cli-{version}-windows-amd64.exe",
+            },
+            version = "6.2.1",
+        ),
         "docker": struct(
             sha256 = {
                 "linux":   "50cdf38749642ec43d6ac50f4a3f1f7f6ac688e8d8b4e1c5b7be06e1a82f06e9",
