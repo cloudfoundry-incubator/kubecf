@@ -1,5 +1,7 @@
 # Kubecf pipeline
 
+test
+
 [This pipeline](https://concourse.suse.dev/teams/main/pipelines/kubecf) lints
 builds and tests kubecf both with Eirini and Diego. The clusters used are
 deployed with [kind](https://github.com/kubernetes-sigs/kind).
@@ -14,12 +16,12 @@ workers can consume it.
 
 ## Run the tests locally
 
-It is possible to run the job of the pipeline locally without having a full 
-Concourse + EKCP deployment. 
-Catapult allows to replicate every step regardless the Kubernetes provider. 
+It is possible to run the job of the pipeline locally without having a full
+Concourse + EKCP deployment.
+Catapult allows to replicate every step regardless the Kubernetes provider.
 [See the Catapult wiki page for a short summary on how to run the same tests locally](https://github.com/SUSE/catapult/wiki/KubeCF-testing).
 
-You can also deploy the pipeline in your Concourse instance, 
+You can also deploy the pipeline in your Concourse instance,
 the following paragraphs are documenting the needed requirements.
 
 ## Deploy the pipeline
