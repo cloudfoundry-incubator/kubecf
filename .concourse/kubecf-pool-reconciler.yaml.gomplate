@@ -1,4 +1,4 @@
-{{ $kind_pool_size := 2 }}
+{{ $kind_pool_size := 5 }}
 
 resources:
 - name: kind-environments
@@ -66,4 +66,3 @@ jobs:
         args: *deploy_args
   - put: kind-environments
     params: {add: output}
-
