@@ -403,7 +403,7 @@ jobs:
       params:
         DEFAULT_STACK: cflinuxfs3
         QUIET_OUTPUT: true
-        ENABLE_EIRINI: false
+        ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
         path: "/bin/bash"
