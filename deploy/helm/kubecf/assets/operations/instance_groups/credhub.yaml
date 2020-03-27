@@ -1,4 +1,3 @@
----
 {{- if .Values.features.credhub.enabled }}
 
 - type: replace
