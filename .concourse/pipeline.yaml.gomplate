@@ -366,10 +366,12 @@ jobs:
 - name: deploy-{{ $cfScheduler }}
   max_in_flight: 1 # Use concourse queue which doesn't timeout
   public: true
+  # Consider adding a serial_group between the two $cfScheduler
+  # if jobs starts to starve
   plan:
   - put: kind-environments
     params: {acquire: true}
-    timeout: 4h
+    timeout: 4h # Timeout should be long at least for the full pipeline to complete
   - get: commit-to-test
     trigger: true
     version: "every"
