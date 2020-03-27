@@ -1,3 +1,10 @@
+# Remove unused releases from cf-deployment.
+- type: remove
+  path: /releases/name=bosh-dns-aliases
+- type: remove
+  path: /releases/name=bpm
+
+# Create a list with the current cf-deployment releases for replacing their info.
 {{- $releases := list }}
 {{- $releases = append $releases "binary-buildpack" }}
 {{- $releases = append $releases "capi" }}
