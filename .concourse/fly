@@ -5,14 +5,16 @@
 #
 # E.g. ./fly -t target set-pipeline -p kubecf
 
+set -Eeuo pipefail
+
 if ! hash gomplate 2>/dev/null;then
   echo "gomplate missing. Follow the instructions in https://docs.gomplate.ca/installing/ and install it first."
   exit 1
 fi
 
 if [[ -f config.yaml ]]; then
-    exec fly ${@} --config <(gomplate -V -c .=config.yaml -f pipeline.yaml.gomplate)
+    fly ${@} --config <(gomplate -V -c .=config.yaml -f pipeline.yaml.gomplate)
 else
-    exec fly ${@} --config <(gomplate -V -f pipeline.yaml.gomplate)
+    fly ${@} --config <(gomplate -V -f pipeline.yaml.gomplate)
 fi
 
