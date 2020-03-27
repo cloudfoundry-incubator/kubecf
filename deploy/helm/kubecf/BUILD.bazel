@@ -4,7 +4,12 @@ load(
     helm_package = "package",
     helm_version = "version",
 )
-load("//rules/kubecf:def.bzl", "metadata_file_generator")
+load("//rules/ioutil:def.bzl", "print_files")
+load(
+    "//rules/kubecf:def.bzl",
+    "image_list",
+    "metadata_file_generator",
+)
 load("//rules/yaml_extractor:defs.bzl", "yaml_extractor")
 load("//:def.bzl", "project")
 
@@ -74,4 +79,14 @@ helm_package(
 helm_version(
     name = "version",
     chart = ":kubecf",
+)
+
+image_list(
+    name = "image_list",
+    chart = ":kubecf",
+)
+
+print_files(
+    name = "print_image_list",
+    srcs = [":image_list"],
 )
