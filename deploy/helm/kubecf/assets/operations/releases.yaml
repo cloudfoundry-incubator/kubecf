@@ -48,11 +48,11 @@
 {{- end }}
 
 {{- if .Values.testing.sync_integration_tests.enabled }}
-{{- $releases = append $releases "sync-integration-tests" }}
+{{- $releases = append $releases "sync_integration_tests" }}
 - path: /releases/-
   type: replace
   value:
-    name: sync-integration-tests
+    name: sync_integration_tests
 {{- end }}
 
 # Add app-autoscaler related releases.

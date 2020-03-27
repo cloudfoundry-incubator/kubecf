@@ -3,7 +3,7 @@
 # Service account, roles, and cluster role for the sync integration tests.
 # Raw kube objects going into the chart.
 
-# Service account "tests-sits" is used by the instance group "sync-integration-tests"
+# Service account "tests-sits" is used by the instance group "sync_integration_tests"
 ---
 apiVersion: "v1"
 kind: "ServiceAccount"

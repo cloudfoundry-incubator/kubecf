@@ -12,7 +12,7 @@
             serviceAccountName: {{ .Release.Name }}-tests-sits
     instances: 1
     jobs:
-    - name: sync-integration-tests
+    - name: sync_integration_tests
       properties:
         quarks:
         bpm:
@@ -35,9 +35,9 @@
             flake_attempts: 3
             nodes: 4
             verbose: false
-      release: sync-integration-tests
+      release: sync_integration_tests
     lifecycle: errand
-    name: sync-integration-tests
+    name: sync_integration_tests
     networks:
     - name: default
     stemcell: default
