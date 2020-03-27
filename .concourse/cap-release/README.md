@@ -29,4 +29,4 @@ It's still in flux.
 
 The pipeline consumes clusters by putting a lock on unclaimed kubeconfigs from git@github.com:SUSE/cf-ci-pools.git
 
-Add your kubeconfigs to cf-ci-pools in ${Backend}-kube-hosts branch in unacliamed folder for CI to pick it up.
+Add your kubeconfigs to cf-ci-pools.git in ${Backend}-kube-hosts branch in the unclaimed folder for CI to pick it up.
