@@ -15,12 +15,14 @@ load("//:def.bzl", "project")
 
 package(default_visibility = ["//visibility:public"])
 
+# Generates the KubeCF metadata file.
 metadata_file_generator(
     name = "metadata",
     file = "Metadata.yaml",
     operator_chart = project.external_files["cf_operator"].urls[0].format( version = project.external_files["cf_operator"].version )
 )
 
+# Groups the static files under the kubecf package to be passed to the Helm packaging target.
 filegroup(
     name = "chart_files_static",
     srcs = glob(
@@ -32,6 +34,8 @@ filegroup(
     ),
 )
 
+# Packages cf-deployment into a tarball with a specific directory structure to be used by the Helm
+# packaging target.
 pkg_tar(
     name = "cf_deployment",
     package_dir = "assets",
@@ -40,18 +44,22 @@ pkg_tar(
     ],
 )
 
+# Extracts the auctioneer job YAML out of the scheduler instance group.
 yaml_extractor(
     name = "auctioneer_job",
     src = "@cf_deployment//:cf-deployment.yml",
     filter = """.instance_groups[] | select(.name == "scheduler") | .jobs[] | select(.name == "auctioneer")""",
 )
 
+# Extracts the routing-api job YAML out of the api instance group.
 yaml_extractor(
     name = "routing_api_job",
     src = "@cf_deployment//:cf-deployment.yml",
     filter = """.instance_groups[] | select(.name == "api") | .jobs[] | select(.name == "routing-api")""",
 )
 
+# Packages the extracted jobs into a tarball with a specific directory structure to be used by the
+# Helm packaging target.
 pkg_tar(
     name = "extracted_jobs",
     package_dir = "assets/jobs",
@@ -61,6 +69,7 @@ pkg_tar(
     ],
 )
 
+# Packages the KubeCF Helm chart.
 helm_package(
     name = "kubecf",
     srcs = [
@@ -76,16 +85,19 @@ helm_package(
     ],
 )
 
+# Generates a file containing only the KubeCF version.
 helm_version(
     name = "version",
     chart = ":kubecf",
 )
 
+# Generates a JSON file containing the list of images being used by KubeCF.
 image_list(
     name = "image_list",
     chart = ":kubecf",
 )
 
+# Prints the list of images being used by KubeCF.
 print_files(
     name = "print_image_list",
     srcs = [":image_list"],
