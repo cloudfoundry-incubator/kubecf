@@ -70,6 +70,7 @@ resources:
 {{- $obtain_kubeconfig := `
             # obtain kubeconfig from pool
             pool_file=${pool_file:-pool.kube-hosts/metadata}
+            export CLUSTER_NAME=$(cat pool.kube-hosts/name)
             cp ${pool_file} catapult/kubeconfig_$CLUSTER_NAME
             pushd catapult
 ` }}
@@ -198,7 +199,6 @@ jobs:
 {{- if eq $OptionsFlag "all" }}
 {{- print $allbells }}
 {{- end }}
-        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -257,7 +257,6 @@ jobs:
 {{- print $allbells }}
 {{- end }}
         TEST_SUITE: smokes
-        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -316,7 +315,6 @@ jobs:
 {{- print $allbells }}
 {{- end }}
         TEST_SUITE: cats
-        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -375,7 +373,6 @@ jobs:
 {{- print $allbells }}
 {{- end }}
         TEST_SUITE: sits
-        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -439,7 +436,6 @@ jobs:
         TEST_SUITE: cats
         TEST_SUITE: cats
         BACKEND: {{$Backend}}
-        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
@@ -498,7 +494,6 @@ jobs:
 {{- print $allbells }}
 {{- end }}
         TEST_SUITE: cats
-        CLUSTER_NAME: {{$pipelineName}}-{{$EiriniFlag}}-{{$Backend}}-{{$OptionsFlag}}
       run:
         path: "/bin/bash"
         args:
