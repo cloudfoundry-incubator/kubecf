@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# This is a template script to be used by the 'image_list' Bazel rule.
+
 require 'json'
 require 'open3'
 require 'set'
@@ -45,6 +47,7 @@ output = {
   repository_bases: Set[]
 }
 
+# Process the non-BOSH releases.
 values['releases'].keys.each do |release_name|
   # Filter out the 'defaults' key as it's not a release.
   next if release_name == 'defaults'

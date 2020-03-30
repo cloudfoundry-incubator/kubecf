@@ -5,6 +5,14 @@ This Bazel extension contains rule definitions specific to KubeCF.
 load("@bazel_skylib//lib:paths.bzl", "paths")
 
 def metadata_file_generator(name, file, operator_chart, visibility=None):
+    """Generates a metadata file to be embedded with the KubeCF chart.
+
+    Args:
+        name: The target name.
+        file: The output generated file with the metadata.
+        operator_chart: The cf-operator chart file.
+        visibility: The visibility to be used by the targets under the macro.
+    """
     native.genrule(
         name = name,
         srcs = [],
@@ -14,6 +22,20 @@ def metadata_file_generator(name, file, operator_chart, visibility=None):
     )
 
 def _image_list_impl(ctx):
+    """A specialized rule for KubeCF to list all the container images being used by the project.
+
+    KubeCF uses many images that are not directly passed during installation, instead, cf-operator
+    constructs the image repositories based on the stemcell and BOSH release name and version.
+    This rule performs the same calculation by rendering the KubeCF chart with all the permutations
+    on the feature flags, i.e. toggling each feature flag on/off.
+    This rule also takes into consideration the images listed under the 'releases' key on the
+    default values.yaml. The releases that contain an 'image' key is assumed to be a non-BOSH
+    release that also needs to be taken into consideration while calculating the output.
+
+    Outputs:
+        A JSON file containing the image list, the unique stemcells used by these images, and the
+        unique image repository base, e.g. docker.io/cfcontainerization.
+    """
     output= ctx.actions.declare_file("{}.json".format(ctx.attr.name))
     outputs = [output]
     script_name = paths.basename(ctx.file._script_tmpl.path).replace(".tmpl", "")
@@ -47,8 +69,9 @@ image_list = rule(
     attrs = {
         "chart": attr.label(
             allow_single_file = True,
-            mandatory = True,
             default = "//deploy/helm/kubecf:kubecf",
+            doc = "The KubeCF chart file",
+            mandatory = True,
         ),
         "_bosh_cli": attr.label(
             allow_single_file = True,
