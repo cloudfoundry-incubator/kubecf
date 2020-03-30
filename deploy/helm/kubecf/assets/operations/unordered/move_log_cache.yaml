@@ -1,0 +1,19 @@
+# Move log-cache jobs to a separate instance group
+# log-cache can not be scaled in a robust manner as of now. Extracting it
+# into a separate ig allows for scaling doppler again.
+- type: remove
+  path: /instance_groups/name=doppler/jobs/name=log-cache
+- type: remove
+  path: /instance_groups/name=doppler/jobs/name=log-cache-gateway
+- type: remove
+  path: /instance_groups/name=doppler/jobs/name=log-cache-nozzle
+- type: remove
+  path: /instance_groups/name=doppler/jobs/name=log-cache-cf-auth-proxy
+- type: replace
+  path: /instance_groups/name=doppler:after
+  value:
+    name: log-cache
+    instances: 1
+    stemcell: default
+    jobs:
+    {{- .Files.Get "assets/jobs/log_cache_jobs.yaml" | nindent 4 }}

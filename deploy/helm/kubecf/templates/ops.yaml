@@ -22,6 +22,7 @@ data:
 
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/unordered/move_auctioneer.yaml") }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/unordered/move_routing_api.yaml") }}
+{{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/unordered/move_log_cache.yaml") }}
 
 {{- if .Values.features.suse_buildpacks.enabled }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}

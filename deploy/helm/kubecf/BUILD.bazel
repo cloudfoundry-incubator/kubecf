@@ -47,12 +47,19 @@ yaml_extractor(
     filter = """.instance_groups[] | select(.name == "api") | .jobs[] | select(.name == "routing-api")""",
 )
 
+yaml_extractor(
+    name = "log_cache_jobs",
+    src = "@cf_deployment//:cf-deployment.yml",
+    filter = """[.instance_groups[] | select(.name == "doppler") | .jobs[] | select(.name | contains("log-cache"))]""",
+)
+
 pkg_tar(
     name = "extracted_jobs",
     package_dir = "assets/jobs",
     srcs = [
         ":auctioneer_job",
         ":routing_api_job",
+        ":log_cache_jobs",
     ],
 )
 
