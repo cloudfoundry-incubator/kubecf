@@ -14,7 +14,7 @@ def metadata_file_generator(name, file, operator_chart, visibility=None):
     )
 
 def _image_list_impl(ctx):
-    output= ctx.actions.declare_file("{}.txt".format(ctx.attr.name))
+    output= ctx.actions.declare_file("{}.json".format(ctx.attr.name))
     outputs = [output]
     script_name = paths.basename(ctx.file._script_tmpl.path).replace(".tmpl", "")
     script = ctx.actions.declare_file(script_name)
@@ -24,7 +24,7 @@ def _image_list_impl(ctx):
             "[[bosh]]": ctx.executable._bosh_cli.path,
             "[[helm]]": ctx.executable._helm.path,
             "[[chart]]": ctx.file.chart.path,
-            "[[output]]": output.path,
+            "[[output_path]]": output.path,
         },
         template = ctx.file._script_tmpl,
     )

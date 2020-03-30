@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+require 'json'
 require 'open3'
+require 'set'
 require 'tempfile'
 require 'yaml'
 
@@ -17,7 +19,7 @@ end
 helm = '[[helm]]'
 bosh = '[[bosh]]'
 chart = '[[chart]]'
-output = '[[output]]'
+output_path = '[[output_path]]'
 
 # Inspect the chart to obtain the values YAML.
 values_cmd = "#{helm} inspect values #{chart}"
@@ -27,14 +29,26 @@ values = Open3.popen3(values_cmd) do |_, stdout, stderr, wait_thr|
 
   values
 end
-features = values['features'].keys
+
+# Enable all tests.
+values['testing'].keys.each do |key|
+  values['testing'][key]['enabled'] = true
+end
+
+# The output object.
+output = {
+  # The release images.
+  images: Set[],
+  # The stemcells found on the images being used.
+  stemcells: Set[],
+  # The repository bases found on the images being used.
+  repository_bases: Set[]
+}
 
 # Create all permutations for enabling and disabling the features.
+features = values['features'].keys
 permutations = [true, false].repeated_permutation(features.size)
                             .map { |v| features.zip(v).to_h }
-
-# An array to hold the release images.
-release_images = []
 
 # Iterate over all permutations, rendering the chart to obtain all possible
 # images.
@@ -63,7 +77,7 @@ permutations.each do |permutation|
       raise stderr.read unless wait_thr.value.success?
     end
 
-    # Get the BOSHDeployment.
+    # Get the BOSHDeployment YAML document.
     bdpl = template[:documents].find do |doc|
       doc['kind'].downcase == 'boshdeployment'
     end
@@ -79,7 +93,7 @@ permutations.each do |permutation|
     end
     File.write(manifest_file.path, manifest_doc['data']['manifest'])
 
-    # Apply the ops-files.
+    # Apply the ops-files to the cf-deployment manifest.
     ops_file = Tempfile.new('ops.yaml')
     begin
       # Concatenate all ops-files referenced in the BOSHDeployment into a single
@@ -121,21 +135,23 @@ permutations.each do |permutation|
       ops_file.unlink
     end
 
+    # Load the interpolated manifest and calculate the BOSH releases image
+    # repository and tags.
     interpolated = YAML.safe_load(File.open(interpolated_file.path), [Symbol])
     default_stemcell = interpolated['stemcells'].find do |stemcell|
       stemcell['alias'] == 'default'
     end
     interpolated['releases'].each do |release|
+      output[:repository_bases].add?(release['url'])
       stemcell = release['stemcell']
       stemcell = default_stemcell if stemcell.nil?
       stemcell_tag = "#{stemcell['os']}-#{stemcell['version']}"
+      output[:stemcells].add?(stemcell_tag)
       image_repository = "#{release['url']}/#{release['name']}"
       image_tag = "#{stemcell_tag}-#{release['version']}"
       release_image = "#{image_repository}:#{image_tag}"
-      release_images.append(release_image)
+      output[:images].add?(release_image)
     end
-
-    release_images = release_images.sort.uniq
   ensure
     values_file.close
     values_file.unlink
@@ -146,4 +162,8 @@ permutations.each do |permutation|
   end
 end
 
-File.write(output, release_images.join("\n"))
+output.keys.each do |key|
+  output[key] = output[key].to_a.sort if output[key].is_a?(Set)
+end
+
+File.write(output_path, output.to_json)
