@@ -45,6 +45,26 @@ output = {
   repository_bases: Set[]
 }
 
+values['releases'].keys.each do |release_name|
+  # Filter out the 'defaults' key as it's not a release.
+  next if release_name == 'defaults'
+
+  release = values['releases'][release_name]
+
+  # Filter out the releases that don't specify the 'image' key. I.e. if the
+  # 'image' key is not specified, it's assumed that the release will be
+  # captured in the BOSH-release processing below.
+  next unless release.key?('image')
+
+  image_key = release['image']
+  repository = image_key['repository']
+  repository_base = repository[0..(repository.rindex('/') - 1)]
+  output[:repository_bases].add?(repository_base)
+  tag = image_key['tag']
+  image = "#{repository}:#{tag}"
+  output[:images].add?(image)
+end
+
 # Create all permutations for enabling and disabling the features.
 features = values['features'].keys
 permutations = [true, false].repeated_permutation(features.size)
