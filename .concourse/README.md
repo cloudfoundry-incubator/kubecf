@@ -54,6 +54,24 @@ command and use the `fly` script that you can find in this directory:
 ./fly -t target set-pipeline -p kubecf
 ```
 
+## Pool for the pipeline
+
+The kubecf pipeline is using the [concourse pool
+resource](https://github.com/concourse/pool-resource) to obtain k8s clusters
+for running the jobs. Once used, the clusters are destroyed from EKCP and
+removed from the pool by the kubecf pipeline itself as needed.
+
+There is an additional pipeline "kubecf-pool-reconciler" that automatically
+creates k8s clusters and adds them to the pool, up to the specificied maximum
+number of clusters.
+
+To deployed the kubecf-pool-reconciler pipeline do:
+
+```
+fly -t suse.dev set-pipeline -p kubecf-pool-reconciler --config <(gomplate -V -f kubecf-pool-reconciler.yaml.gomplate)
+```
+
+
 ## Pipeline development
 
 If you wish to deploy a copy of this pipeline without publishing artifacts to
