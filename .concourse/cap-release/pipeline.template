@@ -110,6 +110,7 @@ resources:
             export DOCKER_ORG=cap-staging
             export QUIET_OUTPUT=true
             make scf
+            make scf-login # ensure scf is there
 ` }}
 
 {{- $test := `
