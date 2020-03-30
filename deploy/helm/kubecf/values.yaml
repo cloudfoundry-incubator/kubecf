@@ -176,7 +176,7 @@ sizing:
     instances: ~
   diego_cell:
     ephemeral_disk:
-      # Size of the ephemeral disk used to store applications
+      # Size of the ephemeral disk used to store applications in MB
       size: 40960
       # The name of the storage class used for the ephemeral disk PVC.
       storage_class: ~
