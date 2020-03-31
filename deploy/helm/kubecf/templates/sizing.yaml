@@ -24,13 +24,6 @@ data:
     {{- $instance_groups = append $instance_groups "log-api" }}
     {{- $instance_groups = append $instance_groups "nats" }}
     {{- $instance_groups = append $instance_groups "router" }}
-
-    {{- /* Routing-api and tcp-router instance groups */}}
-    {{- if .Values.features.routing_api.enabled }}
-    {{- $instance_groups = append $instance_groups "routing-api" }}
-    {{- $instance_groups = append $instance_groups "tcp-router" }}
-    {{- end }}{{/* if routing_api */}}
-
     {{- $instance_groups = append $instance_groups "scheduler" }}
     {{- $instance_groups = append $instance_groups "uaa" }}
 
@@ -46,6 +39,12 @@ data:
     {{- if .Values.features.credhub.enabled }}
     {{- $instance_groups = append $instance_groups "credhub" }}
     {{- end }}{{/* if credhub */}}
+
+    {{- /* Routing-api and tcp-router instance groups */}}
+    {{- if .Values.features.routing_api.enabled }}
+    {{- $instance_groups = append $instance_groups "routing-api" }}
+    {{- $instance_groups = append $instance_groups "tcp-router" }}
+    {{- end }}{{/* if routing_api */}}
 
     {{- /* Instances groups where existance depends on whether Eirini is enabled */}}
     {{- if .Values.features.eirini.enabled }}

@@ -256,6 +256,7 @@ features:
     enabled: false
   credhub:
     enabled: true
+  # Disabling routing_api will also disable the tcp_router instance_group
   routing_api:
     enabled: true
   # embedded_database enables the embedded PXC sub-chart. Disabling it allows using an external, already seeded,

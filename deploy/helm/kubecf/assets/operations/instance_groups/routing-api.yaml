@@ -33,7 +33,7 @@
 {{- end }}
 
 {{- else }}
-# Overrides intended to take place on top of the cf-deployment.yml
+# Disable routing-api.
 - type: remove
   path: /instance_groups/name=api/jobs/name=routing-api
 
@@ -52,14 +52,4 @@
 
 - type: remove
   path: /variables/name=routing_api_tls_client
-
-# Disable the tcp-router ig, while there will be none routing-api SSE events to read from.
-- type: remove
-  path: /instance_groups/name=tcp-router
-
-- type: remove
-  path: /variables/name=uaa_clients_tcp_router_secret
-
-- type: remove
-  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/tcp_router
 {{- end }}
