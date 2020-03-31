@@ -32,7 +32,7 @@
     type: certificate
     options:
       ca: pxc_ca
-      common_name: &pxc-cluster-address {{ .Release.Name }}-database.{{ .Release.Namespace }}
+      common_name: &pxc-cluster-address {{ printf "database.%s" .Release.Namespace }}
 
 # Override the address and CA cert with the one from PXC.
 - type: replace

@@ -3,17 +3,16 @@
 set -o errexit -o nounset
 
 namespace="kubecf"
-deployment_name="kubecf"
 pod_name="cf-terminal"
 router_endpoint=""
 echo "Waiting for endpoint..."
 while true; do
-  router_endpoint=$(kubectl describe endpoints -n "${namespace}" "${deployment_name}-router" | awk 'match($0, /  Addresses:[ ]+([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/, ip) { print ip[1] }')
+  router_endpoint=$(kubectl describe endpoints -n "${namespace}" "router" | awk 'match($0, /  Addresses:[ ]+([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/, ip) { print ip[1] }')
   if [ -n "${router_endpoint}" ]; then break; fi
   sleep 3
 done
-admin_password=$(kubectl get secret --namespace "${namespace}" "${deployment_name}.var-cf-admin-password" -o jsonpath='{.data.password}' | base64 --decode)
-system_domain=$(kubectl get secret --namespace "${namespace}" "${deployment_name}.var-system-domain" -o jsonpath='{.data.value}' | base64 --decode)
+admin_password=$(kubectl get secret --namespace "${namespace}" "var-cf-admin-password" -o jsonpath='{.data.password}' | base64 --decode)
+system_domain=$(kubectl get secret --namespace "${namespace}" "var-system-domain" -o jsonpath='{.data.value}' | base64 --decode)
 
 echo "Found router endpoint: ${router_endpoint}"
 

@@ -9,7 +9,7 @@
       bosh:
         agent:
           settings:
-            serviceAccountName: {{ .Release.Name }}-tests-brain
+            serviceAccountName: tests-brain
     instances: 1
     jobs:
     - name: acceptance-tests-brain

@@ -22,12 +22,12 @@ altered in the following way.
 1. Scale down the StatefulSet
 
     ```bash
-    $ kubectl -n <NAMESPACE> patch sts <DEPLOYMENT_NAME>-database -p '{"spec":{"replicas":0}}'
+    $ kubectl -n <NAMESPACE> patch sts database -p '{"spec":{"replicas":0}}'
     ```
 1. Patch Pod template to come up in standby mode
 
     ```bash
-    $ kubectl -n <NAMESPACE> patch sts <DEPLOYMENT_NAME>-database --patch '
+    $ kubectl -n <NAMESPACE> patch sts database --patch '
     spec:
       template:
         spec:
@@ -51,7 +51,7 @@ altered in the following way.
     **Note**: Replace "3" with the number of replicas you were running before.
 
     ```bash
-    $ kubectl -n <NAMESPACE> patch sts <DEPLOYMENT_NAME>-database -p '{"spec":{"replicas":3}}'
+    $ kubectl -n <NAMESPACE> patch sts database -p '{"spec":{"replicas":3}}'
     ```
 
 
@@ -59,8 +59,8 @@ At that point all replicas should come up and have all the data available, but
 mysqld will not be started. It is then possible to connect to the nodes using
 
 ```bash
-$ kubectl -n <NAMESPACE> exec -it <DEPLOYMENT_NAME>-database-0 -- env TERM=screen-256color COLUMNS=101 LINES=55 /bin/bash
-$ kubectl -n <NAMESPACE> exec -it <DEPLOYMENT_NAME>-database-1 -- env TERM=screen-256color COLUMNS=101 LINES=55 /bin/bash
+$ kubectl -n <NAMESPACE> exec -it database-0 -- env TERM=screen-256color COLUMNS=101 LINES=55 /bin/bash
+$ kubectl -n <NAMESPACE> exec -it database-1 -- env TERM=screen-256color COLUMNS=101 LINES=55 /bin/bash
 [...]
 ```
 
@@ -81,7 +81,7 @@ We can then use the following command to find the sequence number that was
 written last for each of the nodes, e.g.
 
 ```
-$ mycf-database-0:/ # mysqld_safe --wsrep-recover
+$ database-0:/ # mysqld_safe --wsrep-recover
 2020-03-06T11:20:22.978115Z mysqld_safe Logging to '/var/log/mysqld.log'.
 2020-03-06T11:20:22.985807Z mysqld_safe Logging to '/var/log/mysqld.log'.
 2020-03-06T11:20:23.032266Z mysqld_safe Starting mysqld daemon with databases from /var/lib/mysql
@@ -91,12 +91,12 @@ $ mycf-database-0:/ # mysqld_safe --wsrep-recover
 ```
 
 As we can see from the line containing "Recovered position" the last sequence
-number written on `mycf-database-0` was 10166.
+number written on `database-0` was 10166.
 
-For `mycf-database-1` and `mycf-database-2` the number is 10171:
+For `database-1` and `database-2` the number is 10171:
 
 ```
-mycf-database-1:/ # mysqld_safe --wsrep-recover
+database-1:/ # mysqld_safe --wsrep-recover
 2020-03-06T11:22:03.418074Z mysqld_safe Logging to '/var/log/mysqld.log'.
 2020-03-06T11:22:03.425476Z mysqld_safe Logging to '/var/log/mysqld.log'.
 2020-03-06T11:22:03.481908Z mysqld_safe Starting mysqld daemon with databases from /var/lib/mysql
@@ -107,7 +107,7 @@ mycf-database-1:/ # mysqld_safe --wsrep-recover
 
 ### Synchronize nodes
 
-We thus select `mycf-database-1` as the new primary and let it know that it
+We thus select `database-1` as the new primary and let it know that it
 can bootstrap by modifying `/var/lib/mysql/grastate.dat` and setting
 `safe_to_bootstrap` to `1`. We then start mysql by running
 
@@ -160,7 +160,7 @@ mysqladmin shutdown
 ### Reset StatefulSet to original state
 
 ```bash
-kubectl -n <NAMESPACE> edit qsts <DEPLOYMENT_NAME>-database
+kubectl -n <NAMESPACE> edit qsts database
 ```
 
 Set the replicas field to "0" and wait until all database pods have disappeared,

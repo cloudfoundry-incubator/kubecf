@@ -10,6 +10,6 @@ kubectl_patch(
     namespace = project.namespace,
     patch_file = ":trigger.yaml",
     patch_type = "merge",
-    resource_name = "{deployment_name}-smoke-tests".format(deployment_name = project.deployment_name),
+    resource_name = "smoke-tests",
     resource_type = "qjob",
 )

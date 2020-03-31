@@ -7,7 +7,7 @@ kubectl_patch(
     name = "acceptance_tests",
     namespace = project.namespace,
     resource_type = "qjob",
-    resource_name = "{deployment_name}-acceptance-tests".format(deployment_name = project.deployment_name),
+    resource_name = "acceptance-tests",
     patch_type = "merge",
     patch_file = ":trigger.yaml",
 )

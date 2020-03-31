@@ -1,0 +1,55 @@
+{{- if not .Values.multi_az }}
+- type: remove
+  path: /instance_groups/name=nats/azs?
+- type: remove
+  path: /instance_groups/name=adapter/azs?
+
+{{- if .Values.features.credhub.enabled }}
+- type: remove
+  path: /instance_groups/name=credhub/azs?
+{{- end }}
+
+- type: remove
+  path: /instance_groups/name=diego-api/azs?
+- type: remove
+  path: /instance_groups/name=uaa/azs?
+- type: remove
+  path: /instance_groups/name=singleton-blobstore/azs?
+- type: remove
+  path: /instance_groups/name=api/azs?
+- type: remove
+  path: /instance_groups/name=cc-worker/azs?
+- type: remove
+  path: /instance_groups/name=scheduler/azs?
+- type: remove
+  path: /instance_groups/name=router/azs?
+- type: remove
+  path: /instance_groups/name=doppler/azs?
+- type: remove
+  path: /instance_groups/name=log-api/azs?
+- type: remove
+  path: /instance_groups/name=tcp-router/azs?
+
+{{- if .Values.features.eirini.enabled }}
+- type: remove
+  path: /instance_groups/name=bits/azs?
+- type: remove
+  path: /instance_groups/name=eirini/azs?
+{{- else }}
+- type: remove
+  path: /instance_groups/name=diego-cell/azs?
+{{- end }}
+
+{{- if .Values.features.autoscaler.enabled }}
+- type: remove
+  path: /instance_groups/name=asdatabase/azs?
+- type: remove
+  path: /instance_groups/name=asactors/azs?
+- type: remove
+  path: /instance_groups/name=asmetrics/azs?
+- type: remove
+  path: /instance_groups/name=asapi/azs?
+- type: remove
+  path: /instance_groups/name=asnozzle/azs?
+{{- end }}
+{{- end }}

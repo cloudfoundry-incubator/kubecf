@@ -9,7 +9,7 @@
       bosh:
         agent:
           settings:
-            serviceAccountName: {{ .Release.Name }}-tests-sits
+            serviceAccountName: tests-sits
     instances: 1
     jobs:
     - name: sync-integration-tests
@@ -20,7 +20,7 @@
         sync_integration_tests:
           bbs:
             svc:
-              name: {{ .Release.Name }}-diego-api
+              name: diego-api
               namespace: {{ .Release.Namespace }}
               port: 8889
           config:

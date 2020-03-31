@@ -1,5 +1,5 @@
 {{- if .Values.features.autoscaler.enabled }}
-{{- $root := . }}
+{{- $deployment := include "kubecf.deployment-name" . }}
 
 # Add autoscaler uaa client id and secret
 - type: replace
@@ -16,7 +16,7 @@
   value:
     domain: autoscalerpostgres.service.cf.internal
     targets:
-    - deployment: {{ .Release.Name | quote }}
+    - deployment: {{ $deployment }}
       domain: bosh
       instance_group: asdatabase
       network: default
@@ -26,7 +26,7 @@
   value:
     domain: apiserver.service.cf.internal
     targets:
-    - deployment: {{ .Release.Name | quote }}
+    - deployment: {{ $deployment }}
       domain: bosh
       instance_group: asapi
       network: default
@@ -36,7 +36,7 @@
   value:
     domain: autoscalerscheduler.service.cf.internal
     targets:
-    - deployment: {{ .Release.Name | quote }}
+    - deployment: {{ $deployment }}
       domain: bosh
       instance_group: asactors
       network: default
@@ -46,7 +46,7 @@
   value:
     domain: servicebroker.service.cf.internal
     targets:
-    - deployment: {{ .Release.Name | quote }}
+    - deployment: {{ $deployment }}
       domain: bosh
       instance_group: asapi
       network: default
@@ -56,7 +56,7 @@
   value:
     domain: eventgenerator.service.cf.internal
     targets:
-    - deployment: {{ .Release.Name | quote }}
+    - deployment: {{ $deployment }}
       domain: bosh
       instance_group: asmetrics
       network: default
@@ -66,7 +66,7 @@
   value:
     domain: scalingengine.service.cf.internal
     targets:
-    - deployment: {{ .Release.Name | quote }}
+    - deployment: {{ $deployment }}
       domain: bosh
       instance_group: asactors
       network: default
@@ -76,7 +76,7 @@
   value:
     domain: metricsgateway.service.cf.internal
     targets:
-    - deployment: {{ .Release.Name | quote }}
+    - deployment: {{ $deployment }}
       domain: bosh
       instance_group: asnozzle
       network: default
@@ -86,7 +86,7 @@
   value:
     domain: metricsserver.service.cf.internal
     targets:
-    - deployment: {{ .Release.Name | quote }}
+    - deployment: {{ $deployment }}
       domain: bosh
       instance_group: asmetrics
       network: default
@@ -471,7 +471,7 @@
       consumes:
         nats:
           from: nats
-          deployment: {{ .Release.Name | quote }}
+          deployment: {{ $deployment }}
       properties:
         route_registrar:
           routes:
@@ -712,10 +712,10 @@
     options:
       alternative_names:
       - metricsserver.service.cf.internal
-      - '{{ .Release.Name }}-asmetrics'
-      - '*.{{ .Release.Name }}-asmetrics'
+      - asmetrics
+      - "*.asmetrics"
       {{- range $index := until (int .Values.sizing.asmetrics.instances | default 1) }}
-      - "{{ $root.Release.Name }}-asmetrics-{{ $index }}"
+      - {{ printf "asmetrics-%d" $index | quote }}
       {{- end }}
       ca: autoscaler_metricsserver_ca
       common_name: metricsserver.service.cf.internal

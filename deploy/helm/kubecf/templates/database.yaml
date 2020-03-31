@@ -1,19 +1,10 @@
 {{- if .Values.features.embedded_database.enabled }}
 
-{{- $pxc_ca := printf "%s.var-pxc-ca" .Release.Name }}
-{{- $pxc_tls := printf "%s.var-pxc-tls" .Release.Name }}
-{{- $pxc_root_password := printf "%s.var-pxc-root-password" .Release.Name }}
-{{- $pxc_password := printf "%s.var-pxc-password" .Release.Name }}
-{{- $xtrabackup_password := printf "%s.var-xtrabackup-password" .Release.Name }}
-{{- $repl_service := printf "%s-database-repl" .Release.Name }}
-{{- $pxc_config_files := printf "%s-database-config-files" .Release.Name }}
-{{- $pxc_startup_scripts := printf "%s-database-startup-scripts" .Release.Name }}
-
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksSecret
 metadata:
-  name: {{ .Release.Name }}.var-pxc-root-password
+  name: var-pxc-root-password
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -23,12 +14,12 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 spec:
   type: password
-  secretName: {{ $pxc_root_password | quote }}
+  secretName: var-pxc-root-password
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksSecret
 metadata:
-  name: {{ .Release.Name }}.var-pxc-password
+  name: var-pxc-password
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -38,12 +29,12 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 spec:
   type: password
-  secretName: {{ $pxc_password | quote }}
+  secretName: var-pxc-password
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksSecret
 metadata:
-  name: {{ .Release.Name }}.var-xtrabackup-password
+  name: var-xtrabackup-password
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -53,12 +44,12 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 spec:
   type: password
-  secretName: {{ $xtrabackup_password | quote }}
+  secretName: var-xtrabackup-password
 ---
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ $pxc_config_files | quote }}
+  name: database-config-files
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -90,7 +81,7 @@ data:
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ $pxc_startup_scripts | quote }}
+  name: database-startup-scripts
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -107,10 +98,10 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-database
+  name: database
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    app: {{ .Release.Name }}-database
+    app: database
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -122,7 +113,7 @@ spec:
     port: 3306
     targetPort: mysql
   selector:
-    app: {{ .Release.Name }}-database
+    app: database
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
     app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
     quarks.cloudfoundry.org/pod-active: active
@@ -130,10 +121,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $repl_service | quote }}
+  name: database-repl
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    app: {{ .Release.Name }}-database
+    app: database
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -149,17 +140,17 @@ spec:
   - name: state-snap
     port: 4444
   selector:
-    app: {{ .Release.Name }}-database
+    app: database
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
     app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksStatefulSet
 metadata:
-  name: {{ .Release.Name }}-database
+  name: database
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    app: {{ .Release.Name }}-database
+    app: database
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -178,10 +169,10 @@ spec:
             {{- .Files.Get "assets/scripts/jobs/pxc/active_passive_probe.sh" | nindent 12 }}
   template:
     metadata:
-      name: {{ .Release.Name }}-database
+      name: database
       namespace: {{ .Release.Namespace | quote }}
       labels:
-        app: {{ .Release.Name }}-database
+        app: database
         app.kubernetes.io/instance: {{ .Release.Name | quote }}
         app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
         app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -196,17 +187,17 @@ spec:
       {{- end }}
       selector:
         matchLabels:
-          app: {{ .Release.Name }}-database
+          app: database
           app.kubernetes.io/instance: {{ .Release.Name | quote }}
           app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
           app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
           app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
           helm.sh/chart: {{ include "kubecf.chart" . }}
-      serviceName: {{ .Release.Name }}-database
+      serviceName: database
       template:
         metadata:
           labels:
-            app: {{ .Release.Name }}-database
+            app: database
             app.kubernetes.io/instance: {{ .Release.Name | quote }}
             app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
             app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
@@ -234,17 +225,17 @@ spec:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ $pxc_root_password | quote }}
+                  name: var-pxc-root-password
                   key: password
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ $pxc_password | quote }}
+                  name: var-pxc-password
                   key: password
             - name: XTRABACKUP_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ $xtrabackup_password | quote }}
+                  name: var-xtrabackup-password
                   key: password
             - name: ALLOW_ROOT_FROM
               value: "%"
@@ -253,7 +244,7 @@ spec:
             - name: SHORT_CLUSTER_NAME
               value: {{ .Release.Name }}-database
             - name: K8S_SERVICE_NAME
-              value: {{ $repl_service | quote }}
+              value: database-repl
             - name: PXC_STRICT_MODE
               value: ENFORCING
             ports:
@@ -307,13 +298,13 @@ spec:
             emptyDir: {}
           - name: pxc-config-files
             configMap:
-              name: {{ $pxc_config_files | quote }}
+              name: database-config-files
           - name: pxc-startup-scripts
             configMap:
-              name: {{ $pxc_startup_scripts | quote }}
+              name: database-startup-scripts
           - name: pxc-tls
             secret:
-              secretName: {{ $pxc_tls | quote }}
+              secretName: var-pxc-tls
       volumeClaimTemplates:
       - metadata:
           name: pxc-data
@@ -340,7 +331,7 @@ spec:
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksJob
 metadata:
-  name: {{ .Release.Name }}-database-seeder
+  name: database-seeder
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -369,10 +360,10 @@ spec:
             - name: DATABASE_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ $pxc_root_password | quote }}
+                  name: var-pxc-root-password
                   key: password
             - name: DATABASE_HOST
-              value: {{ printf "%s-database.%s" .Release.Name .Release.Namespace | quote }}
+              value: {{ printf "database.%s" .Release.Namespace | quote }}
             volumeMounts:
             {{- range $database := $databases }}
             - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
@@ -389,7 +380,7 @@ spec:
           {{- range $database := $databases }}
           - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
             secret:
-              secretName: {{ printf "%s.var-%s-database-password" $.Release.Name (get $database "secretName") | quote }}
+              secretName: {{ printf "var-%s-database-password" (get $database "secretName") | quote }}
           {{- end }}
           restartPolicy: Never
 

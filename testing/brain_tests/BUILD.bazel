@@ -9,7 +9,7 @@ kubectl_patch(
     name = "brain_tests",
     namespace = project.namespace,
     resource_type = "qjob",
-    resource_name = "kubecf-brain-tests",
+    resource_name = "brain-tests",
     patch_type = "merge",
     patch_file = ":trigger.yaml",
 )
