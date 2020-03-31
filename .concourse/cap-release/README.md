@@ -25,21 +25,8 @@ The pipeline strives to have the minimum concourse yaml to do the job, and put
 the logic somewhere so one can run and iterate on the pipeline locally.
 It's still in flux.
 
-# Current status
+# K8s cluster management
 
-For now, the pipeline consumes clusters hardcoded by name: eg
-`cap-release-diego-caasp4-ha`.
+The pipeline consumes clusters by putting a lock on unclaimed kubeconfigs from git@github.com:SUSE/cf-ci-pools.git
 
-The kubeconfigs for these clusters are stored in EKCP hosts, and are created
-either manually or in an automated way by performing `BACKEND=foo make k8s` with
-Catapult.
-
-This hardcoding of kubeconfigs is needed until we have a fully-fledged Concourse
-Pool system that can pass the correct kubeconfig from 1 horizontal job to the
-next one (eg: deploy-diego-caasp4-ha -> smoke-tests-diego-casp4-ha). Until that
-moment, we perform `BACKEND=ekcp make recover` as first step to obtain the kubeconfig.
-
-Templating engine is not set in stone, either.
-
-## Manually adding a cluster to catapult-web/EKCP
-https://github.com/SUSE/catapult/wiki/Catapult-web#add-a-cluster-to-catapult-web
+Add your kubeconfigs to cf-ci-pools.git in ${Backend}-kube-hosts branch in the unclaimed folder for CI to pick it up.
