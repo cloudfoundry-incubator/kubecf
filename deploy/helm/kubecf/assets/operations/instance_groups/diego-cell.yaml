@@ -46,6 +46,55 @@
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/set_kernel_parameters?
   value: false
 
+# Use a PVC for garden data
+# https://github.com/cloudfoundry-incubator/kubecf/issues/441
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh?/agent?/settings?/ephemeralAsPVC?
+  value: true
+- type: replace
+  path: /instance_groups/name=diego-cell/vm_resources?/ephemeral_disk_size?
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk.size }}
+- type: remove
+  path: /instance_groups/name=diego-cell/persistent_disk_type?
+{{- if .Values.sizing.diego_cell.ephemeral_disk.storage_class }}
+- type: replace
+  path: /instance_groups/name=diego-cell/persistent_disk_type?
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk.storage_class | quote }}
+{{- end }}
+
+# Rep data should not be a PVC - since that could end up as a PVC
+# and if it's NFS, garden won't work
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh?/agent?/settings?/disks?
+  value:
+  - volume:
+      name: rep-data
+      emptyDir: {}
+    volumeMount:
+      name: rep-data
+      mountPath: /var/vcap/data/rep
+    filters:
+      job_name: "rep"
+      process_name: "rep"
+  - volumeMount:
+      name: rep-data
+      mountPath: /var/vcap/data/rep
+    filters:
+      job_name: "garden"
+      process_name: "garden"
+  - volumeMount:
+      name: rep-data
+      mountPath: /var/vcap/data/rep
+    filters:
+      job_name: "cflinuxfs3-rootfs-setup"
+      process_name: "cflinuxfs3-rootfs-setup"
+  - volumeMount:
+      name: rep-data
+      mountPath: /var/vcap/data/rep
+    filters:
+      job_name: "sle15-rootfs-setup"
+      process_name: "sle15-rootfs-setup"
+
 # Temporarily remove garden network_plugin.
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin
@@ -94,6 +143,11 @@
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/quarks?
   value:
+    # Disable the ephemeral rep disk
+    bpm:
+      processes:
+      - name: rep
+        ephemeral_disk: false
     ports:
     - name: rep-tls
       protocol: TCP
