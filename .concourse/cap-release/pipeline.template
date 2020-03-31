@@ -74,7 +74,6 @@ resources:
             printf "%s" '((gke-key-json))' > $PWD/gke-key.json
             export GKE_CRED_JSON=$PWD/gke-key.json
             export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
-            export HELM_VERSION=v3.1.1 # workaround for github.com/SUSE/cap-terraform/issues/50
             make kubeconfig
 ` }}
 
@@ -84,7 +83,6 @@ resources:
             export AWS_ACCESS_KEY_ID='((aws-ci-chuller-access-key-id))'
             export AWS_SECRET_ACCESS_KEY='((aws-ci-chuller-secret-access-key))'
             export KUBECFG=$PWD/kubeconfig_$CLUSTER_NAME
-            export HELM_VERSION=v3.1.1 # workaround for github.com/SUSE/cap-terraform/issues/50
             make kubeconfig
 ` }}
 
