@@ -9,7 +9,7 @@ Expand the name of the chart.
 {{/*
 The name of the deployment.
 */}}
-{{- define "kubecf.deployment-name" -}}
+{{define "kubecf.deployment-name" -}}
 kubecf
 {{- end }}
 
