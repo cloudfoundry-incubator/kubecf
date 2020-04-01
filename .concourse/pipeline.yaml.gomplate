@@ -363,6 +363,8 @@ jobs:
 
 {{- range $_, $cfScheduler := slice "diego" "eirini" }}
 
+# prod-jobs
+
 - name: deploy-{{ $cfScheduler }}
   #max_in_flight: 1 # Re-enable to when we want to set a limit on concurrent deployments
   public: true
@@ -543,7 +545,87 @@ jobs:
     - put: kind-environments
       params: { remove : kind-environments}
 
-- name: ccdb-rotate-{{ $cfScheduler }}
+- name: cf-acceptance-tests-{{ $cfScheduler }}
+  public: true
+  plan:
+  - get: kind-environments
+    passed:
+    - smoke-tests-{{ $cfScheduler }}
+  - get: commit-to-test
+    passed:
+    - smoke-tests-{{ $cfScheduler }}
+    trigger: true
+    version: "every"
+  - get: s3.kubecf-ci
+    passed:
+    - smoke-tests-{{ $cfScheduler }}
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - smoke-tests-{{ $cfScheduler }}
+  - get: catapult
+  - task: test-{{ $cfScheduler }}
+    privileged: true
+    timeout: 5h30m
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kind-environments
+      - name: commit-to-test
+      outputs:
+      - name: output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        TEST_SUITE: cats
+        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
+      run:
+        path: "/bin/bash"
+        args: *test_args
+  on_success:
+    put: commit-to-test
+    params:
+      description: "Acceptance tests on {{ $cfScheduler }} succeeded"
+      state: "success"
+      contexts: "acceptance-{{ $cfScheduler }}"
+      commit_path: "commit-to-test/.git/resource/ref"
+      version_path: "commit-to-test/.git/resource/version"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+  on_failure:
+    do:
+    - put: commit-to-test
+      params:
+        description: "Acceptance tests on {{ $cfScheduler }} failed"
+        state: "failure"
+        commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
+        contexts: "acceptance-{{ $cfScheduler }}"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+    - task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+    - put: kind-environments
+      params: { remove : kind-environments}
+  on_abort:
+    do:
+    - task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+    - put: kind-environments
+      params: { remove : kind-environments}
+  on_error:
+    do:
+    - task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+    - put: kind-environments
+      params: { remove : kind-environments}
+
+# no-prod jobs
+- name: sync-integration-tests-{{ $cfScheduler }}
   public: true
   plan:
   - get: kind-environments
@@ -560,6 +642,85 @@ jobs:
   - get: s3.kubecf-ci-bundle
     passed:
     - cf-acceptance-tests-{{ $cfScheduler }}
+  - get: catapult
+  - task: test-{{ $cfScheduler }}
+    privileged: true
+    timeout: 1h30m
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: commit-to-test
+      - name: kind-environments
+      outputs:
+      - name: output
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        TEST_SUITE: sits
+        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
+      run:
+        path: "/bin/bash"
+        args: *test_args
+  on_success:
+    put: commit-to-test
+    params:
+      description: "Sync Integration tests on {{ $cfScheduler }} succeeded"
+      state: "success"
+      contexts: "sync-integration-tests-{{ $cfScheduler }}"
+      commit_path: "commit-to-test/.git/resource/ref"
+      version_path: "commit-to-test/.git/resource/version"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+  on_failure:
+    do:
+    - put: commit-to-test
+      params:
+        description: "Sync Integration tests on {{ $cfScheduler }} failed"
+        state: "failure"
+        commit_path: "commit-to-test/.git/resource/ref"
+        version_path: "commit-to-test/.git/resource/version"
+        contexts: "sync-integration-tests-{{ $cfScheduler }}"
+        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+    - task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+    - put: kind-environments
+      params: { remove : kind-environments}
+  on_abort:
+    do:
+    - task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+    - put: kind-environments
+      params: { remove : kind-environments}
+  on_error:
+    do:
+    - task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+    - put: kind-environments
+      params: { remove : kind-environments}
+
+- name: ccdb-rotate-{{ $cfScheduler }}
+  public: true
+  plan:
+  - get: kind-environments
+    passed:
+    - sync-integration-tests-{{ $cfScheduler }}
+  - get: commit-to-test
+    passed:
+    - sync-integration-tests-{{ $cfScheduler }}
+    trigger: true
+    version: "every"
+  - get: s3.kubecf-ci
+    passed:
+    - sync-integration-tests-{{ $cfScheduler }}
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - sync-integration-tests-{{ $cfScheduler }}
   - get: catapult
   - task: rotate-{{ $cfScheduler }}
     privileged: true
@@ -703,85 +864,6 @@ jobs:
     - put: kind-environments
       params: { remove : kind-environments}
 
-- name: sync-integration-tests-{{ $cfScheduler }}
-  public: true
-  plan:
-  - get: kind-environments
-    passed:
-    - smoke-tests-{{ $cfScheduler }}
-  - get: commit-to-test
-    passed:
-    - smoke-tests-{{ $cfScheduler }}
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - smoke-tests-{{ $cfScheduler }}
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - smoke-tests-{{ $cfScheduler }}
-  - get: catapult
-  - task: test-{{ $cfScheduler }}
-    privileged: true
-    timeout: 1h30m
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: commit-to-test
-      - name: kind-environments
-      outputs:
-      - name: output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        TEST_SUITE: sits
-        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
-      run:
-        path: "/bin/bash"
-        args: *test_args
-  on_success:
-    put: commit-to-test
-    params:
-      description: "Sync Integration tests on {{ $cfScheduler }} succeeded"
-      state: "success"
-      contexts: "sync-integration-tests-{{ $cfScheduler }}"
-      commit_path: "commit-to-test/.git/resource/ref"
-      version_path: "commit-to-test/.git/resource/version"
-      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
-  on_failure:
-    do:
-    - put: commit-to-test
-      params:
-        description: "Sync Integration tests on {{ $cfScheduler }} failed"
-        state: "failure"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-        contexts: "sync-integration-tests-{{ $cfScheduler }}"
-        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-  on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-  on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-
 # TODO: re-enable once BRAIN tests are fixed.
 # - name: brain-tests-{{ $cfScheduler }}
 #   public: true
@@ -850,85 +932,6 @@ jobs:
 #         params:
 #           CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 #           EKCP_HOST: ((ekcp-host))
-
-- name: cf-acceptance-tests-{{ $cfScheduler }}
-  public: true
-  plan:
-  - get: kind-environments
-    passed:
-    - sync-integration-tests-{{ $cfScheduler }}
-  - get: commit-to-test
-    passed:
-    - sync-integration-tests-{{ $cfScheduler }}
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - sync-integration-tests-{{ $cfScheduler }}
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - sync-integration-tests-{{ $cfScheduler }}
-  - get: catapult
-  - task: test-{{ $cfScheduler }}
-    privileged: true
-    timeout: 5h30m
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: kind-environments
-      - name: commit-to-test
-      outputs:
-      - name: output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        TEST_SUITE: cats
-        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
-      run:
-        path: "/bin/bash"
-        args: *test_args
-  on_success:
-    put: commit-to-test
-    params:
-      description: "Acceptance tests on {{ $cfScheduler }} succeeded"
-      state: "success"
-      contexts: "acceptance-{{ $cfScheduler }}"
-      commit_path: "commit-to-test/.git/resource/ref"
-      version_path: "commit-to-test/.git/resource/version"
-      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
-  on_failure:
-    do:
-    - put: commit-to-test
-      params:
-        description: "Acceptance tests on {{ $cfScheduler }} failed"
-        state: "failure"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-        contexts: "acceptance-{{ $cfScheduler }}"
-        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-  on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-  on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
 
 - name: cleanup-{{ $cfScheduler }}-cluster
   public: true
