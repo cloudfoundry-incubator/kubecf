@@ -1,4 +1,4 @@
-{{ $kind_pool_size := 5 }}
+{{ $kind_pool_size := 31 }}
 
 resources:
 - name: kind-environments
