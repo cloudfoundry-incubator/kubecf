@@ -364,7 +364,7 @@ jobs:
 {{- range $_, $cfScheduler := slice "diego" "eirini" }}
 
 - name: deploy-{{ $cfScheduler }}
-  max_in_flight: 1 # Use concourse queue which doesn't timeout
+  #max_in_flight: 1 # Use concourse queue which doesn't timeout
   public: true
   # Consider adding a serial_group between the two $cfScheduler
   # if jobs starts to starve
@@ -386,7 +386,7 @@ jobs:
   - get: catapult
   - task: deploy
     privileged: true
-    timeout: 2h30m
+    timeout: 3h30m
     config:
       platform: linux
       image_resource:
