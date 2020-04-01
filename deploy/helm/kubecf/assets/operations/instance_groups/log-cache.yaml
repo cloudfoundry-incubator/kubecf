@@ -1,0 +1,121 @@
+# Change the log_cache_ca CN to avoid clashing with the other log-cache certificate CNs.
+- type: replace
+  path: /variables/name=log_cache_ca/options/common_name
+  value: log-cache-ca
+
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=log-cache/properties/health_addr?
+  value: "::6060"
+
+# Add quarks properties for log-cache.
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=log-cache/properties/quarks?
+  value:
+    ports:
+    - name: log-cache-1
+      protocol: TCP
+      internal: 6060
+    - name: log-cache-2
+      protocol: TCP
+      internal: 6063
+    - name: log-cache-3
+      protocol: TCP
+      internal: 8080
+    - name: log-cache-4
+      protocol: TCP
+      internal: 6065
+    - name: log-cache-5
+      protocol: TCP
+      internal: 8083
+    - name: dropsonde-tcp
+      protocol: TCP
+      internal: 3458
+    - name: doppler-tls
+      protocol: TCP
+      internal: 3459
+    run:
+      healthcheck:
+        log-cache:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --insecure
+              - --fail
+              - --head
+              - --silent
+              - --cert
+              - /var/vcap/jobs/log-cache/config/certs/metrics.crt
+              - --key
+              - /var/vcap/jobs/log-cache/config/certs/metrics.key
+              - https://localhost:6060/debug/pprof/cmdline
+
+# Add quarks properties for log-cache-gateway.
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=log-cache-gateway/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        log-cache-gateway:
+          readiness:
+            # Unfortunately, by default the health port listens on localhost only
+            # and isn't easily configurable.
+            exec:
+              command:
+              - curl
+              - --insecure
+              - --fail
+              - --head
+              - --silent
+              - --cert
+              - /var/vcap/jobs/log-cache/config/certs/metrics.crt
+              - --key
+              - /var/vcap/jobs/log-cache/config/certs/metrics.key
+              - https://localhost:6063/debug/pprof/cmdline
+
+# Add quarks properties for log-cache-nozzle.
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=log-cache-nozzle/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        log-cache-nozzle:
+          readiness:
+            # Unfortunately, by default the health port listens on localhost only
+            # and isn't easily configurable.
+            exec:
+              command: [curl, --fail, --head, --silent, http://localhost:6061/debug/pprof/cmdline]
+
+# Add quarks properties for log-cache-cf-auth-proxy.
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=log-cache-cf-auth-proxy/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        log-cache-cf-auth-proxy:
+          readiness:
+            # Unfortunately, by default the health port listens on localhost only
+            # and isn't easily configurable.
+            exec:
+              command:
+              - curl
+              - --insecure
+              - --fail
+              - --head
+              - --silent
+              - --cert
+              - /var/vcap/jobs/log-cache/config/certs/metrics.crt
+              - --key
+              - /var/vcap/jobs/log-cache/config/certs/metrics.key
+              - https://localhost:6065/debug/pprof/cmdline
+
+# Add quarks properties for route_registrar.
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=route_registrar/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        route_registrar:
+          # The route registrar doesn't expose anything to indicate if the
+          # routes are healthy.
+          readiness: ~

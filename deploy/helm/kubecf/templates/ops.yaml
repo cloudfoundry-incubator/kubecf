@@ -20,8 +20,9 @@ data:
 
 {{- $root := . }}
 
-{{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/unordered/move_auctioneer.yaml") }}
-{{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/unordered/move_routing_api.yaml") }}
+{{- range $path, $bytes := .Files.Glob "assets/operations/job_moving/*" }}
+{{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
+{{- end }}
 
 {{- if .Values.features.suse_buildpacks.enabled }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}

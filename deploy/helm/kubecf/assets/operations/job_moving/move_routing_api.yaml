@@ -9,4 +9,4 @@
     update:
       serial: true
     jobs:
-    - {{- .Files.Get "assets/jobs/routing_api_job.yaml" | nindent 6 }}
+    - {{- $.Files.Get "assets/jobs/routing_api_job.yaml" | nindent 6 }}
