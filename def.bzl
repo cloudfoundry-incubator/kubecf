@@ -151,6 +151,9 @@ package(default_visibility = ["//visibility:public"])
 files = [
     "cf-deployment.yml",
     "operations/bits-service/use-bits-service.yml",
+    "operations/use-external-blobstore.yml",
+    "operations/use-s3-blobstore.yml",
+    "operations/bits-service/configure-bits-service-s3.yml",
 ]
 filegroup(
     name = "cf_deployment",

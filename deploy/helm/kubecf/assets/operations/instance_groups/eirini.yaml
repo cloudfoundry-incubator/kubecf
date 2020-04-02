@@ -148,9 +148,9 @@
           certs_secret_name: eirini-staging-secret
           cc_internal_api: https://cloud-controller-ng.service.cf.internal:9023
           eirini_address: {{ printf "https://eirini.%s:8484" .Release.Namespace }}
-          downloader_image: "eirini/recipe-downloader:0.3.0"
-          uploader_image: "eirini/recipe-uploader:0.3.0"
-          executor_image: "eirini/recipe-executor:0.3.0"
+          downloader_image: "eirini/recipe-downloader@sha256:80c213363762d3171fe401c331c480f0e8eb34fe781798eda95de1e7427b2771"
+          uploader_image: "eirini/recipe-uploader@sha256:cb70f76035866bf280e710247751f2f620c4c6e6e6950a6e730bde01535bebf1"
+          executor_image: "eirini/recipe-executor@sha256:c072f828b86766778d027041e394eaad9cfb55c3b5f652a50be8455d1dad3bf4"
           # TODO: make this configurable
           metrics_source_address: ""
           loggregator_address: localhost:3458
@@ -175,6 +175,7 @@
     release: eirini
 
 # Set the correct addresses to be reached by the Eirini apps namespace.
+{{- if eq .Values.features.blobstore.provider "singleton" }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config/private_endpoint
   value: &blobstore_url {{ printf "https://singleton-blobstore.%s:4443" .Release.Namespace }}
@@ -193,6 +194,7 @@
 - type: replace
   path: /variables/name=blobstore_tls/options/alternative_names?/-
   value: {{ printf "singleton-blobstore.%s" .Release.Namespace }}
+{{- end }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
   value: {{ printf "api.%s" .Release.Namespace }}
