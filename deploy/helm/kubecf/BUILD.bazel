@@ -9,6 +9,7 @@ load(
     "//rules/kubecf:def.bzl",
     "image_list",
     "metadata_file_generator",
+    "chart_with_imagelist",
 )
 load("//rules/yaml_extractor:defs.bzl", "yaml_extractor")
 load("//:def.bzl", "project")
@@ -83,6 +84,12 @@ helm_package(
         ":cf_deployment",
         ":extracted_jobs",
     ],
+)
+
+chart_with_imagelist(
+    name = "with_imagelist",
+    chart = ":kubecf",
+    image_list = ":image_list",
 )
 
 # Generates a file containing only the KubeCF version.
