@@ -230,9 +230,7 @@ jobs:
       description: "Queued"
       state: "pending"
       contexts: >
-        lint,build,deploy-diego,smoke-diego,rotate-diego,smoke-rotated-diego,
-        acceptance-diego,deploy-eirini,smoke-eirini,rotate-eirini,brain-eirini,
-        smoke-rotated-eirini,acceptance-eirini,sync-integration-tests-diego,brain-tests-diego
+         {{ join $prod "," }}
       trigger: "PR"
       metadata_path: "kubecf-pr/.git/resource/url"
       github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
@@ -618,6 +616,8 @@ jobs:
       run:
         path: "/bin/bash"
         args: *test_args
+
+{{- if eq $cfScheduler "diego" }}
   on_success:
     put: commit-to-test
     params:
@@ -627,8 +627,12 @@ jobs:
       commit_path: "commit-to-test/.git/resource/ref"
       version_path: "commit-to-test/.git/resource/version"
       github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
+
   on_failure:
     do:
+
+{{- if eq $cfScheduler "diego" }}
     - put: commit-to-test
       params:
         description: "Acceptance tests on {{ $cfScheduler }} failed"
@@ -637,6 +641,8 @@ jobs:
         version_path: "commit-to-test/.git/resource/version"
         contexts: "acceptance-{{ $cfScheduler }}"
         github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
+
     - task: cleanup-cluster
       config:
         <<: *cleanup-cluster
@@ -699,25 +705,28 @@ jobs:
       run:
         path: "/bin/bash"
         args: *test_args
-  on_success:
-    put: commit-to-test
-    params:
-      description: "Sync Integration tests on {{ $cfScheduler }} succeeded"
-      state: "success"
-      contexts: "sync-integration-tests-{{ $cfScheduler }}"
-      commit_path: "commit-to-test/.git/resource/ref"
-      version_path: "commit-to-test/.git/resource/version"
-      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+# Disable github status reporting for no-prod jobs
+#  on_success:
+#    put: commit-to-test
+#    params:
+#      description: "Sync Integration tests on {{ $cfScheduler }} succeeded"
+#      state: "success"
+#      contexts: "sync-integration-tests-{{ $cfScheduler }}"
+#      commit_path: "commit-to-test/.git/resource/ref"
+#      version_path: "commit-to-test/.git/resource/version"
+#      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
   on_failure:
     do:
-    - put: commit-to-test
-      params:
-        description: "Sync Integration tests on {{ $cfScheduler }} failed"
-        state: "failure"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-        contexts: "sync-integration-tests-{{ $cfScheduler }}"
-        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+
+# Disable github status reporting for no-prod jobs
+#    - put: commit-to-test
+#      params:
+#        description: "Sync Integration tests on {{ $cfScheduler }} failed"
+#        state: "failure"
+#        commit_path: "commit-to-test/.git/resource/ref"
+#        version_path: "commit-to-test/.git/resource/version"
+#        contexts: "sync-integration-tests-{{ $cfScheduler }}"
+#        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     - task: cleanup-cluster
       config:
         <<: *cleanup-cluster
@@ -777,25 +786,27 @@ jobs:
       run:
         path: "/bin/bash"
         args: *rotate_args
-  on_success:
-    put: commit-to-test
-    params:
-      description: "Rotating secrets on {{ $cfScheduler }} was successful"
-      state: "success"
-      commit_path: "commit-to-test/.git/resource/ref"
-      version_path: "commit-to-test/.git/resource/version"
-      contexts: "rotate-{{ $cfScheduler }}"
-      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+# Disable github status reporting for no-prod jobs
+#  on_success:
+#    put: commit-to-test
+#    params:
+#      description: "Rotating secrets on {{ $cfScheduler }} was successful"
+#      state: "success"
+#      commit_path: "commit-to-test/.git/resource/ref"
+#      version_path: "commit-to-test/.git/resource/version"
+#      contexts: "rotate-{{ $cfScheduler }}"
+#      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
   on_failure:
     do:
-    - put: commit-to-test
-      params:
-        description: "Rotating secrets on {{ $cfScheduler }} failed"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-        state: "failure"
-        contexts: "rotate-{{ $cfScheduler }}"
-        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+# Disable github status reporting for no-prod jobs
+#    - put: commit-to-test
+#      params:
+#        description: "Rotating secrets on {{ $cfScheduler }} failed"
+#        commit_path: "commit-to-test/.git/resource/ref"
+#        version_path: "commit-to-test/.git/resource/version"
+#        state: "failure"
+#        contexts: "rotate-{{ $cfScheduler }}"
+#        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     - task: cleanup-cluster
       config:
         <<: *cleanup-cluster
@@ -859,25 +870,27 @@ jobs:
       run:
         path: "/bin/bash"
         args: *test_args
-  on_success:
-    put: commit-to-test
-    params:
-      description: "Smoke tests on {{ $cfScheduler }} after rotating secrets was successful"
-      state: "success"
-      commit_path: "commit-to-test/.git/resource/ref"
-      version_path: "commit-to-test/.git/resource/version"
-      contexts: "smoke-rotated-{{ $cfScheduler }}"
-      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+# Disable github status reporting for no-prod jobs
+#  on_success:
+#    put: commit-to-test
+#    params:
+#      description: "Smoke tests on {{ $cfScheduler }} after rotating secrets was successful"
+#      state: "success"
+#      commit_path: "commit-to-test/.git/resource/ref"
+#      version_path: "commit-to-test/.git/resource/version"
+#      contexts: "smoke-rotated-{{ $cfScheduler }}"
+#      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
   on_failure:
     do:
-    - put: commit-to-test
-      params:
-        description: "Smoke tests on {{ $cfScheduler }} after rotating secrets failed"
-        commit_path: "commit-to-test/.git/resource/ref"
-        version_path: "commit-to-test/.git/resource/version"
-        state: "failure"
-        contexts: "smoke-rotated-{{ $cfScheduler }}"
-        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+# Disable github status reporting for no-prod jobs
+#    - put: commit-to-test
+#      params:
+#        description: "Smoke tests on {{ $cfScheduler }} after rotating secrets failed"
+#        commit_path: "commit-to-test/.git/resource/ref"
+#        version_path: "commit-to-test/.git/resource/version"
+#        state: "failure"
+#        contexts: "smoke-rotated-{{ $cfScheduler }}"
+#        github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     - task: cleanup-cluster
       config:
         <<: *cleanup-cluster
