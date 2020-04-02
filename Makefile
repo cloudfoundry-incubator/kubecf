@@ -19,7 +19,7 @@ apply:
 # Installs the CF operator.
 # TODO: this should be done with bazel.
 operatorup:
-	k create namespace cf-operator && \
+	bazel run @kubectl//:binary -- create namespace cf-operator && \
 	bazel run //dev/cf_operator:apply
 
 # Cleans everything up but doesn't destroy your cluster.
