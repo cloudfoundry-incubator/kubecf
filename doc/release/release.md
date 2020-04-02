@@ -31,4 +31,4 @@ After having the release template ready and the CI pipeline checked, it's time t
 Github release flow.
 v0.0.0-alpha draft can be used as guideline and don't forget to open PR against this document if you have better ideas and/or if you find any incorrections.
 
-As part of the end of a release cycle, all the Github issues under the _done_ column will be archieved.
+As part of the end of a release cycle, all the Github issues under the _done_ column will be archived.
