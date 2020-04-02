@@ -7,8 +7,37 @@
 # don't have to know what kind of values were used when it was deployed last
 # time.
 
-{{ $prod := slice "queue-pr" "queue-master" "queue-fork-pr" "lint" "build" "publish"}}
-{{ $noprod := slice }}
+# Variables
+{{ $availableCfSchedulers := slice "diego" "eirini" }} # Diego / Eirini
+
+# Prod and no-prod jobs
+# Jobs that are stable and ready should go into $prod.
+
+# Queue jobs don't end up in contexts. But they are showed in prod tab view
+{{ $queue := slice "queue-pr" "queue-master" "queue-fork-pr" "publish"}}
+
+
+# Production ready Jobs
+# cf-acceptance-tests-* and smoke-test-* are a Special case, as Eirini is not ready, we don't want smoke/CATs to end up in prod job view.
+# TODO: Delete the special case here as soon as we get Eirini CATS green and we stabilize Eirini smoke (e.g. with a more large timeout)
+{{ $prod := slice "lint" "build" "cf-acceptance-tests-diego" "smoke-tests-diego"}}
+
+# Jobs that aren't reliable yet, nor production ready
+{{ $noprod := slice "cf-acceptance-tests-eirini" "smoke-tests-eirini"}}
+
+# Add jobs for each scheduler in the correct category
+{{range $_, $cfScheduler := $availableCfSchedulers }}
+
+  # Generate the prod slice in the range, so we have the full list for the tab view group
+  {{ $prod = $prod | append ( printf "deploy-%s" $cfScheduler ) }}
+
+  {{ $noprod = $noprod | append ( printf "sync-integration-tests-%s" $cfScheduler ) }}
+  {{ $noprod = $noprod | append ( printf "ccdb-rotate-%s" $cfScheduler ) }}
+
+  # Cleanup gets executed only at the end, make it into noprod as we need to keep it at the end
+  {{ $noprod = $noprod | append ( printf "cleanup-%s-cluster" $cfScheduler ) }}
+  {{ $noprod = $noprod | append ( printf "smoke-tests-post-rotate-%s" $cfScheduler ) }}
+{{ end }}
 
 resource_types:
 - name: pull-request
@@ -365,16 +394,9 @@ jobs:
       acl: public-read
 
 
-# Special case, as Eirini is not ready, we don't want CATs to end up in prod job view:
-{{ $noprod = $noprod | append "cf-acceptance-tests-eirini" }}
-{{ $prod = $prod | append "cf-acceptance-tests-diego" }}
-# TODO: Delete the special case here as soon as we get Eirini CATS green
-
-{{- range $_, $cfScheduler := slice "diego" "eirini" }}
+{{- range $_, $cfScheduler := $availableCfSchedulers }}
 
 # prod-jobs
-# Generate the prod slice in the range, so we have the full list for the tab view group
-{{ $prod = $prod | append ( printf "deploy-%s" $cfScheduler ) }}
 - name: deploy-{{ $cfScheduler }}
   #max_in_flight: 1 # Re-enable to when we want to set a limit on concurrent deployments
   public: true
@@ -476,7 +498,6 @@ jobs:
     - put: kind-environments
       params: { remove : kind-environments}
 
-{{ $prod = $prod | append ( printf "smoke-tests-%s" $cfScheduler ) }}
 - name: smoke-tests-{{ $cfScheduler }}
   public: true
   plan:
@@ -556,8 +577,7 @@ jobs:
     - put: kind-environments
       params: { remove : kind-environments}
 
-# TODO: Add the append here as soon as we get Eirini CATS green, and remove the special case at the top of the range
-# It should have been: {{/*  $prod = $prod | append ( printf "cf-acceptance-tests-%s" $cfScheduler )  */}}
+
 - name: cf-acceptance-tests-{{ $cfScheduler }}
   public: true
   plan:
@@ -639,7 +659,6 @@ jobs:
 
 # no-prod jobs
 
-{{ $noprod = $noprod | append ( printf "sync-integration-tests-%s" $cfScheduler ) }}
 - name: sync-integration-tests-{{ $cfScheduler }}
   public: true
   plan:
@@ -719,7 +738,6 @@ jobs:
     - put: kind-environments
       params: { remove : kind-environments}
 
-{{ $noprod = $noprod | append ( printf "ccdb-rotate-%s" $cfScheduler ) }}
 - name: ccdb-rotate-{{ $cfScheduler }}
   public: true
   plan:
@@ -801,7 +819,6 @@ jobs:
     - put: kind-environments
       params: { remove : kind-environments}
 
-{{ $noprod = $noprod | append ( printf "smoke-tests-post-rotate-%s" $cfScheduler ) }}
 - name: smoke-tests-post-rotate-{{ $cfScheduler }}
   public: true
   plan:
@@ -950,8 +967,7 @@ jobs:
 #           CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 #           EKCP_HOST: ((ekcp-host))
 
-# Cleanup gets executed only at the end, make it into noprod as we need to keep it at the end
-{{ $noprod = $noprod | append ( printf "cleanup-%s-cluster" $cfScheduler ) }}
+
 - name: cleanup-{{ $cfScheduler }}-cluster
   public: true
   plan:
@@ -1022,11 +1038,11 @@ jobs:
 
 groups:
 - name: prod
-  jobs: [ {{ join $prod "," }} ]
+  jobs: [ {{ join (flatten (slice $queue $prod) | uniq ) "," }} ]
 
 - name: no-prod
   jobs: [ {{ join $noprod "," }} ]
 
 - name: all
   # Joins prod and noprod with a "," while filtering elements making them uniques.
-  jobs: [ {{ join (flatten (slice $prod $noprod) | uniq ) "," }} ]
+  jobs: [ {{ join (flatten (slice $queue (slice $prod $noprod) ) | uniq ) "," }} ]
