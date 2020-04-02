@@ -27,17 +27,16 @@ operatorup:
 clean:
 	bazel run //dev/kubecf:delete ; \
 	bazel run //dev/cf_operator:delete ; \
-	helm delete kubecf ; \
-	helm delete cf-operator ; \
-	k delete namespace kubecf ; \
-	k delete namespace cf-operator ; \
-	k delete clusterrole cf-operator-quarks-job ; \
-	k delete clusterrole cf-operator ; \
-	k delete crd boshdeployments.quarks.cloudfoundry.org ; \
-	k delete crd quarksjobs.quarks.cloudfoundry.org ; \
-	k delete crd quarkssecrets.quarks.cloudfoundry.org ; \
-	k delete crd quarksstatefulsets.quarks.cloudfoundry.org ; \
-	k delete clusterrolebinding cf-operator-quarks-job ; \
-	k delete clusterrolebinding cf-operator ; \
-	k delete psp kubecf-default
-
+	bazel run @helm//:binary -- delete kubecf ; \
+	bazel run @helm//:binary -- delete cf-operator ; \
+	bazel run @kubectl//:binary -- delete namespace kubecf ; \
+	bazel run @kubectl//:binary -- delete namespace cf-operator ; \
+	bazel run @kubectl//:binary -- delete clusterrole cf-operator-quarks-job ; \
+	bazel run @kubectl//:binary -- delete clusterrole cf-operator ; \
+	bazel run @kubectl//:binary -- delete crd boshdeployments.quarks.cloudfoundry.org ; \
+	bazel run @kubectl//:binary -- delete crd quarksjobs.quarks.cloudfoundry.org ; \
+	bazel run @kubectl//:binary -- delete crd quarkssecrets.quarks.cloudfoundry.org ; \
+	bazel run @kubectl//:binary -- delete crd quarksstatefulsets.quarks.cloudfoundry.org ; \
+	bazel run @kubectl//:binary -- delete clusterrolebinding cf-operator-quarks-job ; \
+	bazel run @kubectl//:binary -- delete clusterrolebinding cf-operator ; \
+	bazel run @kubectl//:binary -- delete psp kubecf-default
