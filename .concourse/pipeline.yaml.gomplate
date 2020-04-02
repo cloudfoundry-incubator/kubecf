@@ -364,7 +364,7 @@ jobs:
 {{- range $_, $cfScheduler := slice "diego" "eirini" }}
 
 - name: deploy-{{ $cfScheduler }}
-  #max_in_flight: 1 # Use concourse queue which doesn't timeout
+  #max_in_flight: 1 # Re-enable to when we want to set a limit on concurrent deployments
   public: true
   # Consider adding a serial_group between the two $cfScheduler
   # if jobs starts to starve
