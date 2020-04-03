@@ -310,6 +310,16 @@ jobs:
   - get: commit-to-test
     trigger: true
     version: "every"
+{{- if has $prod "lint" }}
+  - put: commit-to-test
+    params:
+      description: "Lint started"
+      state: "pending"
+      contexts: "lint"
+      commit_path: "commit-to-test/.git/resource/ref"
+      version_path: "commit-to-test/.git/resource/version"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
   - task: lint
     config:
       platform: linux
@@ -359,6 +369,16 @@ jobs:
     version: "every"
     passed:
     - lint
+{{- if has $prod "build" }}
+  - put: commit-to-test
+    params:
+      description: "Build started"
+      state: "pending"
+      contexts: "build"
+      commit_path: "commit-to-test/.git/resource/ref"
+      version_path: "commit-to-test/.git/resource/version"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
   - task: build
     config:
       platform: linux
@@ -433,6 +453,16 @@ jobs:
     passed:
     - build
   - get: catapult
+{{- if has $prod (printf "deploy-%s" $cfScheduler) }}
+  - put: commit-to-test
+    params:
+      description: "Deploy on {{ $cfScheduler }} started"
+      state: "pending"
+      contexts: "deploy-{{ $cfScheduler }}"
+      commit_path: "commit-to-test/.git/resource/ref"
+      version_path: "commit-to-test/.git/resource/version"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
   - task: deploy
     privileged: true
     timeout: 3h30m
@@ -535,6 +565,16 @@ jobs:
     passed:
     - deploy-{{ $cfScheduler }}
   - get: catapult
+{{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
+  - put: commit-to-test
+    params:
+      description: "Smoke tests on {{ $cfScheduler }} running"
+      state: "pending"
+      contexts: "smoke-tests-{{ $cfScheduler }}"
+      commit_path: "commit-to-test/.git/resource/ref"
+      version_path: "commit-to-test/.git/resource/version"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
   - task: test-{{ $cfScheduler }}
     privileged: true
     timeout: 1h30m
@@ -619,6 +659,16 @@ jobs:
     passed:
     - smoke-tests-{{ $cfScheduler }}
   - get: catapult
+{{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+  - put: commit-to-test
+    params:
+      description: "Acceptance tests on {{ $cfScheduler }} running"
+      state: "pending"
+      contexts: "cf-acceptance-tests-{{ $cfScheduler }}"
+      commit_path: "commit-to-test/.git/resource/ref"
+      version_path: "commit-to-test/.git/resource/version"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
   - task: test-{{ $cfScheduler }}
     privileged: true
     timeout: 5h30m
@@ -708,6 +758,16 @@ jobs:
     passed:
     - cf-acceptance-tests-{{ $cfScheduler }}
   - get: catapult
+{{- if has $prod (printf "sync-integration-tests-%s" $cfScheduler) }}
+  - put: commit-to-test
+    params:
+      description: "Sync Integration tests on {{ $cfScheduler }} running"
+      state: "pending"
+      contexts: "sync-integration-tests-{{ $cfScheduler }}"
+      commit_path: "commit-to-test/.git/resource/ref"
+      version_path: "commit-to-test/.git/resource/version"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
   - task: test-{{ $cfScheduler }}
     privileged: true
     timeout: 1h30m
@@ -793,6 +853,16 @@ jobs:
     passed:
     - sync-integration-tests-{{ $cfScheduler }}
   - get: catapult
+{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
+  - put: commit-to-test
+    params:
+      description: "Rotating secrets on {{ $cfScheduler }} is running"
+      state: "pending"
+      contexts: "rotate-{{ $cfScheduler }}"
+      commit_path: "commit-to-test/.git/resource/ref"
+      version_path: "commit-to-test/.git/resource/version"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
   - task: rotate-{{ $cfScheduler }}
     privileged: true
     timeout: 1h30m
@@ -880,6 +950,16 @@ jobs:
     passed:
     - ccdb-rotate-{{ $cfScheduler }}
   - get: catapult
+{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
+  - put: commit-to-test
+    params:
+      description: "Smoke tests on {{ $cfScheduler }} after rotating secrets is running"
+      state: "pending"
+      contexts: "smoke-rotated-{{ $cfScheduler }}"
+      commit_path: "commit-to-test/.git/resource/ref"
+      version_path: "commit-to-test/.git/resource/version"
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
   - task: test-{{ $cfScheduler }}
     privileged: true
     timeout: 1h30m
