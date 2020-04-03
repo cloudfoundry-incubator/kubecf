@@ -329,6 +329,8 @@ jobs:
           ./dev/linters/shellcheck.sh
           ./dev/linters/yamllint.sh
           ./dev/linters/helmlint.sh
+
+{{- if has $prod "lint" }}
     on_success:
       put: commit-to-test
       params:
@@ -347,6 +349,8 @@ jobs:
         state: "failure"
         contexts: "lint"
         github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
+
 - name: build
   public: false # TODO: public or not?
   plan:
@@ -374,6 +378,7 @@ jobs:
         - |
           cd commit-to-test
           ./dev/build.sh ../output
+{{- if has $prod "build" }}
     on_success:
       put: commit-to-test
       params:
@@ -393,6 +398,7 @@ jobs:
           commit_path: "commit-to-test/.git/resource/ref"
           version_path: "commit-to-test/.git/resource/version"
           github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+{{- end }}
   - put: s3.kubecf-ci
     params:
       file: output/kubecf-v*.tgz
