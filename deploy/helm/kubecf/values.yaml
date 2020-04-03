@@ -181,6 +181,8 @@ sizing:
       # The name of the storage class used for the ephemeral disk PVC.
       storage_class: ~
     instances: ~
+  doppler:
+    instances: ~
   eirini:
     instances: ~
   log_api:

@@ -5,6 +5,7 @@
 {{- $instance_groups = append $instance_groups "api" }}
 {{- $instance_groups = append $instance_groups "cc-worker" }}
 {{- $instance_groups = append $instance_groups "diego-api" }}
+{{- $instance_groups = append $instance_groups "doppler" }}
 {{- $instance_groups = append $instance_groups "log-api" }}
 {{- $instance_groups = append $instance_groups "nats" }}
 {{- $instance_groups = append $instance_groups "router" }}
@@ -34,12 +35,6 @@
 {{- $instance_groups = append $instance_groups "auctioneer" }}
 {{- $instance_groups = append $instance_groups "diego-cell" }}
 {{- end }}{{/* if eirini */}}
-
-# Temporarily fixes https://github.com/SUSE/kubecf/issues/241.
-# TODO: properly investigate and fix log-cache.
-- type: replace
-  path: /instance_groups/name=doppler/instances
-  value: 1
 
 {{- range $instance_group := $instance_groups }}
 {{- if index (snakecase $instance_group | index $.Values.sizing) "instances" | kindIs "invalid" | not }}
