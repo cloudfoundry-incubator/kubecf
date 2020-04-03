@@ -27,12 +27,6 @@
     - name: log-cache-cf-auth-proxy
       protocol: TCP
       internal: 8083
-    - name: dropsonde-tcp
-      protocol: TCP
-      internal: 3458
-    - name: doppler-tls
-      protocol: TCP
-      internal: 3459
     run:
       healthcheck:
         log-cache:
