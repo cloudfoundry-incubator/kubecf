@@ -76,7 +76,7 @@ releases:
     version: "1.5.2.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.17-7.0.0_374.gb8e8e6af
+      version: 23.18-7.0.0_374.gb8e8e6af
     file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.2.1-1.1-2c315eb8.zip
   suse-java-buildpack:
     url: registry.suse.com/cap-staging
