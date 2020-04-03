@@ -15,18 +15,9 @@
     - name: log-cache-metrics
       protocol: TCP
       internal: 6060
-    - name: log-cache-gateway-metrics
-      protocol: TCP
-      internal: 6063
     - name: log-cache
       protocol: TCP
       internal: 8080
-    - name: log-cache-cf-auth-proxy-metrics
-      protocol: TCP
-      internal: 6065
-    - name: log-cache-cf-auth-proxy
-      protocol: TCP
-      internal: 8083
     run:
       healthcheck:
         log-cache:
@@ -48,6 +39,10 @@
 - type: replace
   path: /instance_groups/name=log-cache/jobs/name=log-cache-gateway/properties/quarks?
   value:
+    ports:
+    - name: log-cache-gateway-metrics
+      protocol: TCP
+      internal: 6063
     run:
       healthcheck:
         log-cache-gateway:
@@ -84,6 +79,13 @@
 - type: replace
   path: /instance_groups/name=log-cache/jobs/name=log-cache-cf-auth-proxy/properties/quarks?
   value:
+    ports:
+    - name: log-cache-cf-auth-proxy-metrics
+      protocol: TCP
+      internal: 6065
+    - name: log-cache-cf-auth-proxy
+      protocol: TCP
+      internal: 8083
     run:
       healthcheck:
         log-cache-cf-auth-proxy:
