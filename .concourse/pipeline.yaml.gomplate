@@ -55,6 +55,7 @@ resources:
     repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
     access_token: ((github-access-token))
     disable_forks: true # Trigger on kubecf branches only
+    required_review_approvals: 1
 
 - name: kubecf-fork-pr
   type: pull-request
@@ -63,6 +64,7 @@ resources:
     repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
     access_token: ((github-access-token))
     disable_forks: false # Trigger on kubecf branches only
+    required_review_approvals: 1
 
 - name: catapult
   type: git
