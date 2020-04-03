@@ -80,11 +80,11 @@ releases:
     file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.2.1-1.1-2c315eb8.zip
   suse-java-buildpack:
     url: registry.suse.com/cap-staging
-    version: "4.29.0.1"
+    version: "4.29.1.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.15-7.0.0_374.gb8e8e6af
-    file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-v4.29.0.1-59eecd13.zip
+      version: 23.17-7.0.0_374.gb8e8e6af
+    file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-v4.29.1.1-543ec059.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.8.3.1"
