@@ -116,6 +116,7 @@
           # routes are healthy.
           readiness: ~
 
+# Add log-cache.service.cf.internal DNS alias to be able to point CC to it.
 - type: replace
   path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
   value:
