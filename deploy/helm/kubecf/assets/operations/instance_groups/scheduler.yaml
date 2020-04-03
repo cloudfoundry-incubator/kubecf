@@ -32,6 +32,8 @@
   path: /instance_groups/name=scheduler/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
   value: [/bin/sh, -c, ss -nlu src localhost:8125 | grep :8125]
 
+{{- if not .Values.features.eirini.enabled }}
+
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=tps/properties/quarks?/run/healthcheck/watcher/readiness/exec/command
   value: [curl, --fail, --silent, http://127.0.0.1:17015/debug/pprof/cmdline]
@@ -56,7 +58,6 @@
 
 # Add necessary labels to the scheduler instance group so that the service can select it to create
 # the endpoint.
-{{- if not .Values.features.eirini.enabled }}
 - type: replace
   path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1component
   value: "ssh-proxy"
@@ -72,7 +73,11 @@
   path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []
 
+{{- if not .Values.features.eirini.enabled }}
+
 {{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/scheduler_*" }}
 {{ $root.Files.Get $path }}
 {{- end }}
+
+{{- end }}{{/* scheduler scripts, only if not eirini */}}

@@ -8,7 +8,7 @@
 apiVersion: "v1"
 kind: "ServiceAccount"
 metadata:
-  name: "{{ .Release.Name }}-tests-brain"
+  name: tests-brain
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Name }}-tests-brain"
@@ -23,7 +23,7 @@ metadata:
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "Role"
 metadata:
-  name: "{{ .Release.Name }}-test-role-brain"
+  name: test-role-brain
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Name }}-test-role-brain"
@@ -114,7 +114,7 @@ rules:
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "RoleBinding"
 metadata:
-  name: "{{ .Release.Name }}-tests-brain-test-role-brain-binding"
+  name: tests-brain-test-role-brain-binding
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Name }}-tests-brain-test-role-brain-binding"
@@ -125,12 +125,12 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 subjects:
 - kind: "ServiceAccount"
-  name: "{{ .Release.Name }}-tests-brain"
+  name: tests-brain
   namespace: {{ .Release.Namespace | quote }}
 roleRef:
   apiGroup: "rbac.authorization.k8s.io"
   kind: "Role"
-  name: "{{ .Release.Name }}-test-role-brain"
+  name: test-role-brain
 
 # Cluster role "test-cluster-role" only used by account "tests-brain"
 #
@@ -142,7 +142,7 @@ roleRef:
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "ClusterRole"
 metadata:
-  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
+  name: {{ printf "%s-test-cluster-role" .Release.Namespace }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -209,7 +209,7 @@ rules:
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "ClusterRoleBinding"
 metadata:
-  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-brain-test-cluster-role-cluster-binding"
+  name: {{ printf "%s-tests-brain-test-cluster-role-cluster-binding" .Release.Namespace }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-brain-test-cluster-role-cluster-binding"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -219,19 +219,19 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 subjects:
 - kind: "ServiceAccount"
-  name: "{{ .Release.Name }}-tests-brain"
+  name: tests-brain
   namespace: {{ .Release.Namespace | quote }}
 roleRef:
   kind: "ClusterRole"
   apiGroup: "rbac.authorization.k8s.io"
-  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-test-cluster-role"
+  name: {{ printf "%s-test-cluster-role" .Release.Namespace }}
 
 # Cluster role binding for service account "tests-brain" and cluster role "cluster-admin"
 ---
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "ClusterRoleBinding"
 metadata:
-  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-brain-cluster-admin-cluster-binding"
+  name: {{ printf "%s-tests-brain-cluster-admin-cluster-binding" .Release.Namespace }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-brain-cluster-admin-cluster-binding"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -241,7 +241,7 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 subjects:
 - kind: "ServiceAccount"
-  name: "{{ .Release.Name }}-tests-brain"
+  name: tests-brain
   namespace: {{ .Release.Namespace | quote }}
 roleRef:
   kind: "ClusterRole"

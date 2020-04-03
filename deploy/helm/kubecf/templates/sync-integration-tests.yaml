@@ -8,7 +8,7 @@
 apiVersion: "v1"
 kind: "ServiceAccount"
 metadata:
-  name: "{{ .Release.Name }}-tests-sits"
+  name: tests-sits
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Name }}-tests-sits"
@@ -23,7 +23,7 @@ metadata:
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "Role"
 metadata:
-  name: "{{ .Release.Name }}-test-role-sits"
+  name: test-role-sits
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Name }}-test-role-sits"
@@ -114,7 +114,7 @@ rules:
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "RoleBinding"
 metadata:
-  name: "{{ .Release.Name }}-tests-sits-test-role-sits-binding"
+  name: tests-sits-test-role-sits-binding
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: "{{ .Release.Name }}-tests-sits-test-role-sits-binding"
@@ -125,19 +125,19 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 subjects:
 - kind: "ServiceAccount"
-  name: "{{ .Release.Name }}-tests-sits"
+  name: tests-sits
   namespace: {{ .Release.Namespace | quote }}
 roleRef:
   apiGroup: "rbac.authorization.k8s.io"
   kind: "Role"
-  name: "{{ .Release.Name }}-test-role-sits"
+  name: test-role-sits
 
 # Cluster role "tests-sits-cluster-role" only used by account "tests-sits"
 ---
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "ClusterRole"
 metadata:
-  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-cluster-role"
+  name: "{{ .Release.Namespace }}-tests-sits-cluster-role"
   labels:
     app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-cluster-role"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -204,7 +204,7 @@ rules:
 apiVersion: "rbac.authorization.k8s.io/v1"
 kind: "ClusterRoleBinding"
 metadata:
-  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-cluster-binding"
+  name: "{{ .Release.Namespace }}-tests-sits-cluster-binding"
   labels:
     app.kubernetes.io/component: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-cluster-binding"
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -214,11 +214,11 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 subjects:
 - kind: "ServiceAccount"
-  name: "{{ .Release.Name }}-tests-sits"
+  name: tests-sits
   namespace: {{ .Release.Namespace | quote }}
 roleRef:
   kind: "ClusterRole"
   apiGroup: "rbac.authorization.k8s.io"
-  name: "{{ .Release.Namespace }}-{{ .Release.Name }}-tests-sits-cluster-role"
+  name: "{{ .Release.Namespace }}-tests-sits-cluster-role"
 
 {{- end }}

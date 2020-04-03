@@ -54,21 +54,21 @@
         - name: CF_API_CA_CERT
           valueFrom:
             secretKeyRef:
-              name: {{ printf "%s.var-cc-tls" .Release.Name | quote }}
+              name: var-cc-tls
               key: ca
         - name: UAA_URL
           value: https://uaa.service.cf.internal:8443
         - name: UAA_CA_CERT
           valueFrom:
             secretKeyRef:
-              name: {{ printf "%s.var-uaa-ssl" .Release.Name | quote }}
+              name: var-uaa-ssl
               key: ca
         - name: CF_USERNAME
           value: credhub_setup
         - name: CF_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ printf "%s.var-credhub-setup-client-secret" .Release.Name | quote }}
+              name: var-credhub-setup-client-secret
               key: password
         - name: POD_IP
           valueFrom:

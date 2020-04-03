@@ -7,6 +7,13 @@ Expand the name of the chart.
 {{- end }}
 
 {{/*
+The name of the deployment.
+*/}}
+{{define "kubecf.deployment-name" -}}
+kubecf
+{{- end }}
+
+{{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
@@ -35,7 +42,7 @@ Create chart name and version as used by the chart label.
 Get the metadata name for an ops file.
 */}}
 {{- define "kubecf.ops-name" }}
-{{- printf "%s-ops-%s" .ReleaseName (base .Path | trimSuffix (ext .Path) | lower | replace "_" "-") }}
+{{- printf "ops-%s" (base .Path | trimSuffix (ext .Path) | lower | replace "_" "-") }}
 {{- end }}
 
 {{- /*

@@ -7,7 +7,7 @@ kubectl_patch(
     name = "sync_integration_tests",
     namespace = project.namespace,
     resource_type = "qjob",
-    resource_name = "kubecf-sync-integration-tests",
+    resource_name = "sync-integration-tests",
     patch_type = "merge",
     patch_file = ":trigger.yaml",
 )

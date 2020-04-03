@@ -53,7 +53,7 @@ metadata:
     {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size") }}
       {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" "8m" }}
     {{- end }}
-    {{ $_ := set .Values.features.ingress.annotations "nginx.org/websocket-services" (printf "%s-router" .Release.Name) }}
+    {{ $_ := set .Values.features.ingress.annotations "nginx.org/websocket-services" "router" }}
 {{ toYaml .Values.features.ingress.annotations | indent 4 }}
   labels:
     {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/component") }}
@@ -89,14 +89,14 @@ spec:
         paths:
           - path: "/"
             backend:
-              serviceName: "{{ .Release.Name }}-router"
+              serviceName: router
               servicePort: 443
     - host: "{{ .Values.system_domain }}"
       http:
         paths:
           - path: "/"
             backend:
-              serviceName: "{{ .Release.Name }}-router"
+              serviceName: router
               servicePort: 443
 
 {{- else }}
@@ -108,7 +108,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ $root.Release.Name }}-router-public"
+  name: router-public
   namespace: {{ $root.Release.Namespace | quote }}
   {{- if $service.annotations }}
   annotations:
@@ -151,7 +151,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ $root.Release.Name }}-ssh-proxy-public"
+  name: ssh-proxy-public
   namespace: {{ $root.Release.Namespace | quote }}
   {{- if $service.annotations }}
   annotations:
@@ -190,7 +190,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ $root.Release.Name }}-tcp-router-public"
+  name: tcp-router-public
   namespace: {{ $root.Release.Namespace | quote }}
   {{- if $service.annotations }}
   annotations:
