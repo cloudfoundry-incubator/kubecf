@@ -16,7 +16,6 @@ KUBECF_IMAGELIST_TXT_PATH="${BASENAME}/imagelist.txt"
 JQ_PATH="$4"
 
 tar xfv "$1"
-
 $JQ_PATH '.images | .[]' -r < $2 > "${KUBECF_IMAGELIST_TXT_PATH}"
 
-tar cfv "$3" "${BASENAME}/"
+tar czf "$3" "${BASENAME}/"

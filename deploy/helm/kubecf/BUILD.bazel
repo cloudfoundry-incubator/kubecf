@@ -9,7 +9,6 @@ load(
     "//rules/kubecf:def.bzl",
     "image_list",
     "metadata_file_generator",
-    "chart_with_imagelist",
 )
 load("//rules/yaml_extractor:defs.bzl", "yaml_extractor")
 load("//:def.bzl", "project")
@@ -86,10 +85,18 @@ helm_package(
     ],
 )
 
-chart_with_imagelist(
-    name = "with_imagelist",
-    chart = ":kubecf",
-    image_list = ":image_list",
+genrule(
+    name = "release_chart",
+    tools = [
+        "//rules/kubecf:release_chart.sh",
+        "@jq//:binary"
+    ],
+    srcs = [
+        ":kubecf",
+        ":image_list",
+    ],
+    outs = ["kubecf_release.tgz"],
+    cmd = "$(location //rules/kubecf:release_chart.sh) $(location :kubecf) $(location :image_list) $@ $(location @jq//:binary)",
 )
 
 # Generates a file containing only the KubeCF version.
