@@ -543,7 +543,7 @@ jobs:
       state: "success"
       commit_path: "commit-to-test/.git/resource/ref"
       version_path: "commit-to-test/.git/resource/version"
-      contexts: "smoke-{{ $cfScheduler }}"
+      contexts: "smoke-tests-{{ $cfScheduler }}"
       github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
   on_failure:
     do:
@@ -553,7 +553,7 @@ jobs:
         commit_path: "commit-to-test/.git/resource/ref"
         version_path: "commit-to-test/.git/resource/version"
         state: "failure"
-        contexts: "smoke-{{ $cfScheduler }}"
+        contexts: "smoke-tests-{{ $cfScheduler }}"
         github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
     - task: cleanup-cluster
       config:
@@ -623,7 +623,7 @@ jobs:
     params:
       description: "Acceptance tests on {{ $cfScheduler }} succeeded"
       state: "success"
-      contexts: "acceptance-{{ $cfScheduler }}"
+      contexts: "cf-acceptance-tests-{{ $cfScheduler }}"
       commit_path: "commit-to-test/.git/resource/ref"
       version_path: "commit-to-test/.git/resource/version"
       github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
@@ -639,7 +639,7 @@ jobs:
         state: "failure"
         commit_path: "commit-to-test/.git/resource/ref"
         version_path: "commit-to-test/.git/resource/version"
-        contexts: "acceptance-{{ $cfScheduler }}"
+        contexts: "cf-acceptance-tests-{{ $cfScheduler }}"
         github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
 {{- end }}
 
