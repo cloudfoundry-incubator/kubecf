@@ -39,6 +39,17 @@
   {{ $noprod = $noprod | append ( printf "smoke-tests-post-rotate-%s" $cfScheduler ) }}
 {{ end }}
 
+groups:
+- name: prod
+  jobs: [ {{ join (flatten (slice $queue $prod) | uniq ) "," }} ]
+
+- name: no-prod
+  jobs: [ {{ join $noprod "," }} ]
+
+- name: all
+  # Joins prod and noprod with a "," while filtering elements making them uniques.
+  jobs: [ {{ join (flatten (slice $queue (slice $prod $noprod) ) | uniq ) "," }} ]
+
 resource_types:
 - name: pull-request
   type: docker-image
@@ -1069,14 +1080,3 @@ jobs:
       - put: s3.kubecf-bundle
         params:
           file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
-
-groups:
-- name: prod
-  jobs: [ {{ join (flatten (slice $queue $prod) | uniq ) "," }} ]
-
-- name: no-prod
-  jobs: [ {{ join $noprod "," }} ]
-
-- name: all
-  # Joins prod and noprod with a "," while filtering elements making them uniques.
-  jobs: [ {{ join (flatten (slice $queue (slice $prod $noprod) ) | uniq ) "," }} ]
