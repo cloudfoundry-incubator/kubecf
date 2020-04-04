@@ -1,13 +1,8 @@
+load("//rules/kubecf:def.bzl", "test")
+
 package(default_visibility = ["//visibility:public"])
 
-load("//rules/kubectl:def.bzl", kubectl_patch = "patch")
-load("//:def.bzl", "project")
-
-kubectl_patch(
+test(
     name = "sync_integration_tests",
-    namespace = project.namespace,
-    resource_type = "qjob",
-    resource_name = "sync-integration-tests",
-    patch_type = "merge",
-    patch_file = ":trigger.yaml",
+    qjob_name = "sync-integration-tests",
 )
