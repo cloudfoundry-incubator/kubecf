@@ -4,7 +4,7 @@
   value:
     readiness:
       exec:
-        command: [curl, --fail, --head, --silent, http://127.0.0.1:8080/health]
+        command: ["curl", "--fail", "--head", "--silent", "http://127.0.0.1:8080/health"]
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/quarks?/run/healthcheck/cloud_controller_clock
@@ -12,7 +12,7 @@
     readiness:
       # There is no good readiness check for the scheduled tasks
       exec:
-        command: [pgrep, --full, clock:start]
+        command: ["pgrep", "--full", "clock:start"]
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/quarks?/run/healthcheck/cc_deployment_updater
@@ -26,17 +26,17 @@
         - tac /var/vcap/sys/log/cc_deployment_updater/cc_deployment_updater.log | grep --max-count=1 Sleeping | jq -r '(now - .timestamp) < 10'
     liveness:
       exec:
-        command: [pgrep, --full, deployment_updater:start]
+        command: ["pgrep", "--full", "deployment_updater:start"]
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
-  value: [/bin/sh, -c, ss -nlu src localhost:8125 | grep :8125]
+  value: ["/bin/sh", "-c", "ss -nlu src localhost:8125 | grep :8125"]
 
 {{- if not .Values.features.eirini.enabled }}
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=tps/properties/quarks?/run/healthcheck/watcher/readiness/exec/command
-  value: [curl, --fail, --silent, http://127.0.0.1:17015/debug/pprof/cmdline]
+  value: ["curl", "--fail", "--silent", "http://127.0.0.1:17015/debug/pprof/cmdline"]
 
 # Add quarks properties for the ssh_proxy job.
 - type: replace

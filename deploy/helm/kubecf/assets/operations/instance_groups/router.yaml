@@ -19,7 +19,7 @@
     post_start:
       condition:
         exec:
-          command: [curl, --fail, --head, http://127.0.0.1:8080/health]
+          command: ["curl", "--fail", "--head", "http://127.0.0.1:8080/health"]
 
 # Disable tuning /proc/sys kernel parameters as things are running on a container.
 - type: replace
@@ -31,7 +31,7 @@
   value:
     readiness:
       exec:
-        command: [sh, -c, 'ss -nlu sport = 3457 | grep :3457']
+        command: ["sh", "-c", "ss -nlu sport = 3457 | grep :3457"]
 
 # Add necessary labels to the router instance group so that the service can select it to create the
 # endpoint.
