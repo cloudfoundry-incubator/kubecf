@@ -28,7 +28,7 @@
         doppler:
           readiness:
             exec:
-              command: [curl, --fail, --head, --silent, http://localhost:14825/health]
+              command: ["curl", "--fail", "--head", "--silent", "http://localhost:14825/health"]
 
 # Add quarks properties for log-cache.
 - type: replace
@@ -84,7 +84,7 @@
       # Unfortunately, by default the health port listens on localhost only
       # and isn't easily configurable
       exec:
-        command: [curl, --fail, --head, --silent, http://localhost:6061/debug/pprof/cmdline]
+        command: ["curl", "--fail", "--head", "--silent", "http://localhost:6061/debug/pprof/cmdline"]
 
 - type: replace
   path: /instance_groups/name=doppler/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
