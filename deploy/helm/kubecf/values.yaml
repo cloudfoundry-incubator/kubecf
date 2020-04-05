@@ -132,7 +132,7 @@ releases:
     version: "1.1.3.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.17-7.0.0_374.gb8e8e6af
+      version: 23.18-7.0.0_374.gb8e8e6af
     file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.3.1-1.1-bdd184c6.zip
   suse-binary-buildpack:
     url: registry.suse.com/cap-staging
