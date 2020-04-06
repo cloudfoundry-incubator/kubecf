@@ -14,9 +14,9 @@ done
 TOOLS=($(printf '%s\n' "${TOOLS[@]}" | sort | uniq))
 
 for tool in "${TOOLS[@]}"; do
-    tool_status "${tool}"
+    STATUS="$(tool_status "${tool}")" || true
     # Don't show internal tools unless VERBOSE is set.
-    if [[ -n "${VERBOSE:-}" || ! "${TOOL_STATUS}" =~ is[[:space:]]internal ]]; then
-        echo "${TOOL_STATUS}"
+    if [[ -n "${VERBOSE:-}" || ! "${STATUS}" =~ is[[:space:]]internal ]]; then
+        echo "${STATUS}"
     fi
 done

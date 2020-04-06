@@ -28,14 +28,14 @@ TOOLS=($(printf '%s\n' "${TOOLS[@]}" | sort | uniq))
 # is too old (or doesn't match the required version exactly when PINNED_TOOLS is set),
 # then the tool is downloaded and installed into $TOOLS_DIR.
 function require_tools {
+    local status
     for tool in "$@"; do
-        tool_status "${tool}"
-        if [ "${TOOL_STATUS_RC}" -ne 0 ]; then
+        if ! status=$(tool_status "${tool}"); then
             tool_install "${tool}"
-            tool_status "${tool}"
-            if [ "${TOOL_STATUS_RC}" -ne 0 ]; then
+
+            if ! status="$(tool_status "${tool}")"; then
                 printf "%s\n" "$(red "Could not install ${tool}")"
-                die "${TOOL_STATUS}"
+                die "${status}"
             fi
         fi
         # Make sure additional prerequisites for the tool are also available.
@@ -45,52 +45,54 @@ function require_tools {
     done
 }
 
-# tool_status checks the current installation status of a single tool. It returns
-# 2 values via global variables, so cannot be called from a subshell. The TOOL_STATUS
-# variable will receive a status message that can be displayed to the user while
-# the TOOL_STATUS_RC variable is either 0 when an acceptable version of the tool is
-# available, or 1 when the correct version needs to be installed.
+# tool_status checks the current installation status of a single tool. It return
+# a status string, that can be displayed to the user. The return value is either 0
+# when an acceptable version of the tool is available, or 1 when the correct
+# version needs to be installed.
 function tool_status {
     local tool=$1
     local version
+    local rc=0
+    local status
 
-    TOOL_STATUS_RC=0
     version="$(tool_version "${tool}")"
     if [[ "${version}" =~ ^installed|internal|missing$ ]]; then
         if [ "${version}" = "missing" ]; then
-            TOOL_STATUS_RC=1
+            rc=1
         fi
-        TOOL_STATUS="is ${version}"
+        status="is ${version}"
     else
-        TOOL_STATUS="version is ${version}"
+        status="version is ${version}"
         local minimum
         minimum="$(var_lookup "${tool}_version")"
         if [ -n "${minimum}" ]; then
             case "$(ruby -e "puts Gem::Version.new('${minimum}') <=> Gem::Version.new('${version}')")" in
                 -1)
-                    TOOL_STATUS="${TOOL_STATUS} (newer than ${minimum})"
+                    status="${status} (newer than ${minimum})"
                     # For PINNED_TOOLS only an exact match is a success (if there is a download URL).
                     if [[ -n "${PINNED_TOOLS:-}" && -n "$(var_lookup "${tool}_url_${UNAME}")" ]]; then
-                        TOOL_STATUS_RC=1
+                        rc=1
                     fi
                     ;;
                 0)
                     : "nothing to do"
                     ;;
                 1|*)
-                    TOOL_STATUS="${TOOL_STATUS} (older than ${minimum})"
-                    TOOL_STATUS_RC=1
+                    status="${status} (older than ${minimum})"
+                    rc=1
                     ;;
             esac
         fi
     fi
-    TOOL_STATUS="${tool} ${TOOL_STATUS}"
+    status="${tool} ${status}"
 
-    if [ $TOOL_STATUS_RC -eq 0 ]; then
-        TOOL_STATUS="$(green "${TOOL_STATUS}")"
+    if [ $rc -eq 0 ]; then
+        status="$(green "${status}")"
     else
-        TOOL_STATUS="$(red "${TOOL_STATUS}")"
+        status="$(red "${status}")"
     fi
+    echo "${status}"
+    return ${rc}
 }
 
 # tool_version returns the semantic version of the installed tool. I will
