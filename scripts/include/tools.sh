@@ -2,11 +2,11 @@
 # shellcheck disable=SC2034
 
 # Temporary files (e.g. downloads) should go to $TEMP_DIR.
-TEMP_DIR="${GIT_ROOT}/output/tmp"
+TEMP_DIR="${PWD}/output/tmp"
 mkdir -p "${TEMP_DIR}"
 
 # All downloaded tools will be installed into $TOOLS_DIR.
-TOOLS_DIR="${GIT_ROOT}/output/bin"
+TOOLS_DIR="${PWD}/output/bin"
 mkdir -p "${TOOLS_DIR}"
 
 # UNAME should be DARWIN, LINUX, or WINDOWS.

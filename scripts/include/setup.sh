@@ -2,12 +2,10 @@
 
 set -o errexit -o nounset -o pipefail
 
-cd "${GIT_ROOT}"
-
-for INCLUDE in defaults helpers tools versions; do
-    # shellcheck disable=SC1090
-    source "scripts/include/${INCLUDE}.sh"
-done
+source scripts/include/defaults.sh
+source scripts/include/helpers.sh
+source scripts/include/tools.sh
+source scripts/include/versions.sh
 
 # COLOR defaults to true if stdout is a tty.
 if [[ -z "${COLOR:-}" && -t 1 ]]; then
