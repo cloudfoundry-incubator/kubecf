@@ -312,7 +312,7 @@ testing:
   brain_tests:
     enabled: false
   cf_acceptance_tests:
-    enabled: false
+    enabled: true
   smoke_tests:
     enabled: true
   sync_integration_tests:
