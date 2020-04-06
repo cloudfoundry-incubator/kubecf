@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-set -o errexit -o nounset
 : "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
-cd "${GIT_ROOT}"
+# shellcheck disable=SC1090
+source "${GIT_ROOT}/scripts/include/setup.sh"
 
-kubectl patch qjob kubecf-smoke-tests --namespace kubecf --type merge \
+require_tools kubectl
+
+kubectl patch qjob kubecf-smoke-tests --namespace "${KUBECF_NS}" --type merge \
         --patch '{"spec": {"trigger": {"strategy": "now"}}}'
 
 # XXX wait until container is running

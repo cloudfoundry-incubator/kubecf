@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
-set -o errexit -o nounset
 : "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
-cd "${GIT_ROOT}"
+# shellcheck disable=SC1090
+source "${GIT_ROOT}/scripts/include/setup.sh"
 
-export MINIKUBE=minikube
-export K8S_VERSION=${K8S_VERSION:-1.15.6}
-export VM_CPUS=${VM_CPUS:-4}
-export VM_MEMORY=${VM_MEMORY:-16384}
-export VM_DISK_SIZE=${VM_DISK_SIZE:-120g}
-export ISO_URL=${ISO_URL:-https://github.com/f0rmiga/opensuse-minikube-image/releases/download/v0.1.6/minikube-openSUSE.x86_64-0.1.6.iso}
+require_tools minikube
 
-./dev/minikube/start.sh
+# shellcheck disable=SC2034
+MINIKUBE="minikube"
+K8S_VERSION=${K8S_VERSION:-1.15.6}
+VM_CPUS=${VM_CPUS:-4}
+VM_MEMORY=${VM_MEMORY:-16384}
+VM_DISK_SIZE=${VM_DISK_SIZE:-120g}
+# shellcheck disable=SC2034
+ISO_URL=${MINIKUBE_ISO_URL}
+
+# shellcheck disable=SC1091
+source ./dev/minikube/start.sh

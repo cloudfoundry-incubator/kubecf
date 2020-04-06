@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-set -o errexit -o nounset
 : "${GIT_ROOT:=$(git rev-parse --show-toplevel)}"
-cd "${GIT_ROOT}"
+# shellcheck disable=SC1090
+source "${GIT_ROOT}/scripts/include/setup.sh"
 
-kubectl create ns cf-operator
-helm install cf-operator $(cat cf-operator-url) \
-     --namespace cf-operator \
-     --set global.operator.watchNamespace=kubecf
+require_tools kubectl helm
+
+kubectl create ns "${CF_OPERATOR_NS}"
+
+helm install cf-operator "${CF_OPERATOR_URL}" \
+     --namespace "${CF_OPERATOR_NS}" \
+     --set "global.operator.watchNamespace=${KUBECF_NS}"

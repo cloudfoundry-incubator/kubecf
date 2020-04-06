@@ -6,6 +6,7 @@ workspace=$(bazel info workspace)
 
 find_args=(
     -not \( -path "${workspace}/deploy/helm/kubecf/charts" -prune \)
+    -not \( -path "${workspace}/src" -prune \)
     -name '*.sh'
 )
 

@@ -3,6 +3,5 @@
 # shellcheck disable=SC1090
 source "${GIT_ROOT}/scripts/include/setup.sh"
 
-require_tools minikube
-
-minikube delete
+# Make sure we have an exact version match for *all* defined tools.
+PINNED_TOOLS=true require_tools "${TOOLS[@]}"
