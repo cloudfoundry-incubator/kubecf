@@ -5,9 +5,9 @@ function colorize {
     local text=$2
     # XXX Does not really work correctly for `COLOR= make ...`
     if [ -z "${COLOR:-}" ]; then
-        printf "%b" "${text}"
+        printf "%b\n" "${text}"
     else
-        printf "\033[${color}m%b\033[0m" "${text}"
+        printf "\033[${color}m%b\033[0m\n" "${text}"
     fi
 }
 
@@ -27,7 +27,7 @@ function blue() {
 
 function die {
     # XXX sometimes the error is not displayed; why?
-    printf "%s\n" "$(red "$1")"
+    red "$1"
     exit 1
 }
 

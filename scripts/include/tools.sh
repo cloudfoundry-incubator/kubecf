@@ -34,7 +34,7 @@ function require_tools {
             tool_install "${tool}"
 
             if ! status="$(tool_status "${tool}")"; then
-                printf "%s\n" "$(red "Could not install ${tool}")"
+                red "Could not install ${tool}"
                 die "${status}"
             fi
         fi
@@ -149,7 +149,7 @@ function tool_install {
     local version
     version="$(var_lookup "${tool}_version")"
 
-    printf "%s\n" "$(blue "Installing ${tool}")"
+    blue "Installing ${tool}"
 
     # XXX (require_tools is not reentrant) require_tools file gzip sha256sum
 
