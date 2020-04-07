@@ -85,6 +85,13 @@ resources:
     aws_secret_access_key: ((aws-secret-key))
     access_token: ((github-access-token))
 
+- name: kubecf-gh-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: kubecf
+    access_token: ((github-access-token))
+
 - name: kubecf-master
   type: git
   source:
@@ -436,6 +443,7 @@ jobs:
     - put: kind-environments
       params: {acquire: true}
       timeout: 4h # Timeout should be long at least for the full pipeline to complete
+    - get: kubecf-github-release
     - get: commit-to-test
       trigger: true
       version: "every"
@@ -450,7 +458,15 @@ jobs:
     - get: catapult
     # TODO: Where should I get the task definition from? kubecf? which checkout?
   - task: upgrade
+    timeout: 4h
     file: commit-to-test/.concourse/tasks/upgrade.yaml
+  ensure:
+    do:
+    - task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+    - put: kind-environments
+      params: { remove : kind-environments}
 
 {{- range $_, $cfScheduler := $availableCfSchedulers }}
 
