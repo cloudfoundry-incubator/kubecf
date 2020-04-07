@@ -17,7 +17,7 @@
 # For brain tests, allow CC access to the insecure registry they will create.
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego/insecure_docker_registry_list?/-
-  value: "insecure-registry.tcp.((system_domain)):20005"
+  value: "tcp.((system_domain)):20005"
 {{- end}}
 
 {{- $path := "/var/vcap/data/shared-packages/" }}
