@@ -19,4 +19,4 @@ tar xfv "$1"
 
 $JQ_PATH '.images | .[]' -r < $2 > "${KUBECF_IMAGELIST_TXT_PATH}"
 
-tar cfv "$3" "${BASENAME}/"
+tar cfzv "$3" "${BASENAME}/"
