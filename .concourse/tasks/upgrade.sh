@@ -6,7 +6,7 @@ echo "Running the upgrade test"
 
 KUBECF_LATEST_RELEASE=$(cat kubecf-github-release/version)
 export KUBECF_LATEST_RELEASE
-export SCF_CHART="https://github.com/cloudfoundry-incubator/kubecf/releases/download/${KUBECF_LATEST_RELEASE}/kubecf-bundle-${KUBECF_LATEST_RELEASE}.tgz"
+export SCF_CHART="https://github.com/cloudfoundry-incubator/kubecf/releases/download/v${KUBECF_LATEST_RELEASE}/kubecf-bundle-v${KUBECF_LATEST_RELEASE}.tgz"
 
 export ENABLE_EIRINI=false
 export SCF_OPERATOR=true
