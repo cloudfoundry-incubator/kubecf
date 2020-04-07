@@ -23,7 +23,7 @@
 {{ $prod := slice "lint" "build" "cf-acceptance-tests-diego" "smoke-tests-diego"}}
 
 # Jobs that aren't reliable yet, nor production ready
-{{ $noprod := slice "cf-acceptance-tests-eirini" "smoke-tests-eirini"}}
+{{ $noprod := slice "cf-acceptance-tests-eirini" "smoke-tests-eirini" "upgrade-test"}}
 
 # Add jobs for each scheduler in the correct category
 {{range $_, $cfScheduler := $availableCfSchedulers }}
@@ -430,6 +430,27 @@ jobs:
       file: output/kubecf-bundle-v*.tgz
       acl: public-read
 
+- name: upgrade-test
+  plan:
+  - in_parallel:
+    - put: kind-environments
+      params: {acquire: true}
+      timeout: 4h # Timeout should be long at least for the full pipeline to complete
+    - get: commit-to-test
+      trigger: true
+      version: "every"
+      passed:
+      - build
+    - get: s3.kubecf-ci
+      passed:
+      - build
+    - get: s3.kubecf-ci-bundle
+      passed:
+      - build
+    - get: catapult
+    # TODO: Where should I get the task definition from? kubecf? which checkout?
+  - task: upgrade
+    file: commit-to-test/.concourse/tasks/upgrade.yaml
 
 {{- range $_, $cfScheduler := $availableCfSchedulers }}
 
