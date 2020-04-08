@@ -20,5 +20,5 @@
 .idea/
 *.tmproj
 # Bazel
-.bazel
-.bzl
+*.bazel
+*.bzl
