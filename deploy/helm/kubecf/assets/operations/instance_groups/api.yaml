@@ -26,23 +26,23 @@
   value:
   ## Order is important here
   - name: staticfile_buildpack
-    file: {{ $path }}staticfile-buildpack/packages/staticfile-buildpack-cflinuxfs3/staticfile_buildpack-cflinuxfs3-v1.5.3.zip
+    file: {{ $path }}staticfile-buildpack/packages/staticfile-buildpack-cflinuxfs3/staticfile_buildpack-cflinuxfs3-v1.5.4.zip
   - name: java_buildpack
     file: {{ $path }}java-buildpack/packages/java-buildpack-cflinuxfs3/java-buildpack-cflinuxfs3-v4.26.zip
   - name: ruby_buildpack
-    file: {{ $path }}ruby-buildpack/packages/ruby-buildpack-cflinuxfs3/ruby_buildpack-cflinuxfs3-v1.8.8.zip
+    file: {{ $path }}ruby-buildpack/packages/ruby-buildpack-cflinuxfs3/ruby_buildpack-cflinuxfs3-v1.8.11.zip
   - name: dotnet-core_buildpack
-    file: {{ $path }}dotnet-core-buildpack/packages/dotnet-core-buildpack-cflinuxfs3/dotnet-core_buildpack-cflinuxfs3-v2.3.4.zip
+    file: {{ $path }}dotnet-core-buildpack/packages/dotnet-core-buildpack-cflinuxfs3/dotnet-core_buildpack-cflinuxfs3-v2.3.6.zip
   - name: nodejs_buildpack
-    file: {{ $path }}nodejs-buildpack/packages/nodejs-buildpack-cflinuxfs3/nodejs_buildpack-cflinuxfs3-v1.7.9.zip
+    file: {{ $path }}nodejs-buildpack/packages/nodejs-buildpack-cflinuxfs3/nodejs_buildpack-cflinuxfs3-v1.7.13.zip
   - name: go_buildpack
-    file: {{ $path }}go-buildpack/packages/go-buildpack-cflinuxfs3/go_buildpack-cflinuxfs3-v1.9.5.zip
+    file: {{ $path }}go-buildpack/packages/go-buildpack-cflinuxfs3/go_buildpack-cflinuxfs3-v1.9.7.zip
   - name: python_buildpack
-    file: {{ $path }}python-buildpack/packages/python-buildpack-cflinuxfs3/python_buildpack-cflinuxfs3-v1.7.6.zip
+    file: {{ $path }}python-buildpack/packages/python-buildpack-cflinuxfs3/python_buildpack-cflinuxfs3-v1.7.8.zip
   - name: php_buildpack
-    file: {{ $path }}php-buildpack/packages/php-buildpack-cflinuxfs3/php_buildpack-cflinuxfs3-v4.4.6.zip
+    file: {{ $path }}php-buildpack/packages/php-buildpack-cflinuxfs3/php_buildpack-cflinuxfs3-v4.4.8.zip
   - name: nginx_buildpack
-    file: {{ $path }}nginx-buildpack/packages/nginx-buildpack-cflinuxfs3/nginx_buildpack-cflinuxfs3-v1.1.4.zip
+    file: {{ $path }}nginx-buildpack/packages/nginx-buildpack-cflinuxfs3/nginx_buildpack-cflinuxfs3-v1.1.5.zip
   - name: r_buildpack
     file: {{ $path }}r-buildpack/packages/r-buildpack-cflinuxfs3/r_buildpack-cflinuxfs3-v1.1.1.zip
   - name: binary_buildpack
