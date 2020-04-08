@@ -3,9 +3,6 @@
   path: /instance_groups/name=doppler/jobs/name=doppler/properties/quarks?
   value:
     ports:
-    - name: doppler-ws
-      protocol: TCP
-      internal: 8081
     - name: doppler-grpc
       protocol: TCP
       internal: 8082

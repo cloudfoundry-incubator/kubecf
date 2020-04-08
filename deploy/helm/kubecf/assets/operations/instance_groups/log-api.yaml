@@ -8,10 +8,6 @@
         fieldRef:
           apiVersion: v1
           fieldPath: status.podIP
-    ports:
-    - name: dropsonde
-      protocol: TCP
-      internal: 8081
     run:
       healthcheck:
         loggregator_trafficcontroller:
