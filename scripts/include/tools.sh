@@ -149,6 +149,7 @@ function tool_version {
 
 function tool_install {
     local tool=$1
+    local sha256
     local url
     local version
     version="$(var_lookup "${tool}_version")"
@@ -165,7 +166,10 @@ function tool_install {
     local output="${TEMP_DIR}/output"
     curl -s -L "${url/\{version\}/${version}}" -o "${output}"
 
-    # XXX check SHA256 if defined
+    sha256="$(var_lookup "${tool}_sha256_${UNAME}")"
+    if [ -n "${sha256}" ] &&  ! echo "${sha256} ${output}" | sha256sum --check --status; then
+        die "sha256 for ${url} does not match ${sha256}"
+    fi
 
     local install_location
     install_location="${TOOLS_DIR}/$(exe_name "${tool}")"
