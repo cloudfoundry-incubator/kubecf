@@ -41,7 +41,7 @@ releases:
     url: docker.io/cfcontainerization
     stemcell:
       os: SLE_15_SP1
-      version: 23.8-7.0.0_374.gb8e8e6af
+      version: 23.18-7.0.0_374.gb8e8e6af
   app-autoscaler:
     version: 3.0.0
   bits-service:
@@ -52,10 +52,7 @@ releases:
       os: SLE_15_SP1
       version: 23.11-7.0.0_374.gb8e8e6af
   cf-acceptance-tests:
-    version: 0.0.11
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.10-7.0.0_374.gb8e8e6af
+    version: 0.0.12
   # pxc is not a BOSH release.
   pxc:
     image:
@@ -63,8 +60,6 @@ releases:
       tag: 0.9.4
   eirini:
     version: 0.0.25
-  loggregator:
-    version: "105.6"
   postgres:
     version: "39"
   sle15:
