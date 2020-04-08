@@ -12,11 +12,6 @@ load(
 )
 load("//rules/yaml_extractor:defs.bzl", "yaml_extractor")
 load("//:def.bzl", "project")
-load(
-    ":job_moving.bzl",
-    "extract_log_cache",
-    "LOG_CACHE_JOBS",
-)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -63,11 +58,23 @@ yaml_extractor(
     filter = """.instance_groups[] | select(.name == "api") | .jobs[] | select(.name == "routing-api")""",
 )
 
+# The default list of jobs related to log-cache to be extracted out of the doppler instance group.
+LOG_CACHE_JOBS = [
+    "log-cache",
+    "log-cache-gateway",
+    "log-cache-nozzle",
+    "log-cache-cf-auth-proxy",
+    "route_registrar",
+]
+
 # Extracts the log-cache jobs out of the doppler instance group.
-log_cache_job_targets = extract_log_cache(
-    instance_group = "doppler",
-    log_cache_jobs = LOG_CACHE_JOBS,
-)
+[yaml_extractor(
+    name = "log_cache_{}_job".format(job).replace("-", "_"),
+    src = "@cf_deployment//:cf-deployment.yml",
+    filter = """.instance_groups[] | select(.name == "doppler") | .jobs[] | select(.name == "{job}")""".format(
+        job = job,
+    ),
+) for job in LOG_CACHE_JOBS]
 
 # Packages the extracted jobs into a tarball with a specific directory structure to be used by the
 # Helm packaging target.
@@ -77,7 +84,7 @@ pkg_tar(
     srcs = [
         ":auctioneer_job",
         ":routing_api_job",
-    ] + log_cache_job_targets,
+    ] + [":log_cache_{}_job".format(job).replace("-", "_") for job in LOG_CACHE_JOBS],
 )
 
 # Packages the KubeCF Helm chart.
