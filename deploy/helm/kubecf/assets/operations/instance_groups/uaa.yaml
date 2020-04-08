@@ -29,7 +29,7 @@
 
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
-  value: [/bin/sh, -c, ss -nlu src localhost:8125 | grep :8125]
+  value: ["/bin/sh", "-c", "ss -nlu src localhost:8125 | grep :8125"]
 
 {{- if .Values.features.credhub.enabled }}
 

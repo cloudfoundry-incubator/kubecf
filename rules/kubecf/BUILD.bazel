@@ -2,5 +2,6 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files([
     "image_list.tmpl.rb",
+    "release_chart.sh",
     "test.tmpl.sh",
 ])
