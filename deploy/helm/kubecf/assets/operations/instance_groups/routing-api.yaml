@@ -1,3 +1,6 @@
+---
+{{- if .Values.features.routing_api.enabled }}
+
 # Add quarks properties for routing-api.
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/quarks?
@@ -27,4 +30,26 @@
 {{- $root := . }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/routing-api_*" }}
 {{ $root.Files.Get $path }}
+{{- end }}
+
+{{- else }}
+# Disable routing-api.
+- type: remove
+  path: /instance_groups/name=api/jobs/name=routing-api
+
+- type: remove
+  path: /instance_groups/name=database?/jobs/name=pxc-mysql/properties/seeded_databases/name=routing-api
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/routing_api/enabled
+  value: false
+
+- type: remove
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=routing-api.service.cf.internal
+
+- type: remove
+  path: /variables/name=routing_api_tls
+
+- type: remove
+  path: /variables/name=routing_api_tls_client
 {{- end }}
