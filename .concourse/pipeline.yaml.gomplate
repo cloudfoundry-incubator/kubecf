@@ -85,7 +85,7 @@ resources:
     aws_secret_access_key: ((aws-secret-key))
     access_token: ((github-access-token))
 
-- name: kubecf-gh-release
+- name: kubecf-github-release
   type: github-release
   source:
     owner: cloudfoundry-incubator
@@ -436,37 +436,6 @@ jobs:
     params:
       file: output/kubecf-bundle-v*.tgz
       acl: public-read
-
-- name: upgrade-test
-  plan:
-  - in_parallel:
-    - put: kind-environments
-      params: {acquire: true}
-      timeout: 4h # Timeout should be long at least for the full pipeline to complete
-    - get: kubecf-github-release
-    - get: commit-to-test
-      trigger: true
-      version: "every"
-      passed:
-      - build
-    - get: s3.kubecf-ci
-      passed:
-      - build
-    - get: s3.kubecf-ci-bundle
-      passed:
-      - build
-    - get: catapult
-    # TODO: Where should I get the task definition from? kubecf? which checkout?
-  - task: upgrade
-    timeout: 4h
-    file: commit-to-test/.concourse/tasks/upgrade.yaml
-  ensure:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
 
 {{- range $_, $cfScheduler := $availableCfSchedulers }}
 
@@ -1205,3 +1174,35 @@ jobs:
       - put: s3.kubecf-bundle
         params:
           file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
+
+- name: upgrade-test
+  plan:
+  - in_parallel:
+    - put: kind-environments
+      params: {acquire: true}
+      timeout: 4h # timeout should be long at least for the full pipeline to complete
+    - get: kubecf-github-release
+    - get: commit-to-test
+      trigger: true
+      version: "every"
+      passed:
+      - build
+    - get: s3.kubecf-ci
+      passed:
+      - build
+    - get: s3.kubecf-ci-bundle
+      passed:
+      - build
+    - get: catapult
+    # TODO: Where should I get the task definition from? kubecf? which checkout?
+  - task: upgrade
+    timeout: 4h
+    file: commit-to-test/.concourse/tasks/upgrade.yaml
+  ensure:
+    do:
+    - task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+    - put: kind-environments
+      params: { remove : kind-environments}
+

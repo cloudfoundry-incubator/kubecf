@@ -29,4 +29,4 @@ make kubeconfig scf
 # The chart should be in s3.kubecf-ci directory
 SCF_CHART="$(readlink -f ../s3.kubecf-ci/*.tgz)"
 export SCF_CHART
-make scf-upgrade
+make scf-chart scf-upgrade
