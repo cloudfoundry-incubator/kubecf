@@ -7,10 +7,10 @@ if [[ ! "$(git submodule status -- src/cf-deployment)" =~ ^[[:space:]] ]]; then
     die "git submodule for cf-deployment is uninitialized or not up-to-date"
 fi
 
-HELM_DIR=output/helm
+HELM_DIR="${TEMP_DIR}/helm"
 
-mkdir -p "${HELM_DIR}"
-rm -rf "${HELM_DIR:?}/"*
+[ -d "${HELM_DIR}" ] && rm -rf "${HELM_DIR}"
+mkdir "${HELM_DIR}"
 
 cp -a deploy/helm/kubecf/{Chart,values}.yaml "${HELM_DIR}"
 cp -a deploy/helm/kubecf/assets "${HELM_DIR}/assets"
@@ -53,3 +53,5 @@ echo "operatorChartUrl: \"${CF_OPERATOR_URL}\"" > "${HELM_DIR}/Metadata.yaml"
 
 VERSION="v0.0.0-$(git rev-parse --short HEAD)"
 helm package "${HELM_DIR}" --version "${VERSION}" --app-version "${VERSION}" --destination output/
+
+rm -rf "${HELM_DIR}"
