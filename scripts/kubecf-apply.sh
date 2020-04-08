@@ -21,4 +21,5 @@ if [ "$(kubectl config current-context)" = "minikube" ]; then
 fi
 
 VERSION=${VERSION:-v0.0.0-$(git rev-parse --short HEAD)}
-helm install kubecf --namespace "${KUBECF_NS}" "output/kubecf-${VERSION}.tgz" "${HELM_ARGS[@]}" "$@"
+helm upgrade kubecf "output/kubecf-${VERSION}.tgz" \
+     --install --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
