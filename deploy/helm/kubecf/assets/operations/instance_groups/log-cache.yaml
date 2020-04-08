@@ -1,0 +1,133 @@
+# Change the log_cache_ca CN to avoid clashing with the other log-cache certificate CNs.
+- type: replace
+  path: /variables/name=log_cache_ca/options/common_name
+  value: log-cache-ca
+
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=log-cache/properties/health_addr?
+  value: "::6060"
+
+# Add quarks properties for log-cache.
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=log-cache/properties/quarks?
+  value:
+    ports:
+    - name: log-cache-metrics
+      protocol: TCP
+      internal: 6060
+    - name: log-cache
+      protocol: TCP
+      internal: 8080
+    run:
+      healthcheck:
+        log-cache:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --insecure
+              - --fail
+              - --head
+              - --silent
+              - --cert
+              - /var/vcap/jobs/log-cache/config/certs/metrics.crt
+              - --key
+              - /var/vcap/jobs/log-cache/config/certs/metrics.key
+              - https://localhost:6060/debug/pprof/cmdline
+
+# Add quarks properties for log-cache-gateway.
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=log-cache-gateway/properties/quarks?
+  value:
+    ports:
+    - name: log-cache-gateway-metrics
+      protocol: TCP
+      internal: 6063
+    run:
+      healthcheck:
+        log-cache-gateway:
+          readiness:
+            # Unfortunately, by default the health port listens on localhost only
+            # and isn't easily configurable.
+            exec:
+              command:
+              - curl
+              - --insecure
+              - --fail
+              - --head
+              - --silent
+              - --cert
+              - /var/vcap/jobs/log-cache/config/certs/metrics.crt
+              - --key
+              - /var/vcap/jobs/log-cache/config/certs/metrics.key
+              - https://localhost:6063/debug/pprof/cmdline
+
+# Add quarks properties for log-cache-nozzle.
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=log-cache-nozzle/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        log-cache-nozzle:
+          readiness:
+            # Unfortunately, by default the health port listens on localhost only
+            # and isn't easily configurable.
+            exec:
+              command: [curl, --fail, --head, --silent, http://localhost:6061/debug/pprof/cmdline]
+
+# Add quarks properties for log-cache-cf-auth-proxy.
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=log-cache-cf-auth-proxy/properties/quarks?
+  value:
+    ports:
+    - name: log-cache-cf-auth-proxy-metrics
+      protocol: TCP
+      internal: 6065
+    - name: log-cache-cf-auth-proxy
+      protocol: TCP
+      internal: 8083
+    run:
+      healthcheck:
+        log-cache-cf-auth-proxy:
+          readiness:
+            # Unfortunately, by default the health port listens on localhost only
+            # and isn't easily configurable.
+            exec:
+              command:
+              - curl
+              - --insecure
+              - --fail
+              - --head
+              - --silent
+              - --cert
+              - /var/vcap/jobs/log-cache/config/certs/metrics.crt
+              - --key
+              - /var/vcap/jobs/log-cache/config/certs/metrics.key
+              - https://localhost:6065/debug/pprof/cmdline
+
+# Add quarks properties for route_registrar.
+- type: replace
+  path: /instance_groups/name=log-cache/jobs/name=route_registrar/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        route_registrar:
+          # The route registrar doesn't expose anything to indicate if the
+          # routes are healthy.
+          readiness: ~
+
+# Add log-cache.service.cf.internal DNS alias to be able to point CC to it.
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: log-cache.service.cf.internal
+    targets:
+    - deployment: cf
+      domain: bosh
+      instance_group: log-cache
+      network: default
+      query: '*'
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties?/cc/logcache/host
+  value: log-cache.service.cf.internal

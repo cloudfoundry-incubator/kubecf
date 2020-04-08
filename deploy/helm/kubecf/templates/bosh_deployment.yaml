@@ -16,10 +16,10 @@ spec:
     name: cf-deployment
     type: configmap
   ops:
-  - name: {{ include "kubecf.ops-name" (dict "Path" "assets/operations/unordered/move_auctioneer.yaml") }}
+{{- range $path, $_ := .Files.Glob "assets/operations/job_moving/*" }}
+  - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
-  - name: {{ include "kubecf.ops-name" (dict "Path" "assets/operations/unordered/move_routing_api.yaml") }}
-    type: configmap
+{{- end }}
 {{- if .Values.features.suse_buildpacks.enabled }}
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
     type: configmap
