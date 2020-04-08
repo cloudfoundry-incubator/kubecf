@@ -9,9 +9,8 @@
 # to the cf-cli package. As part of the pre-render scripts added here will patch the cf-cli-6-linux
 # job in order to add a BOSH pre-start script. This script will then copy the cf-cli package into a
 # shared volume that can be accessed by the smoke-tests job.
-{{- $root := . }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/smoke-tests_*" }}
-{{ $root.Files.Get $path }}
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/smoke-tests_*" }}
+{{ $bytes | toString }}
 {{- end }}
 
 {{- else }}

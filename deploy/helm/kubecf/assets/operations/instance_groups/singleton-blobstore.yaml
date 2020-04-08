@@ -46,7 +46,6 @@
       # The route registrar doesn't expose anything to indicate if the
       # routes are healthy.
 
-{{- $root := . }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/singleton-blobstore_*" }}
-{{ $root.Files.Get $path }}
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/singleton-blobstore_*" }}
+{{ $bytes | toString }}
 {{- end }}

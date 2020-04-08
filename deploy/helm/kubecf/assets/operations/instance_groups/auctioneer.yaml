@@ -18,7 +18,6 @@
   path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=auctioneer.service.cf.internal/targets/0/instance_group
   value: auctioneer
 
-{{- $root := . }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/auctioneer_*" }}
-{{ $root.Files.Get $path }}
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/auctioneer_*" }}
+{{ $bytes | toString }}
 {{- end }}

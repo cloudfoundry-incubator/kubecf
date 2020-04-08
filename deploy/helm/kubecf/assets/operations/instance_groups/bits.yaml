@@ -57,9 +57,8 @@
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/bits_service?/enabled?
   value: false
 
-{{- $root := . }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/bits_*" }}
-{{ $root.Files.Get $path }}
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/bits_*" }}
+{{ $bytes | toString }}
 {{- end }}
 
 {{- end}}

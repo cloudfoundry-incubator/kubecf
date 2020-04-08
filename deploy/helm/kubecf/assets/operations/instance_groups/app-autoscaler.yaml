@@ -1001,9 +1001,8 @@
   path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/cf/skip_ssl_validation?
   value: true
 
-{{- $root := . }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/asdatabase_*" }}
-{{ $root.Files.Get $path }}
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/asdatabase_*" }}
+{{ $bytes | toString }}
 {{- end }}
 
 {{- end }}
