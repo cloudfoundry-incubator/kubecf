@@ -1,6 +1,6 @@
 # Smoke tests
 
-The bazel target __//testing/smoke_tests__ starts a run of the
+The bazel target __//testing:smoke_tests__ starts a run of the
 [Cloud Foundry Smoke Tests].
 
 [Cloud Foundry Smoke Tests]: https://github.com/cloudfoundry/cf-smoke-tests-release

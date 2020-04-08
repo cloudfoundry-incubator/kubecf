@@ -3,6 +3,7 @@ This Bazel extension contains rule definitions specific to KubeCF.
 """
 
 load("@bazel_skylib//lib:paths.bzl", "paths")
+load("//:def.bzl", "project")
 
 def metadata_file_generator(name, file, operator_chart, visibility=None):
     """Generates a metadata file to be embedded with the KubeCF chart.
@@ -90,4 +91,49 @@ image_list = rule(
             default = "//rules/kubecf:image_list.tmpl.rb",
         ),
     },
+)
+
+def _test_impl(ctx):
+    """
+    An executable rule to trigger, wait and tail logs for a test.
+    """
+    script = ctx.actions.declare_file(ctx.attr.name)
+    ctx.actions.expand_template(
+        output = script,
+        substitutions = {
+            "[[kubectl]]": ctx.executable._kubectl.path,
+            "[[namespace]]": ctx.attr.namespace,
+            "[[qjob_name]]": ctx.attr.qjob_name,
+        },
+        template = ctx.file._script_tmpl,
+    )
+    runfiles = [
+        ctx.executable._kubectl,
+    ]
+    return [DefaultInfo(
+        executable = script,
+        runfiles = ctx.runfiles(files = runfiles),
+    )]
+
+test = rule(
+    implementation = _test_impl,
+    attrs = {
+        "namespace": attr.string(
+            default = project.namespace,
+        ),
+        "qjob_name": attr.string(
+            mandatory = True,
+        ),
+        "_kubectl": attr.label(
+            allow_single_file = True,
+            cfg = "host",
+            default = "@kubectl//:binary",
+            executable = True,
+        ),
+        "_script_tmpl": attr.label(
+            allow_single_file = True,
+            default = "//rules/kubecf:test.tmpl.sh",
+        ),
+    },
+    executable = True,
 )
