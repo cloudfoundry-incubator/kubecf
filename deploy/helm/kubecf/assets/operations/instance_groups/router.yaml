@@ -98,7 +98,6 @@
 {{- end }}
 {{- end }}
 
-{{- $root := . }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/router_*" }}
-{{ $root.Files.Get $path }}
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/router_*" }}
+{{ $bytes | toString }}
 {{- end }}

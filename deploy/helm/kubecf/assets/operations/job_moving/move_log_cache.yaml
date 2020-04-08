@@ -17,6 +17,6 @@
     update:
       serial: false
     jobs:
-    {{- range $path, $bytes := $.Files.Glob "assets/jobs/log_cache_*" }}
-    - {{- $.Files.Get $path | nindent 6 }}
+    {{- range $bytes := $.Files.Glob "assets/jobs/log_cache_*" }}
+    - {{- $bytes | toString | nindent 6 }}
     {{- end }}

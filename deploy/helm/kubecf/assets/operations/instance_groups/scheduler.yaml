@@ -75,9 +75,8 @@
 
 {{- if not .Values.features.eirini.enabled }}
 
-{{- $root := . }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/scheduler_*" }}
-{{ $root.Files.Get $path }}
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/scheduler_*" }}
+{{ $bytes | toString }}
 {{- end }}
 
 {{- end }}{{/* scheduler scripts, only if not eirini */}}

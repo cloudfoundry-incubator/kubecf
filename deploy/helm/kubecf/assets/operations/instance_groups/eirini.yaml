@@ -344,9 +344,8 @@
 - type: remove
   path: /instance_groups/name=scheduler/jobs/name=ssh_proxy
 
-{{- $root := . }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/eirini_*" }}
-{{ $root.Files.Get $path }}
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/eirini_*" }}
+{{ $bytes | toString }}
 {{- end }}
 
 {{- end }}

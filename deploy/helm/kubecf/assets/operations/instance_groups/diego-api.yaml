@@ -74,7 +74,6 @@
   path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []
 
-{{- $root := . }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-api_*" }}
-{{ $root.Files.Get $path }}
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-api_*" }}
+{{ $bytes | toString }}
 {{- end }}
