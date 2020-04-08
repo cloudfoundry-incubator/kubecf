@@ -75,7 +75,11 @@ function tool_status {
                     fi
                     ;;
                 0)
-                    : "nothing to do"
+                    # PINNED_TOOLS *must* be installed in $TOOLS_DIR
+                    if [[ -n "${PINNED_TOOLS:-}" && ! -x "${TOOLS_DIR}/${tool}" ]]; then
+                        status="${status} (but not installed in ${TOOLS_DIR})"
+                        rc=1
+                    fi
                     ;;
                 1|*)
                     status="${status} (older than ${minimum})"
