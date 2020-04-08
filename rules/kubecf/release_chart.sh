@@ -3,19 +3,25 @@
 # This is a helper script which combines a helm chart tarball and an image list
 # into a new tarball.
 
-if [ ! -e "$1" ]; then
-  echo "Helm chart tarball '$1' does not exist, bailing out!"; exit 1
+KUBECF_CHART="$1"
+KUBECF_IMAGE_LIST_JSON_FILE="$2"
+OUTPUT="$3"
+JQ="$4"
+
+if [ ! -e "${KUBECF_CHART}" ]; then
+  >&2 echo "Helm chart tarball '${KUBECF_CHART}' does not exist, bailing out!"; exit 1
 fi
 
-if [ ! -e "$2" ]; then
-  echo "Image list '$2' has not been created, bailing out!"; exit 1
+if [ ! -e "${KUBECF_IMAGE_LIST_JSON_FILE}" ]; then
+  >&2 echo "Image list '${KUBECF_IMAGE_LIST_JSON_FILE}' has not been created, bailing out!"; exit 1
 fi
 
-BASENAME=$(dirname $(tar tf "$1" | head -n1))
-KUBECF_IMAGELIST_TXT_PATH="${BASENAME}/imagelist.txt"
-JQ_PATH="$4"
+BASENAME=$(dirname "$(tar tf "${KUBECF_CHART}" | head -n1)")
+KUBECF_IMAGE_LIST_TXT_FILE="${BASENAME}/imagelist.txt"
 
-tar xfv "$1"
-$JQ_PATH '.images | .[]' -r < $2 > "${KUBECF_IMAGELIST_TXT_PATH}"
+tar xf "${KUBECF_CHART}"
+"${JQ}" '.images | .[]' -r \
+  < "${KUBECF_IMAGE_LIST_JSON_FILE}" \
+  > "${KUBECF_IMAGE_LIST_TXT_FILE}"
 
-tar czf "$3" "${BASENAME}/"
+tar czf "${OUTPUT}" "${BASENAME}/"
