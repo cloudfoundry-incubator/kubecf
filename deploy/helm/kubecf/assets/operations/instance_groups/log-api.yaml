@@ -11,14 +11,13 @@
     run:
       healthcheck:
         loggregator_trafficcontroller:
-          readiness:
-            exec:
-              command: ["curl", "--fail", "--silent", "--head", "http://localhost:14825/health"]
+          # The traffic controller doesn't expose anything to indicate its healthiness.
+          readiness: ~
 
 # Add quarks properties for reverse_log_proxy.
 - type: replace
-  path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy/properties/reverse_log_proxy?/health_addr
-  value: "localhost:14826"
+  path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy/properties/reverse_log_proxy?/pprof/port
+  value: "33047"
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy/properties/quarks?
   value:
@@ -31,7 +30,12 @@
         reverse_log_proxy:
           readiness:
             exec:
-              command: ["curl", "--fail", "--silent", "--head", "http://localhost:14826/health"]
+              command:
+              - curl
+              - --fail
+              - --head
+              - --silent
+              - http://localhost:33047/debug/pprof/cmdline
 
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=reverse_log_proxy_gateway/properties/quarks?/bpm/processes/name=reverse_log_proxy_gateway/env/PPROF_PORT?
@@ -43,6 +47,6 @@
 - type: replace
   path: /instance_groups/name=log-api/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
   value:
+    # The route registrar doesn't expose anything to indicate if the
+    # routes are healthy.
     readiness: ~
-      # The route registrar doesn't expose anything to indicate if the
-      # routes are healthy

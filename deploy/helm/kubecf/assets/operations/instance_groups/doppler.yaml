@@ -11,4 +11,4 @@
         doppler:
           readiness:
             exec:
-              command: ["curl", "--fail", "--head", "--silent", "http://localhost:14825/health"]
+              command: [sh, -c, 'ss -nlt sport = 8082 | grep "LISTEN.*:8082"']
