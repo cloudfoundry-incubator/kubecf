@@ -3,6 +3,10 @@ source scripts/include/setup.sh
 
 require_tools jq j2y y2j helm
 
+if [[ ! "$(git submodule status -- src/cf-deployment)" =~ ^[[:space:]] ]]; then
+    die "git submodule for cf-deployment is uninitialized or not up-to-date"
+fi
+
 HELM_DIR=output/helm
 
 mkdir -p "${HELM_DIR}"
