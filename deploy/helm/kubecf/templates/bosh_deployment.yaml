@@ -16,7 +16,7 @@ spec:
     name: cf-deployment
     type: configmap
   ops:
-{{- range $path, $bytes := .Files.Glob "assets/operations/job_moving/*" }}
+{{- range $path, $_ := .Files.Glob "assets/operations/job_moving/*" }}
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}

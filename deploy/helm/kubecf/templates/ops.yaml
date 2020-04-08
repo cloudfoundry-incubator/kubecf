@@ -20,7 +20,7 @@ data:
 
 {{- $root := . }}
 
-{{- range $path, $bytes := .Files.Glob "assets/operations/job_moving/*" }}
+{{- range $path, $_ := .Files.Glob "assets/operations/job_moving/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
 
