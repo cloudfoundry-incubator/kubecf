@@ -108,11 +108,11 @@ releases:
     file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.7.1-1.1-856d35fb.zip
   suse-go-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.9.4.1"
+    version: "1.9.10.1"
     stemcell:
       os: SLE_15_SP1
       version: 23.18-7.0.0_374.gb8e8e6af
-    file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.4.1-1.1-436eaf5d.zip
+    file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.10.1-4.1-9069b682.zip
   suse-python-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.12.1"
