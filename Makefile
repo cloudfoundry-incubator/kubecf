@@ -5,6 +5,7 @@ cf-operator-apply:
 	@./scripts/cf-operator-apply.sh
 
 kubecf-apply:
+	@./scripts/kubecf-build.sh
 	@./scripts/kubecf-apply.sh
 
 kubecf-build:
