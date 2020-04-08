@@ -60,8 +60,6 @@ releases:
       tag: 0.9.4
   eirini:
     version: 0.0.25
-  loggregator:
-    version: "105.6"
   postgres:
     version: "39"
   sle15:
