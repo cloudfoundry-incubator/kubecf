@@ -3,8 +3,6 @@
 
 TOOLS+=(ruby)
 
-function ruby_version {
-    ruby --version
-}
-
 RUBY_VERSION=2.4
+
+function ruby_version { ruby --version; }
