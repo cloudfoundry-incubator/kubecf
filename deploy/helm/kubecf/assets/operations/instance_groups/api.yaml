@@ -210,7 +210,14 @@
         cloud_controller_ng:
           readiness: &cloud_controller_ng_readiness
             exec:
-              command: [curl, --fail, --head, --silent, --unix-socket, /var/vcap/data/cloud_controller_ng/cloud_controller.sock, http:/healthz]
+              command:
+              - curl
+              - --fail
+              - --head
+              - --silent
+              - --unix-socket
+              - /var/vcap/data/cloud_controller_ng/cloud_controller.sock
+              - http:/healthz
           # We don't want a liveness probe here as we do migration here, and we
           # do not want to interrupt that.  We may want to consider using a
           # startupProbe in the future (once that feature stabilizes).
@@ -236,7 +243,7 @@
     post_start:
       condition:
         exec:
-          command: [curl, --fail, --head, --silent, http://127.0.0.1:9022/healthz]
+          command: ["curl", "--fail", "--head", "--silent", "http://127.0.0.1:9022/healthz"]
 
 # Add quarks properties for cc_uploader.
 - type: replace
@@ -301,7 +308,7 @@
       condition:
         exec:
           # policy-server doesn't support HTTP HEAD requests
-          command: [curl, --insecure, --fail, --silent, https://localhost:4002/]
+          command: ["curl", "--insecure", "--fail", "--silent", "https://localhost:4002/"]
 
 # Add quarks properties for policy-server-internal.
 - type: replace
@@ -317,7 +324,7 @@
       condition:
         exec:
           # policy-server-internal doesn't support HTTP HEAD requests
-          command: [curl, --fail, --silent, http://localhost:31946/]
+          command: ["curl", "--fail", "--silent", "http://localhost:31946/"]
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=route_registrar/properties/quarks?/run/healthcheck/route_registrar
@@ -328,7 +335,7 @@
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=loggr-udp-forwarder/properties/quarks?/run/healthcheck/loggr-udp-forwarder/readiness/exec/command
-  value: [sh, -c, ss -nlu sport = 3457 | grep :3457]
+  value: ["sh", "-c", "ss -nlu sport = 3457 | grep :3457"]
 
 {{- $root := . }}
 {{- if .Values.features.suse_buildpacks.enabled }}

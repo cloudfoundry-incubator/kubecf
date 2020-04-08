@@ -96,6 +96,20 @@ helm_package(
     ],
 )
 
+genrule(
+    name = "release_chart",
+    tools = [
+        "//rules/kubecf:release_chart.sh",
+        "@jq//:binary"
+    ],
+    srcs = [
+        ":kubecf",
+        ":image_list",
+    ],
+    outs = ["kubecf_release.tgz"],
+    cmd = "$(location //rules/kubecf:release_chart.sh) $(location :kubecf) $(location :image_list) $@ $(location @jq//:binary)",
+)
+
 # Generates a file containing only the KubeCF version.
 helm_version(
     name = "version",

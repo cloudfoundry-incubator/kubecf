@@ -14,4 +14,4 @@
         doppler:
           readiness:
             exec:
-              command: [curl, --fail, --head, --silent, http://localhost:14825/health]
+              command: ["curl", "--fail", "--head", "--silent", "http://localhost:14825/health"]

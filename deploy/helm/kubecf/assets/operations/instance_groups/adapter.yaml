@@ -12,4 +12,4 @@
           readiness:
             # The healthcheck port is bound to localhost only
             exec:
-              command: [curl, --fail, --head, --silent, http://localhost:8080/health]
+              command: ["curl", "--fail", "--head", "--silent", "http://localhost:8080/health"]

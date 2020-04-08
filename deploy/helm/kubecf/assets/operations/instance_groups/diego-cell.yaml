@@ -110,7 +110,7 @@
         garden:
           readiness:
             exec:
-              command: [curl, --head, --fail, --silent, http://127.0.0.1:17019/debug/vars]
+              command: ["curl", "--head", "--fail", "--silent", "http://127.0.0.1:17019/debug/vars"]
     post_start:
       condition:
         exec:
@@ -135,7 +135,7 @@
         route_emitter:
           readiness: &route_emitter_readiness
             exec:
-              command: [curl, --fail, --silent, http://127.0.0.1:17011/ping]
+              command: ["curl", "--fail", "--silent", "http://127.0.0.1:17011/ping"]
     post_start:
       condition: *route_emitter_readiness
 
