@@ -76,7 +76,7 @@ function tool_status {
                     ;;
                 0)
                     # PINNED_TOOLS *must* be installed in $TOOLS_DIR
-                    if [[ -n "${PINNED_TOOLS:-}" && ! -x "${TOOLS_DIR}/${tool}" ]]; then
+                    if [[ -n "${PINNED_TOOLS:-}" && ! -x "${TOOLS_DIR}/$(exe_name "${tool}")" ]]; then
                         status="${status} (but not installed in ${TOOLS_DIR})"
                         rc=1
                     fi
@@ -167,7 +167,8 @@ function tool_install {
 
     # XXX check SHA256 if defined
 
-    local install_location="${TOOLS_DIR}/${tool}"
+    local install_location
+    install_location="${TOOLS_DIR}/$(exe_name "${tool}")"
     # Keep previous version in case installation fails.
     if [ -f "${install_location}" ]; then
         mv "${install_location}" "${install_location}.prev"
@@ -188,7 +189,7 @@ function tool_install {
             local outdir="${TEMP_DIR}/outdir"
             mkdir -p "${outdir}"
             tar xf "${output}" -C "${outdir}"
-            find "${outdir}" -name "${tool}" -exec cp {} "${install_location}" \;
+            find "${outdir}" -name "$(exe_name "${tool}")" -exec cp {} "${install_location}" \;
             if [ -f "${install_location}" ]; then
                 rm -rf "${output}" "${outdir}"
             fi
@@ -205,5 +206,14 @@ function tool_install {
             mv "${install_location}.prev" "${install_location}"
         fi
         die "Installation of ${tool} failed (previous version may have been restored)"
+    fi
+}
+
+# exe_name return the filename for the tool executable (including .exe extension on Windows)
+function exe_name {
+    if [ "${UNAME}" = "WINDOWS" ]; then
+        echo "$1.exe"
+    else
+        echo "$1"
     fi
 }
