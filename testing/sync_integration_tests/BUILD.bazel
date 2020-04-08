@@ -1,8 +1,0 @@
-load("//rules/kubecf:def.bzl", "test")
-
-package(default_visibility = ["//visibility:public"])
-
-test(
-    name = "sync_integration_tests",
-    qjob_name = "sync-integration-tests",
-)

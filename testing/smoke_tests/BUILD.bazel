@@ -1,8 +1,0 @@
-load("//rules/kubecf:def.bzl", "test")
-
-package(default_visibility = ["//visibility:public"])
-
-test(
-    name = "smoke_tests",
-    qjob_name = "smoke-tests",
-)
