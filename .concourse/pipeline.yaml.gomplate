@@ -194,6 +194,7 @@ rotate_args: &rotate_args
 - |
   export BACKEND=imported
   export KUBECF_NAMESPACE="scf"
+  export QUIET_OUTPUT=true
   export DOWNLOAD_CATAPULT_DEPS=false
   export CLUSTER_NAME="$(cat kind-environments/name)"
   export KUBECFG="$(readlink -f kind-environments/metadata)"
@@ -486,7 +487,6 @@ jobs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
-        QUIET_OUTPUT: true
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
