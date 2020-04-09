@@ -190,8 +190,8 @@ filegroup(
     external_files = {
         "cf_operator": struct(
             urls = ["https://s3.amazonaws.com/cf-operators/release/helm-charts/cf-operator-{version}.tgz"],
-            sha256 = "a7cd1831e56fc285d10454a1d45e99484679cb936268690738d6f41c3230f0ba",
-            version = "4.1.0%2B0.g8162d1c5",
+            sha256 = "f4f902c8372038fcdf4a82727ce7ac65a007e5efc832d14377a498520a82572f",
+            version = "4.0.0%2B1.g97d42f19",
         ),
         "kube_dashboard": struct(
             urls = ["https://raw.githubusercontent.com/kubernetes/dashboard/{version}/aio/deploy/recommended.yaml"],
