@@ -164,6 +164,7 @@ deploy_args: &deploy_args
   export BACKEND=imported
   export DOCKER_ORG=cap-staging
   export QUIET_OUTPUT=true
+  export DOWNLOAD_CATAPULT_DEPS=false
   export CLUSTER_NAME="$(cat kind-environments/name)"
   export KUBECFG="$(readlink -f kind-environments/metadata)"
   pushd catapult
@@ -179,6 +180,7 @@ test_args: &test_args
   export SCF_LOCAL="${PWD}/commit-to-test"
   export KUBECF_NAMESPACE="scf"
   export QUIET_OUTPUT=true
+  export DOWNLOAD_CATAPULT_DEPS=false
   export CLUSTER_NAME="$(cat kind-environments/name)"
   export KUBECFG="$(readlink -f kind-environments/metadata)"
   export KUBECF_CHECKOUT="${PWD}/commit-to-test"
@@ -192,6 +194,7 @@ rotate_args: &rotate_args
 - |
   export BACKEND=imported
   export KUBECF_NAMESPACE="scf"
+  export DOWNLOAD_CATAPULT_DEPS=false
   export CLUSTER_NAME="$(cat kind-environments/name)"
   export KUBECFG="$(readlink -f kind-environments/metadata)"
   export KUBECF_CHECKOUT="${PWD}/commit-to-test"
