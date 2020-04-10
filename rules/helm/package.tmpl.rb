@@ -56,6 +56,7 @@ begin
 
   # Package and return the output path.
   package_cmd = <<-EOS
+    '#{helm}' dep up '#{build_dir}' &&
     '#{helm}' package '#{build_dir}' \
       --version='#{version}' \
       --app-version='#{version}'
