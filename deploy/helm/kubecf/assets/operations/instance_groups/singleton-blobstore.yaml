@@ -1,3 +1,4 @@
+{{ if eq .Values.features.blobstore.provider "singleton" }}
 - type: replace
   path: /instance_groups/name=singleton-blobstore/persistent_disk?
   value: 102400 # 100GB
@@ -48,4 +49,5 @@
 
 {{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/singleton-blobstore_*" }}
 {{ $bytes | toString }}
+{{- end }}
 {{- end }}

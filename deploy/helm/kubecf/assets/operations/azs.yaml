@@ -13,8 +13,10 @@
   path: /instance_groups/name=diego-api/azs?
 - type: remove
   path: /instance_groups/name=uaa/azs?
+{{- if eq .Values.features.blobstore.provider "singleton" }}
 - type: remove
   path: /instance_groups/name=singleton-blobstore/azs?
+{{- end }}
 - type: remove
   path: /instance_groups/name=api/azs?
 - type: remove
