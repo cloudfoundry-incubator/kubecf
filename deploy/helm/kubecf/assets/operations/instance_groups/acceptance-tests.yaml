@@ -9,7 +9,7 @@
       bosh:
         agent:
           settings:
-            disableLogSidecar: true
+            disable_log_sidecar: true
     instances: 1
     jobs:
     - name: acceptance-tests

@@ -5,7 +5,7 @@
   value: []
 
 - type: replace
-  path: /instance_groups/name=smoke-tests/env?/bosh/agent/settings/disableLogSidecar
+  path: /instance_groups/name=smoke-tests/env?/bosh/agent/settings/disable_log_sidecar
   value: true
 
 # The smoke-tests require the cf-cli package that is provided by the cf-cli-6-linux job from another
