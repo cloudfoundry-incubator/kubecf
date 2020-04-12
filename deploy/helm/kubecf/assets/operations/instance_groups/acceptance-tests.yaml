@@ -5,6 +5,11 @@
   value:
     azs:
     - z1
+    env:
+      bosh:
+        agent:
+          settings:
+            disableLogSidecar: true
     instances: 1
     jobs:
     - name: acceptance-tests

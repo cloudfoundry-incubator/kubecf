@@ -10,6 +10,7 @@
         agent:
           settings:
             serviceAccountName: tests-brain
+            disableLogSidecar: true
     instances: 1
     jobs:
     - name: acceptance-tests-brain

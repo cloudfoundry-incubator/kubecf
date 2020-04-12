@@ -10,6 +10,7 @@
         agent:
           settings:
             serviceAccountName: tests-sits
+            disableLogSidecar: true
     instances: 1
     jobs:
     - name: sync-integration-tests
