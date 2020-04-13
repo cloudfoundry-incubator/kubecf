@@ -1194,7 +1194,6 @@ jobs:
       passed:
       - build
     - get: catapult
-    # TODO: Where should I get the task definition from? kubecf? which checkout?
   - task: upgrade
     timeout: 4h
     file: commit-to-test/.concourse/tasks/upgrade.yaml
