@@ -16,6 +16,7 @@ def _package_impl(ctx):
             "[[tars]]": multipath_sep.join([f.path for f in ctx.files.tars]),
             "[[generated]]": multipath_sep.join([f.path for f in ctx.files.generated]),
             "[[version]]": ctx.attr.version,
+            "[[subcharts]]": multipath_sep.join([f.path for f in ctx.files.subcharts]),
             "[[helm]]": ctx.executable._helm.path,
             "[[output_tgz]]": output_tgz.path,
         },
@@ -23,7 +24,11 @@ def _package_impl(ctx):
     )
     ctx.actions.run_shell(
         command = "ruby {}".format(package_script.path),
-        inputs = [package_script] + ctx.files.srcs + ctx.files.tars + ctx.files.generated,
+        inputs = [package_script] +
+            ctx.files.srcs +
+            ctx.files.tars +
+            ctx.files.generated +
+            ctx.files.subcharts,
         outputs = outputs,
         tools = [ctx.executable._helm],
     )
@@ -44,6 +49,7 @@ _package = rule(
             mandatory = False,
             default = "",
         ),
+        "subcharts": attr.label_list(),
         "_helm": attr.label(
             allow_single_file = True,
             cfg = "host",
