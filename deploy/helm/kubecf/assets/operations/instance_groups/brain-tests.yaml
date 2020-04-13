@@ -11,6 +11,7 @@
           settings:
             serviceAccountName: tests-brain
             disable_log_sidecar: true
+            jobBackoffLimit: 1
     instances: 1
     jobs:
     - name: acceptance-tests-brain

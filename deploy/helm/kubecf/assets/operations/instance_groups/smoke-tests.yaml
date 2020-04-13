@@ -8,6 +8,10 @@
   path: /instance_groups/name=smoke-tests/env?/bosh/agent/settings/disable_log_sidecar
   value: true
 
+- type: replace
+  path: /instance_groups/name=smoke-tests/env?/bosh/agent/settings/jobBackoffLimit
+  value: 1
+
 # The smoke-tests require the cf-cli package that is provided by the cf-cli-6-linux job from another
 # BOSH release. Since the /var/vcap/packages directory is not shared between the containers of different
 # releases, smoke-tests won't have access # to the cf-cli package. 
