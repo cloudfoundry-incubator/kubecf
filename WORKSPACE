@@ -3,8 +3,8 @@ workspace(name = "kubecf")
 load(":def.bzl", "project")
 
 local_repository(
-    name = "workspace_status",
-    path = "rules/workspace_status",
+    name = "workspace",
+    path = "rules/workspace",
 )
 
 local_repository(
