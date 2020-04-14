@@ -14,7 +14,7 @@
 # Jobs that are stable and ready should go into $prod.
 
 # Queue jobs don't end up in contexts. But they are showed in prod tab view
-{{ $queue := slice "queue-pr" "queue-master" "queue-fork-pr" "publish"}}
+{{ $queue := slice "queue-pr" "queue-master" "queue-v2.0.0" "queue-fork-pr" "publish"}}
 
 
 # Production ready Jobs
