@@ -98,6 +98,12 @@ resources:
     branch: master
     uri: https://github.com/{{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
 
+- name: kubecf-v2.0.0
+  type: git
+  source:
+    branch: v2.0.0
+    uri: https://github.com/{{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
+
 - name: kubecf-pr
   type: pull-request
   check_every: 10m
@@ -315,6 +321,24 @@ jobs:
       description: "Queued"
       state: "pending"
       trigger: "master"
+      metadata_path: ""
+      github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
+- name: queue-v2.0.0
+  public: true
+  plan:
+  - get: kubecf-v2.0.0
+    params:
+      integration_tool: checkout
+    trigger: {{ if (has . "auto_triggers") }}{{ .auto_triggers }}{{ else }}true{{ end }}
+  - put: commit-to-test
+    params:
+      <<: *commit-status
+      commit_path: "kubecf-v2.0.0/.git/ref"
+      remote: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
+      remote_path: ""
+      description: "Queued"
+      state: "pending"
+      trigger: "v2.0.0"
       metadata_path: ""
       github_status: {{ if (has . "github_status") }}{{ .github_status }}{{ else }}true{{ end }}
 - name: lint
@@ -1207,4 +1231,3 @@ jobs:
         <<: *cleanup-cluster
     - put: kind-environments
       params: { remove : kind-environments}
-
