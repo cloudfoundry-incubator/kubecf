@@ -8,28 +8,28 @@
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/webdav_config?/private_endpoint?
-  value: "https://{{ .Release.Name }}-singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local:4443"
+  value: "https://singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local:4443"
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config?/private_endpoint?
-  value: "https://{{ .Release.Name }}-singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local:4443"
+  value: "https://singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local:4443"
 - type: replace
   path: /variables/name=blobstore_tls/options/alternative_names?/-
-  value: "{{ .Release.Name }}-singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
   path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?/-
-  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
-  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
-  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
   path: /variables/name=cc_public_tls/options/alternative_names?/-
-  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
   path: /variables/name=cc_tls/options/alternative_names?/-
-  value: "{{ .Release.Name }}-api.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "api.{{ .Release.Namespace }}.svc.cluster.local"
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/opi_staging?

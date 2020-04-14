@@ -374,47 +374,47 @@ eirini:
       enable: true
       tls:
         client:
-          secretName: "kubecf.var-eirini-tls-client-cert"
+          secretName: "var-eirini-tls-client-cert"
           certPath: "certificate"
           keyPath: "private_key"
         cc_uploader:
-          secretName: "kubecf.var-cc-bridge-cc-uploader"
+          secretName: "var-cc-bridge-cc-uploader"
           certPath: "certificate"
           keyPath: "private_key"
         ca:
-          secretName: "kubecf.var-eirini-tls-client-cert"
+          secretName: "var-eirini-tls-client-cert"
           path: "ca"
         stagingReporter:
-          secretName: "kubecf.var-eirini-tls-client-cert"
+          secretName: "var-eirini-tls-client-cert"
           certPath: "certificate"
           keyPath: "private_key"
           caPath: "ca"
 
     tls:
       opiCapiClient:
-        secretName: "kubecf.var-eirini-tls-client-cert"
+        secretName: "var-eirini-tls-client-cert"
         keyPath: "private_key"
         certPath: "certificate"
       opiServer:
-        secretName: "kubecf.var-eirini-tls-server-cert"
+        secretName: "var-eirini-tls-server-cert"
         certPath: "certificate"
         keyPath: "private_key"
       capi:
-        secretName: "kubecf.var-eirini-tls-server-cert"
+        secretName: "var-eirini-tls-server-cert"
         caPath: "ca"
       eirini:
-        secretName: "kubecf.var-eirini-tls-server-cert"
+        secretName: "var-eirini-tls-server-cert"
         caPath: "ca"
 
     events:
       enable: true
       tls:
         capiClient:
-          secretName: "kubecf.var-cc-tls"
+          secretName: "var-cc-tls"
           keyPath: "private_key"
           certPath: "certificate"
         capi:
-          secretName: "kubecf.var-cc-tls"
+          secretName: "var-cc-tls"
           caPath: "ca"
 
     logs:
@@ -422,22 +422,22 @@ eirini:
       serviceName: "kubecf-doppler"
       tls:
         client:
-          secretName: "kubecf.var-loggregator-tls-agent"
+          secretName: "var-loggregator-tls-agent"
           keyPath: "private_key"
           certPath: "certificate"
         server:
-          secretName: "kubecf.var-loggregator-tls-agent"
+          secretName: "var-loggregator-tls-agent"
           caPath: "ca"
 
     metrics:
       enable: true
       tls:
         client:
-          secretName: "kubecf.var-loggregator-tls-doppler"
+          secretName: "var-loggregator-tls-doppler"
           keyPath: "private_key"
           certPath: "certificate"
         server:
-          secretName: "kubecf.var-loggregator-tls-doppler"
+          secretName: "var-loggregator-tls-doppler"
           caPath: "ca"
 
     rootfsPatcher:
@@ -447,7 +447,7 @@ eirini:
     routing:
       enable: true
       nats:
-        secretName: "kubecf.var-nats-password"
+        secretName: "var-nats-password"
         passwordPath: "password"
         serviceName: "kubecf-nats"
 
@@ -469,7 +469,7 @@ bits:
     serviceName: "kubecf-singleton-blobstore"
     userName: "blobstore-user"
     secret:
-      name: "kubecf.var-blobstore-admin-users-password"
+      name: "var-blobstore-admin-users-password"
       passwordPath: "password"
   
   secrets:
