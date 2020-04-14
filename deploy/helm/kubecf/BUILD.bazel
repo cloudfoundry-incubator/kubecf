@@ -101,6 +101,7 @@ helm_package(
         ":cf_deployment",
         ":extracted_jobs",
     ],
+    version = "v2.0.0",
 )
 
 genrule(
