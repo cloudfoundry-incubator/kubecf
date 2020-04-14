@@ -23,7 +23,7 @@
 {{ $prod := slice "lint" "build" "cf-acceptance-tests-diego" "smoke-tests-diego"}}
 
 # Jobs that aren't reliable yet, nor production ready
-{{ $noprod := slice "cf-acceptance-tests-eirini" "smoke-tests-eirini"}}
+{{ $noprod := slice "cf-acceptance-tests-eirini" "smoke-tests-eirini" "upgrade-test"}}
 
 # Add jobs for each scheduler in the correct category
 {{range $_, $cfScheduler := $availableCfSchedulers }}
@@ -83,6 +83,13 @@ resources:
     bucket_subfolder: {{ if has . "s3_bucket_folder" }}{{ .s3_bucket_folder }}{{ else }}build-queue{{ end }}
     aws_access_key_id: ((aws-access-key))
     aws_secret_access_key: ((aws-secret-key))
+    access_token: ((github-access-token))
+
+- name: kubecf-github-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: kubecf
     access_token: ((github-access-token))
 
 - name: kubecf-master
@@ -429,7 +436,6 @@ jobs:
     params:
       file: output/kubecf-bundle-v*.tgz
       acl: public-read
-
 
 {{- range $_, $cfScheduler := $availableCfSchedulers }}
 
@@ -1168,3 +1174,34 @@ jobs:
       - put: s3.kubecf-bundle
         params:
           file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
+
+- name: upgrade-test
+  plan:
+  - in_parallel:
+    - put: kind-environments
+      params: {acquire: true}
+      timeout: 4h # timeout should be long at least for the full pipeline to complete
+    - get: kubecf-github-release
+    - get: commit-to-test
+      trigger: true
+      version: "every"
+      passed:
+      - build
+    - get: s3.kubecf-ci
+      passed:
+      - build
+    - get: s3.kubecf-ci-bundle
+      passed:
+      - build
+    - get: catapult
+  - task: upgrade
+    timeout: 4h
+    file: commit-to-test/.concourse/tasks/upgrade.yaml
+  ensure:
+    do:
+    - task: cleanup-cluster
+      config:
+        <<: *cleanup-cluster
+    - put: kind-environments
+      params: { remove : kind-environments}
+
