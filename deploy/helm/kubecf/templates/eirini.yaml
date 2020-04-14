@@ -179,3 +179,21 @@ subjects:
   namespace: {{ .Release.Namespace }}
 
 {{- end }}
+
+# Create the bits secret
+{{- if and .Values.features.eirini.enabled .Values.features.eirini.use_helm_release }}
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksSecret
+metadata:
+  name: generate-certificate
+spec:
+  request:
+    certificate:
+      alternativeNames: null
+      commonName: bits
+      isCA: false
+      signerType: cluster
+  secretName: var-bits-service-ssl
+  type: certificate
+{{- end }}
