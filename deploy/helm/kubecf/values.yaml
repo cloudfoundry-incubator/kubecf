@@ -119,7 +119,7 @@ releases:
     version: "1.7.12.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.19-7.0.0_374.gb8e8e6af
+      version: 23.21-7.0.0_374.gb8e8e6af
     file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.12.1-2.1-ebd0f50d.zip
   suse-php-buildpack:
     url: registry.suse.com/cap-staging
