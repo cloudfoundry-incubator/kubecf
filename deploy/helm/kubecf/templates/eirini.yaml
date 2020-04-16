@@ -190,7 +190,17 @@ metadata:
 spec:
   request:
     certificate:
-      alternativeNames: null
+      alternativeNames:
+        # TODO (is this ok?): Deep checking if .Values.opi.use_registry_ingress is really ugly
+        # https://stackoverflow.com/questions/59795596/helm-optional-nested-variables
+        # Let the user define it in the top level values if need be.
+        {{- if .Values.eirini.opi.use_registry_ingress }}
+        - "registry.{{ .Values.eirini.opi.ingress_endpoint }}"
+        {{- else if .Values.services.loadbalanced }}
+        - "registry.{{ .Values.system_domain }}"
+        {{- else }}
+        - "registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
+        {{- end }}
       commonName: bits
       isCA: false
       signerType: cluster
