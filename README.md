@@ -56,7 +56,7 @@ At the time of this writing these were:
 |minikube      | 1.6.2             |                                    |
 |kind          | 0.6.0             |                                    |
 |kubectl       | 1.15.6            |                                    |
-|Helm          | 2.16.1            | 2.(latest_minor) and 3 should work |
+|Helm          | 3.1.1             |                                    |
 |CF Operator   | 2.0.0-0.g0142d1e9 |                                    |
 |cf-deployment | 12.18.0           |                                    |
 
