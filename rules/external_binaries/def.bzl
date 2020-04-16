@@ -12,32 +12,52 @@ def _external_binary_impl(ctx):
         "url": url,
         "sha256": ctx.attr.sha256[os],
     }
+
+    if ctx.attr.strip_prefix.get(os, "") != "":
+        args["stripPrefix"] = ctx.attr.strip_prefix[os]
+
     if any([url.endswith(suffix) for suffix in [".zip", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz"]]):
-        ctx.download_and_extract(output="{name}/{name}_out".format(name = ctx.attr.name), **args)
+        ctx.download_and_extract(output = ".", **args)
+        build_contents = """
+        package(default_visibility = ["//visibility:public"])
+
+        load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+
+        filegroup(
+            name = "{name}_filegroup",
+            srcs = glob([
+                "**/{name}",
+                "**/{name}.exe",
+            ]),
+        )
+
+        copy_file(
+            name = "binary",
+            src = ":{name}_filegroup",
+            out = ".binary",
+            is_executable = True,
+        )
+
+        exports_files(glob(["**/*"]))
+        """.format(name = ctx.attr.name)
     else:
         args["executable"] = True
-        ctx.download(output="{name}/{name}".format(name = ctx.attr.name), **args)
+        ctx.download(output = "{name}".format(name = ctx.attr.name), **args)
+        build_contents = """
+        package(default_visibility = ["//visibility:public"])
 
-    build_contents = """
-    package(default_visibility = ["//visibility:public"])
+        load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
-    load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+        exports_files(["{name}"])
 
-    filegroup(
-        name = "{name}_filegroup",
-        srcs = glob([
-            "**/{name}",
-            "**/{name}.exe",
-        ]),
-    )
+        copy_file(
+            name = "binary",
+            src = ":{name}",
+            out = ".binary",
+            is_executable = True,
+        )
+        """.format(name = ctx.attr.name)
 
-    copy_file(
-        name = "binary",
-        src = ":{name}_filegroup",
-        out = "{name}",
-        is_executable = True,
-    )
-    """.format(name = ctx.attr.name)
     build_contents = '\n'.join([x.lstrip(' ') for x in build_contents.splitlines()])
     ctx.file("BUILD.bazel", build_contents)
 
@@ -56,15 +76,17 @@ _external_binary = repository_rule(
             doc = "Version of the binary",
             mandatory = False,
         ),
+        "strip_prefix": attr.string_dict(
+            allow_empty = True,
+            doc = "Directory prefixex to strip from the extracted files",
+        ),
     },
 )
 
 def external_binary(name, config):
     _external_binary(
         name = name,
-        sha256 = config.sha256,
-        url = config.url,
-        version = config.version,
+        **config
     )
 
 def _binary_location_impl(ctx):
