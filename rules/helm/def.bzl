@@ -2,6 +2,13 @@
 The definitions and implementations of the Bazel rules for dealing with Helm.
 """
 
+_helm_attr = attr.label(
+    allow_single_file = True,
+    cfg = "host",
+    default = "@helm//:helm",
+    executable = True,
+)
+
 def _package_impl(ctx):
     output_filename = "{}.tgz".format(ctx.attr.name)
     output_tgz = ctx.actions.declare_file(output_filename)
@@ -50,12 +57,7 @@ _package = rule(
             default = "",
         ),
         "subcharts": attr.label_list(),
-        "_helm": attr.label(
-            allow_single_file = True,
-            cfg = "host",
-            default = "@helm//:binary",
-            executable = True,
-        ),
+        "_helm": _helm_attr,
         "_script_tmpl": attr.label(
             allow_single_file = True,
             default = "//rules/helm:package_tmpl_rb",
@@ -69,6 +71,67 @@ def package(**kwargs):
         **kwargs
     )
 
+def _dependencies_impl(ctx):
+    # Get the attribute absolute paths.
+    helm = ctx.path(ctx.attr._helm)
+    chart_yaml = ctx.path(ctx.attr.chart_yaml)
+    requirements = ctx.path(ctx.attr.requirements)
+    requirements_lock = ctx.path(ctx.attr.requirements_lock)
+
+    # Symlink the required files into the cache.
+    ctx.symlink(chart_yaml, "Chart.yaml")
+    ctx.symlink(requirements, "requirements.yaml")
+    ctx.symlink(requirements_lock, "requirements.lock")
+
+    # Fetch the dependencies.
+    ctx.execute([helm, "dep", "up"])
+
+    # Create the workspace root BUILD.bazel.
+    ctx.file("BUILD.bazel", 'package(default_visibility = ["//visibility:public"])\n')
+
+    # Create the charts/BUILD.bazel exporting the fetched charts.
+    charts_build = """
+    package(default_visibility = ["//visibility:public"])
+
+    filegroup(
+        name = "charts",
+        srcs = glob(
+            ["**/*"],
+            exclude = ["**/BUILD.bazel"],
+        ),
+    )
+    """
+    charts_build = '\n'.join([x.lstrip(' ') for x in charts_build.splitlines()])
+    ctx.file("charts/BUILD.bazel", charts_build)
+
+dependencies = repository_rule(
+    _dependencies_impl,
+    doc = """A repository rule for fetching and caching Helm dependencies.
+
+    It creates a filegroup that exports all the files under the charts/ directory in the cache after
+    `helm dep up` runs.
+    """,
+    attrs = {
+        "chart_yaml": attr.label(
+            allow_single_file = True,
+            doc = "The Chart.yaml file containing the chart metadata",
+            mandatory = True,
+        ),
+        "requirements": attr.label(
+            allow_single_file = True,
+            doc = "The requirements.yaml file containing the Helm dependencies",
+            mandatory = True,
+        ),
+        "requirements_lock": attr.label(
+            allow_single_file = True,
+            doc = "The requirements.lock file containing the locked Helm dependencies",
+            mandatory = True,
+        ),
+        "_helm": _helm_attr,
+    },
+    local = True,
+)
+
 _common_attrs = {
     "install_name": attr.string(
         doc = "The Helm installation name for the chart",
@@ -78,12 +141,7 @@ _common_attrs = {
         doc = "The namespace to install the Helm chart",
         mandatory = True,
     ),
-    "_helm": attr.label(
-        allow_single_file = True,
-        cfg = "host",
-        default = "@helm//:binary",
-        executable = True,
-    ),
+    "_helm": _helm_attr,
 }
 
 def _template_impl(ctx):
@@ -168,12 +226,7 @@ version = rule(
             allow_single_file = True,
             mandatory = True,
         ),
-        "_helm": attr.label(
-            allow_single_file = True,
-            cfg = "host",
-            default = "@helm//:binary",
-            executable = True,
-        ),
+        "_helm": _helm_attr,
     },
 )
 
