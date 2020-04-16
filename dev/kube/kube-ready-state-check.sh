@@ -114,12 +114,6 @@ if having_category kube ; then
     status "all kube-dns pods should be running (show N/N ready)"
 fi
 
-# tiller-deploy shows all pods ready
-if having_category kube ; then
-    kubectl get pods --namespace=kube-system --selector name=tiller 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
-    status "all tiller pods should be running (N/N ready)"
-fi
-
 # ntp or systemd-timesyncd is installed and running
 if having_category api node ; then
     pgrep -x ntpd >& /dev/null || pgrep -x chronyd >& /dev/null || systemctl is-active systemd-timesyncd >& /dev/null
