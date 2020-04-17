@@ -71,3 +71,47 @@ workspace_status = rule(
         ),
     },
 )
+
+def _yaml_loader(ctx):
+    # Check if the output file name has the .bzl extension.
+    out_ext = ctx.attr.out[len(ctx.attr.out)-4:]
+    if out_ext != ".bzl":
+        fail("Expected output file ({out}) to have .bzl extension".format(out = ctx.attr.out))
+
+    # Get the src absolute path and write the Python script that generates the output .bzl file.
+    src = ctx.path(ctx.attr.src)
+    script = """
+import yaml
+
+with open("{src}", "r") as stream:
+    for key, value in yaml.safe_load(stream).items():
+        print(key + " = " + str(value))
+""".format(src = src)
+    ctx.file("script.py", script)
+
+    # Execute the script.
+    res = ctx.execute(["python", "script.py"])
+    if res.return_code != 0:
+        fail(res.stderr)
+
+    # Write the .bzl file with the YAML contents converted.
+    ctx.file(ctx.attr.out, res.stdout)
+
+    # An empty BUILD.bazel is only needed to indicate it's a Bazel package.
+    ctx.file("BUILD.bazel", "")
+
+yaml_loader = repository_rule(
+    _yaml_loader,
+    doc = "A repository rule to load a YAML file into a Starlark dictionary",
+    attrs = {
+        "src": attr.label(
+            allow_single_file = True,
+            doc = "The YAML file to be loaded into a Starlark dictionary",
+            mandatory = True,
+        ),
+        "out": attr.string(
+            doc = "The output file name",
+            mandatory = True,
+        ),
+    },
+)
