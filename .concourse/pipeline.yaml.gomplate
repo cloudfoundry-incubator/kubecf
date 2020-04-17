@@ -39,7 +39,7 @@
 
 {{ $group_prod := slice "publish" }}
 {{ $group_noprod := slice }}
-{{ $group_all := slice }}
+{{ $group_all := slice "publish" }}
 
 {{ range $_, $branch := (flatten (slice $branches $pr_resources) | uniq ) }}
 {{ range $_, $test := $prod }}
