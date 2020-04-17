@@ -195,6 +195,12 @@ filegroup(
             urls = ["https://github.com/codelogia/rules_gomplate/archive/{version}.tar.gz"],
             version = "3ab8ff7a25d9c13c8a9d2c5a122241c745a92570",
         ),
+        "suse_rules_binaries": struct(
+            urls = ["https://github.com/SUSE/rules_binaries/archive/v{version}.tar.gz"],
+            version = "0.1.0",
+            sha256 = "26212909741ffd6cb5b4f48cc35f8eec21497582b64b2ea51fe88c0048a1ec53",
+            strip_prefix = "rules_binaries-{version}",
+        ),
     },
 
     # Additional files we need to download

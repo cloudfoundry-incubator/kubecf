@@ -1,25 +1,13 @@
 workspace(name = "kubecf")
 
-load(":def.bzl", "project")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
 local_repository(
     name = "workspace_status",
     path = "rules/workspace_status",
 )
 
-local_repository(
-    name = "external_binaries",
-    path = "rules/external_binaries",
-)
-
-load("@external_binaries//:def.bzl", "external_binary")
-
-[external_binary(
-    name = name,
-    config = config,
-) for name, config in project.external_binaries.items()]
-
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+load(":def.bzl", "project")
 
 [http_archive(
     name = name,
@@ -34,6 +22,13 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file"
     urls = [u.format(version = getattr(config, "version", "")) for u in config.urls],
     sha256 = config.sha256,
 ) for name, config in project.external_files.items()]
+
+load("@suse_rules_binaries//:def.bzl", "binary")
+
+[binary(
+    name = name,
+    config = config,
+) for name, config in project.external_binaries.items()]
 
 load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
 
