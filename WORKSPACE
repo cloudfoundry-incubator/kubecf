@@ -1,6 +1,19 @@
 workspace(name = "kubecf")
 
-load(":def.bzl", "project")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+
+http_archive(
+    name = "bazel_skylib",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+    ],
+    sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
+)
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
 
 local_repository(
     name = "workspace",
@@ -12,28 +25,36 @@ local_repository(
     path = "rules/external_binaries",
 )
 
+load("@workspace//:def.bzl", "yaml_loader")
+
+yaml_loader(
+    name = "dependencies",
+    src = "@//:dependencies.yaml",
+    out = "def.bzl",
+)
+
+load("@dependencies//:def.bzl", "bazel_libs", "binaries", "external_files")
+
+[http_archive(
+    name = name,
+    sha256 = config["sha256"],
+    urls = [config["url"].format(version = config["version"])],
+    strip_prefix = config.get("strip_prefix", "").format(version = config["version"]),
+    build_file_content = config.get("build_file_content", None),
+) for name, config in bazel_libs.items()]
+
+[http_file(
+    name = name,
+    urls = [config["url"].format(version = config.get("version", ""))],
+    sha256 = config["sha256"],
+) for name, config in external_files.items()]
+
 load("@external_binaries//:def.bzl", "external_binary")
 
 [external_binary(
     name = name,
     config = config,
-) for name, config in project.external_binaries.items()]
-
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
-
-[http_archive(
-    name = name,
-    sha256 = config.sha256,
-    urls = [u.format(version = config.version) for u in config.urls],
-    strip_prefix = getattr(config, "strip_prefix", "").format(version = config.version),
-    build_file_content = getattr(config, "build_file_content", None),
-) for name, config in project.bazel_libs.items()]
-
-[http_file(
-    name = name,
-    urls = [u.format(version = getattr(config, "version", "")) for u in config.urls],
-    sha256 = config.sha256,
-) for name, config in project.external_files.items()]
+) for name, config in binaries.items()]
 
 load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
 
