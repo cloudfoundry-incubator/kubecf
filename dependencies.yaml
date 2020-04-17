@@ -1,58 +1,4 @@
 ---
-# External bazel libraries; see http_archive() invocation in WORKSPACE.
-bazel_libs:
-  cf_deployment:
-    build_file_content: |
-      package(default_visibility = ["//visibility:public"])
-
-      files = [
-          "cf-deployment.yml",
-          "operations/bits-service/use-bits-service.yml",
-          "operations/use-external-blobstore.yml",
-          "operations/use-s3-blobstore.yml",
-          "operations/bits-service/configure-bits-service-s3.yml",
-      ]
-
-      filegroup(
-          name = "cf_deployment",
-          srcs = files,
-      )
-
-      exports_files(files)
-
-    sha256: 7207c4e2bb2a5e1751d6393cff5621f2c84260f9a4646c91984f53c9890ca3d2
-    strip_prefix: cf-deployment-{version}
-    url: https://github.com/cloudfoundry/cf-deployment/archive/v{version}.tar.gz
-    version: 12.36.0
-  com_github_kubernetes_incubator_metrics_server:
-    build_file_content: |
-      package(default_visibility = ["//visibility:public"])
-
-      filegroup(
-          name = "deploy",
-          srcs = glob(["deploy/1.8+/**/*"]),
-      )
-
-    sha256: cb0626b297eeb14be20f53896bc0cd68b32d20a4e4b6c8becdef625e322a54ed
-    strip_prefix: metrics-server-{version}
-    url: https://github.com/kubernetes-incubator/metrics-server/archive/v{version}.tar.gz
-    version: 0.3.6
-  rules_python:
-    sha256: acbd018f11355ead06b250b352e59824fbb9e77f4874d250d230138231182c1c
-    strip_prefix: rules_python-{version}
-    url: https://github.com/bazelbuild/rules_python/archive/{version}.tar.gz
-    version: 94677401bc56ed5d756f50b441a6a5c7f735a6d4
-  rules_gomplate:
-    sha256: 5f2c173824020dea6923e0fa20d13df4a1d4cbe264acc009efa41f8a1a50e7d4
-    strip_prefix: rules_gomplate-{version}
-    url: https://github.com/codelogia/rules_gomplate/archive/{version}.tar.gz
-    version: 3ab8ff7a25d9c13c8a9d2c5a122241c745a92570
-  suse_rules_binaries:
-    sha256: 26212909741ffd6cb5b4f48cc35f8eec21497582b64b2ea51fe88c0048a1ec53
-    strip_prefix: rules_binaries-{version}
-    url: https://github.com/SUSE/rules_binaries/archive/v{version}.tar.gz
-    version: 0.1.0
-
 # External binaries; see binary() invocation in WORKSPACE.
 binaries:
   bosh_cli:
@@ -179,3 +125,57 @@ external_files:
 
 kubernetes:
   version: 1.15.6
+
+# External bazel libraries; see http_archive() invocation in WORKSPACE.
+bazel_libs:
+  cf_deployment:
+    build_file_content: |
+      package(default_visibility = ["//visibility:public"])
+
+      files = [
+          "cf-deployment.yml",
+          "operations/bits-service/use-bits-service.yml",
+          "operations/use-external-blobstore.yml",
+          "operations/use-s3-blobstore.yml",
+          "operations/bits-service/configure-bits-service-s3.yml",
+      ]
+
+      filegroup(
+          name = "cf_deployment",
+          srcs = files,
+      )
+
+      exports_files(files)
+
+    sha256: 7207c4e2bb2a5e1751d6393cff5621f2c84260f9a4646c91984f53c9890ca3d2
+    strip_prefix: cf-deployment-{version}
+    url: https://github.com/cloudfoundry/cf-deployment/archive/v{version}.tar.gz
+    version: 12.36.0
+  com_github_kubernetes_incubator_metrics_server:
+    build_file_content: |
+      package(default_visibility = ["//visibility:public"])
+
+      filegroup(
+          name = "deploy",
+          srcs = glob(["deploy/1.8+/**/*"]),
+      )
+
+    sha256: cb0626b297eeb14be20f53896bc0cd68b32d20a4e4b6c8becdef625e322a54ed
+    strip_prefix: metrics-server-{version}
+    url: https://github.com/kubernetes-incubator/metrics-server/archive/v{version}.tar.gz
+    version: 0.3.6
+  rules_python:
+    sha256: acbd018f11355ead06b250b352e59824fbb9e77f4874d250d230138231182c1c
+    strip_prefix: rules_python-{version}
+    url: https://github.com/bazelbuild/rules_python/archive/{version}.tar.gz
+    version: 94677401bc56ed5d756f50b441a6a5c7f735a6d4
+  rules_gomplate:
+    sha256: 5f2c173824020dea6923e0fa20d13df4a1d4cbe264acc009efa41f8a1a50e7d4
+    strip_prefix: rules_gomplate-{version}
+    url: https://github.com/codelogia/rules_gomplate/archive/{version}.tar.gz
+    version: 3ab8ff7a25d9c13c8a9d2c5a122241c745a92570
+  suse_rules_binaries:
+    sha256: 26212909741ffd6cb5b4f48cc35f8eec21497582b64b2ea51fe88c0048a1ec53
+    strip_prefix: rules_binaries-{version}
+    url: https://github.com/SUSE/rules_binaries/archive/v{version}.tar.gz
+    version: 0.1.0
