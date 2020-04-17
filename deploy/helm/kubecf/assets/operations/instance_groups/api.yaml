@@ -122,6 +122,13 @@
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/database_encryption?
   value: *encryption_info
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/database_encryption?
+  value: *encryption_info
+# XXX encryption_info is also used by cc_route_syncer (see CF-K8s-Networking)
+#- type: replace
+#  path: /instance_groups/name=?????/jobs/name=cc_route_syncer/properties/cc/database_encryption?
+#  value: *encryption_info
 
 # core_file_pattern should be disabled as CC is not running on a VM.
 - type: replace
