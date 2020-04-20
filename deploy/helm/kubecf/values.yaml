@@ -244,6 +244,10 @@ features:
     registry:
       service:
         nodePort: 32123
+    rbac:
+      webhook:
+        cluster_role:
+          rules: []
   ingress:
     enabled: false
     tls:

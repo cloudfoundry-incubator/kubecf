@@ -12,7 +12,7 @@ metadata:
 rules:
 - apiGroups: ['admissionregistration.k8s.io']
   resources: ['mutatingwebhookconfigurations']
-  verbs:     ['*']
+  verbs: ['*']
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -27,6 +27,31 @@ subjects:
 - kind: ServiceAccount
   name: eirini
   namespace: {{ .Release.Namespace }}
+
+{{- if gt (len .Values.features.eirini.rbac.webhook.cluster_role.rules) 0 }}
+# eirini-webhook-user-provided cluster role for eirini service account.
+# If user provides a customized cluster role, it is used to implement eirinix extensions.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Namespace }}:eirini-webhook-user-provided
+rules: {{ .Values.features.eirini.rbac.webhook.cluster_role.rules | toJson }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Namespace }}:eirini-webhook-user-provided
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Namespace }}:eirini-webhook-user-provided
+subjects:
+- kind: ServiceAccount
+  name: eirini
+  namespace: {{ .Release.Namespace }}
+{{- end }}
 
 # A service for the cc uploader
 ---
