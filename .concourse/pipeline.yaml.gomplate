@@ -233,7 +233,14 @@ rotate_args: &rotate_args
 
 jobs:
 
+{{ $path := "" }}
 {{- range $_, $branch := flatten (slice $branches $pr_resources)  }}
+
+{{ if or (eq $branch "fork-pr") (eq $branch "pr" )}}
+{{ $path = ".git/resource/head_sha" }}
+{{ else }}
+{{ $path = ".git/short_ref" }}
+{{ end }}
 
 - name: lint-{{ $branch }}
   public: true
@@ -248,7 +255,7 @@ jobs:
     params: &lint_{{ $branch }}_status
         context: lint
         description: "Lint started"
-        path: kubecf-{{ $branch }}/.git/short_ref
+        path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
   - task: lint
@@ -297,7 +304,7 @@ jobs:
     params: &build_{{ $branch }}_status
         context: build
         description: "Build started"
-        path: kubecf-{{ $branch }}/.git/short_ref
+        path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
   - task: build
@@ -369,7 +376,7 @@ jobs:
     params: &deploy_{{ $cfScheduler }}_{{ $branch }}_status
         context: "deploy-{{ $cfScheduler }}"
         description: "Deploy {{ $cfScheduler }}"
-        path: kubecf-{{ $branch }}/.git/short_ref
+        path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
   - task: deploy
@@ -483,7 +490,7 @@ jobs:
     params: &smoke_{{ $cfScheduler }}_{{ $branch }}_status
         context: "smoke-tests-{{ $cfScheduler }}"
         description: "Smoke tests {{ $cfScheduler }}"
-        path: kubecf-{{ $branch }}/.git/short_ref
+        path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
@@ -580,7 +587,7 @@ jobs:
     params: &cats_{{ $cfScheduler }}_{{ $branch }}_status
         context: "cf-acceptance-tests-{{ $cfScheduler }}"
         description: "Acceptance tests {{ $cfScheduler }}"
-        path: kubecf-{{ $branch }}/.git/short_ref
+        path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
@@ -681,7 +688,7 @@ jobs:
     params: &sits_{{ $cfScheduler }}_{{ $branch }}_status
         context: "sync-integration-tests-{{ $cfScheduler }}"
         description: "Sync Integration tests {{ $cfScheduler }}"
-        path: kubecf-{{ $branch }}/.git/short_ref
+        path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
@@ -782,7 +789,7 @@ jobs:
     params: &rotate_{{ $cfScheduler }}_{{ $branch }}_status
         context: "rotate-{{ $cfScheduler }}"
         description: "Rotating secrets {{ $cfScheduler }}"
-        path: kubecf-{{ $branch }}/.git/short_ref
+        path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
   - task: rotate-{{ $cfScheduler }}
@@ -883,7 +890,7 @@ jobs:
     params: &smoke_rotate_{{ $cfScheduler }}_{{ $branch }}_status
         context: "smoke-rotated-{{ $cfScheduler }}"
         description: "Smoke tests after rotating secrets {{ $cfScheduler }}"
-        path: kubecf-{{ $branch }}/.git/short_ref
+        path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
