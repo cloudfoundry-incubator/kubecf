@@ -240,8 +240,8 @@ settings:
 
 features:
   eirini:
-    enabled: false
-    use_helm_release: false
+    enabled: true
+    use_helm_release: true
     registry:
       service:
         nodePort: 32123
@@ -357,16 +357,17 @@ k8s-service-username: ""
 k8s-node-ca: ""
 
 eirini:
+  services:
+    loadbalanced: true
   opi:
+    namespace: eirini
+    kubecf:
+      enable: false
     use_registry_ingress: false
     ingress_endpoint: ~
     kube:
       external_ips: []
-    services:
-      loadbalanced: false
-
     deny_app_ingress: false
-
     cc_api:
       serviceName: "api"
 
@@ -463,7 +464,7 @@ bits:
   kube:
     external_ips: []
   services:
-    loadbalanced: false
+    loadbalanced: true
 
   blobstore:
     serviceName: "singleton-blobstore"
@@ -473,6 +474,11 @@ bits:
       passwordPath: "password"
   
   secrets:
-    BITS_SERVICE_SECRET: ~
-    BITS_SERVICE_SIGNING_USER_PASSWORD: ~
+    BITS_SERVICE_SECRET: "secret"
+    BITS_SERVICE_SIGNING_USER_PASSWORD: "notpassword123"
 
+  useExistingSecret: true
+  tls_secret_name: bits-service-ssl
+  tls_cert_name: certificate
+  tls_key_name: private_key
+  tls_ca_name: ca

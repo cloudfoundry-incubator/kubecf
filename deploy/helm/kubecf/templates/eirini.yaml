@@ -186,24 +186,82 @@ subjects:
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksSecret
 metadata:
-  name: generate-certificate
+  name: bits-service-ssl
 spec:
   request:
     certificate:
       alternativeNames:
-        # TODO (is this ok?): Deep checking if .Values.opi.use_registry_ingress is really ugly
-        # https://stackoverflow.com/questions/59795596/helm-optional-nested-variables
-        # Let the user define it in the top level values if need be.
-        {{- if .Values.eirini.opi.use_registry_ingress }}
-        - "registry.{{ .Values.eirini.opi.ingress_endpoint }}"
-        {{- else if .Values.services.loadbalanced }}
-        - "registry.{{ .Values.system_domain }}"
-        {{- else }}
-        - "registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
-        {{- end }}
+      {{- if .Values.eirini.opi.use_registry_ingress }}
+      - "registry.{{ .Values.eirini.opi.ingress_endpoint }}"
+      {{- else if .Values.eirini.services.loadbalanced }}
+      - "registry.{{ .Values.system_domain }}"
+      {{- else }}
+      - "registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
+      {{- end }}
       commonName: bits
       isCA: false
       signerType: cluster
-  secretName: var-bits-service-ssl
+  secretName: bits-service-ssl
   type: certificate
+
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksSecret
+metadata:
+  name: var-cc-bridge-cc-uploader
+spec:
+  request:
+    certificate:
+      alternativeNames:
+      {{- if .Values.eirini.opi.use_registry_ingress }}
+      - "registry.{{ .Values.eirini.opi.ingress_endpoint }}"
+      {{- else if .Values.eirini.services.loadbalanced }}
+      - "registry.{{ .Values.system_domain }}"
+      {{- else }}
+      - "registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
+      {{- end }}
+      commonName: bits
+      isCA: false
+      signerType: cluster
+  secretName: var-cc-bridge-cc-uploader
+  type: certificate
+
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksSecret
+metadata:
+  name: bits-service-ssl
+spec:
+  request:
+    certificate:
+      alternativeNames:
+      {{- if .Values.eirini.opi.use_registry_ingress }}
+      - "registry.{{ .Values.eirini.opi.ingress_endpoint }}"
+      {{- else if .Values.eirini.services.loadbalanced }}
+      - "registry.{{ .Values.system_domain }}"
+      {{- else }}
+      - "registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
+      {{- end }}
+      commonName: bits
+      isCA: false
+      signerType: cluster
+  secretName: bits-service-ssl
+  type: certificate
+
+{{- define "imagePullSecret" }}
+  {{- if .Values.eirini.opi.use_registry_ingress }}
+    {{- printf "{\"auths\": {\"registry.%s\": {\"auth\": \"%s\"}}}" .Values.eirini.opi.ingress_endpoint (printf "admin:%s" .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD | b64enc) | b64enc }}
+  {{- else if .Values.eirini.services.loadbalanced }}
+    {{- printf "{\"auths\": {\"registry.%s\": {\"auth\": \"%s\"}}}" .Values.system_domain (printf "admin:%s" .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD | b64enc) | b64enc }}
+  {{- else }}
+    {{- printf "{\"auths\": {\"registry.%s.nip.io\": {\"auth\": \"%s\"}}}" index .Values.kube.external_ips 0 (printf "admin:%s" .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD | b64enc) | b64enc }}
+  {{- end }}
+{{- end }}
+
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksSecret
+metadata:
+  name: registry-secret-name
+  namespace: {{ .Values.eirini.opi.namespace }}
+spec:
+  data:
+    .dockerconfigjson: {{ template "imagePullSecret" . }}
 {{- end }}

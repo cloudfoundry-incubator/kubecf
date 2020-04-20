@@ -19,6 +19,11 @@
   path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?/-
   value: "api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
+  path: /variables/name=cc_bridge_cc_uploader_server/options/copies?/-
+  value:
+  - namespace: {{ .Values.eirini.opi.namespace }}
+    name: var-cc-bridge-cc-uploader
+- type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
   value: "api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
@@ -103,6 +108,7 @@
       - "eirini-opi.{{ .Release.Namespace }}.svc.cluster.local"
       extended_key_usage:
       - server_auth
+
 - type: replace
   path: /variables/name=eirini_tls_client_cert?
   value:
@@ -113,4 +119,8 @@
       common_name: cloud_controller
       extended_key_usage:
       - client_auth
+      copies:
+      - namespace: {{ .Values.eirini.opi.namespace }}
+        name: var-eirini-tls-client-cert
+      
 {{- end }}
