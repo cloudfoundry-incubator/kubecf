@@ -376,7 +376,7 @@ jobs:
     privileged: true
     timeout: 3h30m
     input_mapping:
-      kubecf-{{ $branch }}: kubecf
+      kubecf: kubecf-{{ $branch }}
     config:
       platform: linux
       image_resource:
@@ -489,7 +489,7 @@ jobs:
   - task: test-{{ $cfScheduler }}
     privileged: true
     input_mapping:
-      kubecf-{{ $branch }}: kubecf
+      kubecf: kubecf-{{ $branch }}
     timeout: 1h30m
     config:
       platform: linux
@@ -587,7 +587,7 @@ jobs:
     privileged: true
     timeout: 5h30m
     input_mapping:
-      kubecf-{{ $branch }}: kubecf
+      kubecf: kubecf-{{ $branch }}
     config:
       platform: linux
       image_resource:
@@ -688,7 +688,7 @@ jobs:
     privileged: true
     timeout: 1h30m
     input_mapping:
-      kubecf-{{ $branch }}: kubecf
+      kubecf: kubecf-{{ $branch }}
     config:
       platform: linux
       image_resource:
@@ -789,7 +789,7 @@ jobs:
     privileged: true
     timeout: 1h30m
     input_mapping:
-      kubecf-{{ $branch }}: kubecf
+      kubecf: kubecf-{{ $branch }}
     config:
       platform: linux
       image_resource:
@@ -889,7 +889,7 @@ jobs:
   - task: test-{{ $cfScheduler }}
     privileged: true
     input_mapping:
-      kubecf-{{ $branch }}: kubecf
+      kubecf: kubecf-{{ $branch }}
     timeout: 1h30m
     config:
       platform: linux
@@ -1073,7 +1073,7 @@ jobs:
     - get: catapult
   - task: upgrade
     input_mapping:
-      kubecf-{{ $branch }}: kubecf
+      kubecf: kubecf-{{ $branch }}
     timeout: 4h
     file: kubecf/.concourse/tasks/upgrade.yaml
   ensure:
