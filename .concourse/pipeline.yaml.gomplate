@@ -1082,7 +1082,7 @@ jobs:
     input_mapping:
       kubecf: kubecf-{{ $branch }}
     timeout: 4h
-    file: kubecf/.concourse/tasks/upgrade.yaml
+    file: kubecf-{{ $branch }}/.concourse/tasks/upgrade.yaml
   ensure:
     do:
     - task: cleanup-cluster
