@@ -90,18 +90,7 @@ def _dependencies_impl(ctx):
     ctx.file("BUILD.bazel", 'package(default_visibility = ["//visibility:public"])\n')
 
     # Create the charts/BUILD.bazel exporting the fetched charts.
-    charts_build = """
-    package(default_visibility = ["//visibility:public"])
-
-    filegroup(
-        name = "charts",
-        srcs = glob(
-            ["**/*"],
-            exclude = ["**/BUILD.bazel"],
-        ),
-    )
-    """
-    charts_build = '\n'.join([x.lstrip(' ') for x in charts_build.splitlines()])
+    charts_build = ctx.read(ctx.path(ctx.attr._charts_build_bazel))
     ctx.file("charts/BUILD.bazel", charts_build)
 
 dependencies = repository_rule(
@@ -128,6 +117,11 @@ dependencies = repository_rule(
             mandatory = True,
         ),
         "_helm": _helm_attr,
+        "_charts_build_bazel": attr.label(
+            allow_single_file = True,
+            default = "//rules/helm:dependencies_charts.BUILD.bazel",
+            doc = "The BUILD.bazel file used to export the fetched sub-chart dependencies",
+        ),
     },
     local = True,
 )
