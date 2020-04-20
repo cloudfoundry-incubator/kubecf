@@ -51,21 +51,8 @@ helm_package(
 )
 ```
 
-
-Update the Concourse pipeline _.concourse/pipeline.yaml.gomplate_ by adding a new queue associated with the new release version:
-```{{ $queue := slice "queue-pr" "queue-master" "queue-v2.0.0" "queue-fork-pr" "publish"}}```
-
-Add a prod job for v2.0.0:
-```
-- name: kubecf-v2.0.0
-  type: git
-  source:
-    branch: v2.0.0
-    uri: https://github.com/{{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
-```
-
-
-Check [here](https://github.com/cloudfoundry-incubator/kubecf/compare/2f2c222302d76af40039681c229aea78c2290a9b...v2.0.0?diff=split) for a complete sample of all the changes needed.
+Update the Concourse pipeline _.concourse/pipeline.yaml.gomplate_ by adding the new release branch to the list of branches:
+```{{ $branches := slice "master" "2.0.0"}} # Repository branches to track```
 
 ## Concourse
 
