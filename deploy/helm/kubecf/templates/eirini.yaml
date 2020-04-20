@@ -28,7 +28,7 @@ subjects:
   name: eirini
   namespace: {{ .Release.Namespace }}
 
-{{- if gt (len .Values.features.eirini.cluster_role.rules) 0 }}
+{{- if gt (len .Values.features.eirini.rbac.webhook.cluster_role.rules) 0 }}
 # eirini-webhook-user-provided cluster role for eirini service account.
 # If user provides a customized cluster role, it is used to implement eirinix extensions.
 ---
@@ -36,7 +36,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ .Release.Namespace }}:eirini-webhook-user-provided
-rules: {{ .Values.features.eirini.cluster_role.rules | toJson }}
+rules: {{ .Values.features.eirini.rbac.webhook.cluster_role.rules | toJson }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
