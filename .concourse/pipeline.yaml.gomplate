@@ -358,7 +358,7 @@ jobs:
   plan:
   - put: kind-environments
     params: {acquire: true}
-    timeout: 4h # Timeout should be long at least for the full pipeline to complete
+    timeout: 8h # Timeout should be long at least for the full pipeline to complete
   - get: kubecf-{{ $branch }}
     trigger: true
     version: "every"
