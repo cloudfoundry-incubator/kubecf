@@ -353,6 +353,15 @@ ccdb:
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.
   custom: []
+  # Inlined operations that get into generated ConfigMaps. E.g. adding a password variable:
+  # operations:
+  #   inline:
+  #   - type: replace
+  #     path: /variables/-
+  #     value:
+  #       name: my_password
+  #       type: password
+  inline: []
 
 k8s-host-url: ""
 k8s-service-token: ""
