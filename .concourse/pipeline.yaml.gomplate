@@ -399,6 +399,7 @@ jobs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
+        CATS_NODES: 2
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
@@ -610,7 +611,6 @@ jobs:
       params:
         DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: cats
-        CATS_NODES: 2
         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
         path: "/bin/bash"
