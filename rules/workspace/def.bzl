@@ -1,4 +1,35 @@
+"""An extension for workspace rules."""
+
 load("@bazel_skylib//lib:paths.bzl", "paths")
+load("//:dependencies.bzl", "dependencies")
+
+def _workspace_dependencies_impl(ctx):
+    platform = ctx.os.name if ctx.os.name != "mac os x" else "darwin"
+    for dependency in dependencies:
+        ctx.download(
+            executable = True,
+            output = dependency["name"],
+            sha256 = dependency["sha256"][platform],
+            url = dependency["url"][platform].format(version = dependency["version"]),
+        )
+
+    ctx.file("BUILD.bazel", 'exports_files(glob(["**/*"]))\n')
+
+_workspace_dependencies = repository_rule(_workspace_dependencies_impl)
+
+_WORKSPACE_DEPENDENCIES_REPOSITORY_NAME = "workspace_dependencies"
+
+def workspace_dependencies():
+    """A macro for wrapping the workspace_dependencies repository rule with a hardcoded name.
+
+    The workspace_dependencies repository rule should be called before any of the other rules in
+    this Bazel extension.
+    Hardcoding the target name is useful for consuming it internally. The targets produced by this
+    rule are only used within the workspace rules.
+    """
+    _workspace_dependencies(
+        name = _WORKSPACE_DEPENDENCIES_REPOSITORY_NAME,
+    )
 
 def _workspace_status_impl(ctx):
     info_file_json = _convert_status(ctx, ctx.info_file)
@@ -53,7 +84,7 @@ def _convert_status(ctx, status_file):
     return status_file_json
 
 workspace_status = rule(
-    implementation = _workspace_status_impl,
+    _workspace_status_impl,
     attrs = {
         "_status_converter_tmpl": attr.label(
             allow_single_file = True,
@@ -66,7 +97,7 @@ workspace_status = rule(
         "_jq": attr.label(
             allow_single_file = True,
             cfg = "host",
-            default = "@jq//:jq",
+            default = "@{}//:jq".format(_WORKSPACE_DEPENDENCIES_REPOSITORY_NAME),
             executable = True,
         ),
     },
@@ -78,19 +109,20 @@ def _yaml_loader(ctx):
     if out_ext != ".bzl":
         fail("Expected output file ({out}) to have .bzl extension".format(out = ctx.attr.out))
 
-    # Get the src absolute path and write the Python script that generates the output .bzl file.
+    # Get the yq binary path.
+    yq = ctx.path(ctx.attr._yq)
+
+    # Get the YAML src absolute path and convert it to JSON.
     src = ctx.path(ctx.attr.src)
-    script = """
-import yaml
+    res = ctx.execute([yq, "r", "--tojson", src])
+    if res.return_code != 0:
+        fail(res.stderr)
 
-with open("{src}", "r") as stream:
-    for key, value in yaml.safe_load(stream).items():
-        print(key + " = " + str(value))
-""".format(src = src)
-    ctx.file("script.py", script)
+    ctx.file("file.json", res.stdout)
 
-    # Execute the script.
-    res = ctx.execute(["python", "script.py"])
+    # Convert the JSON file to the Starlark extension.
+    converter = ctx.path(ctx.attr._converter)
+    res = ctx.execute([_python3(ctx), converter, "file.json"])
     if res.return_code != 0:
         fail(res.stderr)
 
@@ -113,5 +145,34 @@ yaml_loader = repository_rule(
             doc = "The output file name",
             mandatory = True,
         ),
+        "_yq": attr.label(
+            allow_single_file = True,
+            cfg = "host",
+            default = "@{}//:yq".format(_WORKSPACE_DEPENDENCIES_REPOSITORY_NAME),
+            executable = True,
+        ),
+        "_converter": attr.label(
+            allow_single_file = True,
+            default = "//:json_bzl_converter.py",
+        ),
     },
 )
+
+def _python3(repository_ctx):
+    """A helper function to get the Python 3 system interpreter if available. Otherwise, it fails.
+    """
+    for option in ["python", "python3"]:
+        python = repository_ctx.which(option)
+        if python != None:
+            res = repository_ctx.execute([python, "--version"])
+            if res.return_code != 0:
+                fail(res.stderr)
+            version = res.stdout.strip() if res.stdout.strip() != "" else res.stderr.strip()
+            version = version.split(" ")
+            if len(version) != 2:
+                fail("Unable to parse Python output version: {}".format(version))
+            version = version[1]
+            major_version = version.split(".")[0]
+            if int(major_version) == 3:
+                return python
+    fail("Python 3 is required")

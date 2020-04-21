@@ -20,12 +20,14 @@ local_repository(
     path = "rules/workspace",
 )
 
+load("@workspace//:def.bzl", "workspace_dependencies", "yaml_loader")
+
+workspace_dependencies()
+
 local_repository(
     name = "external_binaries",
     path = "rules/external_binaries",
 )
-
-load("@workspace//:def.bzl", "yaml_loader")
 
 yaml_loader(
     name = "dependencies",
