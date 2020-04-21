@@ -1,4 +1,4 @@
-{{- if and (.Values.features.eirini.enabled) (.Values.features.eirini.use_helm_release) }}
+{{- if  .Values.features.eirini.use_helm_release }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/enabled?
   value: true
@@ -19,9 +19,9 @@
   path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?/-
   value: "api.{{ .Release.Namespace }}.svc.cluster.local"
 - type: replace
-  path: /variables/name=cc_bridge_cc_uploader_server/options/copies?/-
+  path: /variables/name=cc_bridge_cc_uploader/options/copies?/-
   value:
-  - namespace: {{ .Values.eirini.opi.namespace }}
+    namespace: {{ .Values.eirini.opi.namespace }}
     name: var-cc-bridge-cc-uploader
 - type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
@@ -122,5 +122,22 @@
       copies:
       - namespace: {{ .Values.eirini.opi.namespace }}
         name: var-eirini-tls-client-cert
-      
+
+# Remove the whole diego-cell instance group.
+- type: remove
+  path: /instance_groups/name=diego-cell
+
+# Remove bbs from diego-api.
+# TODO: remove bbs in the future - when the clock and worker no longer need it.
+# - type: remove
+#   path: /instance_groups/name=diego-api/jobs/name=bbs
+
+# Remove auctioneer, tps and ssh_proxy from scheduler.
+- type: remove
+  path: /instance_groups/name=auctioneer
+- type: remove
+  path: /instance_groups/name=scheduler/jobs/name=tps
+- type: remove
+  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy
+
 {{- end }}

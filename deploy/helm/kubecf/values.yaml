@@ -240,7 +240,7 @@ settings:
 
 features:
   eirini:
-    enabled: true
+    enabled: false
     use_helm_release: true
     registry:
       service:

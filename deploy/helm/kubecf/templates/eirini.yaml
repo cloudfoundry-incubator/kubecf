@@ -1,252 +1,4 @@
-{{- if and .Values.features.eirini.enabled (not .Values.features.eirini.use_helm_release) }}
-
-{{- $deployment := include "kubecf.deployment-name" . }}
-
-# eirini-webhook cluster role for eirini service account.
-# Used to implement eirinix extensions.
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: {{ .Release.Namespace }}:eirini-webhook
-rules:
-- apiGroups: ['admissionregistration.k8s.io']
-  resources: ['mutatingwebhookconfigurations']
-  verbs:     ['*']
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: {{ .Release.Namespace }}:eirini-webhook
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: {{ .Release.Namespace }}:eirini-webhook
-subjects:
-- kind: ServiceAccount
-  name: eirini
-  namespace: {{ .Release.Namespace }}
-
-# A service for the cc uploader
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: cc-uploader
-  namespace: {{ .Release.Namespace | quote }}
-spec:
-  type: ClusterIP
-  selector:
-    quarks.cloudfoundry.org/instance-group-name: api
-    quarks.cloudfoundry.org/deployment-name: {{ $deployment }}
-  ports:
-    - protocol: TCP
-      name: "http"
-      port: 9090
-      targetPort: 9090
-    - protocol: TCP
-      name: "https"
-      port: 9091
-      targetPort: 9091
-# A service for the eirini image registry
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: eirini-registry
-  namespace: {{ .Release.Namespace | quote }}
-spec:
-  type: NodePort
-  selector:
-    quarks.cloudfoundry.org/instance-group-name: bits
-    quarks.cloudfoundry.org/deployment-name: {{ $deployment }}
-  ports:
-    - protocol: TCP
-      port: 443
-      targetPort: 443
-      nodePort: {{ .Values.features.eirini.registry.service.nodePort }}
-# A service for eirini-ssh
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: eirini-ssh
-  namespace: {{ .Release.Namespace | quote }}
-spec:
-  type: ClusterIP
-  selector:
-    quarks.cloudfoundry.org/instance-group-name: eirini
-    quarks.cloudfoundry.org/deployment-name: {{ $deployment }}
-  ports:
-    - protocol: TCP
-      name: "https"
-      port: 443
-      targetPort: 2999
-# A service for eirini-persi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: eirini-persi
-  namespace: {{ .Release.Namespace | quote }}
-spec:
-  type: ClusterIP
-  selector:
-    quarks.cloudfoundry.org/instance-group-name: eirini
-    quarks.cloudfoundry.org/deployment-name: {{ $deployment }}
-  ports:
-    - protocol: TCP
-      name: "https"
-      port: 443
-      targetPort: 8443
-# A service for eirini-persi-broker
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: eirini-persi-broker
-  namespace: {{ .Release.Namespace | quote }}
-spec:
-  type: ClusterIP
-  selector:
-    quarks.cloudfoundry.org/instance-group-name: eirini
-    quarks.cloudfoundry.org/deployment-name: {{ $deployment }}
-  ports:
-    - protocol: TCP
-      name: "http"
-      port: 8999
-      targetPort: 8999
----
-# A namespace where eirini apps are created
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ .Release.Namespace }}-eirini
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: eirini
-  namespace: {{ .Release.Namespace | quote }}
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: eirini:all
-  namespace: {{ .Release.Namespace }}-eirini
-rules:
-  - apiGroups: ['*']
-    resources: ['*']
-    verbs:     ['*']
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: eirini:all
-  namespace: {{ .Release.Namespace }}-eirini
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: eirini:all
-subjects:
-  - kind: ServiceAccount
-    name: eirini
-    namespace: {{ .Release.Namespace | quote }}
-
----
-# ClusterRole to allow opi to list nodes
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: {{ .Release.Namespace }}:eirini-opi
-rules:
-- apiGroups: ['']
-  resources: ['nodes']
-  verbs:     ['*']
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: {{ .Release.Namespace }}:eirini-opi
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: {{ .Release.Namespace }}:eirini-opi
-subjects:
-- kind: ServiceAccount
-  name: eirini
-  namespace: {{ .Release.Namespace }}
-
-{{- end }}
-
-# Create the bits secret
-{{- if and .Values.features.eirini.enabled .Values.features.eirini.use_helm_release }}
----
-apiVersion: quarks.cloudfoundry.org/v1alpha1
-kind: QuarksSecret
-metadata:
-  name: bits-service-ssl
-spec:
-  request:
-    certificate:
-      alternativeNames:
-      {{- if .Values.eirini.opi.use_registry_ingress }}
-      - "registry.{{ .Values.eirini.opi.ingress_endpoint }}"
-      {{- else if .Values.eirini.services.loadbalanced }}
-      - "registry.{{ .Values.system_domain }}"
-      {{- else }}
-      - "registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
-      {{- end }}
-      commonName: bits
-      isCA: false
-      signerType: cluster
-  secretName: bits-service-ssl
-  type: certificate
-
-apiVersion: quarks.cloudfoundry.org/v1alpha1
-kind: QuarksSecret
-metadata:
-  name: var-cc-bridge-cc-uploader
-spec:
-  request:
-    certificate:
-      alternativeNames:
-      {{- if .Values.eirini.opi.use_registry_ingress }}
-      - "registry.{{ .Values.eirini.opi.ingress_endpoint }}"
-      {{- else if .Values.eirini.services.loadbalanced }}
-      - "registry.{{ .Values.system_domain }}"
-      {{- else }}
-      - "registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
-      {{- end }}
-      commonName: bits
-      isCA: false
-      signerType: cluster
-  secretName: var-cc-bridge-cc-uploader
-  type: certificate
-
-apiVersion: quarks.cloudfoundry.org/v1alpha1
-kind: QuarksSecret
-metadata:
-  name: bits-service-ssl
-spec:
-  request:
-    certificate:
-      alternativeNames:
-      {{- if .Values.eirini.opi.use_registry_ingress }}
-      - "registry.{{ .Values.eirini.opi.ingress_endpoint }}"
-      {{- else if .Values.eirini.services.loadbalanced }}
-      - "registry.{{ .Values.system_domain }}"
-      {{- else }}
-      - "registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
-      {{- end }}
-      commonName: bits
-      isCA: false
-      signerType: cluster
-  secretName: bits-service-ssl
-  type: certificate
-
-{{- define "imagePullSecret" }}
+{{- define "kubecf.imagePullSecret" }}
   {{- if .Values.eirini.opi.use_registry_ingress }}
     {{- printf "{\"auths\": {\"registry.%s\": {\"auth\": \"%s\"}}}" .Values.eirini.opi.ingress_endpoint (printf "admin:%s" .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD | b64enc) | b64enc }}
   {{- else if .Values.eirini.services.loadbalanced }}
@@ -256,12 +8,57 @@ spec:
   {{- end }}
 {{- end }}
 
+# Create the bits secret
+{{- if .Values.features.eirini.use_helm_release }}
+---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksSecret
 metadata:
+  name: bits-service-ssl
+spec:
+  request:
+    certificate:
+      alternativeNames:
+      {{- if .Values.eirini.opi.use_registry_ingress }}
+      - "registry.{{ .Values.eirini.opi.ingress_endpoint }}"
+      {{- else if .Values.eirini.services.loadbalanced }}
+      - "registry.{{ .Values.system_domain }}"
+      {{- else }}
+      - "registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
+      {{- end }}
+      commonName: bits
+      isCA: false
+      signerType: cluster
+  secretName: bits-service-ssl
+  type: certificate
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: registry-secret-name
   namespace: {{ .Values.eirini.opi.namespace }}
-spec:
-  data:
-    .dockerconfigjson: {{ template "imagePullSecret" . }}
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: {{ template "kubecf.imagePullSecret" . }}
+
+---  
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    quarks.cloudfoundry.org/secret-kind: generated
+  annotations:
+    quarks.cloudfoundry.org/secret-copy-of: {{ .Release.Namespace }}/var-eirini-tls-client-cert
+  name: var-eirini-tls-client-cert
+  namespace: {{ .Values.eirini.opi.namespace | quote }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    quarks.cloudfoundry.org/secret-kind: generated
+  annotations:
+    quarks.cloudfoundry.org/secret-copy-of: {{ .Release.Namespace }}/var-cc-bridge-cc-uploader
+  name: var-cc-bridge-cc-uploader
+  namespace: {{ .Values.eirini.opi.namespace | quote }}
 {{- end }}
