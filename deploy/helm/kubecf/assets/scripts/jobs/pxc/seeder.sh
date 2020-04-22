@@ -19,12 +19,18 @@ until echo "SELECT 'Ready!'" | mysql --host="${DATABASE_HOST}" --user=root --pas
   sleep 1
 done
 
+CHARACTER_SET="utf8"
+COLLATE="utf8_general_ci"
+
 mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD}" \
   1> /dev/null \
   2> /dev/null \
   < <(
     echo "\
       CREATE DATABASE IF NOT EXISTS kubecf;
+      ALTER DATABASE kubecf
+        DEFAULT CHARACTER SET ${CHARACTER_SET}
+        DEFAULT COLLATE ${COLLATE};
       USE kubecf;
       CREATE TABLE IF NOT EXISTS db_leader_election (
         anchor tinyint(3) unsigned NOT NULL,
@@ -35,10 +41,17 @@ mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD
     for database in ${databases[*]}; do
       password=$(</passwords/"${database}"/password)
 
-      echo "CREATE USER IF NOT EXISTS \`${database}\`;"
-      echo "ALTER USER \`${database}\` IDENTIFIED BY '${password}';"
-      echo "CREATE DATABASE IF NOT EXISTS \`${database}\`;"
-      echo "GRANT ALL ON \`${database}\`.* TO '${database}'@'%';"
+      echo "\
+        CREATE USER IF NOT EXISTS \`${database}\`;
+        ALTER USER \`${database}\` IDENTIFIED BY '${password}';
+
+        CREATE DATABASE IF NOT EXISTS \`${database}\`;
+        ALTER DATABASE \`${database}\`
+          DEFAULT CHARACTER SET ${CHARACTER_SET}
+          DEFAULT COLLATE ${COLLATE};
+
+        GRANT ALL ON \`${database}\`.* TO '${database}'@'%';
+      "
     done
   )
 echo "Done!"
