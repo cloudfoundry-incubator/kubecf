@@ -1,11 +1,5 @@
 {{- define "kubecf.imagePullSecret" }}
-  {{- if .Values.eirini.opi.use_registry_ingress }}
-    {{- printf "{\"auths\": {\"registry.%s\": {\"auth\": \"%s\"}}}" .Values.eirini.opi.ingress_endpoint (printf "admin:%s" .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD | b64enc) | b64enc }}
-  {{- else if .Values.eirini.services.loadbalanced }}
-    {{- printf "{\"auths\": {\"registry.%s\": {\"auth\": \"%s\"}}}" .Values.system_domain (printf "admin:%s" .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD | b64enc) | b64enc }}
-  {{- else }}
-    {{- printf "{\"auths\": {\"registry.%s.nip.io\": {\"auth\": \"%s\"}}}" index .Values.kube.external_ips 0 (printf "admin:%s" .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD | b64enc) | b64enc }}
-  {{- end }}
+  {{- printf "{\"auths\": {\"registry.127.0.0.1.nip.io:31666\": {\"auth\": \"%s\"}}}" (printf "admin:%s" .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD | b64enc) | b64enc }}
 {{- end }}
 
 # Create the bits secret
@@ -19,13 +13,7 @@ spec:
   request:
     certificate:
       alternativeNames:
-      {{- if .Values.eirini.opi.use_registry_ingress }}
-      - "registry.{{ .Values.eirini.opi.ingress_endpoint }}"
-      {{- else if .Values.eirini.services.loadbalanced }}
-      - "registry.{{ .Values.system_domain }}"
-      {{- else }}
-      - "registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
-      {{- end }}
+      - registry.127.0.0.1.nip.io
       commonName: bits
       isCA: false
       signerType: cluster
@@ -35,7 +23,7 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: registry-secret-name
+  name: eirini-registry-credentials
   namespace: {{ .Values.eirini.opi.namespace }}
 type: kubernetes.io/dockerconfigjson
 data:
@@ -61,4 +49,21 @@ metadata:
     quarks.cloudfoundry.org/secret-copy-of: {{ .Release.Namespace }}/var-cc-bridge-cc-uploader
   name: var-cc-bridge-cc-uploader
   namespace: {{ .Values.eirini.opi.namespace | quote }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eirini-registry
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: NodePort
+  selector:
+    name: "bits"
+  ports:
+    - protocol: TCP
+      port: 6666
+      targetPort: 6666
+      nodePort: {{ .Values.features.eirini.registry.service.nodePort }}
+
 {{- end }}

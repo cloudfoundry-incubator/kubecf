@@ -244,7 +244,8 @@ features:
     use_helm_release: true
     registry:
       service:
-        nodePort: 32123
+        # This setting is not currently configurable
+        nodePort: 31666
   ingress:
     enabled: false
     tls:
@@ -357,9 +358,14 @@ k8s-service-username: ""
 k8s-node-ca: ""
 
 eirini:
+  env:
+    # This setting is not configurable
+    # It's a workaround to replace the port eirini uses for the registry
+    DOMAIN: '127.0.0.1.nip.io:31666" #'
   services:
     loadbalanced: true
   opi:
+    registry_secret_name: eirini-registry-credentials
     namespace: eirini
     kubecf:
       enable: false
@@ -457,7 +463,8 @@ eirini:
 
 bits:
   env:
-    DOMAIN: ~
+    # This setting is not configurable
+    DOMAIN: 127.0.0.1.nip.io
   ingress:
     endpoint: ~
     use: false

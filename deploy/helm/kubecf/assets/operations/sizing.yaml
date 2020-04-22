@@ -31,7 +31,7 @@
 {{- $instance_groups = append $instance_groups "tcp-router" }}
 {{- end }}{{/* if routing_api */}}
 
-{{- /* Instances groups where existance depends on whether Eirini is enabled */}}
+{{- /* Instances groups where existence depends on whether Eirini is enabled */}}
 {{- if not .Values.features.eirini.use_helm_release }}
 {{- $instance_groups = append $instance_groups "auctioneer" }}
 {{- $instance_groups = append $instance_groups "diego-cell" }}
