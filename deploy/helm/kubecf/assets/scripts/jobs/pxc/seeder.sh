@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset -o pipefail
 
-echo "Starting seeding..."
+echo "Starting to seed databases..."
 databases=(
   "cloud_controller"
   "diego"
