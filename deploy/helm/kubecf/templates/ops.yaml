@@ -47,3 +47,22 @@ data:
 {{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
+
+{{- if gt (len .Values.operations.inline) 0 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-provided-inline-operations
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: operations
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+data:
+  ops: |-
+    {{- .Values.operations.inline | toYaml | nindent 4 }}
+{{- end }}

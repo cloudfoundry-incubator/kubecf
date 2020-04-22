@@ -5,10 +5,10 @@ image_resource:
   source:
     repository: splatform/catapult
 inputs:
-- name: commit-to-test
+- name: kubecf
 - name: kind-environments
 - name: catapult
 - name: s3.kubecf-ci
 - name: kubecf-github-release
 run:
-  path: commit-to-test/.concourse/tasks/upgrade.sh
+  path: kubecf/.concourse/tasks/upgrade.sh

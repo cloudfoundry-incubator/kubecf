@@ -54,5 +54,9 @@ spec:
   - name: {{ $ops | quote }}
     type: configmap
 {{- end }}
+{{- if gt (len .Values.operations.inline) 0 }}
+  - name: user-provided-inline-operations
+    type: configmap
+{{- end }}
   - name: user-provided-properties
     type: configmap

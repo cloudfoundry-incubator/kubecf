@@ -11,7 +11,8 @@ gomplate_binary(
 )
 
 exports_files([
-    "template.sh",
     "delete.tmpl.rb",
+    "dependencies_charts.BUILD.bazel",
+    "template.sh",
     "upgrade.tmpl.rb",
 ])
