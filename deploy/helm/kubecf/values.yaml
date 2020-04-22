@@ -241,7 +241,6 @@ settings:
 features:
   eirini:
     enabled: false
-    use_helm_release: true
     registry:
       service:
         # This setting is not currently configurable

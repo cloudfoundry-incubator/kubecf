@@ -31,7 +31,7 @@ data:
 {{- if eq .Values.features.blobstore.provider "s3" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/use-external-blobstore.yml") }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/use-s3-blobstore.yml") }}
-{{- if .Values.features.eirini.use_helm_release }}
+{{- if .Values.features.eirini.enabled }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/configure-bits-service-s3.yml") }}
 {{- end }}
 {{- end }}

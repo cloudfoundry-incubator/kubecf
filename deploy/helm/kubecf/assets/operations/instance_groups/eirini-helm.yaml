@@ -1,4 +1,4 @@
-{{- if  .Values.features.eirini.use_helm_release }}
+{{- if  .Values.features.eirini.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/enabled?
   value: true

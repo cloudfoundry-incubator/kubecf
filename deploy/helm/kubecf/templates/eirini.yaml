@@ -3,7 +3,7 @@
 {{- end }}
 
 # Create the bits secret
-{{- if .Values.features.eirini.use_helm_release }}
+{{- if .Values.features.eirini.enabled }}
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksSecret

@@ -35,7 +35,7 @@
   path: /instance_groups/name=tcp-router/azs?
 {{- end }}
 
-{{- if not .Values.features.eirini.use_helm_release }}
+{{- if not .Values.features.eirini.enabled }}
 - type: remove
   path: /instance_groups/name=diego-cell/azs?
 {{- end }}

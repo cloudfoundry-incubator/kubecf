@@ -1,4 +1,4 @@
-{{- if not .Values.features.eirini.use_helm_release }}
+{{- if not .Values.features.eirini.enabled }}
 
 {{- if .Values.features.suse_buildpacks.enabled }}
 - type: replace

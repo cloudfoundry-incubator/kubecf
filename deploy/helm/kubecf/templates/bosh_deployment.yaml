@@ -29,7 +29,7 @@ spec:
     type: configmap
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/use-s3-blobstore.yml") }}
     type: configmap
-{{- if .Values.features.eirini.use_helm_release }}
+{{- if .Values.features.eirini.enabled }}
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/configure-bits-service-s3.yml") }}
     type: configmap
 {{- end }}
