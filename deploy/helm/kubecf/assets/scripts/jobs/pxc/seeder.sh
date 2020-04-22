@@ -24,6 +24,7 @@ COLLATE="utf8_general_ci"
 
 mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD}" \
   < <(
+    echo "START TRANSACTION;"
     echo "\
       CREATE DATABASE IF NOT EXISTS kubecf;
       ALTER DATABASE kubecf
@@ -51,5 +52,6 @@ mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD
         GRANT ALL ON \`${database}\`.* TO '${database}'@'%';
       "
     done
+    echo "COMMIT;"
   )
 echo "Done!"
