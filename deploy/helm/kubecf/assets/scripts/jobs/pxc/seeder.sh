@@ -23,8 +23,6 @@ CHARACTER_SET="utf8"
 COLLATE="utf8_general_ci"
 
 mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD}" \
-  1> /dev/null \
-  2> /dev/null \
   < <(
     echo "\
       CREATE DATABASE IF NOT EXISTS kubecf;
