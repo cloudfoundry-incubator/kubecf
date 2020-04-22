@@ -29,7 +29,10 @@
   # Generate the prod slice in the range, so we have the full list for the tab view group
   {{ $prod = $prod | append ( printf "deploy-%s" $cfScheduler ) }}
 
-  {{ $noprod = $noprod | append ( printf "sync-integration-tests-%s" $cfScheduler ) }}
+  # Add SITS only for diego, but keep it in the loop so it gets added in the correct order.
+  {{ if eq $cfScheduler "diego" }}
+    {{ $noprod = $noprod | append "sync-integration-tests" }}
+  {{ end }}
   {{ $noprod = $noprod | append ( printf "ccdb-rotate-%s" $cfScheduler ) }}
 
   # Cleanup gets executed only at the end, make it into noprod as we need to keep it at the end
@@ -468,6 +471,8 @@ jobs:
         state: failure
 {{- end }}
 
+{{ $previousTest := "" }}
+
 - name: smoke-tests-{{ $cfScheduler }}-{{ $branch }}
   public: true
   plan:
@@ -564,24 +569,25 @@ jobs:
         << : *smoke_{{ $cfScheduler }}_{{ $branch }}_status
         state: failure
 {{- end }}
+{{ $previousTest = (printf "smoke-tests-%s-%s" $cfScheduler $branch) }}
 
 - name: cf-acceptance-tests-{{ $cfScheduler }}-{{ $branch }}
   public: true
   plan:
   - get: kind-environments
     passed:
-    - smoke-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: kubecf-{{ $branch }}
     passed:
-    - smoke-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - smoke-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: s3.kubecf-ci-bundle
     passed:
-    - smoke-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: catapult
 {{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
@@ -632,7 +638,7 @@ jobs:
     - put: kind-environments
       params: { remove : kind-environments}
 {{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src      
+    - put: status-{{ $branch }}.src
       params:
         << : *cats_{{ $cfScheduler }}_{{ $branch }}_status
         state: failure
@@ -663,32 +669,34 @@ jobs:
         << : *cats_{{ $cfScheduler }}_{{ $branch }}_status
         state: failure
 {{- end }}
+{{ $previousTest = (printf "cf-acceptance-tests-%s-%s" $cfScheduler $branch) }}
 
 # no-prod jobs
 
-- name: sync-integration-tests-{{ $cfScheduler }}-{{ $branch }}
+{{- if eq $cfScheduler "diego" }}
+- name: sync-integration-tests-{{ $branch }}
   public: true
   plan:
   - get: kind-environments
     passed:
-    - cf-acceptance-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: kubecf-{{ $branch }}
     passed:
-    - cf-acceptance-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - cf-acceptance-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: s3.kubecf-ci-bundle
     passed:
-    - cf-acceptance-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: catapult
-{{- if has $prod (printf "sync-integration-tests-%s" $cfScheduler) }}
+{{- if has $prod "sync-integration-tests" }}
   - put: status-{{ $branch }}.src
     params: &sits_{{ $cfScheduler }}_{{ $branch }}_status
-        context: "sync-integration-tests-{{ $cfScheduler }}"
-        description: "Sync Integration tests {{ $cfScheduler }}"
+        context: "sync-integration-tests"
+        description: "Sync Integration tests"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
@@ -716,7 +724,7 @@ jobs:
       run:
         path: "/bin/bash"
         args: *test_args
-{{- if has $prod (printf "sync-integration-tests-%s" $cfScheduler) }}
+{{- if has $prod "sync-integration-tests" }}
   on_success:
     put: status-{{ $branch }}.src
     params:
@@ -726,7 +734,7 @@ jobs:
   on_failure:
     do:
 
-{{- if has $prod (printf "sync-integration-tests-%s" $cfScheduler) }}
+{{- if has $prod "sync-integration-tests" }}
     - put: status-{{ $branch }}.src
       params:
         << : *sits_{{ $cfScheduler }}_{{ $branch }}_status
@@ -746,7 +754,7 @@ jobs:
     - put: kind-environments
       params: { remove : kind-environments}
 
-{{- if has $prod (printf "sync-integration-tests-%s" $cfScheduler) }}
+{{- if has $prod "sync-integration-tests" }}
     - put: status-{{ $branch }}.src
       params:
         << : *sits_{{ $cfScheduler }}_{{ $branch }}_status
@@ -760,11 +768,13 @@ jobs:
         <<: *cleanup-cluster
     - put: kind-environments
       params: { remove : kind-environments}
-{{- if has $prod (printf "sync-integration-tests-%s" $cfScheduler) }}
+{{- if has $prod "sync-integration-tests" }}
     - put: status-{{ $branch }}.src
       params:
         << : *sits_{{ $cfScheduler }}_{{ $branch }}_status
         state: failure
+{{- end }}
+{{ $previousTest = (printf "sync-integration-tests-%s" $branch) }}
 {{- end }}
 
 - name: ccdb-rotate-{{ $cfScheduler }}-{{ $branch }}
@@ -772,18 +782,18 @@ jobs:
   plan:
   - get: kind-environments
     passed:
-    - sync-integration-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: kubecf-{{ $branch }}
     passed:
-    - sync-integration-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - sync-integration-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: s3.kubecf-ci-bundle
     passed:
-    - sync-integration-tests-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: catapult
 {{- if has $prod (printf "rotate-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
@@ -867,24 +877,25 @@ jobs:
         << : *rotate_{{ $cfScheduler }}_{{ $branch }}_status
         state: failure
 {{- end }}
+{{ $previousTest = (printf "ccdb-rotate-%s-%s" $cfScheduler $branch) }}
 
 - name: smoke-tests-post-rotate-{{ $cfScheduler }}-{{ $branch }}
   public: true
   plan:
   - get: kind-environments
     passed:
-    - ccdb-rotate-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: kubecf-{{ $branch }}
     passed:
-    - ccdb-rotate-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
     passed:
-    - ccdb-rotate-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: s3.kubecf-ci-bundle
     passed:
-    - ccdb-rotate-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: catapult
 {{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
@@ -968,6 +979,7 @@ jobs:
         << : *smoke_rotate_{{ $cfScheduler }}_{{ $branch }}_status
         state: failure
 {{- end }}
+{{ $previousTest = (printf "smoke-tests-post-rotate-%s-%s" $cfScheduler $branch) }}
 
 # TODO: re-enable and re-adapt once BRAIN tests are fixed.
 # - name: brain-tests-{{ $cfScheduler }}
@@ -1044,10 +1056,10 @@ jobs:
   plan:
   - get: kind-environments
     passed:
-    - smoke-tests-post-rotate-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
   - get: kubecf-{{ $branch }}
     passed:
-    - smoke-tests-post-rotate-{{ $cfScheduler }}-{{ $branch }}
+    - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   ensure:

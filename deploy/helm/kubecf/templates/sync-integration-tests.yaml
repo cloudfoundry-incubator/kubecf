@@ -1,4 +1,6 @@
-{{- if .Values.testing.sync_integration_tests.enabled }}
+# SITS only makes sense when using Diego, for this reason, we only enable it if Eirini is not
+# enabled.
+{{- if and .Values.testing.sync_integration_tests.enabled (not .Values.features.eirini.enabled) }}
 
 # Service account, roles, and cluster role for the sync integration tests.
 # Raw kube objects going into the chart.
