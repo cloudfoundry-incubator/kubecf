@@ -22,4 +22,4 @@ params:
   REGISTRY_PASS: ~
   RELEASE_NAME: ~
 run:
-  path:  ci/.concourse/suse-buildpacks-ci/tasks/build.sh
+  path: ci/.concourse/suse-buildpacks-ci/tasks/build.sh
