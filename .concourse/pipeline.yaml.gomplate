@@ -10,7 +10,7 @@
 # Variables
 {{ $availableCfSchedulers := slice "diego" "eirini" }} # Diego / Eirini
 {{ $pr_resources := slice "pr" "fork-pr" }}
-{{ $branches := slice "master"}} # Repository branches to track
+{{ $branches := slice "master" "v2.1.0"}} # Repository branches to track
 
 # Prod and no-prod jobs
 # Jobs that are stable and ready should go into $prod.
