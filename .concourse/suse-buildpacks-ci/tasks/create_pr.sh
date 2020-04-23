@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# NEVER SET xtrace!
 set -o errexit -o nounset
 
 # Updates release information in values.yaml.
