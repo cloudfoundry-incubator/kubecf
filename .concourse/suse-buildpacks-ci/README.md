@@ -6,7 +6,7 @@ This pipeline is responsible for building images for suse buildpack releases and
 
 ## Steps to deploy/modify pipeline
 
-1. Refer the `config.yaml.prod` configuration to create a file named `config.yaml` and replace all required values.
+1. Make sure you review `config.yaml` and replace values appropriately.
 
 2. Make sure the concourse target is set and you are logged in.
 
