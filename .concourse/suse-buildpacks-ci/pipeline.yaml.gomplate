@@ -43,7 +43,7 @@ resources:
   source:
     owner: SUSE
     repository: {{ $release.repo }}
-    access_token: ((github-access-token))
+    access_token: ((github-access-token-pr))
 
 - name: suse-final-release-{{ $release.name }}
   type: s3
@@ -92,7 +92,7 @@ jobs:
         suse_final_release: suse-final-release-{{ $release.name }}
         built_image: built_image
       params:
-        GITHUB_TOKEN: ((github-access-token))
+        GITHUB_TOKEN: ((github-access-token-pr))
         GITHUB_PRIVATE_KEY: ((github-private-key))
         GIT_MAIL: {{ $root.git_mail }}
         GIT_USER: {{ $root.git_user }}
