@@ -79,10 +79,10 @@ jobs:
       params:
         STEMCELL_REPOSITORY: {{ $root.stemcell_repository }}
         STEMCELL_VERSIONED_FILE: {{ $root.stemcell_version_file }}
-        REGISTRY_NAME: ((suse-public-staging-registry))
-        REGISTRY_ORG: ((suse-public-staging-org))
-        REGISTRY_USER: ((suse-public-staging-username))
-        REGISTRY_PASS: ((suse-public-staging-password))
+        REGISTRY_NAME: ((suse-public-staging.registry))
+        REGISTRY_ORG: ((suse-public-staging.org))
+        REGISTRY_USER: ((suse-public-staging.username))
+        REGISTRY_PASS: ((suse-public-staging.password))
         RELEASE_NAME: {{ $release.name }}
       file: ci/.concourse/suse-buildpacks-ci/tasks/build.yml
 
