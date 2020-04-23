@@ -35,13 +35,13 @@ project = struct(
         },
         "helm": {
             "sha256": {
-                "darwin":  "5e27bc6ecf838ed28a6a480ee14e6bec137b467a56f427dbc3cf995f9bdcf85c",
-                "linux":   "fc75d62bafec2c3addc87b715ce2512820375ab812e6647dc724123b616586d6",
+                "darwin": "5e27bc6ecf838ed28a6a480ee14e6bec137b467a56f427dbc3cf995f9bdcf85c",
+                "linux": "fc75d62bafec2c3addc87b715ce2512820375ab812e6647dc724123b616586d6",
                 "windows": "c52065cb70ad9d88b195638e1591db64852f4ad150448e06fca907d47a07fe4c",
             },
             "url": {
-                "darwin":  "https://get.helm.sh/helm-v{version}-darwin-amd64.tar.gz",
-                "linux":   "https://get.helm.sh/helm-v{version}-linux-amd64.tar.gz",
+                "darwin": "https://get.helm.sh/helm-v{version}-darwin-amd64.tar.gz",
+                "linux": "https://get.helm.sh/helm-v{version}-linux-amd64.tar.gz",
                 "windows": "https://get.helm.sh/helm-v{version}-windows-amd64.zip",
             },
             "version": "3.0.3",
@@ -53,87 +53,87 @@ project = struct(
         },
         "jq": {
             "sha256": {
-                "darwin":  "5c0a0a3ea600f302ee458b30317425dd9632d1ad8882259fcaf4e9b868b2b1ef",
-                "linux":   "af986793a515d500ab2d35f8d2aecd656e764504b789b66d7e1a0b727a124c44",
+                "darwin": "5c0a0a3ea600f302ee458b30317425dd9632d1ad8882259fcaf4e9b868b2b1ef",
+                "linux": "af986793a515d500ab2d35f8d2aecd656e764504b789b66d7e1a0b727a124c44",
                 "windows": "a51d36968dcbdeabb3142c6f5cf9b401a65dc3a095f3144bd0c118d5bb192753",
             },
             "url": {
-                "darwin":  "https://github.com/stedolan/jq/releases/download/jq-{version}/jq-osx-amd64",
-                "linux":   "https://github.com/stedolan/jq/releases/download/jq-{version}/jq-linux64",
+                "darwin": "https://github.com/stedolan/jq/releases/download/jq-{version}/jq-osx-amd64",
+                "linux": "https://github.com/stedolan/jq/releases/download/jq-{version}/jq-linux64",
                 "windows": "https://github.com/stedolan/jq/releases/download/jq-{version}/jq-win64.exe",
             },
             "version": "1.6",
         },
         "k3s": {
             "sha256": {
-                "linux":   "9f8bea3fa6f88066ca51cc896000aab2794e3f585d6fc982dd5aa7da8ee9fe85",
+                "linux": "9f8bea3fa6f88066ca51cc896000aab2794e3f585d6fc982dd5aa7da8ee9fe85",
             },
             "url": {
-                "linux":   "https://github.com/rancher/k3s/releases/download/v{version}/k3s",
+                "linux": "https://github.com/rancher/k3s/releases/download/v{version}/k3s",
             },
             "version": "0.9.1",
         },
         "kind": {
             "sha256": {
-                "darwin":  "eba1480b335f1fd091bf3635dba3f901f9ebd9dc1fb32199ca8a6aaacf69691e",
-                "linux":   "b68e758f5532db408d139fed6ceae9c1400b5137182587fc8da73a5dcdb950ae",
+                "darwin": "eba1480b335f1fd091bf3635dba3f901f9ebd9dc1fb32199ca8a6aaacf69691e",
+                "linux": "b68e758f5532db408d139fed6ceae9c1400b5137182587fc8da73a5dcdb950ae",
                 "windows": "f022a4800363bd4a0c17ee84b58d3e5f654a945dcaf5f66e2c1c230e417b05fb",
             },
             "url": {
-                "darwin":  "https://github.com/kubernetes-sigs/kind/releases/download/v{version}/kind-darwin-amd64",
-                "linux":   "https://github.com/kubernetes-sigs/kind/releases/download/v{version}/kind-linux-amd64",
+                "darwin": "https://github.com/kubernetes-sigs/kind/releases/download/v{version}/kind-darwin-amd64",
+                "linux": "https://github.com/kubernetes-sigs/kind/releases/download/v{version}/kind-linux-amd64",
                 "windows": "https://github.com/kubernetes-sigs/kind/releases/download/v{version}/kind-windows-amd64",
             },
             "version": "0.6.0",
         },
         "kubectl": {
             "sha256": {
-                "darwin":  "1b8e747984ae3f9aa5a199bd444823d703dcd4dbf0617347b3b3aea254ada7b1",
-                "linux":   "522115e0f11d83c08435a05e76120c89ea320782ccaff8e301bd14588ec50145",
+                "darwin": "1b8e747984ae3f9aa5a199bd444823d703dcd4dbf0617347b3b3aea254ada7b1",
+                "linux": "522115e0f11d83c08435a05e76120c89ea320782ccaff8e301bd14588ec50145",
                 "windows": "cd134c5746e39b985df979a944876c0d61ae88e79d954f8534a66bc84cd8a7fb",
             },
             "url": {
-                "darwin":  "https://storage.googleapis.com/kubernetes-release/release/v{version}/bin/darwin/amd64/kubectl",
-                "linux":   "https://storage.googleapis.com/kubernetes-release/release/v{version}/bin/linux/amd64/kubectl",
+                "darwin": "https://storage.googleapis.com/kubernetes-release/release/v{version}/bin/darwin/amd64/kubectl",
+                "linux": "https://storage.googleapis.com/kubernetes-release/release/v{version}/bin/linux/amd64/kubectl",
                 "windows": "https://storage.googleapis.com/kubernetes-release/release/v{version}/bin/windows/amd64/kubectl.exe",
             },
             "version": "1.15.6",
         },
         "minikube": {
             "sha256": {
-                "darwin":  "5ea5168a80597ee6221bf50a524429a24a37f0c0f36725e6b297dc5a7a6a2105",
-                "linux":   "eabd027438953d29a4b0f7b810c801919cc13bef3ebe7aff08c9534ac2b091ab",
+                "darwin": "5ea5168a80597ee6221bf50a524429a24a37f0c0f36725e6b297dc5a7a6a2105",
+                "linux": "eabd027438953d29a4b0f7b810c801919cc13bef3ebe7aff08c9534ac2b091ab",
                 "windows": "79d66c874cfe3497656e9ba191680cc95abd92d2f722b10de38f00b76ef82393",
             },
             "url": {
-                "darwin":  "https://storage.googleapis.com/minikube/releases/v{version}/minikube-darwin-amd64",
-                "linux":   "https://storage.googleapis.com/minikube/releases/v{version}/minikube-linux-amd64",
+                "darwin": "https://storage.googleapis.com/minikube/releases/v{version}/minikube-darwin-amd64",
+                "linux": "https://storage.googleapis.com/minikube/releases/v{version}/minikube-linux-amd64",
                 "windows": "https://storage.googleapis.com/minikube/releases/v{version}/minikube-windows-amd64.exe",
             },
             "version": "1.6.2",
         },
         "shellcheck": {
             "sha256": {
-                "darwin":  "a5d77cbe4c3e92916bce712b959f6d54392f94bcf8ea84f80ba425a9e72e2afe",
-                "linux":   "c37d4f51e26ec8ab96b03d84af8c050548d7288a47f755ffb57706c6c458e027",
+                "darwin": "a5d77cbe4c3e92916bce712b959f6d54392f94bcf8ea84f80ba425a9e72e2afe",
+                "linux": "c37d4f51e26ec8ab96b03d84af8c050548d7288a47f755ffb57706c6c458e027",
                 "windows": "8aafdeff31095613308e92ce6a13e3c41249b51e757fd4fcdfdfc7a81d29286a",
             },
             "url": {
-                "darwin":  "https://storage.googleapis.com/shellcheck/shellcheck-v{version}.darwin-x86_64",
-                "linux":   "https://storage.googleapis.com/shellcheck/shellcheck-v{version}.linux-x86_64",
+                "darwin": "https://storage.googleapis.com/shellcheck/shellcheck-v{version}.darwin-x86_64",
+                "linux": "https://storage.googleapis.com/shellcheck/shellcheck-v{version}.linux-x86_64",
                 "windows": "https://storage.googleapis.com/shellcheck/shellcheck-v{version}.exe",
             },
             "version": "0.7.0",
         },
         "yq": {
             "sha256": {
-                "darwin":  "06732685917646c0bbba8cc17386cd2a39b214ad3cd128fb4b8b410ed069101c",
-                "linux":   "754c6e6a7ef92b00ef73b8b0bb1d76d651e04d26aa6c6625e272201afa889f8b",
+                "darwin": "06732685917646c0bbba8cc17386cd2a39b214ad3cd128fb4b8b410ed069101c",
+                "linux": "754c6e6a7ef92b00ef73b8b0bb1d76d651e04d26aa6c6625e272201afa889f8b",
                 "windows": "bdfd2a00bab3d8171edf57aaf4e9a2f7d0395e7a36d42b07f0e35503c00292a3",
             },
             "url": {
-                "darwin":  "https://github.com/mikefarah/yq/releases/download/{version}/yq_darwin_amd64",
-                "linux":   "https://github.com/mikefarah/yq/releases/download/{version}/yq_linux_amd64",
+                "darwin": "https://github.com/mikefarah/yq/releases/download/{version}/yq_darwin_amd64",
+                "linux": "https://github.com/mikefarah/yq/releases/download/{version}/yq_linux_amd64",
                 "windows": "https://github.com/mikefarah/yq/releases/download/{version}/yq_windows_amd64.exe",
             },
             "version": "2.4.1",

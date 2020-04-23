@@ -28,10 +28,6 @@ data:
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
 {{- end }}
 
-{{- if .Values.features.eirini.enabled }}
-{{ include "kubecf.ops" (dict "Root" $root "Path" "assets/use-bits-service.yml") }}
-{{- end }}
-
 {{- if eq .Values.features.blobstore.provider "s3" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/use-external-blobstore.yml") }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/use-s3-blobstore.yml") }}

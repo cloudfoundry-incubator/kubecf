@@ -243,11 +243,8 @@ features:
     enabled: false
     registry:
       service:
-        nodePort: 32123
-    rbac:
-      webhook:
-        cluster_role:
-          rules: []
+        # This setting is not currently configurable
+        nodePort: 31666
   ingress:
     enabled: false
     tls:
@@ -367,3 +364,136 @@ k8s-host-url: ""
 k8s-service-token: ""
 k8s-service-username: ""
 k8s-node-ca: ""
+
+eirini:
+  env:
+    # This setting is not configurable
+    # It's a workaround to replace the port eirini uses for the registry
+    DOMAIN: '127.0.0.1.nip.io:31666" #'
+  services:
+    loadbalanced: true
+  opi:
+    registry_secret_name: eirini-registry-credentials
+    namespace: eirini
+    kubecf:
+      enable: false
+    use_registry_ingress: false
+    ingress_endpoint: ~
+    kube:
+      external_ips: []
+    deny_app_ingress: false
+    cc_api:
+      serviceName: "api"
+
+    staging:
+      enable: true
+      tls:
+        client:
+          secretName: "var-eirini-tls-client-cert"
+          certPath: "certificate"
+          keyPath: "private_key"
+        cc_uploader:
+          secretName: "var-cc-bridge-cc-uploader"
+          certPath: "certificate"
+          keyPath: "private_key"
+        ca:
+          secretName: "var-eirini-tls-client-cert"
+          path: "ca"
+        stagingReporter:
+          secretName: "var-eirini-tls-client-cert"
+          certPath: "certificate"
+          keyPath: "private_key"
+          caPath: "ca"
+
+    tls:
+      opiCapiClient:
+        secretName: "var-eirini-tls-client-cert"
+        keyPath: "private_key"
+        certPath: "certificate"
+      opiServer:
+        secretName: "var-eirini-tls-server-cert"
+        certPath: "certificate"
+        keyPath: "private_key"
+      capi:
+        secretName: "var-eirini-tls-server-cert"
+        caPath: "ca"
+      eirini:
+        secretName: "var-eirini-tls-server-cert"
+        caPath: "ca"
+
+    events:
+      enable: true
+      tls:
+        capiClient:
+          secretName: "var-cc-tls"
+          keyPath: "private_key"
+          certPath: "certificate"
+        capi:
+          secretName: "var-cc-tls"
+          caPath: "ca"
+
+    logs:
+      enable: true
+      serviceName: "doppler"
+      tls:
+        client:
+          secretName: "var-loggregator-tls-agent"
+          keyPath: "private_key"
+          certPath: "certificate"
+        server:
+          secretName: "var-loggregator-tls-agent"
+          caPath: "ca"
+
+    metrics:
+      enable: true
+      tls:
+        client:
+          secretName: "var-loggregator-tls-doppler"
+          keyPath: "private_key"
+          certPath: "certificate"
+        server:
+          secretName: "var-loggregator-tls-doppler"
+          caPath: "ca"
+
+    rootfsPatcher:
+      enable: true
+      timeout: 2m
+
+    routing:
+      enable: true
+      nats:
+        secretName: "var-nats-password"
+        passwordPath: "password"
+        serviceName: "nats"
+
+    secretSmuggler:
+      enable: false
+
+bits:
+  env:
+    # This setting is not configurable
+    DOMAIN: 127.0.0.1.nip.io
+  ingress:
+    endpoint: ~
+    use: false
+  kube:
+    external_ips: []
+  services:
+    loadbalanced: true
+
+  blobstore:
+    serviceName: "singleton-blobstore"
+    userName: "blobstore-user"
+    secret:
+      name: "var-blobstore-admin-users-password"
+      passwordPath: "password"
+
+  secrets:
+    BITS_SERVICE_SECRET: "secret"
+    BITS_SERVICE_SIGNING_USER_PASSWORD: "notpassword123"
+
+  useExistingSecret: true
+  tls_secret_name: bits-service-ssl
+  tls_cert_name: certificate
+  tls_key_name: private_key
+  tls_ca_name: ca
