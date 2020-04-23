@@ -105,7 +105,7 @@ releases:
     version: "1.7.17.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.22-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.17.1-1.1-7e96d2dd.zip
   suse-go-buildpack:
     url: registry.suse.com/cap-staging
