@@ -4,6 +4,8 @@
 set -o errexit -o nounset
 
 # Start the Docker daemon.
+
+# shellcheck source=/dev/null
 source build-image-resource/assets/common.sh
 max_concurrent_downloads=10
 max_concurrent_uploads=10
@@ -27,15 +29,14 @@ stemcell_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}")"
 stemcell_image="${STEMCELL_REPOSITORY}:${stemcell_version}"
 docker pull "${stemcell_image}"
 
-# Build the releases.
-base_dir=$(pwd)
 # Get version from the GitHub release that triggered this task
 pushd suse_final_release
 RELEASE_VERSION=$(cat version)
 RELEASE_URL=$(cat url)
-RELEASE_SHA=$(sha1sum *.tgz | cut -d' ' -f1)
+RELEASE_SHA=$(sha1sum ./*.tgz | cut -d' ' -f1)
 popd
 
-tasks_dir="$(dirname $0)"
-source ${tasks_dir}/build_release.sh
+tasks_dir="$(dirname "$0")"
+# shellcheck source=/dev/null
+source "${tasks_dir}"/build_release.sh
 build_release "${REGISTRY_NAME}" "${REGISTRY_ORG}" "${stemcell_image}" "${RELEASE_NAME}" "${RELEASE_URL}" "${RELEASE_VERSION}" "${RELEASE_SHA}"

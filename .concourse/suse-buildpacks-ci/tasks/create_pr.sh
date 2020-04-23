@@ -74,7 +74,7 @@ fi
 # Setup git
 mkdir -p ~/.ssh
 ssh-keyscan -t rsa github.com | tee ~/.ssh/known_hosts | ssh-keygen -lf -
-echo -e ${GITHUB_PRIVATE_KEY} | sed -E 's/(-+(BEGIN|END) OPENSSH PRIVATE KEY-+) *| +/\1\n/g' >~/.ssh/id_ecdsa
+echo -e "${GITHUB_PRIVATE_KEY}" | sed -E 's/(-+(BEGIN|END) OPENSSH PRIVATE KEY-+) *| +/\1\n/g' >~/.ssh/id_ecdsa
 chmod 0600 ~/.ssh/id_ecdsa
 
 git config --global user.email "$GIT_MAIL"
@@ -91,7 +91,7 @@ cp -r kubecf/. updated-kubecf/
 cd updated-kubecf
 
 git pull
-export GIT_BRANCH_NAME="bump_${BUILDPACK_NAME}-$(date +%Y%m%d%H%M%S)"
+GIT_BRANCH_NAME="bump_${BUILDPACK_NAME}-$(date +%Y%m%d%H%M%S)"
 git checkout -b "${GIT_BRANCH_NAME}"
 
 update_buildpack_info "${BUILDPACK_NAME}" "${KUBECF_VALUES}" "${BUILT_IMAGE}" "${NEW_FILE}"

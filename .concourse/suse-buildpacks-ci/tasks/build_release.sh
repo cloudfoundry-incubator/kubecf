@@ -21,17 +21,17 @@ function build_release() {
   echo -e "  - Release SHA1:    ${GREEN}${release_sha1}${NC}"
 
   build_args=(
-    --stemcell="${stemcell_image}"
-    --name="${release_name}"
-    --version="${release_version}"
-    --url="${release_url}"
-    --sha1="${release_sha1}"
-    --docker-registry="${registry}"
-    --docker-organization="${organization}"
+    "--stemcell=${stemcell_image}"
+    "--name=${release_name}"
+    "--version=${release_version}"
+    "--url=${release_url}"
+    "--sha1=${release_sha1}"
+    "--docker-registry=${registry}"
+    "--docker-organization=${organization}"
   )
 
   built_image=$(fissile build release-images --dry-run "${build_args[@]}" | cut -d' ' -f3)
-  echo $built_image > built_image/image
+  echo "${built_image}" > built_image/image
   export DOCKER_CLI_EXPERIMENTAL=enabled
   # Only build and push the container image if doesn't exits already.
   if docker manifest inspect "${built_image}" 2>&1 | grep --quiet "no such manifest"; then
