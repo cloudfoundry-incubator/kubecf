@@ -28,35 +28,8 @@ else
     pipeline_name=$2
 fi
 
-# Determine if pipeline already exists. This will be used to pause the jobs by default.
-existing_pipeline_job_count=$(
-  fly ${target:+"--target=${target}"} get-pipeline --json -p "${pipeline_name}" | \
-    jq '.jobs | length'
-)
-if [[ ${existing_pipeline_job_count} -gt 0 ]]; then
-  pipeline_already_existed=true
-else
-  pipeline_already_existed=false
-fi
-
 fly \
     ${target:+"--target=${target}"} \
     set-pipeline \
     --pipeline="${pipeline_name}" \
     --config <(gomplate -V -c .=config.yaml -d releases.yaml -f "pipeline.yaml.gomplate")
-
-fly \
-    ${target:+"--target=$target"} \
-    expose-pipeline \
-    --pipeline="${pipeline_name}"
-
-if ! ${pipeline_already_existed}; then
-  job_names=$(
-    fly ${target:+"--target=${target}"} get-pipeline --json -p "${pipeline_name}" | \
-      jq -r '.jobs[] | .name'
-  )
-  for job_name in ${job_names}; do
-    fly ${target:+"--target=${target}"} pause-job -j "${pipeline_name}/${job_name}"
-  done
-  fly ${target:+"--target=${target}"} unpause-pipeline --pipeline="${pipeline_name}"
-fi
