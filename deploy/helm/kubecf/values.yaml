@@ -140,7 +140,7 @@ releases:
     version: "1.0.36.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.22-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
 
 multi_az: false
