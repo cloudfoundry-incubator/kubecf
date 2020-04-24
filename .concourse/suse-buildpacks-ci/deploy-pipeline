@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+set -e
+
+if ! hash gomplate 2>/dev/null; then
+    echo "gomplate missing. Follow the instructions in https://docs.gomplate.ca/installing/ and install it first."
+    exit 1
+fi
+
+usage() {
+    echo "USAGE:"
+    echo "./deploy-pipeline <concourse-target> <pipeline-name>"
+}
+
+if [[ -z "$1" ]]; then
+    echo "Concourse target not provided."
+    usage
+    exit 1
+else
+    target=$1
+fi
+
+if [[ -z "$2" ]]; then
+    echo "Pipeline name not provided."
+    usage
+    exit 1
+else
+    pipeline_name=$2
+fi
+
+fly \
+    ${target:+"--target=${target}"} \
+    set-pipeline \
+    --pipeline="${pipeline_name}" \
+    --config <(gomplate -V -c .=config.yaml -d releases.yaml -f "pipeline.yaml.gomplate")

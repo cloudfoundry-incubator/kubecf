@@ -2,6 +2,13 @@
 The definitions and implementations of the Bazel rules for dealing with Helm.
 """
 
+_helm_attr = attr.label(
+    allow_single_file = True,
+    cfg = "host",
+    default = "@helm//:helm",
+    executable = True,
+)
+
 def _package_impl(ctx):
     output_filename = "{}.tgz".format(ctx.attr.name)
     output_tgz = ctx.actions.declare_file(output_filename)
@@ -16,6 +23,7 @@ def _package_impl(ctx):
             "[[tars]]": multipath_sep.join([f.path for f in ctx.files.tars]),
             "[[generated]]": multipath_sep.join([f.path for f in ctx.files.generated]),
             "[[version]]": ctx.attr.version,
+            "[[subcharts]]": multipath_sep.join([f.path for f in ctx.files.subcharts]),
             "[[helm]]": ctx.executable._helm.path,
             "[[output_tgz]]": output_tgz.path,
         },
@@ -23,7 +31,11 @@ def _package_impl(ctx):
     )
     ctx.actions.run_shell(
         command = "ruby {}".format(package_script.path),
-        inputs = [package_script] + ctx.files.srcs + ctx.files.tars + ctx.files.generated,
+        inputs = [package_script] +
+                 ctx.files.srcs +
+                 ctx.files.tars +
+                 ctx.files.generated +
+                 ctx.files.subcharts,
         outputs = outputs,
         tools = [ctx.executable._helm],
     )
@@ -44,12 +56,8 @@ _package = rule(
             mandatory = False,
             default = "",
         ),
-        "_helm": attr.label(
-            allow_single_file = True,
-            cfg = "host",
-            default = "@helm//:binary",
-            executable = True,
-        ),
+        "subcharts": attr.label_list(),
+        "_helm": _helm_attr,
         "_script_tmpl": attr.label(
             allow_single_file = True,
             default = "//rules/helm:package_tmpl_rb",
@@ -63,6 +71,61 @@ def package(**kwargs):
         **kwargs
     )
 
+def _dependencies_impl(ctx):
+    # Get the attribute absolute paths.
+    helm = ctx.path(ctx.attr._helm)
+    chart_yaml = ctx.path(ctx.attr.chart_yaml)
+    requirements = ctx.path(ctx.attr.requirements)
+    requirements_lock = ctx.path(ctx.attr.requirements_lock)
+
+    # Symlink the required files into the cache.
+    ctx.symlink(chart_yaml, "Chart.yaml")
+    ctx.symlink(requirements, "requirements.yaml")
+    ctx.symlink(requirements_lock, "requirements.lock")
+
+    # Fetch the dependencies.
+    ctx.execute([helm, "dep", "up"])
+
+    # Create the workspace root BUILD.bazel.
+    ctx.file("BUILD.bazel", 'package(default_visibility = ["//visibility:public"])\n')
+
+    # Create the charts/BUILD.bazel exporting the fetched charts.
+    charts_build = ctx.read(ctx.path(ctx.attr._charts_build_bazel))
+    ctx.file("charts/BUILD.bazel", charts_build)
+
+dependencies = repository_rule(
+    _dependencies_impl,
+    doc = """A repository rule for fetching and caching Helm dependencies.
+
+    It creates a filegroup that exports all the files under the charts/ directory in the cache after
+    `helm dep up` runs.
+    """,
+    attrs = {
+        "chart_yaml": attr.label(
+            allow_single_file = True,
+            doc = "The Chart.yaml file containing the chart metadata",
+            mandatory = True,
+        ),
+        "requirements": attr.label(
+            allow_single_file = True,
+            doc = "The requirements.yaml file containing the Helm dependencies",
+            mandatory = True,
+        ),
+        "requirements_lock": attr.label(
+            allow_single_file = True,
+            doc = "The requirements.lock file containing the locked Helm dependencies",
+            mandatory = True,
+        ),
+        "_helm": _helm_attr,
+        "_charts_build_bazel": attr.label(
+            allow_single_file = True,
+            default = "//rules/helm:dependencies_charts.BUILD.bazel",
+            doc = "The BUILD.bazel file used to export the fetched sub-chart dependencies",
+        ),
+    },
+    local = True,
+)
+
 _common_attrs = {
     "install_name": attr.string(
         doc = "The Helm installation name for the chart",
@@ -72,12 +135,7 @@ _common_attrs = {
         doc = "The namespace to install the Helm chart",
         mandatory = True,
     ),
-    "_helm": attr.label(
-        allow_single_file = True,
-        cfg = "host",
-        default = "@helm//:binary",
-        executable = True,
-    ),
+    "_helm": _helm_attr,
 }
 
 def _template_impl(ctx):
@@ -135,7 +193,7 @@ def _version_impl(ctx):
     outputs = [output]
     contents = """
         open('{output}', 'w') do |f|
-          f << `{helm} inspect chart {chart}`[/version: (.*)/, 1]
+          f << `{helm} inspect chart {chart}`[/^version: (.*)/, 1]
           exit 1 unless $?.success?
         end
     """.format(
@@ -162,12 +220,7 @@ version = rule(
             allow_single_file = True,
             mandatory = True,
         ),
-        "_helm": attr.label(
-            allow_single_file = True,
-            cfg = "host",
-            default = "@helm//:binary",
-            executable = True,
-        ),
+        "_helm": _helm_attr,
     },
 )
 
@@ -184,7 +237,8 @@ def _upgrade_impl(ctx):
             "[[install]]": str(ctx.attr.install),
             "[[reset_values]]": str(ctx.attr.reset_values),
             "[[values_paths]]": path_split_delim.join(
-                [values.short_path for values in ctx.files.values]),
+                [values.short_path for values in ctx.files.values],
+            ),
             "[[path_split_delim]]": path_split_delim,
             "[[set_values]]": str(ctx.attr.set_values),
         },

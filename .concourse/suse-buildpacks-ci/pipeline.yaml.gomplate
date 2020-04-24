@@ -1,0 +1,104 @@
+# This pipeline is intended to build images for new SUSE buildpack releases using fissile.
+---
+resources:
+- name: ci
+  type: git
+  source:
+    uri: {{ .ci_uri }}
+    branch: {{ .ci_branch }}
+
+- name: build-image-resource	
+  type: git	
+  source:	
+    uri: {{ .build_image_resource_uri }}
+    branch: {{ .build_image_resource_branch }}
+
+- name: s3.fissile-linux
+  type: s3
+  source:
+    bucket: {{ .fissile_linux_s3_bucket }}
+    private: true
+    regexp: fissile/develop/fissile-(.*)\.tgz
+
+- name: s3.fissile-stemcell-version
+  type: s3
+  source:
+    bucket: {{ .stemcell_versions_bucket }}
+    region_name: {{ .stemcell_bucket_region }}
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    versioned_file: {{ .stemcell_version_file }}
+
+- name: kubecf
+  type: git
+  source:
+    uri: {{ .kubecf_repo }}
+    branch: {{ .kubecf_branch }}
+    private_key: ((github-private-key))
+
+{{- $root := . }}
+{{- range $release := (datasource "releases").releases }}
+- name: {{ $release.name }}-gh-release
+  type: github-release
+  source:
+    owner: SUSE
+    repository: {{ $release.repo }}
+    access_token: ((github-access-token-pr))
+
+- name: suse-final-release-{{ $release.name }}
+  type: s3
+  source:
+    bucket: suse-final-releases
+    regexp: {{ $release.name }}-release-(.*).tgz
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    private_key: ((github-private-key))
+{{- end }}
+
+jobs:
+{{- range $release := (datasource "releases").releases }}
+- name: build-image-{{ $release.name }}
+  plan:
+  - in_parallel:
+    - get: ci
+    - get: build-image-resource
+    - get: s3.fissile-stemcell-version
+      trigger: true
+    - get: s3.fissile-linux
+      trigger: true
+    - get: {{ $release.name }}-gh-release
+      trigger: true
+    - get: suse-final-release-{{ $release.name }}
+    - get: kubecf
+  - do:
+    - task: build
+      privileged: true
+      input_mapping:
+        s3.stemcell-version: s3.fissile-stemcell-version
+        suse_final_release: suse-final-release-{{ $release.name }}
+      params:
+        STEMCELL_REPOSITORY: {{ $root.stemcell_repository }}
+        STEMCELL_VERSIONED_FILE: {{ $root.stemcell_version_file }}
+        REGISTRY_NAME: ((suse-public-staging.registry))
+        REGISTRY_ORG: ((suse-public-staging.org))
+        REGISTRY_USER: ((suse-public-staging.username))
+        REGISTRY_PASS: ((suse-public-staging.password))
+        RELEASE_NAME: {{ $release.name }}
+      file: ci/.concourse/suse-buildpacks-ci/tasks/build.yml
+
+    - task: create-pr
+      privileged: true
+      input_mapping:
+        suse_final_release: suse-final-release-{{ $release.name }}
+        built_image: built_image
+      params:
+        GITHUB_TOKEN: ((github-access-token-pr))
+        GITHUB_PRIVATE_KEY: ((github-private-key))
+        GIT_MAIL: {{ $root.git_mail }}
+        GIT_USER: {{ $root.git_user }}
+        RELEASE_NAME: {{ $release.name }}
+        BUILDPACK_NAME: {{ $release.name_in_values_yaml }}
+        KUBECF_BRANCH: {{ $root.kubecf_branch }}
+        KUBECF_VALUES: {{ $root.kubecf_values }}
+      file: ci/.concourse/suse-buildpacks-ci/tasks/create_pr.yml
+{{end}}

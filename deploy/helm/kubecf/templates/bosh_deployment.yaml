@@ -24,10 +24,6 @@ spec:
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
     type: configmap
 {{- end }}
-{{- if .Values.features.eirini.enabled }}
-  - name: {{ include "kubecf.ops-name" (dict "Path" "assets/use-bits-service.yml") }}
-    type: configmap
-{{- end }}
 {{- if eq .Values.features.blobstore.provider "s3" }}
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/use-external-blobstore.yml") }}
     type: configmap
@@ -56,6 +52,10 @@ spec:
 {{- end }}
 {{- range $_, $ops := .Values.operations.custom }}
   - name: {{ $ops | quote }}
+    type: configmap
+{{- end }}
+{{- if gt (len .Values.operations.inline) 0 }}
+  - name: user-provided-inline-operations
     type: configmap
 {{- end }}
   - name: user-provided-properties

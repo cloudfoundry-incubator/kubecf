@@ -77,70 +77,70 @@ releases:
     version: "1.5.5.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
+      version: 23.24-7.0.0_374.gb8e8e6af
     file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.5.1-5.1-eaf36a02.zip
   suse-java-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.29.1.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
+      version: 23.24-7.0.0_374.gb8e8e6af
     file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-v4.29.1.1-543ec059.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.8.3.1"
+    version: "1.8.15.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
-    file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.3.1-1.1-a08b9b7a.zip
+      version: 23.24-7.0.0_374.gb8e8e6af
+    file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.15.1-4.1-2b6d6879.zip
   suse-dotnet-core-buildpack:
     url: registry.suse.com/cap-staging
     version: "2.3.9.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
+      version: 23.22-7.0.0_374.gb8e8e6af
     file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.9.1-1.1-e74bd89e.zip
   suse-nodejs-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.17.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
+      version: 23.24-7.0.0_374.gb8e8e6af
     file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.17.1-1.1-7e96d2dd.zip
   suse-go-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.9.11.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
+      version: 23.24-7.0.0_374.gb8e8e6af
     file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.11.1-2.1-d5c02636.zip
   suse-python-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.12.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
+      version: 23.22-7.0.0_374.gb8e8e6af
     file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.12.1-2.1-ebd0f50d.zip
   suse-php-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.4.12.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
+      version: 23.22-7.0.0_374.gb8e8e6af
     file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.12.1-4.1-2c4591cb.zip
   suse-nginx-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.1.7.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
+      version: 23.24-7.0.0_374.gb8e8e6af
     file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.7.1-1.1-fbf90d1f.zip
   suse-binary-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.0.36.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
+      version: 23.24-7.0.0_374.gb8e8e6af
     file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
 
 multi_az: false
@@ -243,7 +243,8 @@ features:
     enabled: false
     registry:
       service:
-        nodePort: 32123
+        # This setting is not currently configurable
+        nodePort: 31666
   ingress:
     enabled: false
     tls:
@@ -349,8 +350,150 @@ ccdb:
 operations:
   # A list of configmap names that should be applied to the BOSH manifest.
   custom: []
+  # Inlined operations that get into generated ConfigMaps. E.g. adding a password variable:
+  # operations:
+  #   inline:
+  #   - type: replace
+  #     path: /variables/-
+  #     value:
+  #       name: my_password
+  #       type: password
+  inline: []
 
 k8s-host-url: ""
 k8s-service-token: ""
 k8s-service-username: ""
 k8s-node-ca: ""
+
+eirini:
+  env:
+    # This setting is not configurable
+    # It's a workaround to replace the port eirini uses for the registry
+    DOMAIN: '127.0.0.1.nip.io:31666" #'
+  services:
+    loadbalanced: true
+  opi:
+    registry_secret_name: eirini-registry-credentials
+    namespace: eirini
+    kubecf:
+      enable: false
+    use_registry_ingress: false
+    ingress_endpoint: ~
+    kube:
+      external_ips: []
+    deny_app_ingress: false
+    cc_api:
+      serviceName: "api"
+
+    staging:
+      enable: true
+      tls:
+        client:
+          secretName: "var-eirini-tls-client-cert"
+          certPath: "certificate"
+          keyPath: "private_key"
+        cc_uploader:
+          secretName: "var-cc-bridge-cc-uploader"
+          certPath: "certificate"
+          keyPath: "private_key"
+        ca:
+          secretName: "var-eirini-tls-client-cert"
+          path: "ca"
+        stagingReporter:
+          secretName: "var-eirini-tls-client-cert"
+          certPath: "certificate"
+          keyPath: "private_key"
+          caPath: "ca"
+
+    tls:
+      opiCapiClient:
+        secretName: "var-eirini-tls-client-cert"
+        keyPath: "private_key"
+        certPath: "certificate"
+      opiServer:
+        secretName: "var-eirini-tls-server-cert"
+        certPath: "certificate"
+        keyPath: "private_key"
+      capi:
+        secretName: "var-eirini-tls-server-cert"
+        caPath: "ca"
+      eirini:
+        secretName: "var-eirini-tls-server-cert"
+        caPath: "ca"
+
+    events:
+      enable: true
+      tls:
+        capiClient:
+          secretName: "var-cc-tls"
+          keyPath: "private_key"
+          certPath: "certificate"
+        capi:
+          secretName: "var-cc-tls"
+          caPath: "ca"
+
+    logs:
+      enable: true
+      serviceName: "doppler"
+      tls:
+        client:
+          secretName: "var-loggregator-tls-agent"
+          keyPath: "private_key"
+          certPath: "certificate"
+        server:
+          secretName: "var-loggregator-tls-agent"
+          caPath: "ca"
+
+    metrics:
+      enable: true
+      tls:
+        client:
+          secretName: "var-loggregator-tls-doppler"
+          keyPath: "private_key"
+          certPath: "certificate"
+        server:
+          secretName: "var-loggregator-tls-doppler"
+          caPath: "ca"
+
+    rootfsPatcher:
+      enable: true
+      timeout: 2m
+
+    routing:
+      enable: true
+      nats:
+        secretName: "var-nats-password"
+        passwordPath: "password"
+        serviceName: "nats"
+
+    secretSmuggler:
+      enable: false
+
+bits:
+  env:
+    # This setting is not configurable
+    DOMAIN: 127.0.0.1.nip.io
+  ingress:
+    endpoint: ~
+    use: false
+  kube:
+    external_ips: []
+  services:
+    loadbalanced: true
+
+  blobstore:
+    serviceName: "singleton-blobstore"
+    userName: "blobstore-user"
+    secret:
+      name: "var-blobstore-admin-users-password"
+      passwordPath: "password"
+
+  secrets:
+    BITS_SERVICE_SECRET: "secret"
+    BITS_SERVICE_SIGNING_USER_PASSWORD: "notpassword123"
+
+  useExistingSecret: true
+  tls_secret_name: bits-service-ssl
+  tls_cert_name: certificate
+  tls_key_name: private_key
+  tls_ca_name: ca

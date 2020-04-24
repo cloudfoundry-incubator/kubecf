@@ -76,19 +76,6 @@
     name: postgres
 {{- end }}
 
-{{- if .Values.features.eirini.enabled }}
-{{- $releases = append $releases "bits-service" }}
-{{- $releases = append $releases "eirini" }}
-- type: replace
-  path: /releases/name=eirini?
-  value:
-    name: eirini
-- type: replace
-  path: /releases/name=bits-service?
-  value:
-    name: bits-service
-  {{- end }}
-
 # Loop over the releases, replacing the url and stemcell, and the version when appropriate.
 {{- range $release := $releases }}
 - type: replace

@@ -7,6 +7,7 @@ package_dir = "[[package_dir]]"
 multipath_sep = "[[multipath_sep]]"
 tarsStr = "[[tars]]"
 generatedStr = "[[generated]]"
+subcharts_str = '[[subcharts]]'
 version = "[[version]]"
 helm = "[[helm]]"
 output_tgz = "[[output_tgz]]"
@@ -47,6 +48,15 @@ begin
     FileUtils.cp(file, build_dir)
   end
 
+  # Copy the subcharts into the temporary build directory.
+  subcharts = subcharts_str.split(multipath_sep)
+  subcharts_dst = File.join(build_dir, 'charts')
+  FileUtils.mkdir_p(subcharts_dst) if subcharts.length.positive?
+  subcharts.each do |file|
+    file = File.readlink(file) while File.ftype(file) == 'link'
+    FileUtils.cp(file, subcharts_dst)
+  end
+
   # A semver that matches what Helm uses.
   # https://github.com/Masterminds/semver/blob/910aa146bd66780c2815d652b92a7fc5331e533c/version.go#L41-L43
   semver_regex = /^v?([0-9]+)(\.[0-9]+)?(\.[0-9]+)?(-([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?$/
@@ -56,6 +66,7 @@ begin
 
   # Package and return the output path.
   package_cmd = <<-EOS
+    '#{helm}' dep up '#{build_dir}' &&
     '#{helm}' package '#{build_dir}' \
       --version='#{version}' \
       --app-version='#{version}'
