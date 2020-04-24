@@ -1,0 +1,50 @@
+releases:
+- name: "go-buildpack"
+  uri: "git@github.com:SUSE/cf-go-buildpack-release.git"
+  repo: "cf-go-buildpack-release"
+  name_in_values_yaml: "suse-go-buildpack"
+
+- name: "nodejs-buildpack"
+  uri: "git@github.com:SUSE/cf-nodejs-buildpack-release.git"
+  repo: "cf-nodejs-buildpack-release"
+  name_in_values_yaml: "suse-nodejs-buildpack"
+
+- name: "python-buildpack"
+  uri: "git@github.com:SUSE/cf-python-buildpack-release.git"
+  repo: "cf-python-buildpack-release"
+  name_in_values_yaml: "suse-python-buildpack"
+
+- name: "staticfile-buildpack"
+  uri: "git@github.com:SUSE/cf-staticfile-buildpack-release.git"
+  repo: "cf-staticfile-buildpack-release"
+  name_in_values_yaml: "suse-staticfile-buildpack"
+
+- name: "nginx-buildpack"
+  uri: "git@github.com:SUSE/cf-nginx-buildpack-release.git"
+  repo: "cf-nginx-buildpack-release"
+  name_in_values_yaml: "suse-nginx-buildpack"
+
+- name: "java-buildpack"
+  uri: "git@github.com:SUSE/cf-java-buildpack-release.git"
+  repo: "cf-java-buildpack-release"
+  name_in_values_yaml: "suse-java-buildpack"
+
+- name: "dotnet-core-buildpack"
+  uri: "git@github.com:SUSE/cf-dotnet-core-buildpack-release.git"
+  repo: "cf-dotnet-core-buildpack-release"
+  name_in_values_yaml: "suse-dotnet-core-buildpack"
+
+- name: "php-buildpack"
+  uri: "git@github.com:SUSE/cf-php-buildpack-release.git"
+  repo: "cf-php-buildpack-release"
+  name_in_values_yaml: "suse-php-buildpack"
+
+- name: "ruby-buildpack"
+  uri: "git@github.com:SUSE/cf-ruby-buildpack-release.git"
+  repo: "cf-ruby-buildpack-release"
+  name_in_values_yaml: "suse-ruby-buildpack"
+
+- name: "binary-buildpack"
+  uri: "git@github.com:SUSE/cf-binary-buildpack-release.git"
+  repo: "cf-binary-buildpack-release"
+  name_in_values_yaml: "suse-binary-buildpack"
