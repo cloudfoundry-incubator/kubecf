@@ -1,4 +1,4 @@
-load("//:def.bzl", "project")
+load("@dependencies//:def.bzl", "kubernetes")
 
 def _minikube_start_impl(ctx):
     executable = ctx.actions.declare_file(ctx.attr.name)
@@ -32,7 +32,7 @@ def _minikube_start_impl(ctx):
 
 attrs = {
     "k8s_version": attr.string(
-        default = "v{}".format(project.kubernetes.version),
+        default = "v{}".format(kubernetes["version"]),
     ),
     "vm_cpus": attr.string(
         default = "4",

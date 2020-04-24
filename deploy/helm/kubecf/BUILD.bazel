@@ -1,4 +1,5 @@
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+load("@dependencies//:def.bzl", "external_files")
 load(
     "//rules/helm:def.bzl",
     helm_package = "package",
@@ -11,7 +12,6 @@ load(
     "metadata_file_generator",
 )
 load("//rules/yaml_extractor:defs.bzl", "yaml_extractor")
-load("//:def.bzl", "project")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -19,7 +19,7 @@ package(default_visibility = ["//visibility:public"])
 metadata_file_generator(
     name = "metadata",
     file = "Metadata.yaml",
-    operator_chart = project.external_files["cf_operator"].urls[0].format( version = project.external_files["cf_operator"].version )
+    operator_chart = external_files["cf_operator"]["url"].format(version = external_files["cf_operator"]["version"])
 )
 
 # Groups the static files under the kubecf package to be passed to the Helm packaging target.

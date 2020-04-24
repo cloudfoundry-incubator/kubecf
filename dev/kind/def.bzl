@@ -1,5 +1,5 @@
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load("//:def.bzl", "project")
+load("@dependencies//:def.bzl", "kubernetes")
 
 def _kind_impl(ctx):
     metrics_server_dir = None
@@ -57,7 +57,7 @@ attrs = {
         mandatory = True,
     ),
     "k8s_version": attr.string(
-        default = "v{}".format(project.kubernetes.version),
+        default = "v{}".format(kubernetes["version"]),
     ),
     "_kind": attr.label(
         allow_single_file = True,
