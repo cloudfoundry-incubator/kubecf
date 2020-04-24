@@ -30,7 +30,7 @@ releases:
   name_in_values_yaml: "suse-java-buildpack"
 
 - name: "dotnet-core-buildpack"
-  uri:  "git@github.com:SUSE/cf-dotnet-core-buildpack-release.git"
+  uri: "git@github.com:SUSE/cf-dotnet-core-buildpack-release.git"
   repo: "cf-dotnet-core-buildpack-release"
   name_in_values_yaml: "suse-dotnet-core-buildpack"
 
