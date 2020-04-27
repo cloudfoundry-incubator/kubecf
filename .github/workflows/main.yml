@@ -21,33 +21,31 @@ jobs:
       with:
         bazel-version: '2.0.0'
         github-api-token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Use bazel
-      run: bazel --version
-    - name: Testing
+    - name: Install parallel
       run: |
-        # run kind
+        sudo apt install -y parallel
+    - name: Run kind
+      run: |
         bazel run //dev/kind:start
-
         kubectl cluster-info
         kubectl get pods -n kube-system
-        
-        # run the operator
+    - name: Install cf-operator
+      run: |
         kubectl create namespace cf-operator
         bazel run //dev/cf_operator:apply
-        
-        # wait for the operator to run
-        kubectl wait --for=condition=Ready -n cf-operator --selector=name=cf-operator pod
-        kubectl wait --for=condition=Ready -n cf-operator --selector=name=quarks-job pod
-        
-        # wait for crds to be available
-        kubectl wait --for condition=established --timeout=600s crd/boshdeployments.quarks.cloudfoundry.org
-        kubectl wait --for condition=established --timeout=600s crd/quarksjobs.quarks.cloudfoundry.org
-        kubectl wait --for condition=established --timeout=600s crd/quarkssecrets.quarks.cloudfoundry.org
-        kubectl wait --for condition=established --timeout=600s crd/quarksstatefulsets.quarks.cloudfoundry.org
-        
-        # install kubecf
+    - name: Wait for cf-operator
+      run: |
+        parallel --verbose --retries 15 --delay 1 ::: 'kubectl wait --for=condition=Ready -n cf-operator --selector=name=cf-operator pod'
+        parallel --verbose --retries 15 --delay 1 ::: 'kubectl wait --for=condition=Ready -n cf-operator --selector=name=quarks-job pod'
+    - name: Wait for CRDs
+      run: |
+        parallel --verbose --retries 15 --delay 1 ::: 'kubectl wait --for condition=established --timeout=600s crd/boshdeployments.quarks.cloudfoundry.org'
+        parallel --verbose --retries 15 --delay 1 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarksjobs.quarks.cloudfoundry.org'
+        parallel --verbose --retries 15 --delay 1 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarkssecrets.quarks.cloudfoundry.org'
+        parallel --verbose --retries 15 --delay 1 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarksstatefulsets.quarks.cloudfoundry.org'
+    - name: Install KubeCF
+      run: |
         bazel run //dev/kubecf:apply
-        
-        # wait for it to install
-        kubectl wait --for=condition=Ready -n kubecf --timeout=2400s --selector=quarks.cloudfoundry.org/deployment-name=kubecf pod
-      
+    - name: Wait for KubeCF
+      run: |
+        parallel --verbose --retries 40 --delay 15 ::: 'kubectl wait --for=condition=Ready -n kubecf --timeout=2400s --selector=quarks.cloudfoundry.org/deployment-name=kubecf pod'
