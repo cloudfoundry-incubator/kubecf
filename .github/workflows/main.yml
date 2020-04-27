@@ -46,6 +46,10 @@ jobs:
         parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarksjobs.quarks.cloudfoundry.org'
         parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarkssecrets.quarks.cloudfoundry.org'
         parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarksstatefulsets.quarks.cloudfoundry.org'
+    - name: Configure Domain
+      run: |
+        domain=$(bazel run @kubectl//:binary -- get node kubecf-control-plane -o json | bazel run @jq//:binary -- -r '.status.addresses[] | select(.type=="InternalIP").address')
+        echo "system_domain: $domain.nip.io" > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml"
     - name: Install KubeCF
       run: |
         bazel run //dev/kubecf:apply

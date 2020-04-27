@@ -26,7 +26,3 @@ stringData:
 {{- end }}
 
 {{ include "kubecf.implicit-var" (list . "system_domain" "system_domain") }}
-{{ include "kubecf.implicit-var" (list . "k8s-host-url" "k8s-host-url") }}
-{{ include "kubecf.implicit-var" (list . "k8s-service-token" "k8s-service-token") }}
-{{ include "kubecf.implicit-var" (list . "k8s-service-username" "k8s-service-username") }}
-{{ include "kubecf.implicit-var" (list . "k8s-node-ca" "k8s-node-ca") }}
