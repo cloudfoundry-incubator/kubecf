@@ -55,4 +55,8 @@ jobs:
         bazel run //dev/kubecf:apply
     - name: Wait for KubeCF
       run: |
+        kubectl get pods --namespace kubecf --watch &
+        WATCH_PID=$!
+        sleep 300
+        kill $WATCH_PID
         parallel --verbose --retries 40 --delay 15 ::: 'kubectl wait --for=condition=Ready -n kubecf --timeout=2400s --selector=quarks.cloudfoundry.org/deployment-name=kubecf pod'
