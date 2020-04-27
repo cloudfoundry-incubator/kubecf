@@ -40,7 +40,7 @@ jobs:
         sudo apt install -y parallel
     - name: Get a cluster
       run: |
-        gcloud --quiet beta container clusters create "kubecf-ci-${RUN_ID}" \
+        gcloud --quiet beta container --project "${GKE_PROJECT}" clusters create "kubecf-ci-${RUN_ID}" \
           --zone "${GKE_ZONE}" \
           --no-enable-basic-auth \
           --cluster-version "1.15.9-gke.26" \
@@ -59,7 +59,7 @@ jobs:
           --default-max-pods-per-node "110" \
           --no-enable-master-authorized-networks \
           --addons HorizontalPodAutoscaling,HttpLoadBalancing        
-        gcloud --quiet container clusters get-credentials "kubecf-ci-${RUN_ID}" \
+        gcloud --quiet container --project "${GKE_PROJECT}" clusters get-credentials "kubecf-ci-${RUN_ID}" \
           --zone "${GKE_ZONE}"
         kubectl cluster-info
         kubectl get pods -n kube-system
@@ -93,5 +93,5 @@ jobs:
         parallel --verbose --retries 40 --delay 15 ::: 'kubectl wait --for=condition=Ready -n kubecf --timeout=2400s --selector=quarks.cloudfoundry.org/deployment-name=kubecf pod'
     - name: Delete Cluster
       run: |
-        gcloud --quiet container clusters get-credentials "kubecf-ci-${RUN_ID}" \
+        gcloud --quiet container --project "${GKE_PROJECT}" clusters get-credentials "kubecf-ci-${RUN_ID}" \
           --zone "${GKE_ZONE}"
