@@ -9,6 +9,10 @@ on:
     branches: [ vladi-actions-test ]
   pull_request:
     branches: [ vladi-actions-test ]
+env:
+  GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+  GKE_ZONE: europe-west1-c  # TODO: update to cluster zone
+  RUN_ID: ${{github.run_id}}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -18,6 +22,11 @@ jobs:
     - uses: actions/checkout@master
     - name: Setup gcloud environment
       uses: GoogleCloudPlatform/github-actions@0.1.2
+      with:
+        version: '286.0.0'
+        service_account_email: ${{ secrets.GKE_SA_EMAIL }}
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
     - uses: actions/setup-ruby@v1
       with:
         ruby-version: '2.6'
@@ -30,11 +39,9 @@ jobs:
       run: |
         sudo apt install -y parallel
     - name: Get a cluster
-      env:
-        RUN_ID: ${{github.run_id}}
       run: |
         gcloud --quiet beta container clusters create "kubecf-ci-${RUN_ID}" \
-          --zone "europe-west1-c" \
+          --zone "${GKE_ZONE}" \
           --no-enable-basic-auth \
           --cluster-version "1.15.9-gke.26" \
           --machine-type "n1-standard-4" \
@@ -53,7 +60,7 @@ jobs:
           --no-enable-master-authorized-networks \
           --addons HorizontalPodAutoscaling,HttpLoadBalancing        
         gcloud --quiet container clusters get-credentials "kubecf-ci-${RUN_ID}" \
-          --zone "europe-west1-c"
+          --zone "${GKE_ZONE}"
         kubectl cluster-info
         kubectl get pods -n kube-system
     - name: Install cf-operator
@@ -71,8 +78,6 @@ jobs:
         parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarkssecrets.quarks.cloudfoundry.org'
         parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarksstatefulsets.quarks.cloudfoundry.org'
     - name: Configure Domain
-      env:
-        RUN_ID: ${{github.run_id}}
       run: |
         domain="${RUN_ID}.kubecf.ci"
         echo "system_domain: $domain" > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml"
@@ -87,8 +92,6 @@ jobs:
         kill $WATCH_PID
         parallel --verbose --retries 40 --delay 15 ::: 'kubectl wait --for=condition=Ready -n kubecf --timeout=2400s --selector=quarks.cloudfoundry.org/deployment-name=kubecf pod'
     - name: Delete Cluster
-      env:
-        RUN_ID: ${{github.run_id}}
       run: |
         gcloud --quiet container clusters get-credentials "kubecf-ci-${RUN_ID}" \
-          --zone "europe-west1-c"
+          --zone "${GKE_ZONE}"
