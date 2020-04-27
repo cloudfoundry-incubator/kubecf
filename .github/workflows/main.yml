@@ -19,7 +19,7 @@ jobs:
     - name: Setup bazel
       uses: jwlawson/actions-setup-bazel@v1.0
       with:
-        bazel-version: '2.0.0'
+        bazel-version: '3.1.0'
         github-api-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Install parallel
       run: |
