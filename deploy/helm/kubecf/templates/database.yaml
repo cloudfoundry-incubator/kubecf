@@ -77,6 +77,22 @@ data:
     wsrep_cluster_address=gcomm://
     wsrep_provider=/usr/lib/galera3/libgalera_smm.so
     wsrep_sst_method=xtrabackup-v2
+  charset.cnf: |-
+    [client]
+    default_character_set           = utf8
+
+    [mysql]
+    default_character_set           = utf8
+
+    [mysqld]
+    # Ignore the client information and use the default server character set.
+    character_set_client_handshake  = false
+
+    character_set_server            = utf8
+    collation_server                = utf8_unicode_ci
+
+    [mysqld_safe]
+    default_character_set           = utf8
 ---
 kind: ConfigMap
 apiVersion: v1
