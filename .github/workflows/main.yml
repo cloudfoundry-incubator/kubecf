@@ -1,0 +1,56 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ vladi-actions-test ]
+  pull_request:
+    branches: [ vladi-actions-test ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  kind:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Setup bazel
+      uses: jwlawson/actions-setup-bazel@v1.0
+      with:
+        bazel-version: '2.0.0'
+        github-api-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Use bazel
+      run: bazel --version
+    - uses: engineerd/setup-kind@v0.3.0
+      with:
+        name: kubecf
+    - name: Testing
+      run: |
+        kubectl cluster-info
+        kubectl get pods -n kube-system
+        # kind is already running, but this sets up storage classes, 
+        # trusts the certs, etc.
+        bazel run //dev/kind:start
+        
+        # run the operator
+        kubectl create namespace cf-operator
+        bazel run //dev/cf_operator:apply
+        
+        # wait for the operator to run
+        kubectl wait --for=condition=Ready -n cf-operator --selector=name=cf-operator pod
+        kubectl wait --for=condition=Ready -n cf-operator --selector=name=quarks-job pod
+        
+        # wait for crds to be available
+        kubectl wait --for condition=established --timeout=600s crd/boshdeployments.quarks.cloudfoundry.org
+        kubectl wait --for condition=established --timeout=600s crd/quarksjobs.quarks.cloudfoundry.org
+        kubectl wait --for condition=established --timeout=600s crd/quarkssecrets.quarks.cloudfoundry.org
+        kubectl wait --for condition=established --timeout=600s crd/quarksstatefulsets.quarks.cloudfoundry.org
+        
+        # install kubecf
+        bazel run //dev/kubecf:apply
+        
+        # wait for it to install
+        kubectl wait --for=condition=Ready -n kubecf --timeout=2400s --selector=quarks.cloudfoundry.org/deployment-name=kubecf pod
+      
