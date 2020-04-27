@@ -1,0 +1,25 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: splatform/base-ci
+    tag: kubecf
+inputs:
+- name: ci
+- name: build-image-resource
+- name: s3.stemcell-version
+- name: s3.fissile-linux
+- name: suse_final_release
+outputs:
+- name: built_image
+params:
+  STEMCELL_REPOSITORY: ~
+  STEMCELL_VERSIONED_FILE: ~
+  REGISTRY_NAME: ~
+  REGISTRY_ORG: ~
+  REGISTRY_USER: ~
+  REGISTRY_PASS: ~
+  RELEASE_NAME: ~
+run:
+  path: ci/.concourse/suse-buildpacks-ci/tasks/build.sh

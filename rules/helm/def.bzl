@@ -32,10 +32,10 @@ def _package_impl(ctx):
     ctx.actions.run_shell(
         command = "ruby {}".format(package_script.path),
         inputs = [package_script] +
-            ctx.files.srcs +
-            ctx.files.tars +
-            ctx.files.generated +
-            ctx.files.subcharts,
+                 ctx.files.srcs +
+                 ctx.files.tars +
+                 ctx.files.generated +
+                 ctx.files.subcharts,
         outputs = outputs,
         tools = [ctx.executable._helm],
     )
@@ -193,7 +193,7 @@ def _version_impl(ctx):
     outputs = [output]
     contents = """
         open('{output}', 'w') do |f|
-          f << `{helm} inspect chart {chart}`[/version: (.*)/, 1]
+          f << `{helm} inspect chart {chart}`[/^version: (.*)/, 1]
           exit 1 unless $?.success?
         end
     """.format(
@@ -237,7 +237,8 @@ def _upgrade_impl(ctx):
             "[[install]]": str(ctx.attr.install),
             "[[reset_values]]": str(ctx.attr.reset_values),
             "[[values_paths]]": path_split_delim.join(
-                [values.short_path for values in ctx.files.values]),
+                [values.short_path for values in ctx.files.values],
+            ),
             "[[path_split_delim]]": path_split_delim,
             "[[set_values]]": str(ctx.attr.set_values),
         },

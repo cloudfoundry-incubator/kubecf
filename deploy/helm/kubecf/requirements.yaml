@@ -1,0 +1,9 @@
+dependencies:
+  - name: eirini
+    version: 1.4.0
+    repository: https://cloudfoundry-incubator.github.io/eirini-release
+    condition: features.eirini.enabled
+  - name: bits
+    version: 2.37.0
+    repository: https://cloudfoundry-incubator.github.io/bits-service-release/helm
+    condition: features.eirini.enabled

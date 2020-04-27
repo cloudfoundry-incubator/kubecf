@@ -245,6 +245,8 @@ jobs:
 {{ $path = ".git/short_ref" }}
 {{ end }}
 
+{{ $sanitized_branch_name := replaceAll "." "_" $branch }}
+
 - name: lint-{{ $branch }}
   public: true
   plan:
@@ -255,7 +257,7 @@ jobs:
     version: "every"
 {{- if has $prod "lint" }}
   - put: status-{{ $branch }}.src
-    params: &lint_{{ $branch }}_status
+    params: &lint_{{ $sanitized_branch_name }}_status
         context: lint
         description: "Lint started"
         path: kubecf-{{ $branch }}/{{ $path }}
@@ -285,12 +287,12 @@ jobs:
     on_success:
       put: status-{{ $branch }}.src
       params:
-        << : *lint_{{ $branch }}_status
+        << : *lint_{{ $sanitized_branch_name }}_status
         state: success
     on_failure:
       put: status-{{ $branch }}.src
       params:
-        << : *lint_{{ $branch }}_status
+        << : *lint_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 
@@ -304,7 +306,7 @@ jobs:
     - lint-{{ $branch }}
 {{- if has $prod "build" }}
   - put: status-{{ $branch }}.src
-    params: &build_{{ $branch }}_status
+    params: &build_{{ $sanitized_branch_name }}_status
         context: build
         description: "Build started"
         path: kubecf-{{ $branch }}/{{ $path }}
@@ -333,12 +335,12 @@ jobs:
     on_success:
       put: status-{{ $branch }}.src
       params:
-        << : *build_{{ $branch }}_status
+        << : *build_{{ $sanitized_branch_name }}_status
         state: success
     on_failure:
       put: status-{{ $branch }}.src
       params:
-        << : *build_{{ $branch }}_status
+        << : *build_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
   - put: s3.kubecf-ci
@@ -376,7 +378,7 @@ jobs:
   - get: catapult
 {{- if has $prod (printf "deploy-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
-    params: &deploy_{{ $cfScheduler }}_{{ $branch }}_status
+    params: &deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "deploy-{{ $cfScheduler }}"
         description: "Deploy {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
@@ -412,7 +414,7 @@ jobs:
   on_success:
     put: status-{{ $branch }}.src
     params:
-      << : *deploy_{{ $cfScheduler }}_{{ $branch }}_status
+      << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
 {{- end }}
   on_failure:
@@ -420,7 +422,7 @@ jobs:
 {{- if has $prod (printf "deploy-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *deploy_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
     - task: cleanup-cluster
@@ -454,7 +456,7 @@ jobs:
 {{- if has $prod (printf "deploy-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *deploy_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
   on_error:
@@ -467,7 +469,7 @@ jobs:
 {{- if has $prod (printf "deploy-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *deploy_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 
@@ -493,7 +495,7 @@ jobs:
   - get: catapult
 {{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
-    params: &smoke_{{ $cfScheduler }}_{{ $branch }}_status
+    params: &smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "smoke-tests-{{ $cfScheduler }}"
         description: "Smoke tests {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
@@ -527,7 +529,7 @@ jobs:
   on_success:
     put: status-{{ $branch }}.src
     params:
-      << : *smoke_{{ $cfScheduler }}_{{ $branch }}_status
+      << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
 {{- end }}
   on_failure:
@@ -535,7 +537,7 @@ jobs:
 {{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *smoke_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
     - task: cleanup-cluster
@@ -553,7 +555,7 @@ jobs:
 {{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *smoke_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
   on_error:
@@ -566,7 +568,7 @@ jobs:
 {{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *smoke_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 {{ $previousTest = (printf "smoke-tests-%s-%s" $cfScheduler $branch) }}
@@ -591,7 +593,7 @@ jobs:
   - get: catapult
 {{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
-    params: &cats_{{ $cfScheduler }}_{{ $branch }}_status
+    params: &cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "cf-acceptance-tests-{{ $cfScheduler }}"
         description: "Acceptance tests {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
@@ -626,7 +628,7 @@ jobs:
   on_success:
     put: status-{{ $branch }}.src
     params:
-      << : *cats_{{ $cfScheduler }}_{{ $branch }}_status
+      << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
 {{- end }}
 
@@ -640,7 +642,7 @@ jobs:
 {{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *cats_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
   on_abort:
@@ -653,7 +655,7 @@ jobs:
 {{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *cats_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
   on_error:
@@ -666,7 +668,7 @@ jobs:
 {{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *cats_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 {{ $previousTest = (printf "cf-acceptance-tests-%s-%s" $cfScheduler $branch) }}
@@ -694,7 +696,7 @@ jobs:
   - get: catapult
 {{- if has $prod "sync-integration-tests" }}
   - put: status-{{ $branch }}.src
-    params: &sits_{{ $cfScheduler }}_{{ $branch }}_status
+    params: &sits_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "sync-integration-tests"
         description: "Sync Integration tests"
         path: kubecf-{{ $branch }}/{{ $path }}
@@ -728,7 +730,7 @@ jobs:
   on_success:
     put: status-{{ $branch }}.src
     params:
-      << : *sits_{{ $cfScheduler }}_{{ $branch }}_status
+      << : *sits_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
 {{- end }}
   on_failure:
@@ -737,7 +739,7 @@ jobs:
 {{- if has $prod "sync-integration-tests" }}
     - put: status-{{ $branch }}.src
       params:
-        << : *sits_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *sits_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 
@@ -757,7 +759,7 @@ jobs:
 {{- if has $prod "sync-integration-tests" }}
     - put: status-{{ $branch }}.src
       params:
-        << : *sits_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *sits_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 
@@ -771,7 +773,7 @@ jobs:
 {{- if has $prod "sync-integration-tests" }}
     - put: status-{{ $branch }}.src
       params:
-        << : *sits_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *sits_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 {{ $previousTest = (printf "sync-integration-tests-%s" $branch) }}
@@ -797,7 +799,7 @@ jobs:
   - get: catapult
 {{- if has $prod (printf "rotate-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
-    params: &rotate_{{ $cfScheduler }}_{{ $branch }}_status
+    params: &rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "rotate-{{ $cfScheduler }}"
         description: "Rotating secrets {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
@@ -831,7 +833,7 @@ jobs:
   on_success:
     put: status-{{ $branch }}.src
     params:
-      << : *rotate_{{ $cfScheduler }}_{{ $branch }}_status
+      << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
 {{- end }}
 
@@ -840,7 +842,7 @@ jobs:
 {{- if has $prod (printf "rotate-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *rotate_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
     - task: cleanup-cluster
@@ -861,7 +863,7 @@ jobs:
 {{- if has $prod (printf "rotate-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *rotate_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
   on_error:
@@ -874,7 +876,7 @@ jobs:
 {{- if has $prod (printf "rotate-%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *rotate_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 {{ $previousTest = (printf "ccdb-rotate-%s-%s" $cfScheduler $branch) }}
@@ -899,7 +901,7 @@ jobs:
   - get: catapult
 {{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
-    params: &smoke_rotate_{{ $cfScheduler }}_{{ $branch }}_status
+    params: &smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "smoke-rotated-{{ $cfScheduler }}"
         description: "Smoke tests after rotating secrets {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
@@ -934,7 +936,7 @@ jobs:
   on_success:
     put: status-{{ $branch }}.src
     params:
-      << : *smoke_rotate_{{ $cfScheduler }}_{{ $branch }}_status
+      << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
 {{- end }}
 
@@ -944,7 +946,7 @@ jobs:
 {{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *smoke_rotate_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 
@@ -963,7 +965,7 @@ jobs:
 {{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *smoke_rotate_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
   on_error:
@@ -976,7 +978,7 @@ jobs:
 {{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
     - put: status-{{ $branch }}.src
       params:
-        << : *smoke_rotate_{{ $cfScheduler }}_{{ $branch }}_status
+        << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 {{ $previousTest = (printf "smoke-tests-post-rotate-%s-%s" $cfScheduler $branch) }}

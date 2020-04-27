@@ -1,0 +1,15 @@
+# This is the current production configuration.
+ci_uri: https://github.com/cloudfoundry-incubator/kubecf
+ci_branch: master
+build_image_resource_uri: https://github.com/concourse/docker-image-resource
+build_image_resource_branch: master
+kubecf_repo: git@github.com:cloudfoundry-incubator/kubecf.git
+kubecf_branch: master
+kubecf_values: deploy/helm/kubecf/values.yaml
+fissile_linux_s3_bucket: cf-opensusefs2
+stemcell_repository: splatform/fissile-stemcell-sle
+stemcell_versions_bucket: cf-operators
+stemcell_version_file: fissile-stemcell-versions/fissile-stemcell-sle15-version
+stemcell_bucket_region: us-east-1
+git_mail: cf-ci-bot@suse.de
+git_user: suse-cf-ci-bot
