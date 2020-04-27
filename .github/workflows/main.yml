@@ -79,8 +79,27 @@ jobs:
         parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarksstatefulsets.quarks.cloudfoundry.org'
     - name: Configure Domain
       run: |
-        domain="${RUN_ID}.kubecf.ci"
-        echo "system_domain: $domain" > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml"
+        node_ip=$(bazel run @kubectl//:binary -- get nodes -o json | bazel run @jq//:binary -- -r '.items[].status.addresses[] | select(.type == "InternalIP").address')
+        cat <<EOT >> > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml"
+        system_domain: $node_ip.nip.io
+        services:
+          router:
+            type: ClusterIP
+            externalIPs: [$node_ip]
+          ssh-proxy:
+            type: ClusterIP
+            externalIPs: [$node_ip]
+          tcp-router:
+            type: ClusterIP
+            externalIPs: [$node_ip]
+          properties:
+            acceptance-tests:
+              acceptance-tests:
+                acceptance_tests:
+                  ginkgo:
+                    nodes: 6
+                    flake_attempts: 2
+        EOT
     - name: Install KubeCF
       run: |
         bazel run //dev/kubecf:apply
@@ -91,7 +110,16 @@ jobs:
         sleep 300
         kill $WATCH_PID
         parallel --verbose --retries 40 --delay 15 ::: 'kubectl wait --for=condition=Ready -n kubecf --timeout=2400s --selector=quarks.cloudfoundry.org/deployment-name=kubecf pod'
+    - name: Run Smoke Tests
+      run: |
+        bazel run //testing:smoke_tests
+    - name: Run CATS
+      run: |
+        bazel run //testing:acceptance_tests
+    - name: Run SITS
+      run: |
+        bazel run //testing:sync_integration_tests
     - name: Delete Cluster
       run: |
-        gcloud --quiet container --project "${GKE_PROJECT}" clusters get-credentials "kubecf-ci-${RUN_ID}" \
+        gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "kubecf-ci-${RUN_ID}" \
           --zone "${GKE_ZONE}"
