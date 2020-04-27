@@ -33,7 +33,7 @@ jobs:
       env:
         RUN_ID: ${{github.run_id}}
       run: |
-        gcloud beta container clusters create "kubecf-ci-${RUN_ID}" \
+        gcloud --quiet beta container clusters create "kubecf-ci-${RUN_ID}" \
           --zone "europe-west1-c" \
           --no-enable-basic-auth \
           --cluster-version "1.15.9-gke.26" \
@@ -52,7 +52,7 @@ jobs:
           --default-max-pods-per-node "110" \
           --no-enable-master-authorized-networks \
           --addons HorizontalPodAutoscaling,HttpLoadBalancing        
-        gcloud container clusters get-credentials "kubecf-ci-${RUN_ID}" \
+        gcloud --quiet container clusters get-credentials "kubecf-ci-${RUN_ID}" \
           --zone "europe-west1-c"
         kubectl cluster-info
         kubectl get pods -n kube-system
@@ -90,5 +90,5 @@ jobs:
       env:
         RUN_ID: ${{github.run_id}}
       run: |
-        gcloud container clusters get-credentials "kubecf-ci-${RUN_ID}" \
+        gcloud --quiet container clusters get-credentials "kubecf-ci-${RUN_ID}" \
           --zone "europe-west1-c"
