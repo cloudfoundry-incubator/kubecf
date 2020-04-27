@@ -12,7 +12,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  kind:
+  diego:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -23,16 +23,13 @@ jobs:
         github-api-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Use bazel
       run: bazel --version
-    - uses: engineerd/setup-kind@v0.3.0
-      with:
-        name: kubecf
     - name: Testing
       run: |
+        # run kind
+        bazel run //dev/kind:start
+
         kubectl cluster-info
         kubectl get pods -n kube-system
-        # kind is already running, but this sets up storage classes, 
-        # trusts the certs, etc.
-        bazel run //dev/kind:start
         
         # run the operator
         kubectl create namespace cf-operator
