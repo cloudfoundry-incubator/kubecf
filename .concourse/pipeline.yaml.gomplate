@@ -696,7 +696,7 @@ jobs:
   - get: catapult
 {{- if has $prod "sync-integration-tests" }}
   - put: status-{{ $branch }}.src
-    params: &sits_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+    params: &sits_{{ $sanitized_branch_name }}_status
         context: "sync-integration-tests"
         description: "Sync Integration tests"
         path: kubecf-{{ $branch }}/{{ $path }}
@@ -730,7 +730,7 @@ jobs:
   on_success:
     put: status-{{ $branch }}.src
     params:
-      << : *sits_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+      << : *sits_{{ $sanitized_branch_name }}_status
       state: success
 {{- end }}
   on_failure:
@@ -739,7 +739,7 @@ jobs:
 {{- if has $prod "sync-integration-tests" }}
     - put: status-{{ $branch }}.src
       params:
-        << : *sits_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+        << : *sits_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 
@@ -759,7 +759,7 @@ jobs:
 {{- if has $prod "sync-integration-tests" }}
     - put: status-{{ $branch }}.src
       params:
-        << : *sits_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+        << : *sits_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 
@@ -773,7 +773,7 @@ jobs:
 {{- if has $prod "sync-integration-tests" }}
     - put: status-{{ $branch }}.src
       params:
-        << : *sits_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+        << : *sits_{{ $sanitized_branch_name }}_status
         state: failure
 {{- end }}
 {{ $previousTest = (printf "sync-integration-tests-%s" $branch) }}
