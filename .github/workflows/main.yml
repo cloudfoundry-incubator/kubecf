@@ -80,7 +80,7 @@ jobs:
     - name: Configure Domain
       run: |
         node_ip=$(bazel run @kubectl//:binary -- get nodes -o json | bazel run @jq//:binary -- -r '.items[].status.addresses[] | select(.type == "InternalIP").address')
-        cat <<EOT >> > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml"
+        cat > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml" <<EOT
         system_domain: $node_ip.nip.io
         services:
           router:
