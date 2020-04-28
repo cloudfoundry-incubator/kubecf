@@ -117,16 +117,31 @@ jobs:
         sleep 1200
         kill $WATCH_PID
         parallel --verbose --retries 40 --delay 15 ::: 'kubectl wait --for=condition=Ready -n kubecf --timeout=2400s --selector=quarks.cloudfoundry.org/deployment-name=kubecf pod'
+    - name: Setup a logging dir
+      run: |
+        mkdir -p "logs-${RUN_ID}"
     - name: Run Smoke Tests
       run: |
-        bazel run //testing:smoke_tests
+        bazel run //testing:smoke_tests > "logs-${RUN_ID}/smoke.log"
     - name: Run CATS
       run: |
-        bazel run //testing:acceptance_tests
+        bazel run //testing:acceptance_tests > "logs-${RUN_ID}/cats.log"
     - name: Run SITS
       run: |
-        bazel run //testing:sync_integration_tests
+        bazel run //testing:sync_integration_tests > "logs-${RUN_ID}/sits.log"
+    - uses: jakejarvis/s3-sync-action@master
+      if: ${{ always() }}
+      with:
+        args: --acl public-read --follow-symlinks --delete
+      env:
+        AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: 'eu-central-1'
+        SOURCE_DIR: ./logs-${{github.run_id}}
+        DEST_DIR: logs-${{github.run_id}}
     - name: Delete Cluster
+      if: ${{ always() }}
       run: |
         gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "kubecf-ci-${RUN_ID}" \
           --zone "${GKE_ZONE}"
