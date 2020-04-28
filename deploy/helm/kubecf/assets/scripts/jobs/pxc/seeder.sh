@@ -2,18 +2,6 @@
 
 set -o errexit -o nounset -o pipefail
 
-echo "Starting to seed databases..."
-databases=(
-  "cloud_controller"
-  "diego"
-  "network_connectivity"
-  "network_policy"
-  "routing-api"
-  "uaa"
-  "locket"
-  "credhub"
-)
-
 echo "Waiting for database to be ready..."
 until echo "SELECT 'Ready!'" | mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD}"; do
   sleep 1
@@ -37,7 +25,9 @@ mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD
         last_seen_active timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (anchor)
       );"
-    for database in ${databases[*]}; do
+    for database in ${DATABASES}; do
+      if [[ -z "${database}" ]]; then continue; fi
+
       password=$(</passwords/"${database}"/password)
 
       echo "\

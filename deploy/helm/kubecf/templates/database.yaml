@@ -380,6 +380,11 @@ spec:
                   key: password
             - name: DATABASE_HOST
               value: {{ printf "database.%s" .Release.Namespace | quote }}
+            - name: DATABASES
+              value: |-
+                {{- range $database := $databases }}
+                {{- get $database "path" | nindent 16 -}}
+                {{- end }}
             volumeMounts:
             {{- range $database := $databases }}
             - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
