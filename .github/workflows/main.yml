@@ -85,7 +85,7 @@ jobs:
         sizing:
           diego_cell:
             ephemeral_disk:
-              size: 200000
+              size: 300000
         testing:
           cf_acceptance_tests:
             enabled: true
@@ -108,7 +108,7 @@ jobs:
               acceptance-tests:
                 acceptance_tests:
                   ginkgo:
-                    nodes: 1
+                    nodes: 8
                     flake_attempts: 3
         EOT
     - name: Install KubeCF
