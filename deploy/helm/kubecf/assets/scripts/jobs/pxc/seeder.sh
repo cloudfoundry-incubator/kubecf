@@ -7,9 +7,6 @@ until echo "SELECT 'Ready!'" | mysql --host="${DATABASE_HOST}" --user=root --pas
   sleep 1
 done
 
-CHARACTER_SET="utf8"
-COLLATE="utf8_general_ci"
-
 mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD}" \
   < <(
     echo "START TRANSACTION;"
