@@ -82,6 +82,10 @@ jobs:
         node_ip=$(bazel run @kubectl//:binary -- get nodes -o json | bazel run @jq//:binary -- -r '.items[].status.addresses[] | select(.type == "InternalIP").address')
         cat > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml" <<EOT
         system_domain: $node_ip.nip.io
+        sizing:
+          diego_cell:
+            ephemeral_disk:
+              size: 200000
         testing:
           cf_acceptance_tests:
             enabled: true
