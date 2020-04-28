@@ -39,6 +39,7 @@ EOT
 STATEMENT=$(
 echo "START TRANSACTION;"
 
+alter_database "mysql"
 alter_database "kubecf"
 
 for database in ${DATABASES}; do
