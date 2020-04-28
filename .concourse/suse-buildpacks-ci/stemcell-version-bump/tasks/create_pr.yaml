@@ -7,10 +7,11 @@ image_resource:
     tag: kubecf
 inputs:
 - name: ci
-- name: suse_final_release
+- name: s3.stemcell-version
 - name: kubecf
-- name: built_image
+- name: built_images
 params:
+  STEMCELL_VERSIONED_FILE: ~
   GITHUB_TOKEN: ~
   GIT_MAIL: ~
   GIT_USER: ~
@@ -18,5 +19,6 @@ params:
   BUILDPACK_NAME: ~
   KUBECF_BRANCH: ~
   KUBECF_VALUES: ~
+  BUILT_IMAGES: ~
 run:
-  path: ci/.concourse/suse-buildpacks-ci/tasks/create_pr.sh
+  path: ci/.concourse/suse-buildpacks-ci/stemcell-version-bump/tasks/create_pr.sh

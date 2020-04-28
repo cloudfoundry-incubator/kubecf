@@ -9,7 +9,8 @@ fi
 
 usage() {
     echo "USAGE:"
-    echo "./deploy-pipeline <concourse-target> <pipeline-name>"
+    echo "./deploy-pipeline <concourse-target> <pipeline-name> <pipeline-type>"
+    echo "Supported pipeline types: <buildpack-version-bump> or <stemcell-version-bump>"
 }
 
 if [[ -z "$1" ]]; then
@@ -28,8 +29,27 @@ else
     pipeline_name=$2
 fi
 
-fly \
-    ${target:+"--target=${target}"} \
-    set-pipeline \
-    --pipeline="${pipeline_name}" \
-    --config <(gomplate -V -c .=config.yaml -d releases.yaml -f "pipeline.yaml.gomplate")
+if [[ -z "$3" ]]; then
+    echo "Pipeline type not provided."
+    usage
+    exit 1
+else
+    pipeline_type=$3
+fi
+
+fly_args=(
+"--target=${target}"
+"set-pipeline"
+"--pipeline=${pipeline_name}"
+)
+
+if [[ "${pipeline_type}" == "stemcell-version-bump" ]]; then
+    fly "${fly_args[@]}" --config <(gomplate --verbose --context .="${pipeline_type}/config.yaml" --file "${pipeline_type}/pipeline.yaml.gomplate")
+
+elif [[ "${pipeline_type}" == "buildpack-version-bump" ]]; then
+    fly "${fly_args[@]}" --config <(gomplate --verbose --context .="${pipeline_type}/config.yaml" --datasource releases.yaml --file "${pipeline_type}/pipeline.yaml.gomplate")
+else
+    echo "Unsupported pipeline type."
+    usage
+    exit 1
+fi

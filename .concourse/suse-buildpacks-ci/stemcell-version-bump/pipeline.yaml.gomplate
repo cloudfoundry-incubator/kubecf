@@ -1,0 +1,85 @@
+# This pipeline builds images for new stemcell versions for SUSE buildpack releases using fissile.
+---
+resources:
+- name: ci
+  type: git
+  source:
+    uri: {{ .ci_uri }}
+    branch: {{ .ci_branch }}
+
+- name: build-image-resource
+  type: git
+  source:
+    uri: {{ .build_image_resource_uri }}
+    branch: {{ .build_image_resource_branch }}
+
+- name: s3.fissile-linux
+  type: s3
+  source:
+    bucket: {{ .fissile_linux_s3_bucket }}
+    private: true
+    regexp: fissile/develop/fissile-(.*)\.tgz
+
+- name: s3.fissile-stemcell-version
+  type: s3
+  source:
+    bucket: {{ .stemcell_versions_bucket }}
+    region_name: {{ .stemcell_bucket_region }}
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    versioned_file: {{ .stemcell_version_file }}
+
+- name: kubecf
+  type: git
+  source:
+    uri: {{ .kubecf_repo }}
+    branch: {{ .kubecf_branch }}
+    private_key: ((github-private-key))
+
+jobs:
+- name: build-images
+  plan:
+  - in_parallel:
+    - get: ci
+    - get: build-image-resource
+    - get: s3.fissile-stemcell-version
+      trigger: true
+    - get: s3.fissile-linux
+    - get: kubecf
+  - do:
+    - task: prep
+      privileged: true
+      params:
+        RELEASES_YAML: ci/.concourse/suse-buildpacks-ci/releases.yaml
+        KUBECF_VALUES_YAML: kubecf/deploy/helm/kubecf/values.yaml
+      file: ci/.concourse/suse-buildpacks-ci/stemcell-version-bump/tasks/prep.yaml
+
+    - task: build
+      privileged: true
+      input_mapping:
+        s3.stemcell-version: s3.fissile-stemcell-version
+        buildpack_releases: buildpacks_to_be_built
+      params:
+        STEMCELL_REPOSITORY: {{ .stemcell_repository }}
+        STEMCELL_VERSIONED_FILE: {{ .stemcell_version_file }}
+        REGISTRY_NAME: ((suse-public-staging.registry))
+        REGISTRY_ORG: ((suse-public-staging.org))
+        REGISTRY_USER: ((suse-public-staging.username))
+        REGISTRY_PASS: ((suse-public-staging.password))
+        BUILT_IMAGES: {{ .built_images_file }}
+      file: ci/.concourse/suse-buildpacks-ci/stemcell-version-bump/tasks/build.yaml
+
+    - task: create-pr
+      privileged: true
+      input_mapping:
+        s3.stemcell-version: s3.fissile-stemcell-version
+      params:
+        STEMCELL_VERSIONED_FILE: {{ .stemcell_version_file }}
+        GITHUB_TOKEN: ((github-access-token-pr))
+        GITHUB_PRIVATE_KEY: ((github-private-key))
+        GIT_MAIL: {{ .git_mail }}
+        GIT_USER: {{ .git_user }}
+        KUBECF_BRANCH: {{ .kubecf_branch }}
+        KUBECF_VALUES: {{ .kubecf_values }}
+        BUILT_IMAGES: {{ .built_images_file }}
+      file: ci/.concourse/suse-buildpacks-ci/stemcell-version-bump/tasks/create_pr.yaml
