@@ -104,8 +104,8 @@ jobs:
               acceptance-tests:
                 acceptance_tests:
                   ginkgo:
-                    nodes: 6
-                    flake_attempts: 2
+                    nodes: 3
+                    flake_attempts: 3
         EOT
     - name: Install KubeCF
       run: |
