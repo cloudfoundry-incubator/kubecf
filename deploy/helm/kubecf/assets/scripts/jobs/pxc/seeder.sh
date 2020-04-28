@@ -3,7 +3,7 @@
 set -o errexit -o nounset -o pipefail
 
 echo "Waiting for database to be ready..."
-until echo "SELECT 'Ready!'" | mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD}"; do
+until echo "SELECT 'Ready!'" | mysql --host="${DATABASE_HOST}" --user=root --password="${DATABASE_ROOT_PASSWORD}" --connect-timeout=3 2> /dev/null; do
   sleep 1
 done
 
