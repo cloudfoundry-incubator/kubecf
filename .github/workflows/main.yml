@@ -44,7 +44,7 @@ jobs:
           --zone "${GKE_ZONE}" \
           --no-enable-basic-auth \
           --cluster-version "1.15.9-gke.26" \
-          --machine-type "n1-standard-4" \
+          --machine-type "n1-highcpu-16" \
           --image-type "UBUNTU" \
           --disk-type "pd-ssd" \
           --disk-size "100" \
@@ -82,6 +82,13 @@ jobs:
         node_ip=$(bazel run @kubectl//:binary -- get nodes -o json | bazel run @jq//:binary -- -r '.items[].status.addresses[] | select(.type == "InternalIP").address')
         cat > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml" <<EOT
         system_domain: $node_ip.nip.io
+        testing:
+          cf_acceptance_tests:
+            enabled: true
+          smoke_tests:
+            enabled: true
+          sync_integration_tests:
+            enabled: true
         services:
           router:
             type: ClusterIP
