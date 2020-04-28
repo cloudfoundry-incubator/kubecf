@@ -82,7 +82,7 @@ jobs:
         REGISTRY_USER: ((suse-public-staging.username))
         REGISTRY_PASS: ((suse-public-staging.password))
         RELEASE_NAME: {{ $release.name }}
-      file: ci/.concourse/suse-buildpacks-ci/tasks/build.yaml
+      file: ci/.concourse/suse-buildpacks-ci/buildpack-version-bump/tasks/build.yaml
 
     - task: create-pr
       privileged: true
@@ -98,5 +98,5 @@ jobs:
         BUILDPACK_NAME: {{ $release.name_in_values_yaml }}
         KUBECF_BRANCH: {{ $root.kubecf_branch }}
         KUBECF_VALUES: {{ $root.kubecf_values }}
-      file: ci/.concourse/suse-buildpacks-ci/tasks/create_pr.yaml
+      file: ci/.concourse/suse-buildpacks-ci/buildpack-version-bump/tasks/create_pr.yaml
 {{end}}

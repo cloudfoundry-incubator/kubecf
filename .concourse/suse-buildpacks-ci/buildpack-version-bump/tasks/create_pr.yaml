@@ -19,4 +19,4 @@ params:
   KUBECF_BRANCH: ~
   KUBECF_VALUES: ~
 run:
-  path: ci/.concourse/suse-buildpacks-ci/stemcell-version-bump/tasks/create_pr.sh
+  path: ci/.concourse/suse-buildpacks-ci/buildpack-version-bump/tasks/create_pr.sh
