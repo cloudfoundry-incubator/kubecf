@@ -44,7 +44,7 @@ jobs:
           --zone "${GKE_ZONE}" \
           --no-enable-basic-auth \
           --cluster-version "1.15.9-gke.26" \
-          --machine-type "n1-highcpu-16" \
+          --machine-type "n1-highcpu-32" \
           --image-type "UBUNTU" \
           --disk-type "pd-ssd" \
           --disk-size "100" \
