@@ -77,70 +77,70 @@ releases:
     version: "1.5.5.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.24-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.5.1-5.1-eaf36a02.zip
   suse-java-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.29.1.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.24-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-v4.29.1.1-543ec059.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.8.15.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.24-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.15.1-4.1-2b6d6879.zip
   suse-dotnet-core-buildpack:
     url: registry.suse.com/cap-staging
     version: "2.3.9.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.22-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.9.1-1.1-e74bd89e.zip
   suse-nodejs-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.17.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.24-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.17.1-1.1-7e96d2dd.zip
   suse-go-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.9.11.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.24-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.11.1-2.1-d5c02636.zip
   suse-python-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.12.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.22-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.12.1-2.1-ebd0f50d.zip
   suse-php-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.4.12.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.22-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.12.1-4.1-2c4591cb.zip
   suse-nginx-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.1.7.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.24-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.7.1-1.1-fbf90d1f.zip
   suse-binary-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.0.36.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.24-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
 
 multi_az: false
