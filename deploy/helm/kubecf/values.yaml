@@ -126,7 +126,7 @@ releases:
     version: "4.4.12.1"
     stemcell:
       os: SLE_15_SP1
-      version: 23.22-7.0.0_374.gb8e8e6af
+      version: 23.20-7.0.0_374.gb8e8e6af
     file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.12.1-4.1-2c4591cb.zip
   suse-nginx-buildpack:
     url: registry.suse.com/cap-staging
