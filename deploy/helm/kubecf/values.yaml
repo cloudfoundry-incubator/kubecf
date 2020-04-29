@@ -433,16 +433,7 @@ eirini:
           caPath: "ca"
 
     logs:
-      enable: true
-      serviceName: "doppler"
-      tls:
-        client:
-          secretName: "var-loggregator-tls-agent"
-          keyPath: "private_key"
-          certPath: "certificate"
-        server:
-          secretName: "var-loggregator-tls-agent"
-          caPath: "ca"
+      enable: false # disable fluentd, use eirinix-loggregator-bridge
 
     metrics:
       enable: true
