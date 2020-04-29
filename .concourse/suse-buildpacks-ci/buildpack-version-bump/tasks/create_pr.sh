@@ -52,7 +52,7 @@ with open("${KUBECF_VALUES}") as fp:
     values = yaml.load(fp)
 
 new_stemcell_semver = float(built_image_splitted2[1])
-existing_stemcell_semver = float(values['releases'][BUILDPACK_NAME]['stemcell']['version'].split("-")[0])
+existing_stemcell_semver = float(values['releases']["${BUILDPACK_NAME}"]['stemcell']['version'].split("-")[0])
 
 # Only update if new stemcell version is higher.
 if new_stemcell_semver > existing_stemcell_semver:
