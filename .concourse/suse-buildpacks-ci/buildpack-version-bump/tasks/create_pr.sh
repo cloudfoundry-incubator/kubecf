@@ -41,21 +41,26 @@ yaml.preserve_quotes = True
 yaml.representer.add_representer(type(None), represent_none)
 
 # Breaking down the BUILT_IMAGE to retrieve individual values.
-BUILT_IMAGE_LIST = "${BUILT_IMAGE}".split("/", 2)
-NEW_URL = "/".join(BUILT_IMAGE_LIST[:2])
-BUILT_IMAGE = BUILT_IMAGE_LIST[-1].split(":")[1].split("-")
-NEW_STEMCELL_OS = BUILT_IMAGE[0]
-NEW_STEMCELL_VERSION = "-".join(BUILT_IMAGE[1:3])
-NEW_VERSION = BUILT_IMAGE[3]
+built_image_splitted = "${BUILT_IMAGE}".split("/", 2)
+NEW_URL = "/".join(built_image_splitted[:2])
+built_image_splitted2 = built_image_splitted[-1].split(":")[1].split("-")
+NEW_STEMCELL_OS = built_image_splitted2[0]
+NEW_STEMCELL_VERSION = "-".join(built_image_splitted2[1:3])
+NEW_VERSION = built_image_splitted2[3]
 
 with open("${KUBECF_VALUES}") as fp:
     values = yaml.load(fp)
 
-values['releases']["${BUILDPACK_NAME}"]['url'] = NEW_URL
-values['releases']["${BUILDPACK_NAME}"]['version'] = NEW_VERSION
-values['releases']["${BUILDPACK_NAME}"]['stemcell']['os'] = NEW_STEMCELL_OS
-values['releases']["${BUILDPACK_NAME}"]['stemcell']['version'] = NEW_STEMCELL_VERSION
-values['releases']["${BUILDPACK_NAME}"]['file'] = get_new_filename()
+new_stemcell_semver = float(built_image_splitted2[1])
+existing_stemcell_semver = float(values['releases'][BUILDPACK_NAME]['stemcell']['version'].split("-")[0])
+
+# Only update if new stemcell version is higher.
+if new_stemcell_semver > existing_stemcell_semver:
+    values['releases']["${BUILDPACK_NAME}"]['url'] = NEW_URL
+    values['releases']["${BUILDPACK_NAME}"]['version'] = NEW_VERSION
+    values['releases']["${BUILDPACK_NAME}"]['stemcell']['os'] = NEW_STEMCELL_OS
+    values['releases']["${BUILDPACK_NAME}"]['stemcell']['version'] = NEW_STEMCELL_VERSION
+    values['releases']["${BUILDPACK_NAME}"]['file'] = get_new_filename()
 
 with open("${KUBECF_VALUES}", 'w') as f:
     yaml.dump(values, f)

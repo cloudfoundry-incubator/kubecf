@@ -42,9 +42,13 @@ with open("${BUILT_IMAGES}") as built_images, open("${KUBECF_VALUES}") as kubecf
         NEW_STEMCELL_OS = built_image_splitted2[0]
         NEW_STEMCELL_VERSION = "-".join(built_image_splitted2[1:3])
         
-        # Updating new values in kubecf values yaml.
-        values['releases'][BUILDPACK_NAME]['stemcell']['os'] = NEW_STEMCELL_OS
-        values['releases'][BUILDPACK_NAME]['stemcell']['version'] = NEW_STEMCELL_VERSION
+        new_stemcell_semver = float(built_image_splitted2[1])
+        existing_stemcell_semver = float(values['releases'][BUILDPACK_NAME]['stemcell']['version'].split("-")[0])
+        
+        # Only update if new stemcell version is higher.
+        if new_stemcell_semver > existing_stemcell_semver:
+            values['releases'][BUILDPACK_NAME]['stemcell']['os'] = NEW_STEMCELL_OS
+            values['releases'][BUILDPACK_NAME]['stemcell']['version'] = NEW_STEMCELL_VERSION
 
 with open("${KUBECF_VALUES}", 'w') as f:
     yaml.dump(values, f)
