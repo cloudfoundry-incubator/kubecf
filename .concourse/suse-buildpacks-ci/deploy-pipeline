@@ -38,9 +38,9 @@ else
 fi
 
 fly_args=(
-"--target=${target}"
-"set-pipeline"
-"--pipeline=${pipeline_name}"
+    "--target=${target}"
+    "set-pipeline"
+    "--pipeline=${pipeline_name}"
 )
 
 if [[ "${pipeline_type}" == "stemcell-version-bump" ]]; then
