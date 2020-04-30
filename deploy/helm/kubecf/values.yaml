@@ -447,7 +447,7 @@ eirini:
           caPath: "ca"
 
     rootfsPatcher:
-      enable: true
+      enable: false
       timeout: 2m
 
     routing:
