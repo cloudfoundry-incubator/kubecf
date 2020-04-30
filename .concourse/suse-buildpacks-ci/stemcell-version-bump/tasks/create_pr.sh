@@ -23,10 +23,15 @@ PYTHON_CODE=$(cat <<EOF
 #!/usr/bin/python3
 
 import ruamel.yaml
+import semver
 
 # Adds ~ to the null values to preserve existing structure of values.yaml.
 def represent_none(self, data):
     return self.represent_scalar(u'tag:yaml.org,2002:null', u'~')
+
+def get_semver(s):
+    v = s.split(".")
+    return semver.VersionInfo(*v)
 
 yaml = ruamel.yaml.YAML()
 yaml.preserve_quotes = True
@@ -42,8 +47,8 @@ with open("${BUILT_IMAGES}") as built_images, open("${KUBECF_VALUES}") as kubecf
         NEW_STEMCELL_OS = built_image_splitted2[0]
         NEW_STEMCELL_VERSION = "-".join(built_image_splitted2[1:3])
         
-        new_stemcell_semver = float(built_image_splitted2[1])
-        existing_stemcell_semver = float(values['releases'][BUILDPACK_NAME]['stemcell']['version'].split("-")[0])
+        new_stemcell_semver = get_semver(built_image_splitted2[1])
+        existing_stemcell_semver = get_semver(values['releases'][BUILDPACK_NAME]['stemcell']['version'].split("-")[0])
         
         # Only update if new stemcell version is higher.
         if new_stemcell_semver > existing_stemcell_semver:
