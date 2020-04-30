@@ -7,3 +7,7 @@ dependencies:
   version: 1.0.14
   repository: http://opensource.suse.com/bits-service-release/
   condition: features.eirini.enabled
+- name: eirini-extensions
+  repository: https://opensource.suse.com/eirinix-helm-release/
+  version: ">= 0-0"
+  condition: features.eirini.enabled
