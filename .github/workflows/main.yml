@@ -58,7 +58,8 @@ jobs:
           --subnetwork "projects/${GKE_PROJECT}/regions/europe-west1/subnetworks/default" \
           --default-max-pods-per-node "110" \
           --no-enable-master-authorized-networks \
-          --addons HorizontalPodAutoscaling,HttpLoadBalancing        
+          --addons HorizontalPodAutoscaling,HttpLoadBalancing \
+          --no-enable-autorepair        
         gcloud --quiet container --project "${GKE_PROJECT}" clusters get-credentials "kubecf-ci-${RUN_ID}" \
           --zone "${GKE_ZONE}"
         kubectl cluster-info
