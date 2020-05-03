@@ -40,7 +40,7 @@ jobs:
         sudo apt install -y parallel
     - name: Get a cluster
       run: |
-        gcloud --quiet beta container --project "${GKE_PROJECT}" clusters create "kubecf-ci-${RUN_ID}" \
+        gcloud --quiet beta container --project "${GKE_PROJECT}" clusters create "kubecf-ci-diego-${RUN_ID}" \
           --zone "${GKE_ZONE}" \
           --no-enable-basic-auth \
           --cluster-version "1.15.9-gke.26" \
@@ -60,7 +60,7 @@ jobs:
           --no-enable-master-authorized-networks \
           --addons HorizontalPodAutoscaling,HttpLoadBalancing \
           --no-enable-autorepair        
-        gcloud --quiet container --project "${GKE_PROJECT}" clusters get-credentials "kubecf-ci-${RUN_ID}" \
+        gcloud --quiet container --project "${GKE_PROJECT}" clusters get-credentials "kubecf-ci-diego-${RUN_ID}" \
           --zone "${GKE_ZONE}"
         kubectl cluster-info
         kubectl get pods -n kube-system
@@ -124,16 +124,19 @@ jobs:
         parallel --verbose --retries 40 --delay 15 ::: 'kubectl wait --for=condition=Ready -n kubecf --timeout=2400s --selector=quarks.cloudfoundry.org/deployment-name=kubecf pod'
     - name: Setup a logging dir
       run: |
-        mkdir -p "logs-${RUN_ID}"
+        mkdir -p "logs-diego-${RUN_ID}"
     - name: Run Smoke Tests
       run: |
-        bazel run //testing:smoke_tests > "logs-${RUN_ID}/smoke.log"
+        echo "Logs are found here: https://kubecf-ci-logs.s3.eu-central-1.amazonaws.com/index.html"
+        bazel run //testing:smoke_tests > "logs-diego-${RUN_ID}/smoke.log"
     - name: Run CATS
       run: |
-        bazel run //testing:acceptance_tests > "logs-${RUN_ID}/cats.log"
+        echo "Logs are found here: https://kubecf-ci-logs.s3.eu-central-1.amazonaws.com/index.html"
+        bazel run //testing:acceptance_tests > "logs-diego-${RUN_ID}/cats.log"
     - name: Run SITS
       run: |
-        bazel run //testing:sync_integration_tests > "logs-${RUN_ID}/sits.log"
+        echo "Logs are found here: https://kubecf-ci-logs.s3.eu-central-1.amazonaws.com/index.html"
+        bazel run //testing:sync_integration_tests > "logs-diego-${RUN_ID}/sits.log"
     - uses: jakejarvis/s3-sync-action@master
       if: ${{ always() }}
       with:
@@ -143,10 +146,148 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: 'eu-central-1'
-        SOURCE_DIR: ./logs-${{github.run_id}}
-        DEST_DIR: logs-${{github.run_id}}
+        SOURCE_DIR: ./logs-diego-${{github.run_id}}
+        DEST_DIR: logs-diego-${{github.run_id}}
+    - name: Delete Cluster
+      if: ${{ always() }}
+      run: |
+        gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "kubecf-ci-diego-${RUN_ID}" \
+          --zone "${GKE_ZONE}"
+  eirini:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@master
+    - name: Setup gcloud environment
+      uses: GoogleCloudPlatform/github-actions@0.1.2
+      with:
+        version: '286.0.0'
+        service_account_email: ${{ secrets.GKE_SA_EMAIL }}
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
+    - uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.6'
+    - name: Setup bazel
+      uses: jwlawson/actions-setup-bazel@v1.0
+      with:
+        bazel-version: '3.1.0'
+        github-api-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Install parallel
+      run: |
+        sudo apt install -y parallel
+    - name: Get a cluster
+      run: |
+        gcloud --quiet beta container --project "${GKE_PROJECT}" clusters create "kubecf-ci-eirini-${RUN_ID}" \
+          --zone "${GKE_ZONE}" \
+          --no-enable-basic-auth \
+          --cluster-version "1.15.9-gke.26" \
+          --machine-type "n1-highcpu-16" \
+          --image-type "UBUNTU" \
+          --disk-type "pd-ssd" \
+          --disk-size "100" \
+          --metadata disable-legacy-endpoints=true \
+          --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
+          --preemptible \
+          --num-nodes "1" \
+          --enable-stackdriver-kubernetes \
+          --enable-ip-alias \
+          --network "projects/${GKE_PROJECT}/global/networks/default" \
+          --subnetwork "projects/${GKE_PROJECT}/regions/europe-west1/subnetworks/default" \
+          --default-max-pods-per-node "110" \
+          --no-enable-master-authorized-networks \
+          --addons HorizontalPodAutoscaling,HttpLoadBalancing \
+          --no-enable-autorepair        
+        gcloud --quiet container --project "${GKE_PROJECT}" clusters get-credentials "kubecf-ci-eirini-${RUN_ID}" \
+          --zone "${GKE_ZONE}"
+        kubectl cluster-info
+        kubectl get pods -n kube-system
+    - name: Install cf-operator
+      run: |
+        kubectl create namespace cf-operator
+        bazel run //dev/cf_operator:apply
+    - name: Wait for cf-operator
+      run: |
+        parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for=condition=Ready --timeout=600s -n cf-operator --selector=name=cf-operator pod'
+        parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for=condition=Ready --timeout=600s -n cf-operator --selector=name=quarks-job pod'
+    - name: Wait for CRDs
+      run: |
+        parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for condition=established --timeout=600s crd/boshdeployments.quarks.cloudfoundry.org'
+        parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarksjobs.quarks.cloudfoundry.org'
+        parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarkssecrets.quarks.cloudfoundry.org'
+        parallel --verbose --retries 60 --delay 2 ::: 'kubectl wait --for condition=established --timeout=600s crd/quarksstatefulsets.quarks.cloudfoundry.org'
+    - name: Configure Domain
+      run: |
+        node_ip=$(bazel run @kubectl//:binary -- get nodes -o json | bazel run @jq//:binary -- -r '.items[].status.addresses[] | select(.type == "InternalIP").address')
+        cat > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml" <<EOT
+        system_domain: $node_ip.nip.io
+        sizing:
+          diego_cell:
+            ephemeral_disk:
+              size: 300000
+        testing:
+          cf_acceptance_tests:
+            enabled: true
+          smoke_tests:
+            enabled: true
+          sync_integration_tests:
+            enabled: true
+        services:
+          router:
+            type: ClusterIP
+            externalIPs: [$node_ip]
+          ssh-proxy:
+            type: ClusterIP
+            externalIPs: [$node_ip]
+          tcp-router:
+            type: ClusterIP
+            externalIPs: [$node_ip]
+          properties:
+            acceptance-tests:
+              acceptance-tests:
+                acceptance_tests:
+                  ginkgo:
+                    nodes: 8
+                    flake_attempts: 3
+        EOT
+    - name: Install KubeCF
+      run: |
+        bazel run //dev/kubecf:apply
+    - name: Wait for KubeCF
+      run: |
+        kubectl get pods --namespace kubecf --watch &
+        WATCH_PID=$!
+        sleep 1200
+        kill $WATCH_PID
+        parallel --verbose --retries 40 --delay 15 ::: 'kubectl wait --for=condition=Ready -n kubecf --timeout=2400s --selector=quarks.cloudfoundry.org/deployment-name=kubecf pod'
+    - name: Setup a logging dir
+      run: |
+        mkdir -p "logs-eirini-${RUN_ID}"
+    - name: Run Smoke Tests
+      run: |
+        echo "Logs are found here: https://kubecf-ci-logs.s3.eu-central-1.amazonaws.com/index.html"
+        bazel run //testing:smoke_tests > "logs-eirini-${RUN_ID}/smoke.log"
+    - name: Run CATS
+      run: |
+        echo "Logs are found here: https://kubecf-ci-logs.s3.eu-central-1.amazonaws.com/index.html"
+        bazel run //testing:acceptance_tests > "logs-eirini-${RUN_ID}/cats.log"
+    - name: Run SITS
+      run: |
+        echo "Logs are found here: https://kubecf-ci-logs.s3.eu-central-1.amazonaws.com/index.html"
+        bazel run //testing:sync_integration_tests > "logs-eirini-${RUN_ID}/sits.log"
+    - uses: jakejarvis/s3-sync-action@master
+      if: ${{ always() }}
+      with:
+        args: --acl public-read --follow-symlinks --delete
+      env:
+        AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: 'eu-central-1'
+        SOURCE_DIR: ./logs-eirini-${{github.run_id}}
+        DEST_DIR: logs-eirini-${{github.run_id}}
     - name: Delete Cluster
       if: ${{ always() }}
       run: |
         gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "kubecf-ci-${RUN_ID}" \
           --zone "${GKE_ZONE}"
+        
