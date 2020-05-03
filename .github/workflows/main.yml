@@ -43,7 +43,6 @@ jobs:
         gcloud --quiet beta container --project "${GKE_PROJECT}" clusters create "kubecf-ci-diego-${RUN_ID}" \
           --zone "${GKE_ZONE}" \
           --no-enable-basic-auth \
-          --cluster-version "1.15.9-gke.26" \
           --machine-type "n1-highcpu-16" \
           --image-type "UBUNTU" \
           --disk-type "pd-ssd" \
@@ -180,7 +179,6 @@ jobs:
         gcloud --quiet beta container --project "${GKE_PROJECT}" clusters create "kubecf-ci-eirini-${RUN_ID}" \
           --zone "${GKE_ZONE}" \
           --no-enable-basic-auth \
-          --cluster-version "1.15.9-gke.26" \
           --machine-type "n1-highcpu-16" \
           --image-type "UBUNTU" \
           --disk-type "pd-ssd" \
