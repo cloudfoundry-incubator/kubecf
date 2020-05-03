@@ -43,7 +43,7 @@ jobs:
         gcloud --quiet beta container --project "${GKE_PROJECT}" clusters create "kubecf-ci-diego-${RUN_ID}" \
           --zone "${GKE_ZONE}" \
           --no-enable-basic-auth \
-          --machine-type "n1-highcpu-16" \
+          --machine-type "n1-standard-4" \
           --image-type "UBUNTU" \
           --disk-type "pd-ssd" \
           --disk-size "100" \
@@ -108,7 +108,7 @@ jobs:
               acceptance-tests:
                 acceptance_tests:
                   ginkgo:
-                    nodes: 8
+                    nodes: 2
                     flake_attempts: 3
         EOT
     - name: Install KubeCF
@@ -179,7 +179,7 @@ jobs:
         gcloud --quiet beta container --project "${GKE_PROJECT}" clusters create "kubecf-ci-eirini-${RUN_ID}" \
           --zone "${GKE_ZONE}" \
           --no-enable-basic-auth \
-          --machine-type "n1-highcpu-16" \
+          --machine-type "n1-standard-4" \
           --image-type "UBUNTU" \
           --disk-type "pd-ssd" \
           --disk-size "100" \
@@ -218,16 +218,11 @@ jobs:
         node_ip=$(bazel run @kubectl//:binary -- get nodes -o json | bazel run @jq//:binary -- -r '.items[].status.addresses[] | select(.type == "InternalIP").address')
         cat > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml" <<EOT
         system_domain: $node_ip.nip.io
-        sizing:
-          diego_cell:
-            ephemeral_disk:
-              size: 300000
+        features:
+          eirini:
+            enabled: true
         testing:
-          cf_acceptance_tests:
-            enabled: true
           smoke_tests:
-            enabled: true
-          sync_integration_tests:
             enabled: true
         services:
           router:
@@ -244,7 +239,7 @@ jobs:
               acceptance-tests:
                 acceptance_tests:
                   ginkgo:
-                    nodes: 8
+                    nodes: 2
                     flake_attempts: 3
         EOT
     - name: Install KubeCF
@@ -264,14 +259,6 @@ jobs:
       run: |
         echo "Logs are found here: https://kubecf-ci-logs.s3.eu-central-1.amazonaws.com/index.html"
         bazel run //testing:smoke_tests > "logs-eirini-${RUN_ID}/smoke.log"
-    - name: Run CATS
-      run: |
-        echo "Logs are found here: https://kubecf-ci-logs.s3.eu-central-1.amazonaws.com/index.html"
-        bazel run //testing:acceptance_tests > "logs-eirini-${RUN_ID}/cats.log"
-    - name: Run SITS
-      run: |
-        echo "Logs are found here: https://kubecf-ci-logs.s3.eu-central-1.amazonaws.com/index.html"
-        bazel run //testing:sync_integration_tests > "logs-eirini-${RUN_ID}/sits.log"
     - uses: jakejarvis/s3-sync-action@master
       if: ${{ always() }}
       with:
