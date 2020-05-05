@@ -486,9 +486,6 @@ bits:
   global:
     labels: {}
     annotations: {}
-    images:
-      bits_service:      ...placeholder...
-      rootfs_downloader: ...placeholder...
   env:
     # This setting is not configurable
     DOMAIN: 127.0.0.1.nip.io
