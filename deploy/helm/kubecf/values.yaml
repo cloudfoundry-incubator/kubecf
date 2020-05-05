@@ -378,23 +378,23 @@ eirini:
     loadbalanced: true
   opi:
     staging:
-      downloader_image:     registry.suse.com/cap-staging/recipe-downloader@sha256:81aee25a8e74e34ff61bf69daed38712155e5d8442018119c05d20d366898f85
-      downloader_image_tag: ...placeholder...
-      executor_image:       registry.suse.com/cap-staging/recipe-executor@sha256:09f1c3abcae9719bb7b70ab18e8ef05d78ad7a765e24b88313f40dcd9a7e076b
-      executor_image_tag:   ...placeholder...
-      uploader_image:       registry.suse.com/cap-staging/recipe-uploader@sha256:12b510c394332f256a978dfd80d0905a245ec564410afca0389b4f3351903491
-      uploader_image_tag:   ...placeholder...
-    image_tag:                        ...tag.shared.by.most.images...see.below
-    image:                            registry.suse.com/cap-staging/opi@sha256:cc7c65028ddf481a2985ed4b4eef4399d55897e37d5a63e30a885546cbc06afd
-    metrics_collector_image:          registry.suse.com/cap-staging/metrics-collector@sha256:d40306d1d9a551038ac7feb6ff655ff2990c2f7b6fe2f856c11a21cbb414eead
-    bits_waiter_image:                registry.suse.com/cap-staging/bits-waiter@sha256:ccb1649fe4508c36334ed17c75ec8d82995c017898f716fa1145df2bfaaacffe
-    route_collector_image:            registry.suse.com/cap-staging/route-collector@sha256:6589aaf6a19e7982968e47c114cda9d1c0492093bf770032066fa70efb43c888
-    route_pod_informer_image:         registry.suse.com/cap-staging/route-pod-informer@sha256:bea79e5a9beb9ae6dc9dab6e011168f337945a388028c2ffa8ff15f934cd5291
-    route_statefulset_informer_image: registry.suse.com/cap-staging/route-statefulset-informer@sha256:507e474081e96b9f3b5ee2e2e8d8a1fc3adabdb5bf41a7c227941826c2aa76c5
-    event_reporter_image:             registry.suse.com/cap-staging/event-reporter@sha256:9f57dc757a8ca8a510d96e350a0e1c55963f9d4f083c02ae76d7a5d3b52d6b54
-    event_reporter_image_tag:         ...custom.tag...
-    staging_reporter_image:           registry.suse.com/cap-staging/staging-reporter@sha256:40f9f4166cae4ff8e9ffbb840911edebb14887647b6b6871f86ef2f5baa814da
-    staging_reporter_image_tag:       ...custom.tag...
+      downloader_image:     registry.suse.com/cap-staging/recipe-downloader
+      downloader_image_tag: "1.5.0"
+      executor_image:       registry.suse.com/cap-staging/recipe-executor
+      executor_image_tag:   "1.5.0"
+      uploader_image:       registry.suse.com/cap-staging/recipe-uploader
+      uploader_image_tag:   "1.5.0"
+    image_tag:                        "1.5.0"
+    image:                            registry.suse.com/cap-staging/opi
+    metrics_collector_image:          registry.suse.com/cap-staging/metrics-collector
+    bits_waiter_image:                registry.suse.com/cap-staging/bits-waiter
+    route_collector_image:            registry.suse.com/cap-staging/route-collector
+    route_pod_informer_image:         registry.suse.com/cap-staging/route-pod-informer
+    route_statefulset_informer_image: registry.suse.com/cap-staging/route-statefulset-informer
+    event_reporter_image:             registry.suse.com/cap-staging/event-reporter
+    event_reporter_image_tag:         "1.5.0"
+    staging_reporter_image:           registry.suse.com/cap-staging/staging-reporter
+    staging_reporter_image_tag:       "1.5.0"
     #
     registry_secret_name: eirini-registry-credentials
     namespace: eirini
