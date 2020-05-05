@@ -486,6 +486,8 @@ bits:
   global:
     labels: {}
     annotations: {}
+    images:
+      bits_service: eirini/bits-service:2.36.0@sha256:4cf84e13890890f5d8443a5e6e129b701d524f51d35c9c4295a0562ed8bb1bb2
   env:
     # This setting is not configurable
     DOMAIN: 127.0.0.1.nip.io
