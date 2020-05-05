@@ -1,6 +1,6 @@
 dependencies:
 - name: eirini
-  version: 1.0.1
+  version: 1.0.2
   repository: http://opensource.suse.com/eirini-release/
   condition: features.eirini.enabled
 - name: bits
