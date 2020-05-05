@@ -224,16 +224,15 @@
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/disable_swap_limit?
   value: true
 
-{{- if .Values.features.suse_buildpacks.enabled }}
-{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
-{{ $bytes | toString }}
-{{- end }}
-{{- else }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
-{{- if not (regexMatch "diego-cell_sle15-rootfs-setup" $path) }}
-{{ $bytes | toString }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{ range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
+  {{- if contains "/diego-cell_sle15-rootfs-setup" $path }}
+    # sle15-rootfs-setup is only used when using SUSE buildpacks
+    {{- if $.Values.features.suse_buildpacks.enabled }}
+      {{- "\n" }}{{ $bytes | toString }}
+    {{- end }}
+  {{- else }}
+    {{- "\n" }}{{ $bytes | toString }}
+  {{- end }}
+{{ end }}
 
 {{- end }}
