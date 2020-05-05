@@ -379,14 +379,11 @@ eirini:
   opi:
     image_tag:                        ...tag.shared.by.most.images...see.below
     image:                            ...placeholder...deployment...uses...image_tag
-    loggregator_fluentd_image:        ...placeholder...uses...image_tag
-    secret_smuggler_image:            ...placeholder...uses...image_tag
     metrics_collector_image:          ...placeholder...uses...image_tag
     bits_waiter_image:                ...placeholder...uses...image_tag
-    rootfs_patcher_image:             ...placeholder...uses...image_tag
     route_collector_image:            ...placeholder...uses...image_tag
-    route_pod_informer_image:         ...placeholder...uses...image_tag
-    route_statefulset_informer_image: ...placeholder...uses...image_tag
+    route_pod_informer_image:         registry.suse.com/cap-staging/route-pod-informer@sha256:bea79e5a9beb9ae6dc9dab6e011168f337945a388028c2ffa8ff15f934cd5291
+    route_statefulset_informer_image: registry.suse.com/cap-staging/route-statefulset-informer@sha256:507e474081e96b9f3b5ee2e2e8d8a1fc3adabdb5bf41a7c227941826c2aa76c5
     event_reporter_image:             ...placeholder...
     event_reporter_image_tag:         ...custom.tag...
     staging_reporter_image:           ...placeholder...
