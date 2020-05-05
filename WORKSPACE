@@ -74,3 +74,12 @@ pip_install()
 load("@rules_gomplate//:repositories.bzl", "gomplate_repositories")
 
 gomplate_repositories()
+
+load("//rules/helm:def.bzl", helm_dependencies = "dependencies")
+
+helm_dependencies(
+    name = "kubecf_helm_dependencies",
+    chart_yaml = "//deploy/helm/kubecf:Chart.yaml",
+    requirements = "//deploy/helm/kubecf:requirements.yaml",
+    requirements_lock = "//deploy/helm/kubecf:requirements.lock",
+)

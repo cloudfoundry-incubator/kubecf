@@ -146,6 +146,7 @@ spec:
   loadBalancerIP: {{ $service.loadBalancerIP | quote }}
   {{- end }}
 {{- end }}
+{{- if not .Values.features.eirini.enabled }}
 ---
 {{- with $service := index .Values.services "ssh-proxy" }}
 apiVersion: v1
@@ -185,6 +186,7 @@ spec:
   loadBalancerIP: {{ $service.loadBalancerIP | quote }}
   {{- end }}
 {{- end }}
+{{- end }} {{/* not .features.eirini.enabled */}}
 ---
 {{- with $service := index .Values.services "tcp-router" }}
 apiVersion: v1

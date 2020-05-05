@@ -8,6 +8,16 @@ require 'set'
 require 'tempfile'
 require 'yaml'
 
+# Make Hash act like OpenStruct for key lookups
+class Hash
+  def method_missing(symbol, *args)
+    [symbol, symbol.to_s].each do |key|
+        return self[key] if self.key? key
+    end
+    super(symbol, *args)
+  end
+end
+
 # deep_populate_nil_values is useful for setting the nil values found under the
 # feature flags in the values.yaml.
 def deep_populate_nil_values(hash)
@@ -68,6 +78,179 @@ values['releases'].keys.each do |release_name|
   output[:images].add?(image)
 end
 
+# HelmRenderer renders the helm chart
+class HelmRenderer
+  def initialize(helm:, chart:, values:)
+    @helm = helm
+    @chart = chart
+    @values = values
+    @documents = []
+
+    Tempfile.open(['values-', '.yaml']) do |values_file|
+      values_file.write values.to_yaml
+      values_file.close
+      template_cmd = "#{helm} template cf #{chart} --values #{values_file.path}"
+      Open3.popen3(template_cmd) do |_, stdout, stderr, wait_thr|
+        YAML.load_stream(stdout) do |doc|
+          next if doc.nil?
+
+          @documents << doc
+        end
+        raise stderr.read unless wait_thr.value.success?
+      end
+    end
+  end
+  attr_reader :helm, :chart, :values, :documents
+
+  # Find a resource from the documents
+  def find(kind: nil, name: nil)
+    fail "No documents" if documents.empty?
+    documents.find do |doc|
+      (kind.nil? || doc.kind.downcase == kind.to_s.downcase) &&
+      (name.nil? || doc.metadata.name == name.to_s)
+    end
+  end
+end
+
+### Classes to find images from specific kube types
+
+# Generic base class
+class Resource
+  def initialize(bosh:, resources:, doc:)
+    @bosh = bosh
+    @resources = resources
+    @doc = doc
+  end
+  attr_reader :bosh, :resources, :doc
+
+  # images used by this resource
+  def images
+    []
+  end
+
+  def repository_bases
+    Set.new images.map do |image|
+      index = image.rindex('/')
+      index.nil? ? '' : image[0..(index - 1)]
+    end
+  end
+
+  # Output object compatible with the global
+  def output
+    { images: images, stemcells: [], repository_bases: repository_bases }
+  end
+end
+
+# BOSHDeployment resources require rendering all of the ops files
+class BOSHDeployment < Resource
+  def manifest
+    ref = doc.spec.manifest
+    # ref.type is configmap/secret
+    @manifest ||= resources.find(kind: ref.type, name: ref.name)
+  end
+
+  def interpolated
+    return @interpolated unless @interpolated.nil?
+    result = nil
+    Tempfile.open(['ops-', '.yaml']) do |ops_file|
+      doc.spec.ops.each do |op|
+        ops_doc = resources.find(kind: op.type, name: op.name)
+        contents = ops_doc.data.ops
+        if contents.match? /(?:^|\n)---/
+          raise <<~ERROR
+            The ops-file #{op.name} should not have multiple YAML documents:
+            #{contents}
+          ERROR
+        end
+        ops_file.puts contents
+      end
+
+      # Interpolate the manifest using the ops-file.
+      Tempfile.open(['manifest-' '.yaml']) do |manifest_file|
+        manifest_file.puts manifest.data.manifest
+        manifest_file.close
+        interpolate_cmd = <<~CMD
+          #{bosh} interpolate #{manifest_file.path} --ops-file #{ops_file.path}
+        CMD
+        env = { 'HOME' => Dir.pwd }
+        Open3.popen3(env, interpolate_cmd) do |_, stdout, stderr, wait_thr|
+          result = stdout.read
+          raise stderr.read unless wait_thr.value.success?
+        end
+      end
+    end
+    @interpolated = YAML.safe_load(result, [Symbol])
+  end
+
+  def default_stemcell
+    @default_stemcell ||= interpolated.stemcells.find do |stemcell|
+      stemcell.alias == 'default'
+    end
+  end
+
+  def output
+    @output ||= Hash.new.tap do |result|
+      result[:images] = Set.new
+      result[:stemcells] = Set.new
+      result[:repository_bases] = Set.new
+      interpolated.releases.each do |release|
+        result.repository_bases.add release.url
+        stemcell = release.fetch('stemcell', default_stemcell)
+        stemcell_tag = "#{stemcell.os}-#{stemcell.version}"
+        result.stemcells.add stemcell_tag
+        image_repository = "#{release.url}/#{release.name}"
+        image_tag = "#{stemcell_tag}-#{release.version}"
+        release_image = "#{image_repository}:#{image_tag}"
+        result.images.add release_image
+      end
+    end
+  end
+end
+
+# https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#podspec-v1-core
+class PodSpec
+  def initialize(doc:)
+    @doc = doc
+  end
+  attr_reader :doc
+  def containers
+    %w(initContainers containers ephemeralContainers).flat_map { |k| doc.fetch(k, []) }
+  end
+  def images
+    @images ||= containers.flat_map(&:image)
+  end
+end
+
+# Standard classes
+%w(DaemonSet Deployment Job).each do |class_name|
+  Object.const_set(class_name, Class.new(Resource) do
+    def images
+      @images ||= PodSpec.new(doc: doc.spec.template.spec).images
+    end
+  end)
+end
+
+# Quarks classes
+%w(QuarksJob QuarksStatefulSet).each do |class_name|
+  Object.const_set(class_name, Class.new(Resource) do
+    def images
+      @images ||= PodSpec.new(doc: doc.spec.template.spec.template.spec).images
+    end
+  end)
+end
+
+# Hack for Eirini recipe images
+# https://github.com/cloudfoundry-incubator/eirini-release/blob/d87444b10e17/helm/eirini/templates/configmap.yaml#L20-L34
+class ConfigMap < Resource
+  def images
+    return [] unless doc.data.has_key? 'opi.yml'
+    opi_config = YAML.safe_load doc.data['opi.yml']
+    %w(downloader_image executor_image uploader_image).map do |key|
+      opi_config.opi.fetch(key, nil)
+    end.compact
+  end
+end
+
 # Create all permutations for enabling and disabling the features.
 features = values['features'].keys
 permutations = [true, false].repeated_permutation(features.size)
@@ -83,108 +266,24 @@ permutations.each do |permutation|
   end
   deep_populate_nil_values(values['features'])
 
-  values_file = Tempfile.new('values.yaml')
-  manifest_file = Tempfile.new('manifest.yaml')
-  interpolated_file = Tempfile.new('manifest_interpolated.yaml')
-  begin
-    # Render the Helm chart.
-    File.write(values_file.path, values.to_yaml)
-    template_cmd = "#{helm} template cf #{chart} --values #{values_file.path}"
-    template = { documents: [] }
-    Open3.popen3(template_cmd) do |_, stdout, stderr, wait_thr|
-      YAML.load_stream(stdout) do |doc|
-        next if doc.nil?
+  # Render the Helm chart.
+  docs = HelmRenderer.new(helm: helm, chart: chart, values: values)
+  # Sanity check: we should have at least _one_ BDPL
+  fail "Could not find BDPL" if docs.find(kind: :BOSHDeployment).nil?
 
-        template[:documents].append(doc)
-      end
-      raise stderr.read unless wait_thr.value.success?
+  # Iterate through all objects and get images from them if we know how
+  docs.documents.each do |doc|
+    next unless Object.constants.include? doc.kind.to_sym
+    clazz = Object.const_get(doc.kind)
+    next unless clazz.ancestors.include? Resource
+    obj = clazz.new(bosh: bosh, resources: docs, doc: doc)
+    output.keys.each do |key|
+      output[key].merge obj.output[key]
     end
-
-    # Get the BOSHDeployment YAML document.
-    bdpl = template[:documents].find do |doc|
-      doc['kind'].downcase == 'boshdeployment'
-    end
-
-    # Get the cf-deployment manifest and write it to a temp file.
-    bdpl_manifest = bdpl['spec']['manifest']
-    manifest_name = bdpl_manifest['name']
-    manifest_type = bdpl_manifest['type'] # configmap/secret
-    manifest_doc = template[:documents].find do |doc|
-      doc_kind = doc['kind'].downcase
-      doc_name = doc['metadata']['name']
-      doc_kind == manifest_type && doc_name == manifest_name
-    end
-    File.write(manifest_file.path, manifest_doc['data']['manifest'])
-
-    # Apply the ops-files to the cf-deployment manifest.
-    ops_file = Tempfile.new('ops.yaml')
-    begin
-      # Concatenate all ops-files referenced in the BOSHDeployment into a single
-      # YAML file.
-      open(ops_file.path, 'w') do |f|
-        bdpl['spec']['ops'].each do |ops|
-          ops_doc = template[:documents].find do |doc|
-            doc_kind = doc['kind'].downcase
-            doc_name = doc['metadata']['name']
-            doc_kind == ops['type'] && doc_name == ops['name']
-          end
-
-          contents = ops_doc['data']['ops']
-          if contents.match?(/(?:^|\n)---/)
-            raise <<~ERROR
-              The ops-file should not have multiple YAML documents:
-              #{contents}
-            ERROR
-          end
-
-          f << contents
-          f << "\n"
-        end
-        f.close
-      end
-
-      # Interpolate the manifest using the ops-file.
-      interpolate_cmd = <<~CMD
-        #{bosh} interpolate #{manifest_file.path} \
-          --ops-file #{ops_file.path}
-      CMD
-      env = { 'HOME' => Dir.pwd }
-      Open3.popen3(env, interpolate_cmd) do |_, stdout, stderr, wait_thr|
-        File.write(interpolated_file.path, stdout.read)
-        raise stderr.read unless wait_thr.value.success?
-      end
-    ensure
-      ops_file.close
-      ops_file.unlink
-    end
-
-    # Load the interpolated manifest and calculate the BOSH releases image
-    # repository and tags.
-    interpolated = YAML.safe_load(File.open(interpolated_file.path), [Symbol])
-    default_stemcell = interpolated['stemcells'].find do |stemcell|
-      stemcell['alias'] == 'default'
-    end
-    interpolated['releases'].each do |release|
-      output[:repository_bases].add?(release['url'])
-      stemcell = release['stemcell']
-      stemcell = default_stemcell if stemcell.nil?
-      stemcell_tag = "#{stemcell['os']}-#{stemcell['version']}"
-      output[:stemcells].add?(stemcell_tag)
-      image_repository = "#{release['url']}/#{release['name']}"
-      image_tag = "#{stemcell_tag}-#{release['version']}"
-      release_image = "#{image_repository}:#{image_tag}"
-      output[:images].add?(release_image)
-    end
-  ensure
-    values_file.close
-    values_file.unlink
-    manifest_file.close
-    manifest_file.unlink
-    interpolated_file.close
-    interpolated_file.unlink
   end
 end
 
+# Convert outputs to arrays for JSON output
 output.keys.each do |key|
   output[key] = output[key].to_a.sort if output[key].is_a?(Set)
 end

@@ -16,46 +16,44 @@ set -o errexit -o nounset
 
 function update_buildpack_info() {
 
-BUILDPACK_NAME=$1
-KUBECF_VALUES=$2
-BUILT_IMAGE=$3
-NEW_FILE_NAME=$4
+KUBECF_VALUES=$1
+BUILT_IMAGES=$2
 
 PYTHON_CODE=$(cat <<EOF 
 #!/usr/bin/python3
 
 import ruamel.yaml
+import semver
 
 # Adds ~ to the null values to preserve existing structure of values.yaml.
 def represent_none(self, data):
     return self.represent_scalar(u'tag:yaml.org,2002:null', u'~')
 
-# Replaces the filename at the end of the original 'file'.
-def get_new_filename():
-    new_file = values['releases']["${BUILDPACK_NAME}"]['file'].split("/")[:3]
-    new_file.append("${NEW_FILE_NAME}")
-    return "/".join(new_file)
+def get_semver(s):
+    v = s.split(".")
+    return semver.VersionInfo(*v)
 
 yaml = ruamel.yaml.YAML()
 yaml.preserve_quotes = True
 yaml.representer.add_representer(type(None), represent_none)
 
-# Breaking down the BUILT_IMAGE to retrieve individual values.
-BUILT_IMAGE_LIST = "${BUILT_IMAGE}".split("/", 2)
-NEW_URL = "/".join(BUILT_IMAGE_LIST[:2])
-BUILT_IMAGE = BUILT_IMAGE_LIST[-1].split(":")[1].split("-")
-NEW_STEMCELL_OS = BUILT_IMAGE[0]
-NEW_STEMCELL_VERSION = "-".join(BUILT_IMAGE[1:3])
-NEW_VERSION = BUILT_IMAGE[3]
-
-with open("${KUBECF_VALUES}") as fp:
-    values = yaml.load(fp)
-
-values['releases']["${BUILDPACK_NAME}"]['url'] = NEW_URL
-values['releases']["${BUILDPACK_NAME}"]['version'] = NEW_VERSION
-values['releases']["${BUILDPACK_NAME}"]['stemcell']['os'] = NEW_STEMCELL_OS
-values['releases']["${BUILDPACK_NAME}"]['stemcell']['version'] = NEW_STEMCELL_VERSION
-values['releases']["${BUILDPACK_NAME}"]['file'] = get_new_filename()
+with open("${BUILT_IMAGES}") as built_images, open("${KUBECF_VALUES}") as kubecf_values:
+    values = yaml.load(kubecf_values)
+    for built_image in built_images:
+        # Breaking down the BUILT_IMAGE to retrieve individual values.
+        built_image_splitted = built_image.split("/", 2)
+        BUILDPACK_NAME = built_image_splitted[-1].split(":")[0]
+        built_image_splitted2 = built_image_splitted[-1].split(":")[1].split("-")
+        NEW_STEMCELL_OS = built_image_splitted2[0]
+        NEW_STEMCELL_VERSION = "-".join(built_image_splitted2[1:3])
+        
+        new_stemcell_semver = get_semver(built_image_splitted2[1])
+        existing_stemcell_semver = get_semver(values['releases'][BUILDPACK_NAME]['stemcell']['version'].split("-")[0])
+        
+        # Only update if new stemcell version is higher.
+        if new_stemcell_semver > existing_stemcell_semver:
+            values['releases'][BUILDPACK_NAME]['stemcell']['os'] = NEW_STEMCELL_OS
+            values['releases'][BUILDPACK_NAME]['stemcell']['version'] = NEW_STEMCELL_VERSION
 
 with open("${KUBECF_VALUES}", 'w') as f:
     yaml.dump(values, f)
@@ -80,21 +78,20 @@ chmod 0600 ~/.ssh/id_ecdsa
 git config --global user.email "$GIT_MAIL"
 git config --global user.name "$GIT_USER"
 
-RELEASE_VERSION=$(cat suse_final_release/version)
-BUILT_IMAGE=$(cat built_image/image)
-NEW_FILE=$(tar -zxOf suse_final_release/*.tgz packages | tar -ztf - | grep zip | cut -d'/' -f3)
+stemcell_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}")"
+COMMIT_TITLE="Bump stemcell version for SUSE buildpacks to ${stemcell_version}"
 
-COMMIT_TITLE="Bump ${BUILDPACK_NAME} release to ${RELEASE_VERSION}"
+images_dir=$(pwd)/"${BUILT_IMAGES}"
 
 # Update release in kubecf repo
 cp -r kubecf/. updated-kubecf/
 cd updated-kubecf
 
 git pull
-GIT_BRANCH_NAME="bump_${BUILDPACK_NAME}-$(date +%Y%m%d%H%M%S)"
+GIT_BRANCH_NAME="bump_${stemcell_version}-$(date +%Y%m%d%H%M%S)"
 git checkout -b "${GIT_BRANCH_NAME}"
 
-update_buildpack_info "${BUILDPACK_NAME}" "${KUBECF_VALUES}" "${BUILT_IMAGE}" "${NEW_FILE}"
+update_buildpack_info "${KUBECF_VALUES}" "${images_dir}"
 
 git commit "${KUBECF_VALUES}" -m "${COMMIT_TITLE}"
 

@@ -140,4 +140,15 @@
 - type: remove
   path: /instance_groups/name=scheduler/jobs/name=ssh_proxy
 
+# For eirini-extensions: Add hostname-only names to the CC/UAA certificates
+- type: replace
+  path: /variables/name=cc_public_tls/options/alternative_names/-
+  value: api
+- type: replace
+  path: /variables/name=uaa_ssl/options/alternative_names/-
+  value: uaa
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/zones/internal/hostnames/-
+  value: uaa
+
 {{- end }}
