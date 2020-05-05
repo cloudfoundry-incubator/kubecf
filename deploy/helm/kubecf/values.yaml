@@ -366,6 +366,10 @@ k8s-service-username: ""
 k8s-node-ca: ""
 
 eirini:
+  global:
+    labels: {}
+    annotations: {}
+
   env:
     # This setting is not configurable
     # It's a workaround to replace the port eirini uses for the registry
@@ -373,6 +377,21 @@ eirini:
   services:
     loadbalanced: true
   opi:
+    image_tag:                        ...tag.shared.by.most.images...see.below
+    image:                            ...placeholder...deployment...uses...image_tag
+    loggregator_fluentd_image:        ...placeholder...uses...image_tag
+    secret_smuggler_image:            ...placeholder...uses...image_tag
+    metrics_collector_image:          ...placeholder...uses...image_tag
+    bits_waiter_image:                ...placeholder...uses...image_tag
+    rootfs_patcher_image:             ...placeholder...uses...image_tag
+    route_collector_image:            ...placeholder...uses...image_tag
+    route_pod_informer_image:         ...placeholder...uses...image_tag
+    route_statefulset_informer_image: ...placeholder...uses...image_tag
+    event_reporter_image:             ...placeholder...
+    event_reporter_image_tag:         ...custom.tag...
+    staging_reporter_image:           ...placeholder...
+    staging_reporter_image_tag:       ...custom.tag...
+    #
     registry_secret_name: eirini-registry-credentials
     namespace: eirini
     kubecf:
@@ -461,6 +480,12 @@ eirini:
       enable: false
 
 bits:
+  global:
+    labels: {}
+    annotations: {}
+    images:
+      bits_service:      ...placeholder...
+      rootfs_downloader: ...placeholder...
   env:
     # This setting is not configurable
     DOMAIN: 127.0.0.1.nip.io
