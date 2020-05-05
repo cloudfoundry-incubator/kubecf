@@ -101,6 +101,7 @@ helm_package(
         ":cf_deployment",
         ":extracted_jobs",
     ],
+    subcharts = ["@kubecf_helm_dependencies//charts"],
 )
 
 genrule(
