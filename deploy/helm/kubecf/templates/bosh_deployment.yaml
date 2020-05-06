@@ -15,6 +15,16 @@ spec:
   manifest:
     name: cf-deployment
     type: configmap
+  vars:
+{{- $creds := dict }}
+{{- range $name, $value := .Values.credentials }}
+  {{- $parts := splitList "." $name }}
+  {{- $_ := set $creds (first $parts) nil }}
+{{- end }}
+{{- range $name, $value := $creds }}
+  - name: {{ $name | quote }}
+    secret: {{ printf "cred-%s" ($name | replace "_" "-" | replace "." "-") | quote }}
+{{- end }}
   ops:
 {{- range $path, $_ := .Files.Glob "assets/operations/job_moving/*" }}
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}

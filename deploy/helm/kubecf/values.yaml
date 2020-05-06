@@ -25,6 +25,10 @@ system_domain: ~
 #             default_size: "1Gi"
 properties: {}
 
+credentials: {}
+
+variables: {}
+
 kube:
   # The storage class to be used for the instance groups that need it (e.g. bits, database and
   # singleton-blobstore). If it's not set, the default storage class will be used.
