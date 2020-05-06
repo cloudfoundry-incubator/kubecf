@@ -383,7 +383,7 @@ spec:
             - name: CHARACTER_SET
               value: utf8
             - name: COLLATE
-              value: utf8_general_ci
+              value: utf8_unicode_ci
             - name: DATABASES
               value: |-
                 {{- range $database := $databases }}
@@ -446,7 +446,7 @@ spec:
             - name: CHARACTER_SET
               value: utf8
             - name: COLLATE
-              value: utf8_general_ci
+              value: utf8_unicode_ci
             - name: DATABASES
               value: |-
                 {{- range $database := $databases }}
