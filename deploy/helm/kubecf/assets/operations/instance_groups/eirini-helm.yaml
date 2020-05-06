@@ -3,6 +3,10 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/enabled?
   value: true
 - type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_stack?
+  value: "sle15"
+
+- type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/url?
   value: "https://eirini-opi.{{ .Release.Namespace }}.svc.cluster.local:8085"
 

@@ -483,11 +483,12 @@ eirini:
       enable: false
 
 bits:
+  download_eirinifs: false
   global:
     labels: {}
     annotations: {}
     images:
-      bits_service: eirini/bits-service:2.36.0@sha256:4cf84e13890890f5d8443a5e6e129b701d524f51d35c9c4295a0562ed8bb1bb2
+      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.15-15.1.6.2.220-24.2
   env:
     # This setting is not configurable
     DOMAIN: 127.0.0.1.nip.io
@@ -515,3 +516,13 @@ bits:
   tls_cert_name: certificate
   tls_key_name: private_key
   tls_ca_name: ca
+
+eirinix:
+  persi-broker:
+    service-plans:
+    - id: default
+      name: "default"
+      description: "Existing default storage class"
+      kube_storage_class: "default"
+      free: true
+      default_size: "1Gi"
