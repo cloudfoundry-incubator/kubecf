@@ -387,7 +387,7 @@ spec:
             - name: DATABASES
               value: |-
                 {{- range $database := $databases }}
-                {{- get $database "path" | nindent 16 -}}
+                {{- get $database "path" | nindent 16 }}
                 {{- end }}
             volumeMounts:
             {{- range $database := $databases }}
@@ -450,7 +450,7 @@ spec:
             - name: DATABASES
               value: |-
                 {{- range $database := $databases }}
-                {{- get $database "path" | nindent 16 -}}
+                {{- get $database "path" | nindent 16 }}
                 {{- end }}
             volumeMounts:
             {{- range $database := $databases }}
