@@ -517,12 +517,12 @@ bits:
   tls_key_name: private_key
   tls_ca_name: ca
 
-eirinix:  
+eirinix:
   persi-broker:
     service-plans:
     - id: default
       name: "default"
       description: "Existing default storage class"
-      kube_storage_class: "standard"
+      kube_storage_class: "default"
       free: true
       default_size: "1Gi"
