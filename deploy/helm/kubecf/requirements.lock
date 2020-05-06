@@ -7,6 +7,6 @@ dependencies:
   version: 1.0.14
 - name: eirini-extensions
   repository: https://opensource.suse.com/eirinix-helm-release/
-  version: '>= 0-0'
-digest: sha256:ada05d269e97901296f3e67922b59b02fa4a7ba732c74f7187a5de466e436213
-generated: "2020-05-06T11:53:34.20461864+03:00"
+  version: 0.0.0-9+g6b37279
+digest: sha256:3aae10d1f7cda7fae256ee2fc526c6efff51c301cf573736bbc3864b26af4b12
+generated: "2020-05-06T14:23:58.635372322+03:00"
