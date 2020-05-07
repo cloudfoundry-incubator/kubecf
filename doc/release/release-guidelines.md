@@ -52,7 +52,7 @@ helm_package(
 ```
 
 Update the Concourse pipeline _.concourse/pipeline.yaml.gomplate_ by adding the new release branch to the list of branches:
-```{{ $branches := slice "master" "2.0.0"}} # Repository branches to track```
+```{{ $branches := slice "master" "v2.0.0" }} # Repository branches to track```
 
 ## Concourse
 
