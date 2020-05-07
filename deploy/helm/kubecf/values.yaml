@@ -127,11 +127,11 @@ releases:
     file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.12.1-2.1-ebd0f50d.zip
   suse-php-buildpack:
     url: registry.suse.com/cap-staging
-    version: "4.4.12.1"
+    version: "4.4.14.1"
     stemcell:
       os: SLE_15_SP1
       version: 25.1-7.0.0_374.gb8e8e6af
-    file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.12.1-4.1-2c4591cb.zip
+    file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.14.1-1.1-bf878677.zip
   suse-nginx-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.1.7.1"
