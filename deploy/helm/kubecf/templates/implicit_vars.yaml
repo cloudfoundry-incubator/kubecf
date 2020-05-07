@@ -30,3 +30,21 @@ stringData:
 {{ include "kubecf.implicit-var" (list . "k8s-service-token" "k8s-service-token") }}
 {{ include "kubecf.implicit-var" (list . "k8s-service-username" "k8s-service-username") }}
 {{ include "kubecf.implicit-var" (list . "k8s-node-ca" "k8s-node-ca") }}
+
+{{- range $name, $value := .Values.variables }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ printf "var-%s" ($name | replace "_" "-" | replace "." "-") | quote }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ $.Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" $ }}
+    app.kubernetes.io/version: {{ default $.Chart.Version $.Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" $ }}
+type: Opaque
+stringData:
+  value: {{ $value | quote }}
+{{- end }}
