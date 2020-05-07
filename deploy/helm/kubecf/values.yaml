@@ -460,6 +460,7 @@ eirini:
 
     logs:
       enable: false # disable fluentd, use eirinix-loggregator-bridge
+      serviceName: doppler
 
     metrics:
       enable: true
