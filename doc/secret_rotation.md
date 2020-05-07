@@ -42,7 +42,7 @@ installed to the `kubecf` namespace. These values may be different depending on 
 installed.
 
 ```sh
-kubectl patch qjob kubecf-rotate-cc-database-key \
+kubectl patch qjob rotate-cc-database-key \
   --namespace kubecf \
   --type merge \
   --patch '{"spec":{"trigger":{"strategy":"now"}}}'

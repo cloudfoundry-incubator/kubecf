@@ -77,6 +77,22 @@ data:
     wsrep_cluster_address=gcomm://
     wsrep_provider=/usr/lib/galera3/libgalera_smm.so
     wsrep_sst_method=xtrabackup-v2
+  charset.cnf: |-
+    [client]
+    default_character_set           = utf8
+
+    [mysql]
+    default_character_set           = utf8
+
+    [mysqld]
+    # Ignore the client information and use the default server character set.
+    character_set_client_handshake  = false
+
+    character_set_server            = utf8
+    collation_server                = utf8_unicode_ci
+
+    [mysqld_safe]
+    default_character_set           = utf8
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -349,9 +365,6 @@ spec:
   template:
     spec:
       template:
-        metadata:
-          labels:
-            delete: pod
         spec:
           containers:
           - name: seeder
@@ -367,6 +380,15 @@ spec:
                   key: password
             - name: DATABASE_HOST
               value: {{ printf "database.%s" .Release.Namespace | quote }}
+            - name: CHARACTER_SET
+              value: utf8
+            - name: COLLATE
+              value: utf8_unicode_ci
+            - name: DATABASES
+              value: |-
+                {{- range $database := $databases }}
+                {{- get $database "path" | nindent 16 }}
+                {{- end }}
             volumeMounts:
             {{- range $database := $databases }}
             - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
@@ -378,6 +400,69 @@ spec:
             - "-c"
             - |-
               {{- .Files.Get "assets/scripts/jobs/pxc/seeder.sh" | nindent 14 }}
+
+          volumes:
+          {{- range $database := $databases }}
+          - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
+            secret:
+              secretName: {{ printf "var-%s-database-password" (get $database "secretName") | quote }}
+          {{- end }}
+          restartPolicy: Never
+
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksJob
+metadata:
+  name: database-migrate-charset
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+spec:
+  trigger:
+    strategy: manual
+  updateOnConfigChange: true
+  template:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: migrate-charset
+            {{- with $image := .Values.releases.pxc.image }}
+            image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+            imagePullPolicy: {{ $image.pullPolicy | quote }}
+            {{- end }}
+            env:
+            - name: DATABASE_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: var-pxc-root-password
+                  key: password
+            - name: DATABASE_HOST
+              value: {{ printf "database.%s" .Release.Namespace | quote }}
+            - name: CHARACTER_SET
+              value: utf8
+            - name: COLLATE
+              value: utf8_unicode_ci
+            - name: DATABASES
+              value: |-
+                {{- range $database := $databases }}
+                {{- get $database "path" | nindent 16 }}
+                {{- end }}
+            volumeMounts:
+            {{- range $database := $databases }}
+            - name: {{ printf  "%s-database-password" (get $database "name") | quote }}
+              mountPath: {{ printf "/passwords/%s" (get $database "path") | quote }}
+              readOnly: true
+            {{- end }}
+            command:
+            - "/bin/bash"
+            - "-c"
+            - |-
+              {{- .Files.Get "assets/scripts/jobs/pxc/migrate_charset.sh" | nindent 14 }}
 
           volumes:
           {{- range $database := $databases }}

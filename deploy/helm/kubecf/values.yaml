@@ -366,6 +366,10 @@ k8s-service-username: ""
 k8s-node-ca: ""
 
 eirini:
+  global:
+    labels: {}
+    annotations: {}
+
   env:
     # This setting is not configurable
     # It's a workaround to replace the port eirini uses for the registry
@@ -373,6 +377,18 @@ eirini:
   services:
     loadbalanced: true
   opi:
+    image_tag: "1.5.0"
+    image: registry.suse.com/cap-staging/opi
+    metrics_collector_image: registry.suse.com/cap-staging/metrics-collector
+    bits_waiter_image: registry.suse.com/cap-staging/bits-waiter
+    route_collector_image: registry.suse.com/cap-staging/route-collector
+    route_pod_informer_image: registry.suse.com/cap-staging/route-pod-informer
+    route_statefulset_informer_image: registry.suse.com/cap-staging/route-statefulset-informer
+    event_reporter_image: registry.suse.com/cap-staging/event-reporter
+    event_reporter_image_tag: "1.5.0"
+    staging_reporter_image: registry.suse.com/cap-staging/staging-reporter
+    staging_reporter_image_tag: "1.5.0"
+    #
     registry_secret_name: eirini-registry-credentials
     namespace: eirini
     kubecf:
@@ -386,6 +402,12 @@ eirini:
       serviceName: "api"
 
     staging:
+      downloader_image: registry.suse.com/cap-staging/recipe-downloader
+      downloader_image_tag: "1.5.0-24.1"
+      executor_image: registry.suse.com/cap-staging/recipe-executor
+      executor_image_tag: "1.5.0-24.1"
+      uploader_image: registry.suse.com/cap-staging/recipe-uploader
+      uploader_image_tag: "1.5.0-24.1"
       enable: true
       tls:
         client:
@@ -461,6 +483,12 @@ eirini:
       enable: false
 
 bits:
+  download_eirinifs: false
+  global:
+    labels: {}
+    annotations: {}
+    images:
+      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.15-15.1.6.2.220-24.2
   env:
     # This setting is not configurable
     DOMAIN: 127.0.0.1.nip.io
@@ -488,3 +516,13 @@ bits:
   tls_cert_name: certificate
   tls_key_name: private_key
   tls_ca_name: ca
+
+eirinix:
+  persi-broker:
+    service-plans:
+    - id: default
+      name: "default"
+      description: "Existing default storage class"
+      kube_storage_class: "default"
+      free: true
+      default_size: "1Gi"
