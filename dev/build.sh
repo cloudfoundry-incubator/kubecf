@@ -52,3 +52,10 @@ built_file_name="$(basename "${built_file}" .tgz)"
 target_file="${workspace}/${OUTPUTDIR}/${built_file_name}-${version}.tgz"
 cp "${built_file}" "${target_file}"
 chmod 0644 "${target_file}"
+
+# Make sure the build process didn't modify any files in the source tree.
+if ! git diff-index --quiet HEAD; then
+  >&2 echo "The build changed files in the source tree that should be committed or git-ignored."
+  git status
+  exit 1
+fi
