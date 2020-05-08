@@ -24,4 +24,6 @@ tar xf "${KUBECF_CHART}"
   < "${KUBECF_IMAGE_LIST_JSON_FILE}" \
   > "${KUBECF_IMAGE_LIST_TXT_FILE}"
 
-tar czf "${OUTPUT}" "${BASENAME}/"
+helm package kubecf/
+
+mv kubecf-*.tgz "${OUTPUT}"
