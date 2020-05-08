@@ -51,7 +51,7 @@ metadata:
       {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" "false" }}
     {{- end }}
     {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size") }}
-      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" "8m" }}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" "64m" }}
     {{- end }}
     {{ $_ := set .Values.features.ingress.annotations "nginx.org/websocket-services" "router" }}
 {{ toYaml .Values.features.ingress.annotations | indent 4 }}
