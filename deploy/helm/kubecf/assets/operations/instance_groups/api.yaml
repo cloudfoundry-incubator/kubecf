@@ -96,7 +96,7 @@
   value: 3600
 
 {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
-{{- if not (regexMatch "^[a-z]+[a-z0-9_]*[a-z0-9]+$" $keyLabel) }}
+{{- if not (regexMatch "^[a-z]+[a-z0-9_]*[a-z0-9]+$" (lower $keyLabel)) }}
 {{ fail "One or more items in ccdb.encryption.rotation.key_labels don't match the regex /^[a-z]+[a-z0-9_]*[a-z0-9]+$/" }}
 {{- end }}
 {{- if gt (len $keyLabel) 240 }}
@@ -105,7 +105,7 @@
 - type: replace
   path: /variables/-
   value:
-    name: "ccdb_key_label_{{ $keyLabel }}"
+    name: "ccdb_key_label_{{ $keyLabel | lower }}"
     type: password
 {{- end }}
 - type: replace
@@ -113,9 +113,9 @@
   value: &encryption_info
     keys:
       {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
-      ccdb_key_label_{{ $keyLabel }}: "((ccdb_key_label_{{ $keyLabel }}))"
+      "{{ $keyLabel }}": "((ccdb_key_label_{{ $keyLabel | lower }}))"
       {{- end }}
-    current_key_label: "ccdb_key_label_{{ .Values.ccdb.encryption.rotation.current_key_label }}"
+    current_key_label: "{{ .Values.ccdb.encryption.rotation.current_key_label }}"
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/database_encryption?
   value: *encryption_info
