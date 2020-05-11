@@ -277,7 +277,7 @@ secrets to new values and restarting all affected pods so that they
 will use these new values.
 
 Most of the process is automatic. How to trigger it is explained
-in [General Secret Rotation](secret_rotation_general.md).
+in [Secret Rotation](secret_rotation.md).
 
 Beyond this, the keys used to encrypt the Cloud Controller Database
 (CCDB) can also be rotated, however, they do not exist as general
@@ -285,4 +285,4 @@ secrets of the KubeCF deployment. This means that the general process
 explained above __does not apply__ to them.
 
 Their custom process is explained in
-[Rotating the CCDB encryption keys](secret_rotation.md).
+[CCDB encryption key rotation](encryption_key_rotation.md).
