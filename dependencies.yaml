@@ -71,14 +71,14 @@ binaries:
     version: 1.15.6
   minikube:
     sha256:
-      darwin: 5ea5168a80597ee6221bf50a524429a24a37f0c0f36725e6b297dc5a7a6a2105
-      linux: eabd027438953d29a4b0f7b810c801919cc13bef3ebe7aff08c9534ac2b091ab
-      windows: 79d66c874cfe3497656e9ba191680cc95abd92d2f722b10de38f00b76ef82393
+      darwin: f27016246850b3145e1509e98f7ed060fd9575ac4d455c7bdc15277734372e85
+      linux: 3121f933bf8d608befb24628a045ce536658738c14618504ba46c92e656ea6b5
+      windows: 426586f33d88a484fdc5a3b326b0651d57860e9305a4f9d4180640e3beccaf6b
     url:
       darwin: https://storage.googleapis.com/minikube/releases/v{version}/minikube-darwin-amd64
       linux: https://storage.googleapis.com/minikube/releases/v{version}/minikube-linux-amd64
       windows: https://storage.googleapis.com/minikube/releases/v{version}/minikube-windows-amd64.exe
-    version: 1.6.2
+    version: 1.9.2
   shellcheck:
     sha256:
       darwin: a5d77cbe4c3e92916bce712b959f6d54392f94bcf8ea84f80ba425a9e72e2afe
@@ -124,7 +124,7 @@ external_files:
     version: v2.6.0
 
 kubernetes:
-  version: 1.15.6
+  version: 1.17.5
 
 # External bazel libraries; see http_archive() invocation in WORKSPACE.
 bazel_libs:
