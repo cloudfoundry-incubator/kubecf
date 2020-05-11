@@ -45,3 +45,42 @@ kubectl patch qjob rotate-cc-database-key \
   --type merge \
   --patch '{"spec":{"trigger":{"strategy":"now"}}}'
 ```
+
+## Importing encryption keys
+
+When you import a CCDB database (e.g. via `mysqldump`), then the corresponding encryption
+keys must be imported as well so that the data can be decrypted by the cloud controller.
+
+If the exported data has never had its encryption key rotated, then the only thing to set is
+the top level (legacy) encryption key:
+
+```yaml
+credentials:
+  cc_db_encryption_key: "initial-encryption-key"
+```
+
+After the data has been rotated, all the key labels and values need to be set like this:
+
+```yaml
+ccdb:
+  encryption:
+    rotation:
+      key_labels:
+      - NEW_KEY
+      current_key_label: NEW_KEY
+
+credentials:
+  cc_db_encryption_key: "initial-encryption-key"
+  ccdb_key_label_new_key: "new-encryption-key"
+```
+
+The `key_labels` must be defined **exactly** as they were set in the exporting installation.
+As long as the actual key rotation has been performed after the last change to the
+`current_key_label`, only the current key label and value need to be configured.
+
+Their values are stored under credential keys that are made from the lowercase version of
+their key names, prefixed with `ccdb_key_label_`.
+
+All key names must conform to this regexp: `"^[a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9]+$"`.
+If it doesn't, then the CCDB must be rotated to a conforming key name **before** the
+data is exported.
