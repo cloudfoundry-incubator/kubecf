@@ -59,13 +59,17 @@ with open("${KUBECF_VALUES}") as fp:
 new_stemcell_semver = get_semver(built_image_splitted2[1])
 existing_stemcell_semver = get_semver(values['releases']["${BUILDPACK_NAME}"]['stemcell']['version'].split("-")[0])
 
-# Only update if new stemcell version is higher.
-if new_stemcell_semver > existing_stemcell_semver:
-    values['releases']["${BUILDPACK_NAME}"]['url'] = NEW_URL
-    values['releases']["${BUILDPACK_NAME}"]['version'] = NEW_VERSION
-    values['releases']["${BUILDPACK_NAME}"]['stemcell']['os'] = NEW_STEMCELL_OS
-    values['releases']["${BUILDPACK_NAME}"]['stemcell']['version'] = NEW_STEMCELL_VERSION
-    values['releases']["${BUILDPACK_NAME}"]['file'] = get_new_filename()
+new_buildpack_version = get_semver(NEW_VERSION)
+existing_buildpack_version = get_semver(values['releases']["${BUILDPACK_NAME}"]['version'])
+
+# Only update if new buildpack version is higher and stemcell version is higher or equal.
+if new_buildpack_version > existing_buildpack_version:
+    if new_stemcell_semver >= existing_stemcell_semver:
+        values['releases']["${BUILDPACK_NAME}"]['url'] = NEW_URL
+        values['releases']["${BUILDPACK_NAME}"]['version'] = NEW_VERSION
+        values['releases']["${BUILDPACK_NAME}"]['stemcell']['os'] = NEW_STEMCELL_OS
+        values['releases']["${BUILDPACK_NAME}"]['stemcell']['version'] = NEW_STEMCELL_VERSION
+        values['releases']["${BUILDPACK_NAME}"]['file'] = get_new_filename()
 
 with open("${KUBECF_VALUES}", 'w') as f:
     yaml.dump(values, f)
