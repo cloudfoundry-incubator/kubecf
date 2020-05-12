@@ -42,6 +42,8 @@
             enabled: {{ .Values.features.autoscaler.enabled }}
           tcprouting:
             enabled: {{ .Values.features.routing_api.enabled }}
+          insecure_registry:
+            enabled: {{ .Values.features.routing_api.enabled }}
           credhub:
             enabled: {{ .Values.features.credhub.enabled }}
       release: brain-tests
