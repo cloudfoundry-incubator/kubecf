@@ -5,4 +5,9 @@ s3_final_bucket: your_bucket_name_for_final_artifacts
 s3_final_bucket_region: the_region_of_the_above_bucket
 kubecf_repository: your_fork_on_github # e.g. jimmykarily/kubecf
 
+# The following are the setting for gke where we are going to deploy
+# preemptible clusters for tests.
+gke_project: your_project_on_gke
+gke_zone: your_zone_on_gke
+
 auto_triggers: false # Disable automated triggers when you are developing
