@@ -1,3 +1,4 @@
+# REQUIRED: the domain that the deployment will be visible to the user.
 system_domain: ~
 
 # Set or override job properties. The first level of the map is the instance group name. The second
@@ -10,19 +11,6 @@ system_domain: ~
 #            logs:
 #              addr: kubecf-log-api:8082
 #
-#  Eirini Persistence Broker setup example:
-#
-# properties:
-#   eirini:
-#     eirini-persi-broker:
-#       eirini-persi-broker:
-#         service_plans:
-#           - id: "default"
-#             name: "default"
-#             description: "Persistence storage service broker for applications."
-#             free: true
-#             kube_storage_class: "default"
-#             default_size: "1Gi"
 properties: {}
 
 credentials: {}
@@ -247,7 +235,7 @@ features:
     enabled: false
     registry:
       service:
-        # This setting is not currently configurable
+        # This setting is not currently configurable and must be HIDDEN
         nodePort: 31666
   ingress:
     enabled: false
@@ -375,7 +363,7 @@ eirini:
     annotations: {}
 
   env:
-    # This setting is not configurable
+    # This setting is not configurable and must be HIDDEN from the user.
     # It's a workaround to replace the port eirini uses for the registry
     DOMAIN: '127.0.0.1.nip.io:31666" #'
   services:
@@ -449,6 +437,8 @@ eirini:
 
     events:
       enable: true
+      # All configs in this section should be HIDDEN from the user; they are
+      # here to adapt the Eirini helm chart for KubeCF use.
       tls:
         capiClient:
           secretName: "var-cc-tls"
@@ -459,9 +449,13 @@ eirini:
           caPath: "ca"
 
     logs:
-      enable: false # disable fluentd, use eirinix-loggregator-bridge
+      # disable fluentd, use eirinix-loggregator-bridge (HIDDEN from the user).
+      enable: false
+      # HIDDEN from the user as changing this breaks logging.
       serviceName: doppler
 
+    # All configs in this section should be HIDDEN from the user; they are here
+    # to adapt the Eirini helm chart for KubeCF use.
     metrics:
       enable: true
       tls:
@@ -477,6 +471,8 @@ eirini:
       enable: false
       timeout: 2m
 
+    # All configs in this section should be HIDDEN from the user; they are here
+    # to adapt the Eirini helm chart for KubeCF use.
     routing:
       enable: true
       nats:
@@ -495,7 +491,7 @@ bits:
     images:
       bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.15-15.1.6.2.220-24.2
   env:
-    # This setting is not configurable
+    # This setting is not configurable and must be HIDDEN from the user.
     DOMAIN: 127.0.0.1.nip.io
   ingress:
     endpoint: ~
