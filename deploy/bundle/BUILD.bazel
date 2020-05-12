@@ -1,10 +1,17 @@
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("//rules/kubecf:def.bzl", "create_sample_values_binary")
 
 copy_file(
     name = "cf_operator_chart",
     src = "@cf_operator//file",
     out = "cf-operator.tgz",
+)
+
+create_sample_values_binary(
+    name = "sample_values",
+    input = "//deploy/helm/kubecf:values.yaml",
+    output = ":sample-values.yaml",
 )
 
 pkg_tar(
@@ -14,5 +21,6 @@ pkg_tar(
     srcs = [
         ":cf_operator_chart",
         "//deploy/helm/kubecf:release_chart",
+        ":sample-values.yaml",
     ]
 )

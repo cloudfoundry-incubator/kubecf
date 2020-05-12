@@ -22,6 +22,37 @@ def metadata_file_generator(name, file, operator_chart, visibility=None):
         visibility = visibility,
     )
 
+def _create_sample_values_binary_impl(ctx):
+    """A rule to create a sample values.yaml where most values are commented out by default.
+
+    This generates a YAML file, where most values are commented out so that the administrator
+    deploying the helm chart will not accidentally override default values in a newer version with
+    the default values from an older version when doing an upgrade and reusing a values file.  Any
+    values marked as REQUIRED in a comment will be left uncommented, and any values marked as
+    HIDDEN in a comment will be omitted from the output.
+    """
+    ctx.actions.run(
+        inputs = [ctx.file.input],
+        outputs = [ctx.outputs.output],
+        arguments = [ctx.file.input.path, ctx.outputs.output.path],
+        progress_message = "Generating sample values.yaml %s" % ctx.outputs.output.path,
+        executable = ctx.executable.create_sample_values,
+    )
+
+create_sample_values_binary = rule(
+    implementation = _create_sample_values_binary_impl,
+    attrs = {
+        "input": attr.label(allow_single_file = True, mandatory = True),
+        "output": attr.output(mandatory = True),
+        "create_sample_values": attr.label(
+            executable = True,
+            cfg = "host",
+            allow_files = True,
+            default = ":create_sample_values.rb"
+        )
+    }
+)
+
 def _image_list_impl(ctx):
     """A specialized rule for KubeCF to list all the container images being used by the project.
 
