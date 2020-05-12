@@ -15,10 +15,13 @@ export FORCE_DELETE=true
 export HELM_VERSION="v3.1.1"
 export BACKEND=imported
 export QUIET_OUTPUT=true
-CLUSTER_NAME="$(cat kind-environments/name)"
-export CLUSTER_NAME
-KUBECFG="$(readlink -f kind-environments/metadata)"
-export KUBECFG
+export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version)"
+export KUBECFG="$(readlink -f ~/.kube/config)"
+
+printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
+export GKE_CREDS_JSON=$PWD/gke-key.json
+export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
+export GKE_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
 
 pushd catapult
 # Bring up a k8s cluster and builds+deploy kubecf

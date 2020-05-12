@@ -6,9 +6,9 @@ image_resource:
     repository: splatform/catapult
 inputs:
 - name: kubecf
-- name: kind-environments
 - name: catapult
 - name: s3.kubecf-ci
 - name: kubecf-github-release
+- name: semver.gke-cluster
 run:
   path: kubecf/.concourse/tasks/upgrade.sh
