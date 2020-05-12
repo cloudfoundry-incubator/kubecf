@@ -105,7 +105,10 @@
 - type: replace
   path: /variables/-
   value:
-    name: ccdb_key_label_{{ $keyLabel | lower }}
+    {{- /* Don't double-prefix labels that already have the prefix because they are
+           imported from an earlier version of kubecf.  This allows upgrades to the
+           new (verbatim) label naming scheme while retaining access to old key values. */ }}
+    name: ccdb_key_label_{{ $keyLabel | trimPrefix "ccdb_key_label_" | lower }}
     type: password
 {{- end }}
 - type: replace
@@ -113,7 +116,7 @@
   value: &encryption_info
     keys:
       {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
-      "{{ $keyLabel }}": "((ccdb_key_label_{{ $keyLabel | lower }}))"
+      "{{ $keyLabel }}": "((ccdb_key_label_{{ $keyLabel | trimPrefix "ccdb_key_label_" | lower }}))"
       {{- end }}
     current_key_label: "{{ .Values.ccdb.encryption.rotation.current_key_label }}"
 - type: replace
