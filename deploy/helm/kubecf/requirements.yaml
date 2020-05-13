@@ -10,5 +10,5 @@ dependencies:
 - name: eirini-extensions
   alias: eirinix
   repository: https://opensource.suse.com/eirinix-helm-release/
-  version: "0.0.0-9+g6b37279"
+  version: "0.0.0-10+g3df5bb4"
   condition: features.eirini.enabled
