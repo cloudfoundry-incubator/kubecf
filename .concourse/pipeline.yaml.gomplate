@@ -182,7 +182,7 @@ resources:
     regexp: kubecf-bundle-v(.*).tgz
 
 deploy_args: &deploy_args
-- -xce
+- -ce
 - |
 
   # Login to gcloud
@@ -192,7 +192,7 @@ deploy_args: &deploy_args
 
   export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
   export GKE_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
-  export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version)"
+  export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   gcloud --quiet beta container \
     --project "${GKE_PROJECT}" clusters create "${GKE_CLUSTER_NAME}" \
@@ -202,15 +202,14 @@ deploy_args: &deploy_args
     --image-type "UBUNTU" \
     --disk-type "pd-ssd" \
     --disk-size "100" \
-    --metadata disable-legacy-endpoints=true \
-    --metadata build-url="${ATC_EXTERNAL_URL}" \
+    --metadata disable-legacy-endpoints=true,build-url="${ATC_EXTERNAL_URL}" \
     --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
     --preemptible \
     --num-nodes "1" \
     --enable-stackdriver-kubernetes \
     --enable-ip-alias \
     --network "projects/${GKE_PROJECT}/global/networks/default" \
-    --subnetwork "projects/${GKE_PROJECT}/regions/$(echo ${GKE_ZONE | sed 's/-.$//')/subnetworks/default" \
+    --subnetwork "projects/${GKE_PROJECT}/regions/$(echo ${GKE_ZONE} | sed 's/-.$//')/subnetworks/default" \
     --default-max-pods-per-node "110" \
     --no-enable-master-authorized-networks \
     --addons HorizontalPodAutoscaling,HttpLoadBalancing \
@@ -246,7 +245,7 @@ test_args: &test_args
 
   export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
   export GKE_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
-  export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version)"
+  export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   export BACKEND=imported
   export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
@@ -268,7 +267,7 @@ rotate_args: &rotate_args
   # Login to gcloud
   printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
   export GKE_CREDS_JSON=$PWD/gke-key.json
-  export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version)"
+  export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   export BACKEND=imported
   export KUBECF_NAMESPACE="scf"
@@ -496,7 +495,7 @@ jobs:
             gcloud auth activate-service-account --key-file $PWD/gke-key.json
             export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
             export GKE_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
-            export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version)"
+            export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
             gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" --zone "${GKE_ZONE}"
 
   on_abort:
@@ -1086,10 +1085,9 @@ jobs:
     - get: s3.kubecf-ci-bundle
       passed:
       - build-{{ $branch }}
-    - get: semver.gke-cluster
-      passed:
-      - build-{{ $branch }}
     - get: catapult
+    - get: semver.gke-cluster
+      params: {bump: patch}
   - task: upgrade
     input_mapping:
       kubecf: kubecf-{{ $branch }}
