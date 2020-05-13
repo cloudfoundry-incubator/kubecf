@@ -73,7 +73,7 @@ class Psych::Nodes::Node
     end
 
     # These two functions are used to assert preconditions:
-    # state(sym) flags a node has having had an operation done.
+    # state(sym) flags a node as having had an operation done.
     def state(sym)
         @state ||= Hash.new
         @state[sym] = true
@@ -161,7 +161,7 @@ def determine_node_depths(nodes)
     end
 end
 
-# Determine the node structrually before and after each node.
+# Determine the node structurally before and after each node.
 # Note that this is not bijective: a given node is not necessarily the next node
 # of its previous node.
 def determine_sibling_nodes(nodes)
