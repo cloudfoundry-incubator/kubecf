@@ -268,7 +268,7 @@ test_args: &test_args
   make kubeconfig tests-kubecf
 
 rotate_args: &rotate_args
-- -xce
+- -ce
 - |
 
   # Login to gcloud
