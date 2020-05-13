@@ -202,7 +202,7 @@ deploy_args: &deploy_args
     --image-type "UBUNTU" \
     --disk-type "pd-ssd" \
     --disk-size "100" \
-    --metadata disable-legacy-endpoints=true,build-url="${ATC_EXTERNAL_URL}" \
+    --metadata disable-legacy-endpoints=true \
     --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
     --preemptible \
     --num-nodes "1" \
@@ -233,10 +233,6 @@ deploy_args: &deploy_args
   # Bring up a k8s cluster and builds+deploy kubecf
   # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
   make kubeconfig scf
-
-
-  # TODO: Write the name of the cluster on an S3 text file so it can be shared
-  # with the next jobs (to be able to connect to it)
 
 test_args: &test_args
 - -ce

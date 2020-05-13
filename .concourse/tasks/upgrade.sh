@@ -34,7 +34,7 @@ gcloud --quiet beta container \
   --image-type "UBUNTU" \
   --disk-type "pd-ssd" \
   --disk-size "100" \
-  --metadata disable-legacy-endpoints=true,build-url="${ATC_EXTERNAL_URL}" \
+  --metadata disable-legacy-endpoints=true \
   --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
   --preemptible \
   --num-nodes "1" \
