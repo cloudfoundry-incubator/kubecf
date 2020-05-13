@@ -333,7 +333,7 @@ jobs:
       run:
         path: "/bin/bash"
         args:
-        - -xce
+        - -ce
         - |
           cd kubecf-{{ $branch }}
           ./dev/linters/shellcheck.sh
@@ -384,7 +384,7 @@ jobs:
       run:
         path: "/bin/bash"
         args:
-        - -xce
+        - -ce
         - |
           cd kubecf-{{ $branch }}
           ./dev/build.sh ../output
