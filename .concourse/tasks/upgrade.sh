@@ -19,7 +19,7 @@ export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./
 export KUBECFG="$(readlink -f ~/.kube/config)"
 
 printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
-export GKE_CREDS_JSON=$PWD/gke-key.json
+export GKE_CRED_JSON=$PWD/gke-key.json
 gcloud auth activate-service-account --key-file $PWD/gke-key.json
 
 export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
@@ -48,7 +48,7 @@ gcloud --quiet beta container \
   --no-enable-autorepair
 
 # Get a kubeconfig
-gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE}
+gcloud container clusters get-credentials "${GKE_CLUSTER_NAME}" --zone "${GKE_CLUSTER_ZONE}" --project "${GKE_PROJECT}"
 
 pushd catapult
 # Bring up a k8s cluster and builds+deploy kubecf

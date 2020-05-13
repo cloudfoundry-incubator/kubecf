@@ -187,16 +187,16 @@ deploy_args: &deploy_args
 
   # Login to gcloud
   printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
-  export GKE_CREDS_JSON=$PWD/gke-key.json
+  export GKE_CRED_JSON=$PWD/gke-key.json
   gcloud auth activate-service-account --key-file $PWD/gke-key.json
 
   export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
-  export GKE_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
+  export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
   export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   gcloud --quiet beta container \
     --project "${GKE_PROJECT}" clusters create "${GKE_CLUSTER_NAME}" \
-    --zone "${GKE_ZONE}" \
+    --zone "${GKE_CLUSTER_ZONE}" \
     --no-enable-basic-auth \
     --machine-type "n1-highcpu-16" \
     --image-type "UBUNTU" \
@@ -209,14 +209,14 @@ deploy_args: &deploy_args
     --enable-stackdriver-kubernetes \
     --enable-ip-alias \
     --network "projects/${GKE_PROJECT}/global/networks/default" \
-    --subnetwork "projects/${GKE_PROJECT}/regions/$(echo ${GKE_ZONE} | sed 's/-.$//')/subnetworks/default" \
+    --subnetwork "projects/${GKE_PROJECT}/regions/$(echo ${GKE_CLUSTER_ZONE} | sed 's/-.$//')/subnetworks/default" \
     --default-max-pods-per-node "110" \
     --no-enable-master-authorized-networks \
     --addons HorizontalPodAutoscaling,HttpLoadBalancing \
     --no-enable-autorepair
 
   # Get a kubeconfig
-  gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE}
+  gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
 
   export SCF_LOCAL="${PWD}/kubecf"
   export SCF_CHART="$(readlink -f s3.kubecf-ci/*.tgz)"
@@ -239,19 +239,20 @@ deploy_args: &deploy_args
   # with the next jobs (to be able to connect to it)
 
 test_args: &test_args
-- -xce
+- -ce
 - |
 
   # Login to gcloud
   printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
-  export GKE_CREDS_JSON=$PWD/gke-key.json
+  export GKE_CRED_JSON=$PWD/gke-key.json
+  gcloud auth activate-service-account --key-file $PWD/gke-key.json
 
   export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
-  export GKE_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
+  export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
   export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   # Get a kubeconfig
-  gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE}
+  gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
 
   export BACKEND=gke
   export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
@@ -272,11 +273,12 @@ rotate_args: &rotate_args
 
   # Login to gcloud
   printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
-  export GKE_CREDS_JSON=$PWD/gke-key.json
+  export GKE_CRED_JSON=$PWD/gke-key.json
   export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
+  gcloud auth activate-service-account --key-file $PWD/gke-key.json
   # Get a kubeconfig
-  gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE}
+  gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
 
   export BACKEND=gke
   export KUBECF_NAMESPACE="scf"
@@ -493,6 +495,8 @@ jobs:
           type: registry-image
           source:
             repository: splatform/catapult
+        inputs:
+        - name: semver.gke-cluster
         run:
           path: "/bin/bash"
           args:
@@ -503,9 +507,9 @@ jobs:
             printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
             gcloud auth activate-service-account --key-file $PWD/gke-key.json
             export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
-            export GKE_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
+            export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
             export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
-            gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" --zone "${GKE_ZONE}"
+            gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" --zone "${GKE_CLUSTER_ZONE}"
 
   on_abort:
     do:
