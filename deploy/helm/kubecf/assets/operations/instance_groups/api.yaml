@@ -107,7 +107,7 @@
   value:
     {{- /* Don't double-prefix labels that already have the prefix because they are
            imported from an earlier version of kubecf.  This allows upgrades to the
-           new (verbatim) label naming scheme while retaining access to old key values. */ }}
+           new (verbatim) label naming scheme while retaining access to old key values. */}}
     name: ccdb_key_label_{{ $keyLabel | trimPrefix "ccdb_key_label_" | lower }}
     type: password
 {{- end }}
