@@ -26,8 +26,6 @@ gcloud auth activate-service-account --key-file "${PWD}/gke-key.json"
 
 export GKE_PROJECT='{{ .gke_project | default "suse-225215" }}'
 export GKE_ZONE='{{ .gke_zone | default "europe-west3-c"}}'
-GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version)"
-export GKE_CLUSTER_NAME
 
 gcloud --quiet beta container \
   --project "${GKE_PROJECT}" clusters create "${GKE_CLUSTER_NAME}" \
