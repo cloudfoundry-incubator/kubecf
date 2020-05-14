@@ -15,17 +15,17 @@ export FORCE_DELETE=true
 export HELM_VERSION="v3.1.1"
 export BACKEND=imported
 export QUIET_OUTPUT=true
-GKE_CLUSTER_NAME="kubecf-ci-$(sed 's/\./-/g' < "semver.gke-cluster/version")"
+GKE_CLUSTER_NAME="kubecf-ci-$(sed 'y/./-/' "semver.gke-cluster/version")"
 export GKE_CLUSTER_NAME
-KUBECFG="$(readlink -f ~/.kube/config)"
+KUBECFG="$(readlink --canonicalize ~/.kube/config)"
 export KUBECFG
 
 printf "%s" '((gke-suse-cap-json))' > "${PWD}/gke-key.json"
 export GKE_CRED_JSON=$PWD/gke-key.json
 gcloud auth activate-service-account --key-file "${PWD}/gke-key.json"
 
-export GKE_PROJECT='{{ if has . "gke_project" }}{{ .gke_project }}{{ else }}{{ "suse-225215" }}{{ end }}'
-export GKE_ZONE='{{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}{{ "europe-west3-c" }}{{ end }}'
+export GKE_PROJECT='{{ .gke_project | default "suse-225215" }}'
+export GKE_ZONE='{{ .gke_zone | default "europe-west3-c"}}'
 GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version)"
 export GKE_CLUSTER_NAME
 
@@ -44,7 +44,7 @@ gcloud --quiet beta container \
   --enable-stackdriver-kubernetes \
   --enable-ip-alias \
   --network "projects/${GKE_PROJECT}/global/networks/default" \
-  --subnetwork "projects/${GKE_PROJECT}/regions/${GKE_ZONE//-.$/}/subnetworks/default" \
+  --subnetwork "projects/${GKE_PROJECT}/regions/${GKE_ZONE%-?}/subnetworks/default" \
   --default-max-pods-per-node "110" \
   --no-enable-master-authorized-networks \
   --addons HorizontalPodAutoscaling,HttpLoadBalancing \
