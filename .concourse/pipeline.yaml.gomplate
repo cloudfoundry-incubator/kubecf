@@ -438,7 +438,7 @@ jobs:
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
-  - get: semver.gke-cluster
+  - put: semver.gke-cluster
     params: {bump: patch}
   - task: deploy
     privileged: true
@@ -468,9 +468,6 @@ jobs:
 {{- if has $prod (printf "deploy-%s" $cfScheduler) }}
   on_success:
     do:
-    - put: semver.gke-cluster
-      params:
-        file: semver.gke-cluster/version
     - put: status-{{ $branch }}.src
       params:
         << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
@@ -1095,7 +1092,7 @@ jobs:
       passed:
       - build-{{ $branch }}
     - get: catapult
-    - get: semver.gke-cluster
+    - put: semver.gke-cluster
       params: {bump: patch}
   - task: upgrade
     input_mapping:
