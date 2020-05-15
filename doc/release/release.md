@@ -10,16 +10,9 @@ KubeCF follows the [semver](https://semver.org/) for versioning and does it auto
 
 A *release* branch is created from the *master* and can ONLY get bug-fix commits. When fixes are added, then a manual cherry-pick to the *master* will happen immediately after.
 
-If the *release* branch name is not semver compatible, a version 0.0.0 will be associated to the KubeCF package indicating an **UNOFFICIAL** package release.
-
-Examples
-
-* git *release* branch named **v1.0.0** will generate a **KubeCF-v1.0.0** package file :+1:
-* git branch name **non-semver** will generate a **KubeCF-v0.0.0** package file that indicates it's an **UNOFFICIAL** release.
-
 ### Minor and Patch Releases
 
-A minor or a patch release can occur during a version life cyle and if so, a *release patch* branch MUST be created from the original *release* branch version and it will contain the improvements and/or bug fixes that later will be cherry-picked into the *master* branch.
+Each minor release uses it's own release branch named `release-x.y`. Further patch releases will always be made from this release branch, by cherry-picking bug fixes from either `master` or specific bug-fix branches.
 
 ![](https://i.imgur.com/b2DVvMw.png)
 
