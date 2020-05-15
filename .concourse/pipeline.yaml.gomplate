@@ -460,7 +460,7 @@ jobs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
-        CATS_NODES: 2
+        CATS_NODES: 15
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
       run:
         path: "/bin/bash"
