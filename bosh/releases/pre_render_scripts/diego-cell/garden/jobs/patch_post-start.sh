@@ -5,8 +5,11 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/garden-runc/garden/templates/bin/post-start"
 sentinel="${target}.patch_sentinel"
 if [[ -f "${sentinel}" ]]; then
-  echo "Patch already applied. Skipping"
-  exit 0
+  if sha256sum --check "${sentinel}" ; then
+    echo "Patch already applied. Skipping"
+    exit 0
+  fi
+  echo "Sentinel mismatch, re-patching"
 fi
 
 # Patch the post-start script to use netcat instead of curl when performing the ping to a unix
@@ -41,4 +44,4 @@ patch --verbose "${target}" <<'EOT'
    fi
 EOT
 
-touch "${sentinel}"
+sha256sum "${target}" > "${sentinel}"

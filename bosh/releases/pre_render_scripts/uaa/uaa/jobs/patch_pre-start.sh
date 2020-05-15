@@ -5,8 +5,11 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/uaa/uaa/templates/bin/pre-start.erb"
 sentinel="${target}.patch_sentinel"
 if [[ -f "${sentinel}" ]]; then
-  echo "Patch already applied. Skipping"
-  exit 0
+  if sha256sum --check "${sentinel}" ; then
+    echo "Patch already applied. Skipping"
+    exit 0
+  fi
+  echo "Sentinel mismatch, re-patching"
 fi
 
 # Patch bin/pre-start.erb for the certificates to work with SUSE.
@@ -43,4 +46,4 @@ patch --verbose "${target}" <<'EOT'
  function new_cache_files_are_identical {
 EOT
 
-touch "${sentinel}"
+sha256sum "${target}" > "${sentinel}"
