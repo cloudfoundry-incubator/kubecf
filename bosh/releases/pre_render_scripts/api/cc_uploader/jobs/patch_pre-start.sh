@@ -5,8 +5,11 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/capi/cc_uploader/templates/pre-start.erb"
 sentinel="${target}.patch_sentinel"
 if [[ -f "${sentinel}" ]]; then
-  echo "Patch already applied. Skipping"
-  exit 0
+  if sha256sum --check "${sentinel}" ; then
+    echo "Patch already applied. Skipping"
+    exit 0
+  fi
+  echo "Sentinel mismatch, re-patching"
 fi
 
 # Remove sysctl calls as we are running in containers.
@@ -22,4 +25,4 @@ patch --verbose "${target}" <<'EOT'
 -sysctl -e -w net.ipv4.tcp_tw_reuse=1
 EOT
 
-touch "${sentinel}"
+sha256sum "${target}" > "${sentinel}"
