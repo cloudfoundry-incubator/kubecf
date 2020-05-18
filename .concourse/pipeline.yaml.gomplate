@@ -441,7 +441,6 @@ jobs:
   - put: semver.gke-cluster
     params: {bump: patch}
   - task: deploy
-    privileged: true
     timeout: 3h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -567,7 +566,6 @@ jobs:
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
-    privileged: true
     input_mapping:
       kubecf: kubecf-{{ $branch }}
     timeout: 1h30m
@@ -656,7 +654,6 @@ jobs:
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
-    privileged: true
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -750,7 +747,6 @@ jobs:
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
-    privileged: true
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -844,7 +840,6 @@ jobs:
         state: pending
 {{- end }}
   - task: rotate-{{ $cfScheduler }}
-    privileged: true
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -936,7 +931,6 @@ jobs:
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
-    privileged: true
     input_mapping:
       kubecf: kubecf-{{ $branch }}
     timeout: 1h30m
@@ -1018,7 +1012,6 @@ jobs:
 #     - sync-integration-tests-{{ $cfScheduler }}
 #   - get: catapult
 #   - task: test-{{ $cfScheduler }}
-#     privileged: true
 #     timeout: 1h30m
 #     config:
 #       platform: linux

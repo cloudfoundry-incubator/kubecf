@@ -45,7 +45,6 @@ jobs:
     trigger: true
   - get: catapult
   - task: deploy
-    privileged: true
     timeout: 30m
     config:
       platform: linux
