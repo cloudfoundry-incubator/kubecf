@@ -507,7 +507,10 @@ jobs:
                   --filter="zone~${GKE_CLUSTER_ZONE}" --filter="name~${GKE_CLUSTER_NAME}" \
                   --format="value(id)" \
                   --project=${GKE_PROJECT})
-            for ID in ${IDS}; do gcloud compute disks delete ${ID} --zone=${GKE_CLUSTER_ZONE} --quiet; done
+            for ID in ${IDS}; do
+                gcloud compute disks delete ${ID} --zone=${GKE_CLUSTER_ZONE} \
+                                                  --project="${GKE_PROJECT}" --quiet;
+            done
             # Delete cluster
             gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" --zone "${GKE_CLUSTER_ZONE}"
 
