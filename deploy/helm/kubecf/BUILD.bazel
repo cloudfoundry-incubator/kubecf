@@ -109,14 +109,15 @@ genrule(
     name = "release_chart",
     tools = [
         "//rules/kubecf:release_chart.sh",
-        "@jq//:binary"
+        "@jq//:binary",
+        "@helm//:binary",
     ],
     srcs = [
         ":kubecf",
         ":image_list",
     ],
     outs = ["kubecf_release.tgz"],
-    cmd = "$(location //rules/kubecf:release_chart.sh) $(location :kubecf) $(location :image_list) $@ $(location @jq//:binary)",
+    cmd = "$(location //rules/kubecf:release_chart.sh) $(location :kubecf) $(location :image_list) $@ $(location @jq//:binary) $(location @helm//:binary)",
 )
 
 # Generates a file containing only the KubeCF version.

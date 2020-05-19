@@ -7,6 +7,7 @@ KUBECF_CHART="$1"
 KUBECF_IMAGE_LIST_JSON_FILE="$2"
 OUTPUT="$3"
 JQ="$4"
+HELM="$5"
 
 if [ ! -e "${KUBECF_CHART}" ]; then
   >&2 echo "Helm chart tarball '${KUBECF_CHART}' does not exist, bailing out!"; exit 1
@@ -24,6 +25,6 @@ tar xf "${KUBECF_CHART}"
   < "${KUBECF_IMAGE_LIST_JSON_FILE}" \
   > "${KUBECF_IMAGE_LIST_TXT_FILE}"
 
-helm package kubecf/
+"${HELM}" package kubecf/
 
 mv kubecf-*.tgz "${OUTPUT}"
