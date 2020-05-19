@@ -5,8 +5,11 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/diego/bbs/templates/bbs_ctl.erb"
 sentinel="${target}.patch_sentinel"
 if [[ -f "${sentinel}" ]]; then
-  echo "Patch already applied. Skipping"
-  exit 0
+  if sha256sum --check "${sentinel}" ; then
+    echo "Patch already applied. Skipping"
+    exit 0
+  fi
+  echo "Sentinel mismatch, re-patching"
 fi
 
 patch --verbose "${target}" <<'EOT'
@@ -27,4 +30,4 @@ patch --verbose "${target}" <<'EOT'
      ;;
 EOT
 
-touch "${sentinel}"
+sha256sum "${target}" > "${sentinel}"
