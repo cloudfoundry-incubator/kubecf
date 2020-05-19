@@ -5,8 +5,11 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/capi/cc_uploader/templates/cc_uploader_ctl.erb"
 sentinel="${target}.patch_sentinel"
 if [[ -f "${sentinel}" ]]; then
-  echo "Patch already applied. Skipping"
-  exit 0
+  if sha256sum --check "${sentinel}" ; then
+    echo "Patch already applied. Skipping"
+    exit 0
+  fi
+  echo "Sentinel mismatch, re-patching"
 fi
 
 patch --verbose "${target}" <<'EOT'
@@ -21,4 +24,4 @@ patch --verbose "${target}" <<'EOT'
      export GODEBUG=netdns=cgo
 EOT
 
-touch "${sentinel}"
+sha256sum "${target}" > "${sentinel}"

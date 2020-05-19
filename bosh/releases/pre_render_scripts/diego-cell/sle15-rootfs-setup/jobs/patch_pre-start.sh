@@ -5,8 +5,11 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/sle15/sle15-rootfs-setup/templates/pre-start"
 sentinel="${target}.patch_sentinel"
 if [[ -f "${sentinel}" ]]; then
-  echo "Patch already applied. Skipping"
-  exit 0
+  if sha256sum --check "${sentinel}" ; then
+    echo "Patch already applied. Skipping"
+    exit 0
+  fi
+  echo "Sentinel mismatch, re-patching"
 fi
 
 # Use the ephemeral data directory for the rootfs
@@ -21,4 +24,4 @@ patch --verbose "${target}" <<'EOT'
 +ROOTFS_TAR=/var/vcap/data/rep/sle15/rootfs.tar
 EOT
 
-touch "${sentinel}"
+sha256sum "${target}" > "${sentinel}"
