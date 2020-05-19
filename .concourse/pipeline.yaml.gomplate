@@ -502,18 +502,18 @@ jobs:
             export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
             export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
             export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
-            # Delete pvc disks associated to the cluster
+            # Obtain pvc disks associated to the cluster
             IDS=$(gcloud compute disks list \
                   --filter="zone~${GKE_CLUSTER_ZONE}" --filter="name~${GKE_CLUSTER_NAME}" \
                   --format="value(id)" \
                   --project=${GKE_PROJECT})
+            # Delete cluster
+            gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" --zone "${GKE_CLUSTER_ZONE}"
+            # Delete pvc disks associated to the cluster, now that they are free
             for ID in ${IDS}; do
                 gcloud compute disks delete ${ID} --zone=${GKE_CLUSTER_ZONE} \
                                                   --project="${GKE_PROJECT}" --quiet;
             done
-            # Delete cluster
-            gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" --zone "${GKE_CLUSTER_ZONE}"
-
   on_abort:
     do:
     - task: cleanup-cluster
