@@ -350,6 +350,7 @@ jobs:
           ./dev/linters/shellcheck.sh
           ./dev/linters/yamllint.sh
           ./dev/linters/helmlint.sh
+          bazel test //rules/kubecf:create_sample_values_test
 
 {{- if has $prod "lint" }}
     on_success:
