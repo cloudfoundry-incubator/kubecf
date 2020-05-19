@@ -333,8 +333,7 @@ testing:
 ccdb:
   encryption:
     rotation:
-      # Key labels must be <= 240 characters long. Each label will be prepended with the
-      # "ccdb_key_label_" value.
+      # Key labels must be <= 240 characters long.
       key_labels:
       - encryption_key_0
       current_key_label: encryption_key_0
