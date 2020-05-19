@@ -96,8 +96,8 @@
   value: 3600
 
 {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
-{{- if not (regexMatch "^[a-z]+[a-z0-9_]*[a-z0-9]+$" $keyLabel) }}
-{{ fail "One or more items in ccdb.encryption.rotation.key_labels don't match the regex /^[a-z]+[a-z0-9_]*[a-z0-9]+$/" }}
+{{- if not (regexMatch "^[a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9]+$" $keyLabel) }}
+{{ fail "One or more items in ccdb.encryption.rotation.key_labels don't match the regex /^[a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9]+$/" }}
 {{- end }}
 {{- if gt (len $keyLabel) 240 }}
 {{ fail "One or more items in ccdb.encryption.rotation.key_labels exceed the maximum length of 240 characters" }}
@@ -105,7 +105,10 @@
 - type: replace
   path: /variables/-
   value:
-    name: "ccdb_key_label_{{ $keyLabel }}"
+    {{- /* Don't double-prefix labels that already have the prefix because they are
+           imported from an earlier version of kubecf.  This allows upgrades to the
+           new (verbatim) label naming scheme while retaining access to old key values. */}}
+    name: ccdb_key_label_{{ $keyLabel | trimPrefix "ccdb_key_label_" | lower }}
     type: password
 {{- end }}
 - type: replace
@@ -113,9 +116,9 @@
   value: &encryption_info
     keys:
       {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
-      ccdb_key_label_{{ $keyLabel }}: "((ccdb_key_label_{{ $keyLabel }}))"
+      "{{ $keyLabel }}": "((ccdb_key_label_{{ $keyLabel | trimPrefix "ccdb_key_label_" | lower }}))"
       {{- end }}
-    current_key_label: "ccdb_key_label_{{ .Values.ccdb.encryption.rotation.current_key_label }}"
+    current_key_label: "{{ .Values.ccdb.encryption.rotation.current_key_label }}"
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/database_encryption?
   value: *encryption_info
