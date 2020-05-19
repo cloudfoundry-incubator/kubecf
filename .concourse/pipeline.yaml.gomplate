@@ -229,6 +229,16 @@ deploy_args: &deploy_args
   export QUIET_OUTPUT=true
   export DOWNLOAD_CATAPULT_DEPS=false
   export KUBECFG="$(readlink -f ~/.kube/config)"
+
+  # https://unix.stackexchange.com/a/265151
+  read -r -d '' CONFIG_OVERRIDE <<'EOF' || true
+  sizing:
+    diego_cell:
+      ephemeral_disk:
+        size: 300000
+  EOF
+  export CONFIG_OVERRIDE
+
   pushd catapult
   # Bring up a k8s cluster and builds+deploy kubecf
   # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf

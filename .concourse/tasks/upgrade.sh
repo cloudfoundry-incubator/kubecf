@@ -51,6 +51,15 @@ gcloud --quiet beta container \
 # Get a kubeconfig
 gcloud container clusters get-credentials "${GKE_CLUSTER_NAME}" --zone "${GKE_CLUSTER_ZONE}" --project "${GKE_PROJECT}"
 
+# https://unix.stackexchange.com/a/265151
+read -r -d '' CONFIG_OVERRIDE <<'EOF' || true
+sizing:
+  diego_cell:
+  ephemeral_disk:
+    size: 300000
+EOF
+export CONFIG_OVERRIDE
+
 pushd catapult
 # Bring up a k8s cluster and builds+deploy kubecf
 # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
