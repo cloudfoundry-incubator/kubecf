@@ -504,12 +504,13 @@ jobs:
             export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
             # Obtain pvc disks associated to the cluster
             IDS=$(gcloud compute disks list \
-                  --filter="zone~${GKE_CLUSTER_ZONE}" --filter="name~${GKE_CLUSTER_NAME}" \
-                  --filter="name~pvc" \
+                  --filter="zone~${GKE_CLUSTER_ZONE}" \
+                  --filter="name~${GKE_CLUSTER_NAME} AND name~pvc" \
                   --format="value(id)" \
                   --project=${GKE_PROJECT})
             # Delete cluster
-            gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" --zone "${GKE_CLUSTER_ZONE}"
+            gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" \
+                   --zone "${GKE_CLUSTER_ZONE}"
             # Delete pvc disks associated to the cluster, now that they are free
             for ID in ${IDS}; do
                 gcloud compute disks delete ${ID} --zone=${GKE_CLUSTER_ZONE} \
