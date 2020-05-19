@@ -505,6 +505,7 @@ jobs:
             # Obtain pvc disks associated to the cluster
             IDS=$(gcloud compute disks list \
                   --filter="zone~${GKE_CLUSTER_ZONE}" --filter="name~${GKE_CLUSTER_NAME}" \
+                  --filter="name~pvc" \
                   --format="value(id)" \
                   --project=${GKE_PROJECT})
             # Delete cluster
