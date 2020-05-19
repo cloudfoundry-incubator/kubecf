@@ -213,7 +213,8 @@ deploy_args: &deploy_args
     --default-max-pods-per-node "110" \
     --no-enable-master-authorized-networks \
     --addons HorizontalPodAutoscaling,HttpLoadBalancing \
-    --no-enable-autorepair
+    --no-enable-autorepair \
+    --no-enable-autoupgrade
 
   # Get a kubeconfig
   gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
@@ -229,6 +230,16 @@ deploy_args: &deploy_args
   export QUIET_OUTPUT=true
   export DOWNLOAD_CATAPULT_DEPS=false
   export KUBECFG="$(readlink -f ~/.kube/config)"
+
+  # https://unix.stackexchange.com/a/265151
+  read -r -d '' CONFIG_OVERRIDE <<'EOF' || true
+  sizing:
+    diego_cell:
+      ephemeral_disk:
+        size: 300000
+  EOF
+  export CONFIG_OVERRIDE
+
   pushd catapult
   # Bring up a k8s cluster and builds+deploy kubecf
   # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
@@ -441,7 +452,6 @@ jobs:
   - put: semver.gke-cluster
     params: {bump: patch}
   - task: deploy
-    privileged: true
     timeout: 3h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -460,7 +470,7 @@ jobs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
-        CATS_NODES: 15
+        CATS_NODES: 8
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
       run:
         path: "/bin/bash"
@@ -568,7 +578,6 @@ jobs:
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
-    privileged: true
     input_mapping:
       kubecf: kubecf-{{ $branch }}
     timeout: 1h30m
@@ -657,7 +666,6 @@ jobs:
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
-    privileged: true
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -751,7 +759,6 @@ jobs:
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
-    privileged: true
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -845,7 +852,6 @@ jobs:
         state: pending
 {{- end }}
   - task: rotate-{{ $cfScheduler }}
-    privileged: true
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -937,7 +943,6 @@ jobs:
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
-    privileged: true
     input_mapping:
       kubecf: kubecf-{{ $branch }}
     timeout: 1h30m
@@ -1019,7 +1024,6 @@ jobs:
 #     - sync-integration-tests-{{ $cfScheduler }}
 #   - get: catapult
 #   - task: test-{{ $cfScheduler }}
-#     privileged: true
 #     timeout: 1h30m
 #     config:
 #       platform: linux

@@ -46,10 +46,21 @@ gcloud --quiet beta container \
   --default-max-pods-per-node "110" \
   --no-enable-master-authorized-networks \
   --addons HorizontalPodAutoscaling,HttpLoadBalancing \
-  --no-enable-autorepair
+  --no-enable-autorepair \
+  --no-enable-autoupgrade
+
 
 # Get a kubeconfig
 gcloud container clusters get-credentials "${GKE_CLUSTER_NAME}" --zone "${GKE_CLUSTER_ZONE}" --project "${GKE_PROJECT}"
+
+# https://unix.stackexchange.com/a/265151
+read -r -d '' CONFIG_OVERRIDE <<'EOF' || true
+sizing:
+  diego_cell:
+  ephemeral_disk:
+    size: 300000
+EOF
+export CONFIG_OVERRIDE
 
 pushd catapult
 # Bring up a k8s cluster and builds+deploy kubecf
