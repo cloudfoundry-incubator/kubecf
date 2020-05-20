@@ -22,6 +22,10 @@ metadata_file_generator(
     operator_chart = external_files["cf_operator"]["url"].format(version = external_files["cf_operator"]["version"])
 )
 
+exports_files([
+    "values.yaml",
+])
+
 # Groups the static files under the kubecf package to be passed to the Helm packaging target.
 filegroup(
     name = "chart_files_static",
