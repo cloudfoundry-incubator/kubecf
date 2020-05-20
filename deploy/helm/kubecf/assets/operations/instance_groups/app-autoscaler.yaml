@@ -164,7 +164,7 @@
           scheduler_db_connection_config: *databaseConnectionConfig
           policy_db_connection_config: *databaseConnectionConfig
           cf: &cf_credentials
-            api: "https://api.((system_domain))"
+            api: "https://cloud-controller-ng.service.cf.internal:9024"
             grant_type: client_credentials
             client_id: "app_autoscaler"
             secret: "((uaa_clients_app_autoscaler_secret))"
