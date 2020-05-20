@@ -485,69 +485,75 @@ jobs:
         state: success
 {{- end }}
   on_failure:
-    do:
+    in_parallel:
 {{- if has $prod (printf "deploy-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
-    - task: cleanup-cluster
-      config: &cleanup-cluster
-        platform: linux
-        image_resource:
-          type: registry-image
-          source:
-            repository: splatform/catapult
-        inputs:
-        - name: semver.gke-cluster
-        run:
-          path: "/bin/bash"
-          args:
-          - -ce
-          - |
+    - try:
+        task: cleanup-cluster
+        config: &cleanup-cluster
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: splatform/catapult
+          inputs:
+          - name: semver.gke-cluster
+          run:
+            path: "/bin/bash"
+            args:
+            - -ce
+            - |
 
-            # Login to gcloud
-            printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
-            gcloud auth activate-service-account --key-file $PWD/gke-key.json
-            export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
-            export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
-            export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
-            # Obtain pvc disks associated to the cluster
-            IDS=$(gcloud compute disks list \
-                  --filter="zone~${GKE_CLUSTER_ZONE}" \
-                  --filter="name~${GKE_CLUSTER_NAME} AND name~pvc" \
-                  --format="value(id)" \
-                  --project=${GKE_PROJECT})
-            # Delete cluster
-            gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" \
-                   --zone "${GKE_CLUSTER_ZONE}"
-            # Delete pvc disks associated to the cluster, now that they are free
-            for ID in ${IDS}; do
-                gcloud compute disks delete ${ID} --zone=${GKE_CLUSTER_ZONE} \
-                                                  --project="${GKE_PROJECT}" --quiet;
-            done
+              # Login to gcloud
+              printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
+              gcloud auth activate-service-account --key-file $PWD/gke-key.json
+              export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
+              export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
+              export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+              # Obtain pvc disks associated to the cluster
+              IDS=$(gcloud compute disks list \
+                    --filter="zone~${GKE_CLUSTER_ZONE}" \
+                    --filter="name~${GKE_CLUSTER_NAME} AND name~pvc" \
+                    --format="value(id)" \
+                    --project=${GKE_PROJECT})
+              # Delete cluster
+              gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" \
+                    --zone "${GKE_CLUSTER_ZONE}"
+              # Delete pvc disks associated to the cluster, now that they are free
+              for ID in ${IDS}; do
+                  gcloud compute disks delete ${ID} --zone=${GKE_CLUSTER_ZONE} \
+                                                    --project="${GKE_PROJECT}" --quiet;
+              done
   on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "deploy-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
   on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "deploy-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
 
 {{ $previousTest := "" }}
@@ -606,37 +612,43 @@ jobs:
       state: success
 {{- end }}
   on_failure:
-    do:
+    in_parallel:
 {{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
   on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
   on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
 {{ $previousTest = (printf "smoke-tests-%s-%s" $cfScheduler $branch) }}
 
@@ -696,37 +708,43 @@ jobs:
 {{- end }}
 
   on_failure:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
   on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
   on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
 {{ $previousTest = (printf "cf-acceptance-tests-%s-%s" $cfScheduler $branch) }}
 
@@ -787,41 +805,44 @@ jobs:
       state: success
 {{- end }}
   on_failure:
-    do:
-
+    in_parallel:
 {{- if has $prod "sync-integration-tests" }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *sits_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *sits_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
-
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
   on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod "sync-integration-tests" }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *sits_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *sits_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
 
   on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod "sync-integration-tests" }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *sits_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *sits_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
 {{ $previousTest = (printf "sync-integration-tests-%s" $branch) }}
 {{- end }}
@@ -881,39 +902,45 @@ jobs:
 {{- end }}
 
   on_failure:
-    do:
+    in_parallel:
 {{- if has $prod (printf "rotate-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    - try:
+        put: status-{{ $branch }}.src
         params:
-          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
+          << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
+{{- end }}
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
+          params:
+            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
   on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "rotate-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
   on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "rotate-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
 {{ $previousTest = (printf "ccdb-rotate-%s-%s" $cfScheduler $branch) }}
 
@@ -972,39 +999,43 @@ jobs:
 {{- end }}
 
   on_failure:
-    do:
-
+    in_parallel:
 {{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
-
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
   on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
   on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+    in_parallel:
+    - try:
+        task: cleanup-cluster
+        config:
+          <<: *cleanup-cluster
 {{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
 {{- end }}
 {{ $previousTest = (printf "smoke-tests-post-rotate-%s-%s" $cfScheduler $branch) }}
 
