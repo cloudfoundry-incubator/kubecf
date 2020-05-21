@@ -47,7 +47,9 @@ _package = rule(
         "srcs": attr.label_list(
             mandatory = True,
         ),
-        "generated": attr.label_list(),
+        "generated": attr.label_list(
+            allow_files = True,
+        ),
         "tars": attr.label_list(),
         "package_dir": attr.string(
             mandatory = True,
