@@ -575,6 +575,7 @@ jobs:
   - get: semver.gke-cluster
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
+    trigger: true
   - get: catapult
 {{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
@@ -669,6 +670,7 @@ jobs:
   - get: semver.gke-cluster
     passed:
     - {{ $previousTest | quote }}
+    trigger: true
   - get: catapult
 {{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
@@ -768,6 +770,7 @@ jobs:
   - get: semver.gke-cluster
     passed:
     - {{ $previousTest | quote }}
+    trigger: true
   - get: catapult
 {{- if has $prod "sync-integration-tests" }}
   - put: status-{{ $branch }}.src
@@ -864,6 +867,7 @@ jobs:
   - get: semver.gke-cluster
     passed:
     - {{ $previousTest | quote }}
+    trigger: true
   - get: catapult
 {{- if has $prod (printf "rotate-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
@@ -961,6 +965,7 @@ jobs:
   - get: semver.gke-cluster
     passed:
     - {{ $previousTest | quote }}
+    trigger: true
   - get: catapult
 {{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
