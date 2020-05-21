@@ -12,59 +12,30 @@
 {{ $pr_resources := slice "pr" "fork-pr" }}
 {{ $branches := slice "master" "release-2.2"}} # Repository branches to track
 
-# Prod and no-prod jobs
-# Jobs that are stable and ready should go into $prod.
+# Split Concourse jobs in tabs (aka groups)
+# We split by "branch" and we also split the "experimental" jobs of each branch.
 
-# Production ready Jobs
-# cf-acceptance-tests-* and smoke-test-* are a Special case, as Eirini is not ready, we don't want smoke/CATs to end up in prod job view.
+# Stable Jobs
 # TODO: Delete the special case here as soon as we get Eirini CATS green and we stabilize Eirini smoke (e.g. with a more large timeout)
-{{ $prod := slice "lint" "build" "cf-acceptance-tests-diego" "smoke-tests-diego" }}
-
-# Jobs that aren't reliable yet, nor production ready
-{{ $noprod := slice "cf-acceptance-tests-eirini" "smoke-tests-eirini" "upgrade-test"}}
-
-# Add jobs for each scheduler in the correct category
-{{range $_, $cfScheduler := $availableCfSchedulers }}
-
-  # Generate the prod slice in the range, so we have the full list for the tab view group
-  {{ $prod = $prod | append ( printf "deploy-%s" $cfScheduler ) }}
-
-  # Add SITS only for diego, but keep it in the loop so it gets added in the correct order.
-  {{ if eq $cfScheduler "diego" }}
-    {{ $noprod = $noprod | append "sync-integration-tests" }}
-  {{ end }}
-  {{ $noprod = $noprod | append ( printf "ccdb-rotate-%s" $cfScheduler ) }}
-
-  # Cleanup gets executed only at the end, make it into noprod as we need to keep it at the end
-  {{ $noprod = $noprod | append ( printf "cleanup-%s-cluster" $cfScheduler ) }}
-  {{ $noprod = $noprod | append ( printf "smoke-tests-post-rotate-%s" $cfScheduler ) }}
-{{ end }}
-
-{{ $group_prod := slice "publish" }}
-{{ $group_noprod := slice }}
-{{ $group_all := slice "publish" }}
-
-{{ range $_, $branch := (flatten (slice $branches $pr_resources) | uniq ) }}
-{{ range $_, $test := $prod }}
-  {{ $group_prod = $group_prod | append ( printf "%s-%s" $test $branch ) }}
-  {{ $group_all = $group_all | append ( printf "%s-%s" $test $branch ) }}
-{{ end }}
-{{ range $_, $test := $noprod }}
-  {{ $group_noprod = $group_noprod | append ( printf "%s-%s" $test $branch ) }}
-  {{ $group_all = $group_all | append ( printf "%s-%s" $test $branch ) }}
-{{ end }}
-{{ end }}
+{{ $stable := slice "lint" "build" "deploy-diego" "deploy-eirini" "smoke-tests-diego" "smoke-tests-eirini" "cf-acceptance-tests-diego" "cleanup-diego-cluster" "cleanup-eirini-cluster" }}
+{{ $experimental := slice "cf-acceptance-tests-eirini" "sync-integration-tests" "ccdb-rotate-diego" "ccdb-rotate-eirini" "smoke-tests-post-rotate-diego" "smoke-tests-post-rotate-eirini" "upgrade-test" }}
 
 groups:
-- name: prod
-  jobs: [ {{ join $group_prod "," }} ]
-
-- name: no-prod
-  jobs: [ {{ join $group_noprod "," }} ]
-
-- name: all
-  # Joins prod and noprod with a "," while filtering elements making them uniques.
-  jobs: [ {{ join $group_all "," }} ]
+{{ range $_, $branch := (flatten (slice $branches $pr_resources) | uniq) }}
+- name: {{ $branch }}
+  jobs:
+  {{ range $_, $job := $stable }}
+  - {{ $job }}-{{ $branch }}
+  {{ end }}
+  {{ if eq $branch "master" }}
+  - publish
+  {{ end }}
+- name: {{ $branch }}-experimental
+  jobs:
+  {{ range $_, $job := $experimental }}
+  - {{ $job }}-{{ $branch }}
+  {{ end }}
+{{ end }}
 
 resource_types:
 - name: pull-request
@@ -143,7 +114,7 @@ resources:
   source:
     uri: https://github.com/SUSE/catapult
   version:
-    ref: d1ea00e409bb5dd75055da1fda174875fc17b773
+    ref: 76182e1e21f13b5143cfc275ee818a81570e8b32
 
 - name: s3.kubecf-ci
   type: s3
@@ -243,7 +214,7 @@ deploy_args: &deploy_args
   pushd catapult
   # Bring up a k8s cluster and builds+deploy kubecf
   # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
-  make kubeconfig scf
+  make kubeconfig kubecf
 
 test_args: &test_args
 - -ce
@@ -323,7 +294,7 @@ jobs:
     trigger: true
 {{- end }}
     version: "every"
-{{- if has $prod "lint" }}
+{{- if has $stable "lint" }}
   - put: status-{{ $branch }}.src
     params: &lint_{{ $sanitized_branch_name }}_status
         context: lint
@@ -352,7 +323,7 @@ jobs:
           ./dev/linters/helmlint.sh
           bazel test //rules/kubecf:create_sample_values_test
 
-{{- if has $prod "lint" }}
+{{- if has $stable "lint" }}
     on_success:
       put: status-{{ $branch }}.src
       params:
@@ -373,7 +344,7 @@ jobs:
     version: "every"
     passed:
     - lint-{{ $branch }}
-{{- if has $prod "build" }}
+{{- if has $stable "build" }}
   - put: status-{{ $branch }}.src
     params: &build_{{ $sanitized_branch_name }}_status
         context: build
@@ -400,7 +371,7 @@ jobs:
         - |
           cd kubecf-{{ $branch }}
           ./dev/build.sh ../output
-{{- if has $prod "build" }}
+{{- if has $stable "build" }}
     on_success:
       put: status-{{ $branch }}.src
       params:
@@ -442,7 +413,7 @@ jobs:
     passed:
     - build-{{ $branch }}
   - get: catapult
-{{- if has $prod (printf "deploy-%s" $cfScheduler) }}
+{{- if has $stable (printf "deploy-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
     params: &deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "deploy-{{ $cfScheduler }}"
@@ -476,7 +447,7 @@ jobs:
       run:
         path: "/bin/bash"
         args: *deploy_args
-{{- if has $prod (printf "deploy-%s" $cfScheduler) }}
+{{- if has $stable (printf "deploy-%s" $cfScheduler) }}
   on_success:
     do:
     - put: status-{{ $branch }}.src
@@ -486,7 +457,7 @@ jobs:
 {{- end }}
   on_failure:
     in_parallel:
-{{- if has $prod (printf "deploy-%s" $cfScheduler) }}
+{{- if has $stable (printf "deploy-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -535,7 +506,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "deploy-%s" $cfScheduler) }}
+{{- if has $stable (printf "deploy-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -548,7 +519,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "deploy-%s" $cfScheduler) }}
+{{- if has $stable (printf "deploy-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -575,8 +546,9 @@ jobs:
   - get: semver.gke-cluster
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
+    trigger: true
   - get: catapult
-{{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
     params: &smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "smoke-tests-{{ $cfScheduler }}"
@@ -604,7 +576,7 @@ jobs:
       run:
         path: "/bin/bash"
         args: *test_args
-{{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
   on_success:
     put: status-{{ $branch }}.src
     params:
@@ -613,7 +585,7 @@ jobs:
 {{- end }}
   on_failure:
     in_parallel:
-{{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -630,7 +602,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -643,7 +615,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "smoke-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -669,8 +641,9 @@ jobs:
   - get: semver.gke-cluster
     passed:
     - {{ $previousTest | quote }}
+    trigger: true
   - get: catapult
-{{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
     params: &cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "cf-acceptance-tests-{{ $cfScheduler }}"
@@ -699,7 +672,7 @@ jobs:
         path: "/bin/bash"
         args: *test_args
 
-{{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
   on_success:
     put: status-{{ $branch }}.src
     params:
@@ -713,7 +686,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -726,7 +699,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -739,7 +712,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -768,8 +741,9 @@ jobs:
   - get: semver.gke-cluster
     passed:
     - {{ $previousTest | quote }}
+    trigger: true
   - get: catapult
-{{- if has $prod "sync-integration-tests" }}
+{{- if has $stable "sync-integration-tests" }}
   - put: status-{{ $branch }}.src
     params: &sits_{{ $sanitized_branch_name }}_status
         context: "sync-integration-tests"
@@ -797,7 +771,7 @@ jobs:
       run:
         path: "/bin/bash"
         args: *test_args
-{{- if has $prod "sync-integration-tests" }}
+{{- if has $stable "sync-integration-tests" }}
   on_success:
     put: status-{{ $branch }}.src
     params:
@@ -806,7 +780,7 @@ jobs:
 {{- end }}
   on_failure:
     in_parallel:
-{{- if has $prod "sync-integration-tests" }}
+{{- if has $stable "sync-integration-tests" }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -823,7 +797,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod "sync-integration-tests" }}
+{{- if has $stable "sync-integration-tests" }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -837,7 +811,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod "sync-integration-tests" }}
+{{- if has $stable "sync-integration-tests" }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -864,8 +838,9 @@ jobs:
   - get: semver.gke-cluster
     passed:
     - {{ $previousTest | quote }}
+    trigger: true
   - get: catapult
-{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
+{{- if has $stable (printf "rotate-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
     params: &rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "rotate-{{ $cfScheduler }}"
@@ -893,7 +868,7 @@ jobs:
         path: "/bin/bash"
         args: *rotate_args
 
-{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
+{{- if has $stable (printf "rotate-%s" $cfScheduler) }}
   on_success:
     put: status-{{ $branch }}.src
     params:
@@ -903,7 +878,7 @@ jobs:
 
   on_failure:
     in_parallel:
-{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
+{{- if has $stable (printf "rotate-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -922,7 +897,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
+{{- if has $stable (printf "rotate-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -935,7 +910,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
+{{- if has $stable (printf "rotate-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -961,8 +936,9 @@ jobs:
   - get: semver.gke-cluster
     passed:
     - {{ $previousTest | quote }}
+    trigger: true
   - get: catapult
-{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
+{{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
     params: &smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "smoke-rotated-{{ $cfScheduler }}"
@@ -990,7 +966,7 @@ jobs:
         path: "/bin/bash"
         args: *test_args
 
-{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
+{{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
   on_success:
     put: status-{{ $branch }}.src
     params:
@@ -1000,7 +976,7 @@ jobs:
 
   on_failure:
     in_parallel:
-{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
+{{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -1017,7 +993,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
+{{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
@@ -1030,7 +1006,7 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
+{{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
         params:
