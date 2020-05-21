@@ -11,7 +11,7 @@ copy_file(
 create_sample_values_binary(
     name = "sample_values",
     input = "//deploy/helm/kubecf:values.yaml",
-    output = ":sample-values.yaml",
+    output = ":kubecf-sample-values.yaml",
 )
 
 pkg_tar(
@@ -21,6 +21,6 @@ pkg_tar(
     srcs = [
         ":cf_operator_chart",
         "//deploy/helm/kubecf:release_chart",
-        ":sample-values.yaml",
+        ":kubecf-sample-values.yaml",
     ]
 )
