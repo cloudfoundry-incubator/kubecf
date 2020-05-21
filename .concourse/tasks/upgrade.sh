@@ -65,10 +65,10 @@ export CONFIG_OVERRIDE
 pushd catapult
 # Bring up a k8s cluster and builds+deploy kubecf
 # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
-make kubeconfig scf
+make kubeconfig kubecf
 
 # Now upgrade to whatever chart we built for commit-to-test
 # The chart should be in s3.kubecf-ci directory
 SCF_CHART="$(readlink -f ../s3.kubecf-ci/*.tgz)"
 export SCF_CHART
-make scf-chart scf-upgrade
+make kubecf-chart kubecf-upgrade
