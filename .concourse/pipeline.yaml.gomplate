@@ -185,7 +185,8 @@ deploy_args: &deploy_args
     --no-enable-master-authorized-networks \
     --addons HorizontalPodAutoscaling,HttpLoadBalancing \
     --no-enable-autorepair \
-    --no-enable-autoupgrade
+    --no-enable-autoupgrade \
+    --no-enable-autoprovisioning
 
   # Get a kubeconfig
   gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
@@ -764,10 +765,10 @@ jobs:
       inputs:
       - name: catapult
       - name: kubecf
+      - name: semver.gke-cluster
       params:
         DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: sits
-        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *test_args
@@ -863,7 +864,6 @@ jobs:
       - name: kubecf
       params:
         DEFAULT_STACK: cflinuxfs3
-        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *rotate_args
@@ -889,8 +889,6 @@ jobs:
         task: cleanup-cluster
         config:
           <<: *cleanup-cluster
-          params:
-            CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
   on_abort:
     in_parallel:
     - try:
@@ -1048,7 +1046,6 @@ jobs:
 #         DEFAULT_STACK: cflinuxfs3
 #         EKCP_HOST: ((ekcp-host))
 #         TEST_SUITE: brain
-#         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
 #       run:
 #         path: "/bin/bash"
 #         args: *test_args
@@ -1073,14 +1070,12 @@ jobs:
 #         config:
 #           <<: *cleanup-cluster
 #           params:
-#             CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 #             EKCP_HOST: ((ekcp-host))
 #     on_abort:
 #       task: cleanup-cluster
 #       config:
 #         <<: *cleanup-cluster
 #         params:
-#           CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
 #           EKCP_HOST: ((ekcp-host))
 
 
