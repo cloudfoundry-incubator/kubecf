@@ -3,4 +3,4 @@ appVersion: v0.0.0
 description: A Helm chart for KubeCF
 name: kubecf
 version: v0.0.0
-icon: https://github.com/cloudfoundry-incubator/kubecf/icon/kubecf.png
+icon: https://raw.githubusercontent.com/cloudfoundry-incubator/kubecf/master/icon/kubecf.png
