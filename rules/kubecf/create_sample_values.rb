@@ -14,9 +14,12 @@
 
 # If the output file is not given, the result is printed on standard out.
 
-# If the input file is not given, tests are run instead.  If the environment
-# variable `DEBUG` is set, and the input file is given, internal debugging
-# information is printed (to standard output) instead of the adjusted result.
+# If the input file is not given, tests are run instead.
+
+# The output (when not runnning tests) depends on the environment variable
+# `MODE`.  If it is set to `DEBUG`, internal debugging information is printed
+# (to standard output).  If it is set to `HELP`, a markdown table is printed
+# for documentation.  Otherwise, it prints out the sample values.yaml.
 
 require 'yaml'
 
@@ -419,6 +422,43 @@ def pretty_print(lines, nodes)
     printf "%*s 012345678901234567890123456789\n", num_length, ''
 end
 
+def render_help_docs(nodes, output=STDOUT)
+    roots = nodes.select { |n| n.parent_node.nil? }
+    walk = nil
+    walk_scalar = lambda do |node, path|
+        next if node.required == false
+        comment = node.previous_node&.comment || ''
+        comment.delete_prefix! ':'
+        comment = comment.lines.map { |line| line.strip.delete_prefix('#').delete_prefix('-').strip }.join('')
+        next if comment.empty?
+        output.puts "#{path.reject(&:empty?).join('.')} | #{comment}"
+    end
+    walk_mapping = lambda do |node, path|
+        node.children.each_slice(2) do |key, value|
+            walk.call value, path + [key.value]
+        end
+    end
+    walk_sequence = lambda do |node, path|
+        node.children.each_with_index do |child, index|
+            walk.call child, path + [index.to_s]
+        end
+    end
+    walk = lambda do |node, path|
+        case node
+        when Psych::Nodes::Scalar   then walk_scalar.call(node, path)
+        when Psych::Nodes::Mapping  then walk_mapping.call(node, path)
+        when Psych::Nodes::Sequence then walk_sequence.call(node, path)
+        else
+            fail "Unknown node #{node.class}"
+        end
+    end
+    output.puts 'Parameter | Description'
+    output.puts '--- | ---'
+    roots.each do |node|
+        walk.call node, []
+    end
+end
+
 def process(text, output=STDOUT, test_case=nil)
     doc = Psych.parse(text)
     # All nodes to look at, sorted such that the parent node is before the children,
@@ -439,8 +479,11 @@ def process(text, output=STDOUT, test_case=nil)
     adjust_lines lines, nodes
 
     if test_case.nil?
-        if ENV.has_key? 'DEBUG'
+        case ENV.fetch('MODE', '').upcase
+        when 'DEBUG'
             pretty_print original_lines, nodes
+        when 'HELP'
+            render_help_docs nodes, output
         else
             output.puts lines
         end
