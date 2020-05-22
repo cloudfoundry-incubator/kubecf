@@ -427,20 +427,38 @@ def render_help_docs(nodes, output=STDOUT)
     walk = nil
     walk_scalar = lambda do |node, path|
         next if node.required == false
-        comment = node.previous_node&.comment || ''
-        comment.delete_prefix! ':'
-        comment = comment.lines.map { |line| line.strip.delete_prefix('#').delete_prefix('-').strip }.join('')
+        comment_node = case node.parent_node
+        when Psych::Nodes::Mapping
+            node.parent_node.each_slice(2).find do |k, v|
+                k.eql?(node) || v.eql?(node)
+            end.first
+        else
+            node
+        end
+        lines = comment_node.comment.strip.gsub(/^[-:]/, '').lines
+        lines.map! do |line|
+            line.strip.delete_prefix('#').strip
+        end
+        comment = lines.join(' ').strip
         next if comment.empty?
-        output.puts "#{path.reject(&:empty?).join('.')} | #{comment}"
+        output.puts "`#{path.reject(&:empty?).join('.')}` | #{comment}"
     end
     walk_mapping = lambda do |node, path|
-        node.children.each_slice(2) do |key, value|
-            walk.call value, path + [key.value]
+        if node.has_children?
+            node.children.each_slice(2) do |key, value|
+                walk.call value, path + [key.value]
+            end
+        else
+            walk_scalar.call node, path
         end
     end
     walk_sequence = lambda do |node, path|
-        node.children.each_with_index do |child, index|
-            walk.call child, path + [index.to_s]
+        if node.has_children?
+            node.children.each_with_index do |child, index|
+                walk.call child, path + [index.to_s]
+            end
+        else
+            walk_scalar.call node, path
         end
     end
     walk = lambda do |node, path|
