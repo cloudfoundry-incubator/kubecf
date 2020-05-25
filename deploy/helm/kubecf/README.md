@@ -1,13 +1,13 @@
 # KubeCF
 
-KubeCF is a Cloud Foundry distribution for Kubernetes. KubeCF packages cf-deployment BOSH releases
-into containers and configuration. It includes all components required for a full Cloud Foundry
+KubeCF is a Cloud Foundry distribution for Kubernetes. KubeCF installs BOSH releases from
+cf-deployment as Kubernetes objects. It includes all components required for a full Cloud Foundry
 Application Runtime (CFAR) PaaS on Kubernetes.
 
 
 ## Install the Quarks operator
 
-This chart depends on the [Quarks cf-operator][1], which must be installed before KubeCF to provide
+This chart depends on the [Quarks operator][1], which must be installed before KubeCF to provide
 Kubernetes CRDs necessary for running some components.
 
 Each KubeCF release is paired with a specific Quarks release. Check the [KubeCF Release Notes][2] to
