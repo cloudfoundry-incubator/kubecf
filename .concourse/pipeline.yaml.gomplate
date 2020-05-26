@@ -8,9 +8,9 @@
 # time.
 
 # Variables
-{{ $availableCfSchedulers := slice "diego" "eirini" }} # Diego / Eirini
-{{ $pr_resources := slice "pr" "fork-pr" }}
-{{ $branches := slice "master" "v2.2.0" }} # Repository branches to track
+{{ $availableCfSchedulers := slice "diego" }} # Diego / Eirini
+{{ $pr_resources := slice }}
+{{ $branches := slice "v2.2.0" }} # Repository branches to track
 
 # Prod and no-prod jobs
 # Jobs that are stable and ready should go into $prod.
@@ -18,31 +18,24 @@
 # Production ready Jobs
 # cf-acceptance-tests-* and smoke-test-* are a Special case, as Eirini is not ready, we don't want smoke/CATs to end up in prod job view.
 # TODO: Delete the special case here as soon as we get Eirini CATS green and we stabilize Eirini smoke (e.g. with a more large timeout)
-{{ $prod := slice "lint" "build" "cf-acceptance-tests-diego" "smoke-tests-diego" }}
 
-# Jobs that aren't reliable yet, nor production ready
-{{ $noprod := slice "cf-acceptance-tests-eirini" "smoke-tests-eirini" "upgrade-test"}}
+{{ $prod := slice }}
+{{ $noprod := slice "cf-acceptance-tests-diego" "smoke-tests-diego" }}
 
 # Add jobs for each scheduler in the correct category
 {{range $_, $cfScheduler := $availableCfSchedulers }}
 
   # Generate the prod slice in the range, so we have the full list for the tab view group
-  {{ $prod = $prod | append ( printf "deploy-%s" $cfScheduler ) }}
+  {{ $noprod = $noprod | append ( printf "deploy-%s" $cfScheduler ) }}
 
-  # Add SITS only for diego, but keep it in the loop so it gets added in the correct order.
-  {{ if eq $cfScheduler "diego" }}
-    {{ $noprod = $noprod | append "sync-integration-tests" }}
-  {{ end }}
-  {{ $noprod = $noprod | append ( printf "ccdb-rotate-%s" $cfScheduler ) }}
 
   # Cleanup gets executed only at the end, make it into noprod as we need to keep it at the end
   {{ $noprod = $noprod | append ( printf "cleanup-%s-cluster" $cfScheduler ) }}
-  {{ $noprod = $noprod | append ( printf "smoke-tests-post-rotate-%s" $cfScheduler ) }}
 {{ end }}
 
-{{ $group_prod := slice "publish" }}
+{{ $group_prod := slice }}
 {{ $group_noprod := slice }}
-{{ $group_all := slice "publish" }}
+{{ $group_all := slice }}
 
 {{ range $_, $branch := (flatten (slice $branches $pr_resources) | uniq ) }}
 {{ range $_, $test := $prod }}
@@ -79,6 +72,11 @@ resource_types:
     tag: release
 
 resources:
+
+- name: 1h
+  type: time
+  source: {interval: 5m}
+
 - name: kind-environments
   type: pool
   source:
@@ -87,12 +85,6 @@ resources:
     pool: kind
     private_key: ((github-private-key))
 
-- name: kubecf-github-release
-  type: github-release
-  source:
-    owner: cloudfoundry-incubator
-    repository: kubecf
-    access_token: ((github-access-token))
 
 {{- range $_, $branch := $branches }}
 - name: kubecf-{{ $branch }}
@@ -100,40 +92,9 @@ resources:
   source:
     branch: {{ $branch }}
     uri: https://github.com/{{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
-- name: status-{{ $branch }}.src
-  type: github-status
-  source:
-    repo: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
-    access_token: ((github-access-token))
 {{ end }}
 
-- name: kubecf-pr
-  type: pull-request
-  check_every: 10m
-  source:
-    repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
-    access_token: ((github-access-token))
-    disable_forks: true # Trigger on kubecf branches only
-    required_review_approvals: 1
 
-- name: kubecf-fork-pr
-  type: pull-request
-  check_every: 10m
-  source:
-    repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
-    access_token: ((github-access-token))
-    disable_forks: false # Trigger on kubecf branches only
-    required_review_approvals: 1
-
-{{- range $_, $pr := $pr_resources }}
-
-- name: status-{{$pr}}.src
-  type: github-status
-  source:
-    repo: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
-    access_token: ((github-access-token))
-
-{{- end }}
 
 - name: catapult
   type: git
@@ -160,26 +121,8 @@ resources:
     region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
     regexp: kubecf-bundle-v(.*).tgz
 
-- name: s3.kubecf
-  type: s3
-  source:
-    bucket: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
-    access_key_id: ((aws-access-key))
-    secret_access_key: ((aws-secret-key))
-    region_name: {{ if has . "s3_final_bucket_region" }}{{ .s3_final_bucket_region }}{{ else }}"us-west-2"{{ end }}
-    regexp: kubecf-v(.*).tgz
-
-- name: s3.kubecf-bundle
-  type: s3
-  source:
-    bucket: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
-    access_key_id: ((aws-access-key))
-    secret_access_key: ((aws-secret-key))
-    region_name: {{ if has . "s3_final_bucket_region" }}{{ .s3_final_bucket_region }}{{ else }}"us-west-2"{{ end }}
-    regexp: kubecf-bundle-v(.*).tgz
-
 deploy_args: &deploy_args
-- -xce
+- -ce
 - |
   export SCF_LOCAL="${PWD}/kubecf"
   export SCF_CHART="$(readlink -f s3.kubecf-ci/*.tgz)"
@@ -193,13 +136,32 @@ deploy_args: &deploy_args
   export DOWNLOAD_CATAPULT_DEPS=false
   export CLUSTER_NAME="$(cat kind-environments/name)"
   export KUBECFG="$(readlink -f kind-environments/metadata)"
+
+  # https://unix.stackexchange.com/a/265151
+  read -r -d '' CONFIG_OVERRIDE <<'EOF' || true
+  sizing:
+    diego_cell:
+      ephemeral_disk:
+        size: 300000
+  EOF
+  export CONFIG_OVERRIDE
+
+  SERVER=$(yq r $KUBECFG 'clusters[0].cluster.server')
+  echo
+  echo
+  echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+  echo "Job running on server $SERVER"
+  echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+  echo
+  echo
+
   pushd catapult
   # Bring up a k8s cluster and builds+deploy kubecf
   # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
   make kubeconfig scf
 
 test_args: &test_args
-- -xce
+- -ce
 - |
   export BACKEND=imported
   export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
@@ -210,13 +172,23 @@ test_args: &test_args
   export CLUSTER_NAME="$(cat kind-environments/name)"
   export KUBECFG="$(readlink -f kind-environments/metadata)"
   export KUBECF_CHECKOUT="${SCF_LOCAL}"
+
+  SERVER=$(yq r $KUBECFG 'clusters[0].cluster.server')
+  echo
+  echo
+  echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+  echo "Job running on server $SERVER"
+  echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+  echo
+  echo
+
   pushd catapult
   # Grabs back a deployed cluster and runs test suites on it
   # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
   make kubeconfig tests-kubecf
 
 rotate_args: &rotate_args
-- -xce
+- -ce
 - |
   export BACKEND=imported
   export KUBECF_NAMESPACE="scf"
@@ -226,6 +198,15 @@ rotate_args: &rotate_args
   export KUBECFG="$(readlink -f kind-environments/metadata)"
   export KUBECF_CHECKOUT="${PWD}/kubecf"
   export KUBECF_INSTALL_NAME="susecf-scf"
+
+  SERVER=$(yq r $KUBECFG 'clusters[0].cluster.server')
+  echo
+  echo
+  echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+  echo "Job running on server $SERVER"
+  echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+  echo
+  echo
 
   pushd catapult
   make kubeconfig
@@ -247,110 +228,6 @@ jobs:
 
 {{ $sanitized_branch_name := replaceAll "." "_" $branch }}
 
-- name: lint-{{ $branch }}
-  public: true
-  plan:
-  - get: kubecf-{{ $branch }}
-{{- if ne $branch "fork-pr" }}
-    trigger: true
-{{- end }}
-    version: "every"
-{{- if has $prod "lint" }}
-  - put: status-{{ $branch }}.src
-    params: &lint_{{ $sanitized_branch_name }}_status
-        context: lint
-        description: "Lint started"
-        path: kubecf-{{ $branch }}/{{ $path }}
-        state: pending
-{{- end }}
-  - task: lint
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: thulioassis/bazel-docker-image
-          tag: 2.0.0
-      inputs:
-      - name: kubecf-{{ $branch }}
-      run:
-        path: "/bin/bash"
-        args:
-        - -xce
-        - |
-          cd kubecf-{{ $branch }}
-          ./dev/linters/shellcheck.sh
-          ./dev/linters/yamllint.sh
-          ./dev/linters/helmlint.sh
-
-{{- if has $prod "lint" }}
-    on_success:
-      put: status-{{ $branch }}.src
-      params:
-        << : *lint_{{ $sanitized_branch_name }}_status
-        state: success
-    on_failure:
-      put: status-{{ $branch }}.src
-      params:
-        << : *lint_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-
-- name: build-{{ $branch }}
-  public: false # TODO: public or not?
-  plan:
-  - get: kubecf-{{ $branch }}
-    trigger: true
-    version: "every"
-    passed:
-    - lint-{{ $branch }}
-{{- if has $prod "build" }}
-  - put: status-{{ $branch }}.src
-    params: &build_{{ $sanitized_branch_name }}_status
-        context: build
-        description: "Build started"
-        path: kubecf-{{ $branch }}/{{ $path }}
-        state: pending
-{{- end }}
-  - task: build
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: thulioassis/bazel-docker-image
-          tag: 2.0.0
-      inputs:
-      - name: kubecf-{{ $branch }}
-      outputs:
-      - name: output
-      run:
-        path: "/bin/bash"
-        args:
-        - -xce
-        - |
-          cd kubecf-{{ $branch }}
-          ./dev/build.sh ../output
-{{- if has $prod "build" }}
-    on_success:
-      put: status-{{ $branch }}.src
-      params:
-        << : *build_{{ $sanitized_branch_name }}_status
-        state: success
-    on_failure:
-      put: status-{{ $branch }}.src
-      params:
-        << : *build_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-  - put: s3.kubecf-ci
-    params:
-      file: output/kubecf-v*.tgz
-      acl: public-read
-  - put: s3.kubecf-ci-bundle
-    params:
-      file: output/kubecf-bundle-v*.tgz
-      acl: public-read
 
 {{- range $_, $cfScheduler := $availableCfSchedulers }}
 
@@ -361,20 +238,15 @@ jobs:
   # Consider adding a serial_group between the two $cfScheduler
   # if jobs starts to starve
   plan:
+  - get: 1h
+    trigger: true
   - put: kind-environments
     params: {acquire: true}
     timeout: 8h # Timeout should be long at least for the full pipeline to complete
   - get: kubecf-{{ $branch }}
-    trigger: true
-    version: "every"
-    passed:
-    - build-{{ $branch }}
   - get: s3.kubecf-ci
     passed:
-    - build-{{ $branch }}
   - get: s3.kubecf-ci-bundle
-    passed:
-    - build-{{ $branch }}
   - get: catapult
 {{- if has $prod (printf "deploy-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
@@ -385,7 +257,6 @@ jobs:
         state: pending
 {{- end }}
   - task: deploy
-    privileged: true
     timeout: 3h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -404,7 +275,7 @@ jobs:
       - name: output
       params:
         DEFAULT_STACK: cflinuxfs3
-        CATS_NODES: 2
+        CATS_NODES: 4
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
       run:
@@ -479,11 +350,10 @@ jobs:
   public: true
   plan:
   - get: kind-environments
+    trigger: true
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
   - get: kubecf-{{ $branch }}
-    trigger: true
-    version: "every"
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
   - get: s3.kubecf-ci
@@ -502,7 +372,6 @@ jobs:
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
-    privileged: true
     input_mapping:
       kubecf: kubecf-{{ $branch }}
     timeout: 1h30m
@@ -577,13 +446,12 @@ jobs:
   public: true
   plan:
   - get: kind-environments
+    trigger: true
     passed:
     - {{ $previousTest | quote }}
   - get: kubecf-{{ $branch }}
     passed:
     - {{ $previousTest | quote }}
-    trigger: true
-    version: "every"
   - get: s3.kubecf-ci
     passed:
     - {{ $previousTest | quote }}
@@ -600,7 +468,6 @@ jobs:
         state: pending
 {{- end }}
   - task: test-{{ $cfScheduler }}
-    privileged: true
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -673,390 +540,15 @@ jobs:
 {{- end }}
 {{ $previousTest = (printf "cf-acceptance-tests-%s-%s" $cfScheduler $branch) }}
 
-# no-prod jobs
+# no-proVd jobs
 
-{{- if eq $cfScheduler "diego" }}
-- name: sync-integration-tests-{{ $branch }}
-  public: true
-  plan:
-  - get: kind-environments
-    passed:
-    - {{ $previousTest | quote }}
-  - get: kubecf-{{ $branch }}
-    passed:
-    - {{ $previousTest | quote }}
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - {{ $previousTest | quote }}
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - {{ $previousTest | quote }}
-  - get: catapult
-{{- if has $prod "sync-integration-tests" }}
-  - put: status-{{ $branch }}.src
-    params: &sits_{{ $sanitized_branch_name }}_status
-        context: "sync-integration-tests"
-        description: "Sync Integration tests"
-        path: kubecf-{{ $branch }}/{{ $path }}
-        state: pending
-{{- end }}
-  - task: test-{{ $cfScheduler }}
-    privileged: true
-    timeout: 1h30m
-    input_mapping:
-      kubecf: kubecf-{{ $branch }}
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: kubecf
-      - name: kind-environments
-      outputs:
-      - name: output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        TEST_SUITE: sits
-        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
-      run:
-        path: "/bin/bash"
-        args: *test_args
-{{- if has $prod "sync-integration-tests" }}
-  on_success:
-    put: status-{{ $branch }}.src
-    params:
-      << : *sits_{{ $sanitized_branch_name }}_status
-      state: success
-{{- end }}
-  on_failure:
-    do:
-
-{{- if has $prod "sync-integration-tests" }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *sits_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-  on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-
-{{- if has $prod "sync-integration-tests" }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *sits_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-
-  on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-{{- if has $prod "sync-integration-tests" }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *sits_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-{{ $previousTest = (printf "sync-integration-tests-%s" $branch) }}
-{{- end }}
-
-- name: ccdb-rotate-{{ $cfScheduler }}-{{ $branch }}
-  public: true
-  plan:
-  - get: kind-environments
-    passed:
-    - {{ $previousTest | quote }}
-  - get: kubecf-{{ $branch }}
-    passed:
-    - {{ $previousTest | quote }}
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - {{ $previousTest | quote }}
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - {{ $previousTest | quote }}
-  - get: catapult
-{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
-  - put: status-{{ $branch }}.src
-    params: &rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        context: "rotate-{{ $cfScheduler }}"
-        description: "Rotating secrets {{ $cfScheduler }}"
-        path: kubecf-{{ $branch }}/{{ $path }}
-        state: pending
-{{- end }}
-  - task: rotate-{{ $cfScheduler }}
-    privileged: true
-    timeout: 1h30m
-    input_mapping:
-      kubecf: kubecf-{{ $branch }}
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: kubecf
-      - name: kind-environments
-      outputs:
-      - name: output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
-      run:
-        path: "/bin/bash"
-        args: *rotate_args
-
-{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
-  on_success:
-    put: status-{{ $branch }}.src
-    params:
-      << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-      state: success
-{{- end }}
-
-  on_failure:
-    do:
-{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-        params:
-          CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
-          EKCP_HOST: ((ekcp-host))
-    - put: kind-environments
-      params: { remove : kind-environments}
-  on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-  on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-{{- if has $prod (printf "rotate-%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-{{ $previousTest = (printf "ccdb-rotate-%s-%s" $cfScheduler $branch) }}
-
-- name: smoke-tests-post-rotate-{{ $cfScheduler }}-{{ $branch }}
-  public: true
-  plan:
-  - get: kind-environments
-    passed:
-    - {{ $previousTest | quote }}
-  - get: kubecf-{{ $branch }}
-    passed:
-    - {{ $previousTest | quote }}
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - {{ $previousTest | quote }}
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - {{ $previousTest | quote }}
-  - get: catapult
-{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
-  - put: status-{{ $branch }}.src
-    params: &smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        context: "smoke-rotated-{{ $cfScheduler }}"
-        description: "Smoke tests after rotating secrets {{ $cfScheduler }}"
-        path: kubecf-{{ $branch }}/{{ $path }}
-        state: pending
-{{- end }}
-  - task: test-{{ $cfScheduler }}
-    privileged: true
-    input_mapping:
-      kubecf: kubecf-{{ $branch }}
-    timeout: 1h30m
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
-      inputs:
-      - name: catapult
-      - name: kubecf
-      - name: kind-environments
-      outputs:
-      - name: output
-      params:
-        DEFAULT_STACK: cflinuxfs3
-        TEST_SUITE: smokes
-        CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
-      run:
-        path: "/bin/bash"
-        args: *test_args
-
-{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
-  on_success:
-    put: status-{{ $branch }}.src
-    params:
-      << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-      state: success
-{{- end }}
-
-  on_failure:
-    do:
-
-{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-  on_abort:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-  on_error:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
-{{- if has $prod (printf "smoke-rotated-{%s" $cfScheduler) }}
-    - put: status-{{ $branch }}.src
-      params:
-        << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
-        state: failure
-{{- end }}
-{{ $previousTest = (printf "smoke-tests-post-rotate-%s-%s" $cfScheduler $branch) }}
-
-# TODO: re-enable and re-adapt once BRAIN tests are fixed.
-# - name: brain-tests-{{ $cfScheduler }}
-#   public: true
-#   plan:
-#   - get: commit-to-test
-#     passed:
-#     - sync-integration-tests-{{ $cfScheduler }}
-#     trigger: true
-#     version: "every"
-#   - get: s3.kubecf-ci
-#     passed:
-#     - sync-integration-tests-{{ $cfScheduler }}
-#   - get: s3.kubecf-ci-bundle
-#     passed:
-#     - sync-integration-tests-{{ $cfScheduler }}
-#   - get: catapult
-#   - task: test-{{ $cfScheduler }}
-#     privileged: true
-#     timeout: 1h30m
-#     config:
-#       platform: linux
-#       image_resource:
-#         type: registry-image
-#         source:
-#           repository: splatform/catapult
-#       inputs:
-#       - name: catapult
-#       - name: commit-to-test
-#       outputs:
-#       - name: output
-#       params:
-#         DEFAULT_STACK: cflinuxfs3
-#         EKCP_HOST: ((ekcp-host))
-#         TEST_SUITE: brain
-#         CLUSTER_NAME_PREFIX: kubecf-{{ $cfScheduler }}
-#       run:
-#         path: "/bin/bash"
-#         args: *test_args
-#     on_success:
-#       put: commit-to-test
-#       params:
-#         description: "Brain tests on {{ $cfScheduler }} succeeded"
-#         state: "success"
-#         contexts: "brain-tests-{{ $cfScheduler }}"
-#         commit_path: "commit-to-test/.git/resource/ref"
-#         version_path: "commit-to-test/.git/resource/version"
-#     on_failure:
-#       do:
-#       - put: commit-to-test
-#         params:
-#           description: "Brain tests on {{ $cfScheduler }} failed"
-#           state: "failure"
-#           commit_path: "commit-to-test/.git/resource/ref"
-#           version_path: "commit-to-test/.git/resource/version"
-#           contexts: "brain-tests-{{ $cfScheduler }}"
-#       - task: cleanup-cluster
-#         config:
-#           <<: *cleanup-cluster
-#           params:
-#             CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
-#             EKCP_HOST: ((ekcp-host))
-#     on_abort:
-#       task: cleanup-cluster
-#       config:
-#         <<: *cleanup-cluster
-#         params:
-#           CLUSTER_NAME_PREFIX: "kubecf-{{ $cfScheduler }}"
-#           EKCP_HOST: ((ekcp-host))
 
 
 - name: cleanup-{{ $cfScheduler }}-cluster-{{ $branch }}
   public: true
   plan:
   - get: kind-environments
+    trigger: true
     passed:
     - {{ $previousTest | quote }}
   - get: kubecf-{{ $branch }}
@@ -1074,60 +566,6 @@ jobs:
 
 {{ end }} # of range cfscheduler
 
-- name: upgrade-test-{{ $branch }}
-  plan:
-  - in_parallel:
-    - put: kind-environments
-      params: {acquire: true}
-      timeout: 4h # timeout should be long at least for the full pipeline to complete
-    - get: kubecf-github-release
-    - get: kubecf-{{ $branch }}
-      trigger: true
-      version: "every"
-      passed:
-      - build-{{ $branch }}
-    - get: s3.kubecf-ci
-      passed:
-      - build-{{ $branch }}
-    - get: s3.kubecf-ci-bundle
-      passed:
-      - build-{{ $branch }}
-    - get: catapult
-  - task: upgrade
-    input_mapping:
-      kubecf: kubecf-{{ $branch }}
-    timeout: 4h
-    file: kubecf-{{ $branch }}/.concourse/tasks/upgrade.yaml
-  ensure:
-    do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
-    - put: kind-environments
-      params: { remove : kind-environments}
 
 {{ end }} # of branch
 
-- name: publish
-  public: true
-  plan:
-  - get: kubecf-master
-    passed:
-    - cf-acceptance-tests-diego-master
-    # TODO: Uncomment as soon as eirini tests are green
-    # TODO: Does this work? It might check the wrong thing
-    # - cf-acceptance-tests-eirini
-    trigger: true
-    version: "every"
-  - get: s3.kubecf-ci
-    passed:
-    - cf-acceptance-tests-diego-master
-  - get: s3.kubecf-ci-bundle
-    passed:
-    - cf-acceptance-tests-diego-master
-  - put: s3.kubecf
-    params:
-      file: s3.kubecf-ci/kubecf-v*.tgz
-  - put: s3.kubecf-bundle
-    params:
-      file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
