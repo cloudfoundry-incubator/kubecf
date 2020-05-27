@@ -1188,6 +1188,7 @@ jobs:
           for file in output/*.tgz; do
               aws s3 ls "s3://${S3_BUCKET}/$(basename $file)" && (echo "Tarball already exists on s3. Aborting."; exit 1);
           done
+          exit 0
   - put: s3.kubecf
     params:
       file: output/kubecf-v*.tgz
