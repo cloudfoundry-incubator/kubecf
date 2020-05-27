@@ -99,7 +99,7 @@ if having_category node; then
     fi
 fi
 
-# max_user_namespaces must be >= 10000
+# max_user_namespaces must be >= 10000, see https://github.com/cloudfoundry-incubator/kubecf/issues/484
 if having_category node ; then
     ns=$(cat /proc/sys/user/max_user_namespaces)
     if [ $((ns)) -ge 10000 ] ; then
@@ -130,7 +130,7 @@ if having_category kube ; then
 fi
 
 # kube-dns shows all pods ready
-# This check should handle core-dns pods as well,see https://github.com/coredns/deployment/issues/116
+# This check should handle core-dns pods as well, see https://github.com/coredns/deployment/issues/116
 if having_category kube ; then
     kubectl get pods --namespace=kube-system --selector k8s-app=kube-dns 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
     status "all kube-dns pods should be running (show N/N ready)"
@@ -146,6 +146,12 @@ fi
 if having_category kube ; then
     test ! "$(kubectl get storageclasses 2>&1 | grep -e "No resources found." -e "Unable to connect to the server")"
     status "A storage class should exist in K8s"
+fi
+
+# privileged pods are enabled in K8s
+if having_category api ; then	
+    pgrep -ax 'hyperkube|(kube-)?apiserver' | grep apiserver | grep --silent -- --allow-privileged	
+    status "Privileged must be enabled in 'kube-apiserver'"	
 fi
 
 # override tasks infinity in systemd configuration
