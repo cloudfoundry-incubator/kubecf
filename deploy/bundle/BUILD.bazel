@@ -12,7 +12,8 @@ pkg_tar(
     name = "kubecf-bundle",
     extension = "tgz",
     srcs = [
-        ":cf_operator_chart",
         "//deploy/helm/kubecf:release_chart",
+        "//dev/kube:klog.sh",
+        ":cf_operator_chart",
     ]
 )
