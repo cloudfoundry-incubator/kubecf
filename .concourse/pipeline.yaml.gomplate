@@ -27,8 +27,8 @@ groups:
   {{ range $_, $job := $stable }}
   - {{ $job }}-{{ $branch }}
   {{ end }}
-  {{ if eq $branch "master" }}
-  - publish
+  {{ if not ($branch | regexp.Match "^pr|fork-pr") }}
+  - publish-{{ $branch }}
   {{ end }}
 - name: {{ $branch }}-experimental
   jobs:
@@ -372,6 +372,11 @@ jobs:
         - |
           cd kubecf-{{ $branch }}
           ./dev/build.sh ../output
+          timestamp=$(date +%s%3N)
+          for file in ../output/*.tgz; do
+              mv "$file" "${file%.tgz}-${timestamp}.tgz"
+          done
+
 {{- if has $stable "build" }}
     on_success:
       put: status-{{ $branch }}.src
@@ -1124,28 +1129,70 @@ jobs:
       config:
         <<: *cleanup-cluster
 
-{{ end }} # of branch
-
-- name: publish
+{{ if not ($branch | regexp.Match "^pr|fork-pr") }}
+- name: publish-{{ $branch }}
   public: true
   plan:
-  - get: kubecf-master
-    passed:
-    - cf-acceptance-tests-diego-master
-    # TODO: Uncomment as soon as eirini tests are green
-    # TODO: Does this work? It might check the wrong thing
-    # - cf-acceptance-tests-eirini
-    trigger: true
-    version: "every"
   - get: s3.kubecf-ci
     passed:
-    - cf-acceptance-tests-diego-master
+    - cf-acceptance-tests-diego-{{ $branch }}
+    trigger: true
+    version: "every"
   - get: s3.kubecf-ci-bundle
     passed:
-    - cf-acceptance-tests-diego-master
+    - cf-acceptance-tests-diego-{{ $branch }}
+    trigger: true
+    version: "every"
+  - task: rename-artifacts
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: thulioassis/bazel-docker-image
+          tag: 2.0.0
+      inputs:
+      - name: s3.kubecf-ci
+      - name: s3.kubecf-ci-bundle
+      outputs:
+      - name: output
+      run:
+        path: "/bin/bash"
+        args:
+        - -ce
+        - |
+          # Revert to original name without the timestamp part
+          for file in s3.kubecf-ci*/*.tgz; do
+              new_filename=$(basename $file | sed  's/-[0-9]\+\.tgz/\.tgz/')
+              mv "$file" "output/${new_filename}"
+          done
+  - task: test-if-file-exists
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      params:
+        S3_BUCKET: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
+        AWS_ACCESS_KEY_ID: ((aws-access-key))
+        AWS_SECRET_ACCESS_KEY: ((aws-secret-key))
+      inputs:
+      - name: output
+      run:
+        path: "/bin/bash"
+        args:
+        - -ce
+        - |
+          # Make sure that tarballs do not exist on s3 yet
+          for file in output/*.tgz; do
+              aws s3 ls "s3://${S3_BUCKET}/$(basename $file)" && (echo "Tarball already exists on s3. Aborting."; exit 1);
+          done
   - put: s3.kubecf
     params:
-      file: s3.kubecf-ci/kubecf-v*.tgz
+      file: output/kubecf-v*.tgz
   - put: s3.kubecf-bundle
     params:
-      file: s3.kubecf-ci-bundle/kubecf-bundle-v*.tgz
+      file: output/kubecf-bundle-v*.tgz
+{{ end }} # of publish
+{{ end }} # of branch
