@@ -88,6 +88,27 @@ function having_category() {
 
 echo "Testing $(green "${category}")"
 
+# kernel version should be >= 3.19
+if having_category node; then
+    desired_kernel_version=3.19
+    version=$(uname -r | cut -c1-4)
+    if (( $(awk 'BEGIN {print ("'"$version"'" >= "'$desired_kernel_version'")}') )); then
+        status "kernel version must be equal to or greater than 3.19"
+    else
+        trouble "kernel version should not be lower than 3.19"
+    fi
+fi
+
+# max_user_namespaces must be >= 10000
+if having_category node ; then
+    ns=$(cat /proc/sys/user/max_user_namespaces)
+    if [ $((ns)) -ge 10000 ] ; then
+        status "user_max_namespaces set to greater than 10000"
+    else 
+        trouble "user_max_namespaces should be set to more than 10000"
+    fi
+fi
+
 # swap should be accounted
 if having_category node ; then
     # https://www.kernel.org/doc/Documentation/cgroup-v1/memory.txt - section 2.4.
@@ -109,6 +130,7 @@ if having_category kube ; then
 fi
 
 # kube-dns shows all pods ready
+# This check should handle core-dns pods as well,see https://github.com/coredns/deployment/issues/116
 if having_category kube ; then
     kubectl get pods --namespace=kube-system --selector k8s-app=kube-dns 2> /dev/null | grep -Eq '([0-9])/\1 *Running'
     status "all kube-dns pods should be running (show N/N ready)"
@@ -124,17 +146,6 @@ fi
 if having_category kube ; then
     test ! "$(kubectl get storageclasses 2>&1 | grep -e "No resources found." -e "Unable to connect to the server")"
     status "A storage class should exist in K8s"
-fi
-
-# privileged pods are enabled in K8s
-if having_category api ; then
-    pgrep -ax 'hyperkube|apiserver' | grep apiserver | grep --silent -- --allow-privileged
-    status "Privileged must be enabled in 'kube-apiserver'"
-fi
-
-if having_category node ; then
-    pgrep -ax 'hyperkube|kubelet' | grep kubelet | grep --silent -- --allow-privileged
-    status "Privileged must be enabled in 'kubelet'"
 fi
 
 # override tasks infinity in systemd configuration
