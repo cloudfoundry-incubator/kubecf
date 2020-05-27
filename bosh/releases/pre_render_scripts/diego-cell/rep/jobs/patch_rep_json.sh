@@ -14,7 +14,22 @@ fi
 
 # Don't share /var/vcap/packages between containers.
 patch --verbose "${target}" <<'EOT'
-@@ -39,7 +39,7 @@
+@@ -1,4 +1,5 @@
+ <%=
++  require 'socket'
+   conf_dir = "/var/vcap/jobs/#{p("diego.rep.job_name")}/config"
+   tmp_dir = "/var/vcap/data/rep/tmp"
+   trusted_certs_dir = "/var/vcap/data/rep/shared/garden/trusted_certs"
+@@ -28,7 +29,7 @@
+     advertise_domain: p("diego.rep.advertise_domain"),
+     auto_disk_capacity_overhead_mb: p("diego.executor.auto_disk_capacity_overhead_mb"),
+     cache_path: "#{download_cache_dir}",
+-    cell_id: spec.id,
++    cell_id: p('diego.rep.placement_tags').empty? ? spec.id : p('diego.rep.placement_tags').first + '-' + spec.id,
+     cell_registrations_locket_enabled: p("cell_registrations.locket.enabled"),
+     container_inode_limit: p("diego.executor.container_inode_limit"),
+     container_max_cpu_shares: p("diego.executor.container_max_cpu_shares"),
+@@ -39,7 +40,7 @@
      disk_mb: p("diego.executor.disk_capacity_mb").to_s,
      enable_consul_service_registration: p("enable_consul_service_registration"),
      enable_declarative_healthcheck: p("enable_declarative_healthcheck"),
@@ -23,8 +38,8 @@ patch --verbose "${target}" <<'EOT'
      enable_container_proxy: p("containers.proxy.enabled"),
      container_proxy_require_and_verify_client_certs: p("containers.proxy.require_and_verify_client_certificates"),
      container_proxy_trusted_ca_certs: p("containers.proxy.trusted_ca_certificates"),
-@@ -47,7 +47,7 @@
-     container_proxy_ads_addresses: p("containers.proxy.ads_addresses"),
+@@ -48,7 +49,7 @@
+     advertise_preference_for_instance_address: p("diego.rep.advertise_preference_for_instance_address"),
      enable_unproxied_port_mappings: p("containers.proxy.enable_unproxied_port_mappings"),
      proxy_memory_allocation_mb: p("containers.proxy.additional_memory_allocation_mb"),
 -    container_proxy_path: "/var/vcap/packages/proxy",

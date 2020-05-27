@@ -1,0 +1,404 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minion-link-nats
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"nats","type":"nats"}'
+stringData:
+  link: |
+    ---
+    nats.user: "nats"
+    nats.password: "Qst6Zu8c4bMi4DORcFXCSb1NZ6TIVTPpPIAi8hVRGaZMoCzOjNRLWUYQLa9MCZey"
+    nats.hostname: "nats"
+    nats.port: 4222
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minion-link-nats-tls
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"nats-tls","type":"nats-tls"}'
+stringData:
+  link: |
+    ---
+    nats.user: "nats"
+    nats.password: "Qst6Zu8c4bMi4DORcFXCSb1NZ6TIVTPpPIAi8hVRGaZMoCzOjNRLWUYQLa9MCZey"
+    nats.hostname: "nats"
+    nats.port: 4223
+    nats.external.tls.ca: ""
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minion-link-routing-api
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"routing_api","type":"routing_api"}'
+stringData:
+  link: |
+    routing_api.clients: ~
+    routing_api.system_domain: "10.156.0.50.nip.io"
+    routing_api.port: 3000
+    routing_api.mtls_port: 3001
+    routing_api.mtls_ca: |
+      -----BEGIN CERTIFICATE-----
+      MIIC/DCCAeSgAwIBAgIUV8Yh803ap6LOMPh6r3wOTXawJVcwDQYJKoZIhvcNAQEL
+      BQAwFjEUMBIGA1UEAwwLcm91dGluZ19hcGkwHhcNMjAwNTIxMTAwNTAwWhcNMjEw
+      NTIxMTAwNTAwWjAWMRQwEgYDVQQDDAtyb3V0aW5nX2FwaTCCASIwDQYJKoZIhvcN
+      AQEBBQADggEPADCCAQoCggEBAOCArmyj+Ovmx0+UFMD3zi1v9y+ayVP+RgxSUl0O
+      cYfediPJB052uX43M7uJ7LlJHvTJen6djzvnf6VVGcZvLZkDeYoD7XV82DjhTT2e
+      jxenjDbkpYqbw4M2bW//aOfbm55pDn9rkKl/Wr2VYxNE70n/ZpDnjKb6q0RZwmRs
+      nJwBOdP9hKGOOpzX/qPA7unUUXiIJRPikwUEf0G8uAy7+RgPvxbgUB05fcu++76y
+      s+fSpCrI3QYJAKOq2SFZ3mtpReO68ra7r5p4bREBGBhU3q5+C/O8NsWt4dTnj/eg
+      qLvMTvzCAIfgNTfLvm1ikoILWUj+UhUWLnRvGT20w9JFCEMCAwEAAaNCMEAwDgYD
+      VR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFBxCRYq3e3mp
+      h55wlbDjBwYZBU9yMA0GCSqGSIb3DQEBCwUAA4IBAQAkfgvXUA8GtFK2mKu6ypx7
+      VfdUpjElCDBTYNspDssh+0pl61c0+jCduvmbVzoyD6Vy/FA4LXjDCnvFMyxqJ8BC
+      ras/06awMrcy36KLhUfhQvu1JYqOduQHsOo02j2Vkwn0iKN/Vt22rBGOrCqdnd0k
+      ragLiVj8dKaRtVOBMBxZjjyy2Xy+uHLa7nIJ5wwAsK715YhhLybzSvI7rdMbhib7
+      cRPDd3/a0TUQ6crhUvVfzlMZYYXv1nVa2xY6AnLd2uAtvIlC+Re++Sgb/Cc24cKV
+      wfhxkJpsPmJPSD8ZcqLqJFRrIKSIAUr8V0oGVJPtKNeszvHDSo2cjT+QLD7ywaju
+      -----END CERTIFICATE-----      
+    routing_api.mtls_server_cert: |
+      -----BEGIN CERTIFICATE-----
+      MIIDazCCAlOgAwIBAgIUUSY2Adhn5Vq+a4tQQrcT+evvtz4wDQYJKoZIhvcNAQEL
+      BQAwFjEUMBIGA1UEAwwLcm91dGluZ19hcGkwHhcNMjAwNTIxMTAwNTAwWhcNMjEw
+      NTIxMTAwNTAwWjAqMSgwJgYDVQQDEx9yb3V0aW5nLWFwaS5zZXJ2aWNlLmNmLmlu
+      dGVybmFsMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzplnAW8IZ98l
+      VwdZoy9GeIT5MoqeJ1f26dygpbP9YnNblZWskQehjJkq/bqlIoc4kJAxDCTUn75I
+      jBjCthYs/Zg4omP3jfWF2k81fdjvXsvHOaZx0i1hidgGiegZTknjb84AcnRYEZh4
+      3BYF0xFRu5settCDQ/2+P8Mg+uks0DGa+IbuBGyAy9nfS0cVDIzHqavwwC4jCHqh
+      ax3oCP/CcoJpeyLoAzuZMh1PWzIFEL65D7S0vz7zgfLCsZXujMeXP8beXEm1fdvo
+      GzuWSMpDDSlYDfh/EU2RqXzDLryUvSe7VyqqdYasPwvSRKriEboPdobWdmSZ/QJW
+      //IC1zj3OwIDAQABo4GcMIGZMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcD
+      AjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBR+hitlQwzZ54jhzJmq9rNCOK456zAf
+      BgNVHSMEGDAWgBQcQkWKt3t5qYeecJWw4wcGGQVPcjAqBgNVHREEIzAhgh9yb3V0
+      aW5nLWFwaS5zZXJ2aWNlLmNmLmludGVybmFsMA0GCSqGSIb3DQEBCwUAA4IBAQDI
+      ANJifhBoHLtE6ZS4Q2IL3b1/hQhgTgJowubqWvCn+ZyNEwjYZC02oYiBV2g5IwiI
+      K/+STSNHr+vDN9egmNy/20imC1L9wgDoOts8tdfK6WKAkK649f40uYDW5By7Gt1f
+      9odDsEd7+0QcBZblyOQA59LIYioBLQuZQqmlC4mB5DDbt53Q/OMoVu9eqPZ80nlP
+      HLWokbcUkURxcZrLtDiCAkil+nsdnliaiBRpgo51mG/xIFpOTyOsabfxzAq6gXAa
+      MUv/E9zNdzQIbz27krXGtKps5Oxr1LJq3JXg7rLQ6/jHcsxwPsxPnPX541goLlzF
+      HdX5D1w2rCaJorwLqo5O                                            
+      -----END CERTIFICATE-----
+    routing_api.mtls_server_key: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEpQIBAAKCAQEAzplnAW8IZ98lVwdZoy9GeIT5MoqeJ1f26dygpbP9YnNblZWs
+      kQehjJkq/bqlIoc4kJAxDCTUn75IjBjCthYs/Zg4omP3jfWF2k81fdjvXsvHOaZx
+      0i1hidgGiegZTknjb84AcnRYEZh43BYF0xFRu5settCDQ/2+P8Mg+uks0DGa+Ibu
+      BGyAy9nfS0cVDIzHqavwwC4jCHqhax3oCP/CcoJpeyLoAzuZMh1PWzIFEL65D7S0
+      vz7zgfLCsZXujMeXP8beXEm1fdvoGzuWSMpDDSlYDfh/EU2RqXzDLryUvSe7Vyqq
+      dYasPwvSRKriEboPdobWdmSZ/QJW//IC1zj3OwIDAQABAoIBAQCyKuz/+YcgPPpw
+      sTAGYNC/Qr29bnmxqFSRnekUvcI40w8aUze84v3YyIagxgN/YWnQkekadfC/ylO6
+      LehNK5alJE9DDD8DN8e1WzXgT+Mut0IaX4YtIWHKhHgvGfAo6eOwGdGc4uTIV9ty
+      wbNIMNlxlvbH5c4uJneZeWfJuqkg6Pi9ZMor49sSvUa09EDeGWGEwJuDH5CLWMvQ
+      hRaBCqhUzYRJy/ykmQDBaHuj2RB1CP4RuUKs087t3IbQQYcNCoxNUW7hJOU/u1KV
+      d5fuB5XEX7Jd5ZEiNZ02mCtfWg4paacwYkdPDhD9T41ibZh+JkUs+Sy0G1KSLY+u
+      tzX+WNxxAoGBANSMsXt+KEY1I6H0gYSO1BDdonk6dagQKoj3iUdqfZyf9iTnBRbR
+      iGl7NteYJb461+8vsrd2E18VPxpQ2UiAG9j9bvlT8CYBUod0Vn6yms14bYgM62wv
+      KACxc71DRPWVzPGq+S/VOE6cayo2GL0QM9e0mBSO54gx6IGRGTf0rWh3AoGBAPjV
+      T4CG1k1GXZAenow/9vzeRbVcV9AHyeqf8qDvhwGZA7c5XuCZ2DIRZQlJAEf3rRrC
+      mJXd/9Wts/jDslC83MPG16UHGchty4Hb3xkHXMhfNxNnxaW/+PruiPuFrFassh+b
+      UZOfh6VgdS3LwYBLlnRm/wdq7SUno3yd4KAZ2xxdAoGBALlOhDoHTjOPhqZfVj/s
+      iiS+JjWM6yEAHyVUsqHJzQOtTlrz8rLnMQfNfY3PPzCveq00p5pdXhwqmN5nmFgm
+      IKE4qvTC4n8v7fTcT8CcFGyIzu2rXeDu5/BaxW4/ZLK7zHbxudijCzk2FBQ0H7NN
+      mfU4pNJfmKpb4Lp9d0AamMiXAoGAfAcGu4953caG+EDq0glH+L5pjH5cnqpjMHlN
+      HH6HknpMadVEvzqvkjUtYTVr2HNRaxc3quuei0krfYE9rhSVDVhdQDqL1WU0nKOV
+      TgpnatBayWdeEsHfPmQLDyOPxRwLJMnsHWLU3892WL9I0cPbWGXGFFJtpaleScz/
+      m42Hs1kCgYEAk760qLj3zk0JA7u5OIha+QnSpNQzTfSA1SdBPEfrEZ0zVaO9YCgp
+      O1sCiAZJjWqe99rpyX38OcLXyDz1X/u2UMg+yqTWGebpGKVYrILOaQn/A4eAigeE
+      8TfWtOcWxmxc0SlVHScXdnV5leYl6D4SFXF4AN/4wtrYsii8hPae+sc=        
+      -----END RSA PRIVATE KEY-----
+    routing_api.mtls_client_cert: |
+      -----BEGIN CERTIFICATE-----
+      MIIDUTCCAjmgAwIBAgIUBlcqnv6zKJM+iZMdwrfsRJEzBqcwDQYJKoZIhvcNAQEL
+      BQAwFjEUMBIGA1UEAwwLcm91dGluZ19hcGkwHhcNMjAwNTIxMTAwNTAwWhcNMjEw
+      NTIxMTAwNTAwWjAdMRswGQYDVQQDExJyb3V0aW5nLWFwaS1jbGllbnQwggEiMA0G
+      CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDcxwHklPAMDLK7TTOB5/Vkzb25eh15
+      uvShAQOSlucOpgZbbS71xGxPb5HJ5a+McCFo83EeyVjayqWsNw8d8WRSFbILYJFb
+      mXY8ibtXNe3y+VzOeLOFGP1niFolYiqoFa7uAkSIWryWjYmb3A5S7O3WrH34OUQw
+      2b8aTUk7zPGW9Xbutkoe4y7MqFzdvpSIgOaMOweo2bcVtIHjukQa1KuE2z+gWqcH
+      WVVq8YKCLQxZR4aqxeaKDFkd0LIwFjDDte+qbcG8rfgW72hSf/YDD2BssGg0BXzi
+      FQK7feyvaP9h3dddk4xB0UOgkz+yF8/NRlVFtxDkx9L6MZyzgd/f0ehfAgMBAAGj
+      gY8wgYwwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMAwGA1UdEwEB/wQC
+      MAAwHQYDVR0OBBYEFKHk3kYUE6leHUfmeVfL5iclnuLNMB8GA1UdIwQYMBaAFBxC
+      RYq3e3mph55wlbDjBwYZBU9yMB0GA1UdEQQWMBSCEnJvdXRpbmctYXBpLWNsaWVu
+      dDANBgkqhkiG9w0BAQsFAAOCAQEAc62ogOirLKbYaVSLlRKQvv3yzi4W8EVROh1Y
+      pHqaiZOM25bXPYJNPFOJ4mHpTqflQf9+aBNI8+2A4P4dfds7bq0weTh7kO/UUITk
+      SfGIJfpkD/sisPvKupfgZZimNvIZug8ld9dShlNMAyezo4b69O3SxDLSIkhHsrsK
+      Whx6MwHK/cedQosieOFmVZhTjM4b8C0tmSnn9jT5zeDuv4QTy4qymzay+V25j46e
+      0UfySmy40MatynQ0A/KHyTzlbxltRQxf/xbMQF4W0g6ClBJAbx+XmPJD1UgiVic6
+      74G3MxG/VrHN4aogvCVejANETA7ef0msC0RHmqBtZxQQtjsDNQ==            
+      -----END CERTIFICATE-----
+    routing_api.mtls_client_key: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEpQIBAAKCAQEA3McB5JTwDAyyu00zgef1ZM29uXodebr0oQEDkpbnDqYGW20u
+      9cRsT2+RyeWvjHAhaPNxHslY2sqlrDcPHfFkUhWyC2CRW5l2PIm7VzXt8vlczniz
+      hRj9Z4haJWIqqBWu7gJEiFq8lo2Jm9wOUuzt1qx9+DlEMNm/Gk1JO8zxlvV27rZK
+      HuMuzKhc3b6UiIDmjDsHqNm3FbSB47pEGtSrhNs/oFqnB1lVavGCgi0MWUeGqsXm
+      igxZHdCyMBYww7Xvqm3BvK34Fu9oUn/2Aw9gbLBoNAV84hUCu33sr2j/Yd3XXZOM
+      QdFDoJM/shfPzUZVRbcQ5MfS+jGcs4Hf39HoXwIDAQABAoIBAGkIuKrR/L4O0H1x
+      hh64hzO0+h0irqE6Q6XRgKyd5EFA1Wdrs1qzX0APeVGPV4w90HdI0jluWzqEDHu5
+      GhUJwcuXjMQC5kSo5up4MEuWWaUt42xLWkTpFa3K3fBJGrgq0LVlGMuyN2R848nl
+      0F69X42xNKECRaHkBhnySPQNVaaWMH63KiQMq9ONqfHbWjusK2/tDOyORTEEssmD
+      bqNzAR84rDuVMGdWf/2fsIjiONbOT+AMIYV4V8N2+TF1Eg+V+RcNuUocNjKgR6/U
+      3B0htPLom2jCZ0QGLpNpPcJhwqV7AObZpMghCCNcCRiZLfPoW90KUWnTcjj/92+3
+      TNOFfsECgYEA/zcVkAOtnW0utUGtfslxQOa78nHh9PCJSEupnP/e0jSQJeFa/ocz
+      d25fjRNc4CMRaKrpvjP8mAxibDVR8U5e6m8bVJbpeh+3LI7V5A5sK+rYjqVvFf2R
+      VUqQIP55VK2Dj3VYmo/c9cMk83DEmCxmj39eSwolUzFVMVG2C17oSeECgYEA3XTP
+      9LIdSjvnEvOSzek+gR3RznNIHCPKVSfKbxn2KhaVFULPHe7pEp/EixNXG99RGZqS
+      xByrkNtRBYfU6Ug69YZHUISx7NwxyRfozMwekczAqyW4+g6Qz0OfvmjPPiIO3wA1
+      hzJUVXLKGPMmL3/IWXThEOXzQCPh/ayB0rDC+j8CgYEAp2qME4fGKQIJZM+rrwMX
+      7votCnKYRiRP+gPgROQ4V+4xLRgyp8srAMp/lbzA7Ssz7VRItwPFTDy7h75GfaPq
+      caDm7ct9ZyZM88bTGqI3ZWvOGWz+fQ90ed3KxEoKb3jPV5kjwWhkCzezEprD7Asc
+      UD++LD2AlJ1FBHBUmgrtGCECgYEAkYESsb/lpsS9CqKnLku2GbeyBmeQVYzegBzo
+      0R7JstWrlpCS7SPwV6BJzuciMNoFu0DodZowz7iJ/4xDxBMFShSz/p9xGCOFQo9H
+      Emh7HWjenpTmeMXhN41DBCRxJm3SP4svoGjdKFeHmeUIjeTzinNU/XlY3ie1cKtL
+      kVc6hJkCgYEA4OL4DqZ87T88L6cOCmm3IRpEMYX9VEzEaf8AP3L4QGVRGr8C6LgO
+      eUAWO4Wkqc6iHrk/3O4d01FS/U9F7nKMMFAk0bi3wOCaq/y7NPuAEabEpfpRx2aQ
+      mKcl9mX9AiNn+fKvwGM1dnfnQYS3KUcdVNXlHOz656gohcsk7uViKqo=        
+      -----END RSA PRIVATE KEY-----
+    routing_api.enabled_api_endpoints: "both"
+    uaa.ca_cert: |
+      -----BEGIN CERTIFICATE-----
+      MIIC8DCCAdigAwIBAgIUTdVhQ+j3P0GeaDTXn5DZHYvjCkgwDQYJKoZIhvcNAQEL
+      BQAwEDEOMAwGA1UEAxMFdWFhQ0EwHhcNMjAwNTIxMTAwNTAwWhcNMjEwNTIxMTAw
+      NTAwWjAQMQ4wDAYDVQQDEwV1YWFDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC
+      AQoCggEBANF9HrNOCrbsH15QgaRkUx6czGxmSclmW+JtbgJE1bf5pxmVj6zQg934
+      UuFCP4Saz2Ca/SK4ipm8l7V20uo8jwUiPiYJv1qPwY3WjJIQ5ivWtFp6eInNTCSk
+      lotMZB/gFKZiyewHAjSRfE5SVxX5PERrh/GfrZDYJmgxBNYlFv1c8aMl6YUHC2aw
+      MSsX4nelWtZCRDConu2qbu8+UNwPNHk25o4VX7ci0P33ZecGGOuYsI4BH4rXjum2
+      SW86zYV6yeiauxLl3mdSLw7c8quhVJFo1eTuIYfa2NYn49uxLMM27P9vASn2r+x0
+      wl+fel5SljOYOI0n4InVvwh5acVwc3sCAwEAAaNCMEAwDgYDVR0PAQH/BAQDAgEG
+      MA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFGIw/4tiAQVfTVD3WTfNoQEDR56I
+      MA0GCSqGSIb3DQEBCwUAA4IBAQAzvfEeXd5pm6TDNy6Ad4DZ7OyQ5pUBmVdcN8JW
+      Fu5aIOG+GUes7vD6R3T8XSPdcnzpkxOgdsnyWuc2HdTTFlMjRao7kCnItc3d9Jmh
+      Tvst/SogwmG8paqIreFAfM8+Ax3QDWMeEXypv9FTbvYLlSUCyaFYNdMzjF1h4fpm
+      /p5J367ET0lUDjEL28TsHyo/OCLpkoCcOgde/7TQBYXur8sEB0ZCwnsQIO6KyQYo
+      QAMycuJQ+R/tU5INN2qZGpG6CM4vlyS4pHKO9CWGhez9w0u8iScRWuk9Ik3I+QEH
+      RGOQ6iQ+0AhWQoSPjHG215p8oQs1Yaw3/tFDtXy37r2YluhH                
+      -----END CERTIFICATE-----
+    skip_ssl_validation: false
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minion-link-doppler
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"doppler","type":"doppler"}'
+stringData:
+  link: |
+    doppler.grpc_port: 8082
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minion-link-loggregator
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"loggregator","type":"loggregator"}'
+stringData:
+  link: |
+    loggregator.tls.ca_cert: |
+      -----BEGIN CERTIFICATE-----
+      MIIDADCCAeigAwIBAgIUC6HO2nGWwtzzK1euHLX4hGtjH1YwDQYJKoZIhvcNAQEL
+      BQAwGDEWMBQGA1UEAxMNbG9nZ3JlZ2F0b3JDQTAeFw0yMDA1MjExMDA1MDBaFw0y
+      MTA1MjExMDA1MDBaMBgxFjAUBgNVBAMTDWxvZ2dyZWdhdG9yQ0EwggEiMA0GCSqG
+      SIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3CrQm0hX4xIvsxDFUKuwB/uTAmAap7Qtb
+      yW3H8viCLmdctvwD5E1+GyUK/diuW/lUF7N//NM+CnXPD2pTPVRLWiS/Igvx4G5E
+      Z4d7oNrPCPIxTfnXod8P+F/elj24qhz4iXcO38DbllTTRo8B5bJ/BcYxit6lAnHv
+      j9KdomVs9FIj/O1ZZaI1alNWNBtQFSGKmLW+DjUaSt4kLpId4MA2bZOE1zim6u0O
+      qMxsUUGbVyIGMYhDEIC0gLpdVZ7BNbo9+uX0yEpsSmKp7ci49YwvMiXdW0+mZiHb
+      j0pP9MiJeHzwegJApGlVhmc5saFAc4Q6hhz51HdiwRsJijQl/WtTAgMBAAGjQjBA
+      MA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBRM//M7
+      CjOGCX2WZyrsrX7IeNbUkzANBgkqhkiG9w0BAQsFAAOCAQEArXrPRPWmgJSp1WO4
+      KRZhUVUqT1mq/MHqk8k/jrQosJmM4LIzzrVnrTsXphz/uyCGy/dKzycUb0KgpIlD
+      zeb59DH1PD5r2U9tXREp2cNxtCa0utIn1NZZbrYfCHr/7tIDRS5FEXKkUv5W43FM
+      Fr+lAi1/hyCX9FXGWjgIq6m7mIx7aGZLVGohFg8p0RiNa67+0qc+ZuM4ROE5lpHP
+      nu7CvjmBqm1vI/VO7D6E7fZNPZeX+vBYL9rgKa9HmFJS2jYJiwIwSnhXyFViLcYm
+      kYepbyzjdnoWsYMYB+UZcRNQsgzLX9QdLCzZwepoEqWuI8VWlItTuJWuwkZzmvjl
+      LZMuFg==                                                        
+      -----END CERTIFICATE-----
+    loggregator.tls.doppler.cert: |
+      -----BEGIN CERTIFICATE-----
+      MIIDPTCCAiWgAwIBAgIUUlBTaXPPHSyHU9sRXIovONsrAKQwDQYJKoZIhvcNAQEL
+      BQAwGDEWMBQGA1UEAxMNbG9nZ3JlZ2F0b3JDQTAeFw0yMDA1MjExMDA1MDBaFw0y
+      MTA1MjExMDA1MDBaMBIxEDAOBgNVBAMTB2RvcHBsZXIwggEiMA0GCSqGSIb3DQEB
+      AQUAA4IBDwAwggEKAoIBAQDPL0L6aj+KJm5VXrBEKMcTYt7Brn0eKTvQRGgof8F7
+      a6FMhr4IgxMHRuEiZPzZYakouqNQgcHZBFEy3mmC0Yi+g5rO07OhAd3d8Sd7HQCe
+      k5pnY+5Vqab8mwqQFRkRk4OJl7GQpWg5sp8tQiYKeBjVHySCIa0UQHysm0z6YgP1
+      OgtyBhnIAOQY0u/N40q86popRGHYCtcbNRVb8NnNsVvybPlkE+WTB6ywXnBj1rAQ
+      ah5sz7wWZC8Mf5bpsUdEcnH1zPOkYw1lXn2bhTVAqtwkYkX0DxuNgzXhVRf+nAu5
+      IQfH+MPYq09lBK/7MZOHne6wArNOwKtps9OrGzAbEE/TAgMBAAGjgYQwgYEwHQYD
+      VR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMAwGA1UdEwEB/wQCMAAwHQYDVR0O
+      BBYEFDAOyMO5hLnVdJok+xbRBukO4lIWMB8GA1UdIwQYMBaAFEz/8zsKM4YJfZZn
+      Kuytfsh41tSTMBIGA1UdEQQLMAmCB2RvcHBsZXIwDQYJKoZIhvcNAQELBQADggEB
+      AK1nu0/P74ceRs1dW41oguFEIXW5QZXNaG5ld0cLWQaTHT0nR6DFbHarPwWl2XG5
+      hz21fFIJRMEXHdpU1BfcF9WkwL9/PaNVyRV9WjTidsnJzPC78s1/gX+TCb0XuRT6
+      2yPtO58ZjubABuTD3DwNan0Ndl81Fq0LxLEOjKV9o0kmuurs4WwHwdCHTHEzKdu9
+      FuaALzuyC5Ffg9TrsZTI3aJNT6IYn+dnOJj3A3WCP/+ELUNRts7MBdTqW5VPWyqY
+      7tuX10OZ2Dz9YpNri38N7J0NnjqsG4Q7GhOOkLLn5MSLnXJgdhu7ec4LfpgipQrh
+      jamcfPkE75CUDGJpNokmXtY=                                        
+      -----END CERTIFICATE-----
+    loggregator.tls.doppler.key: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEowIBAAKCAQEAzy9C+mo/iiZuVV6wRCjHE2Lewa59Hik70ERoKH/Be2uhTIa+
+      CIMTB0bhImT82WGpKLqjUIHB2QRRMt5pgtGIvoOaztOzoQHd3fEnex0AnpOaZ2Pu
+      Vamm/JsKkBUZEZODiZexkKVoObKfLUImCngY1R8kgiGtFEB8rJtM+mID9ToLcgYZ
+      yADkGNLvzeNKvOqaKURh2ArXGzUVW/DZzbFb8mz5ZBPlkwessF5wY9awEGoebM+8
+      FmQvDH+W6bFHRHJx9czzpGMNZV59m4U1QKrcJGJF9A8bjYM14VUX/pwLuSEHx/jD
+      2KtPZQSv+zGTh53usAKzTsCrabPTqxswGxBP0wIDAQABAoIBADXGPIomXYuL4gNC
+      almmg9UiSlLW6R6U8TNjLe2lCyDvlJP6PQSUkLHI0dJNh9scH/20Q4M3yop7NmAP
+      ni8YF3frTJj2FZ9qjp12ZBruMiT2hpLjOw7805yo2RsAftszAGcL+khixiSDmhDz
+      JFB/T2KxjJZCC1xASJu8S0SJgCF7ka7fjKPTsTDqDKc8TDKnqWMvg0xK/D+AL2xa
+      j1cvmY7T3goo9f8/r8LC+HlQLsOCboqoczvqYIT/MLmwS2EdOADl6BLEKMuJbG/O
+      ztVzK9Rk2rMH+Q5TWLc1cw24cnsE+bY0RzIoVklT2AQkImz8h9Hch1uuDweB0BBU
+      dpCLKdECgYEA3e1YmiICUWnKMXDn5s0Hz4Z+P4Fhr4d/VUoaDD+hRl5ay+6hznm7
+      5znlFVUznheQ2BAhQpXN5dwtBHJblDwJmzp+cyo/wPESwX9zv1pv1hkzC1n8sZ6j
+      0hL7E7DPagShGNc3WNmFA0HEuNOn4cmRTJrextQ1NKx2Smjt7M3eID8CgYEA7v55
+      QKDnDLMjoR3ohrffPTar6OknJRJGEMokKhYClpxET58t4aNegicPNGeSi08/Zzb7
+      Qt2KoXOCjj0qlIU5mFziba9CwnsQpiXzzW0UBmGfCKM+Bv13DDyqWX/NiBkaGCEo
+      CaWb+0OirEvOV/9hxhOCerpV2FwgEyTpZ3duK20CgYEAtr2zALBSclGHQfDztBRO
+      gy7/FDHoi04qpsNu8XkPxs75OwXTzR5mgL8miMtwxpQnHBMkIB0Uv1ru4sN773ME
+      ggLHjvNSLgEUbasSV5YTkxuK8aT2tBeqU9h3UL59/JG1SawmEg6DPaxRXdRDYGPH
+      NmosWVLyQN5mRV1j1WOrracCgYALcm7WVJ6cchwbxHX1tergYLT9M+WnFef7N+Nh
+      jKpVEmkHM0WcUBnfvAUzal6Pg50y0WRZgIj6ULEJJQ7cDEGE9bX2sPVOoVxbyOeT
+      iEz0PUrDvCXladCA6oryPHfYs/MXAseLJr6A2214OS1J87Z4KUkPncss0MTMhfET
+      /pltRQKBgEOV13uIWT8uAaOennXFxF8mSopxlt64CrFpFuULQ6x3CqM+8AdVkzeS
+      stWjXLcItjw1OwgNabIf7b7y9vk942eFedfTrEGJZTzuHvzXLuh5tEDBq2DYSDjN
+      Py406+Kvl+QLkyKHx/G7LtOl6OX/0seCkK0JW1AUVHIrzoQ/9yj8            
+      -----END RSA PRIVATE KEY-----
+    metron_endpoint.grpc_port: 3459
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minion-link-cloud-controller
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"cloud_controller","type":"cloud_controller"}'
+stringData:
+  link: |
+    system_domain: "{{ .Values.system_domain }}"
+    app_domains: []
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: nats
+  name: minion-service-nats
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: nats-tls
+  name: minion-service-nats-tls
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: routing_api
+  name: minion-service-routing-api
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: doppler
+  name: minion-service-doppler
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: loggregator
+  name: minion-service-loggregator
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: cloud_controller
+  name: minion-service-cloud-controller
+spec:
+  clusterIP: None
+  type: ClusterIP
+
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: minion-service-nats
+subsets:
+- addresses:
+  - ip: 172.30.231.80
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: minion-service-nats-tls
+subsets:
+- addresses:
+  - ip: 172.30.231.80
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: minion-service-routing-api
+subsets:
+- addresses:
+  - ip: 172.30.50.89
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: minion-service-doppler
+subsets:
+- addresses:
+  - ip: 172.30.132.153
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: minion-service-loggregator
+subsets:
+- addresses:
+  - ip: 172.30.132.153
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: minion-service-cloud-controller
+subsets:
+- addresses:
+  - ip: 172.30.50.88
