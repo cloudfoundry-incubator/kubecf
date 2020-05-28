@@ -770,7 +770,6 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: cats-internetless
       run:
         path: "/bin/bash"
