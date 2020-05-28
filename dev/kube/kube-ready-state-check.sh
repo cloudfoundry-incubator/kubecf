@@ -149,8 +149,9 @@ if having_category kube ; then
 fi
 
 # privileged pods are enabled in K8s
-if having_category api ; then	
-    pgrep -ax 'hyperkube|(kube-)?apiserver' | grep apiserver | grep --silent -- --allow-privileged	
+if having_category api ; then
+    # checks for `--allow-privileged` negating cases like `--allow-priviledged=false` or `--allow-priviledged false`
+    pgrep -ax 'hyperkube|(kube-)?apiserver' | grep --silent -vE -- "--allow-privileged((=| +)false)"
     status "Privileged must be enabled in 'kube-apiserver'"	
 fi
 
