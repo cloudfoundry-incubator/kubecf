@@ -167,6 +167,7 @@ deploy_args: &deploy_args
 
   gcloud --quiet beta container \
     --project "${GKE_PROJECT}" clusters create "${GKE_CLUSTER_NAME}" \
+    --enable-network-policy \
     --zone "${GKE_CLUSTER_ZONE}" \
     --no-enable-basic-auth \
     --machine-type "n1-highcpu-16" \
