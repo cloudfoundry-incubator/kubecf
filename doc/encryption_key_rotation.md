@@ -35,9 +35,8 @@ ccdb:
 Then, update the kubecf Helm installation. After Helm finishes its updates, trigger the
 `rotate-cc-database-key` errand:
 
-**Note** - the following command assumes the Helm installation is named `kubecf` and it was
-installed to the `kubecf` namespace. These values may be different depending on how kubecf was
-installed.
+**Note** - the following command assumes the Helm installation was installed to the `kubecf`
+namespace. These values may be different depending on how kubecf was installed.
 
 ```sh
 kubectl patch qjob rotate-cc-database-key \
@@ -74,7 +73,7 @@ credentials:
   ccdb_key_label_new_key: "new-encryption-key"
 ```
 
-The `key_labels` must be defined **exactly** as they were set in the exporting installation.
+The imported `key_labels` must be defined **exactly** as they were set in the exporting installation.
 As long as the actual key rotation has been performed after the last change to the
 `current_key_label`, only the current key label and value need to be configured.
 

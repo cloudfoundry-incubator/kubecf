@@ -79,7 +79,7 @@ To rotate this secret:
 
          kubectl apply --namespace kubecf -f /path/to/your/yaml/file
 
-  3. The cf-operator will process this ConfigMap due the label
+  3. The cf-operator will process this ConfigMap due to the label
 
          quarks.cloudfoundry.org/secret-rotation: "true"
 
