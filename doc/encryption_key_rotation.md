@@ -78,7 +78,8 @@ As long as the actual key rotation has been performed after the last change to t
 `current_key_label`, only the current key label and value need to be configured.
 
 Their values are stored under credential keys that are made from the lowercase version of
-their key names, prefixed with `ccdb_key_label_`.
+their key names, prefixed with `ccdb_key_label_`.  In the example above, the key
+label `NEW_KEY` has the encryption key in the credential `ccdb_key_label_new_key`.
 
 All key names must conform to this regexp: `"^[a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9]+$"`.
 If it doesn't, then the CCDB must be rotated to a conforming key name **before** the
