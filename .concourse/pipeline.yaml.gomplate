@@ -114,7 +114,7 @@ resources:
   source:
     uri: https://github.com/SUSE/catapult
   version:
-    ref: cats_internetless
+    ref: 4a7bb86879bd36cbd3d6af5708961ef3bd73565c
 
 - name: s3.kubecf-ci
   type: s3
