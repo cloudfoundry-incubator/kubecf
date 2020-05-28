@@ -11,6 +11,10 @@
     buildpack/sle15: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
     buildpack/cflinuxfs3: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
     docker: docker_app_lifecycle/docker_app_lifecycle.tgz
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_stack?
+  value: "sle15"
 {{- end }}
 
 {{- if .Values.testing.brain_tests.enabled}}
