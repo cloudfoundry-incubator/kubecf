@@ -1,3 +1,18 @@
+{{- if .Values.features.suse_default_stack.enabled }}
+{{- if not .Values.features.suse_buildpacks.enabled }}
+{{- fail "feature.suse_buildpacks.enabled must be true when features.suse_default_stack.enabled is true" }}
+{{- end }}
+{{- $cc_jobs := list "cloud_controller_ng" }}
+{{- $cc_jobs = append $cc_jobs "cloud_controller_worker" }}
+{{- $cc_jobs = append $cc_jobs "cloud_controller_clock" }}
+{{- $cc_jobs = append $cc_jobs "cc_deployment_updater" }}
+{{- range $job := $cc_jobs }}
+- type: replace
+   path: /instance_groups/name=api/jobs/name={{ $job }}/properties/cc/default_stack?
+   value: sle15
+{{- end }}
+{{- end }}
+
 {{- if .Values.features.suse_buildpacks.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/stacks/-
