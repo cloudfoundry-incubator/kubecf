@@ -29,7 +29,12 @@
   path: /instance_groups/name=nfs-broker-push/jobs/name=nfsbrokerpush/properties/nfsbrokerpush/db/host
   value: {{ printf "database.%s" .Release.Namespace }}
 
-# Disable the logs container for the errand
+# Make it an auto-errand
+- type: replace
+  path: /instance_groups/name=nfs-broker-push/lifecycle?
+  value: auto-errand
+
+  # Disable the logs container for the errand
 - type: replace
   path: /instance_groups/name=nfs-broker-push/env?/bosh/agent/settings/disable_log_sidecar
   value: true
