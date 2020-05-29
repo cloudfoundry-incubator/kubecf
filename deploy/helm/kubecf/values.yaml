@@ -237,6 +237,7 @@ settings:
 
 features:
   eirini:
+    # When eirini is enabled, both suse_default_stack and suse_buildpacks must be enabled as well.
     enabled: false
     registry:
       service:
@@ -249,6 +250,8 @@ features:
       key: ~
     annotations: {}
     labels: {}
+  suse_default_stack:
+    enabled: false
   suse_buildpacks:
     enabled: true
   autoscaler:
