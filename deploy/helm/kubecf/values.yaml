@@ -35,7 +35,7 @@ releases:
       os: SLE_15_SP1
       version: 23.21-7.0.0_374.gb8e8e6af
   app-autoscaler:
-    version: 3.0.0
+    version: 3.0.1
   bits-service:
     version: 2.28.0
   brain-tests:
@@ -253,6 +253,8 @@ features:
     enabled: true
   autoscaler:
     enabled: false
+    mysql:
+      enabled: false
   credhub:
     enabled: true
   # Disabling routing_api will also disable the tcp_router instance_group
