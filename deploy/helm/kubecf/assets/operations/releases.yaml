@@ -12,9 +12,6 @@
 {{- $releases = append $releases "cf-smoke-tests" }}
 {{- $releases = append $releases "cf-syslog-drain" }}
 {{- $releases = append $releases "cflinuxfs3" }}
-{{- if .Values.features.credhub.enabled }}
-  {{- $releases = append $releases "credhub" }}
-{{- end }}
 {{- $releases = append $releases "diego" }}
 {{- $releases = append $releases "dotnet-core-buildpack" }}
 {{- $releases = append $releases "garden-runc" }}
@@ -44,6 +41,10 @@
   path: /releases/-
   value:
     name: cf-acceptance-tests
+{{- end }}
+
+{{- if .Values.features.credhub.enabled }}
+  {{- $releases = append $releases "credhub" }}
 {{- end }}
 
 {{- if .Values.testing.brain_tests.enabled }}
