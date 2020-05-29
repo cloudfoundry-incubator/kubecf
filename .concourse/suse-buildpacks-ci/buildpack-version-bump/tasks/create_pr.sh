@@ -33,8 +33,17 @@ def represent_none(self, data):
 
 # Replaces the filename at the end of the original 'file'.
 def get_new_filename():
+    # we cant rely on java buildpack package for retrieving filename since its packaging is different.
+    # this bit will take care of inserting sle15 in file name.
+    # see: https://github.com/SUSE/cf-java-buildpack-release/blob/master/packages/java-buildpack-sle15/packaging
+    if "${BUILDPACK_NAME}" == "suse-java-buildpack":
+        new_file_name = "${NEW_FILE_NAME}".split("-")
+        new_file_name.insert(2,"sle15")
+        new_file_name = "-".join(new_file_name)
+    else:
+        new_file_name = "${NEW_FILE_NAME}"
     new_file = values['releases']["${BUILDPACK_NAME}"]['file'].split("/")[:3]
-    new_file.append("${NEW_FILE_NAME}")
+    new_file.append(new_file_name)
     return "/".join(new_file)
 
 def get_semver(s):
