@@ -1,0 +1,57 @@
+{{- if index .Values.features "persi-nfs" "enabled" }}
+# Ops file to enable persi-nfs, most notably the "nfs-broker-push" errand
+
+{{- if index .Values.features "eirini" "enabled "}}
+{{- fail "persi-nfs is not supported with eirini enabled." }}
+{{- end }}
+
+# Need to add the database role back in to get patched
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: database
+    jobs:
+    - name: pxc-mysql
+      properties:
+        seeded_databases: []
+
+{{ .Files.Get "assets/enable-nfs-volume-service.yml" }}
+
+# Remove the database instance group we added
+- type: remove
+  path: /instance_groups/name=database
+
+# Fix database access to use external PXC
+- type: replace
+  path: /instance_groups/name=nfs-broker-push/jobs/name=nfsbrokerpush/properties/nfsbrokerpush/db/ca_cert
+  value: ((pxc_tls.ca))
+- type: replace
+  path: /instance_groups/name=nfs-broker-push/jobs/name=nfsbrokerpush/properties/nfsbrokerpush/db/host
+  value: {{ printf "database.%s" .Release.Namespace }}
+
+# Disable the logs container for the errand
+- type: replace
+  path: /instance_groups/name=nfs-broker-push/env?/bosh/agent/settings/disable_log_sidecar
+  value: true
+
+# Disable most of mapfs installation
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=mapfs/properties?/disable
+  value: true
+# Put mapfs in the correct place
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=mapfs/properties?/path
+  value: /var/vcap/jobs/mapfs/bin/mapfs
+
+# Apply mapfs pre-render script
+{{- range .Files.Glob "assets/operations/pre_render_scripts/diego-cell_mapfs_*" }}
+{{ . | toString }}
+{{- end }}
+
+# Using co-located jobs doesn't really help us (as we don't share the packages
+# directory); remove the co-located cf-cli-6-linux job, and add the package into
+# the nfs-broker-push job instead.
+- type: remove
+  path: /instance_groups/name=nfs-broker-push/jobs/name=cf-cli-6-linux
+
+{{- end }}

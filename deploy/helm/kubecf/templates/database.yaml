@@ -343,6 +343,10 @@ spec:
 {{- $databases = append $databases (dict "name" "credhub" "path" "credhub" "secretName" "credhub") }}
 {{- end }}
 
+{{- if index .Values.features "persi-nfs" "enabled" }}
+{{- $databases = append $databases (dict "name" "nfs-broker" "path" "nfs-broker" "secretName" "nfs-broker") }}
+{{- end }}
+
 {{- if .Values.features.routing_api.enabled }}
 {{- $databases = append $databases (dict "name" "routing-api" "path" "routing-api" "secretName" "routing-api") }}
 {{- end }}

@@ -79,6 +79,11 @@
     name: postgres
 {{- end }}
 
+{{- if index .Values.features "persi-nfs" "enabled" }}
+  {{- $releases = append $releases "nfs-volume" }}
+  {{- $releases = append $releases "mapfs" }}
+{{- end }}
+
 # Loop over the releases, replacing the url and stemcell, and the version when appropriate.
 {{- range $release := $releases }}
 - type: replace

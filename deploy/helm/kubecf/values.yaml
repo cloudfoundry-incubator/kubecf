@@ -316,6 +316,12 @@ features:
         name: credhub
         password: ~
         username: ~
+  persi-nfs:
+    # If enabled, we will be able to mount existing NFS volumes into diego-based
+    # containers as an extra volume.  Requires manually triggering the nfs
+    # broker push quarks job after deployment.  Not compatible with eirini-based
+    # deployments.
+    enabled: false
 
 # Enable or disable instance groups for the different test suites.
 # Only smoke tests should be run in production environments.

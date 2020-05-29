@@ -230,6 +230,10 @@
     {{- if $.Values.features.suse_buildpacks.enabled }}
       {{- "\n" }}{{ $bytes | toString }}
     {{- end }}
+  {{- else if contains "/diego-cell_mapfs" $path }}
+    # mapfs is only used when persi-nfs is enabled; however, this will be
+    # clobbered in `nfs-broker-push.yaml` where we apply
+    # "assets/enable-nfs-volume-service.yml", so skip it for now.
   {{- else }}
     {{- "\n" }}{{ $bytes | toString }}
   {{- end }}
