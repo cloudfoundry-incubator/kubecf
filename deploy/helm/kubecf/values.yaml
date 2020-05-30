@@ -82,7 +82,7 @@ releases:
     stemcell:
       os: SLE_15_SP1
       version: 25.1-7.0.0_374.gb8e8e6af
-    file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-v4.30.0.1-3f9ee273.zip
+    file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.30.0.1-3f9ee273.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.8.15.1"
