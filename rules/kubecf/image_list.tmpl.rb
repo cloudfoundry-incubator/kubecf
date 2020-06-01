@@ -256,7 +256,7 @@ end
 # So far running with features either all enabled or all disabled generates
 # the complete set of used images and is nearly instantaneous.
 features = values['features'].keys
-permutations = [ features.to_h{ |x| [x, false] }, features.to_h{ |x| [x, true] } ]
+permutations = [ features.map{ |x| [x, false] }.to_h, features.map{ |x| [x, true] }.to_h ]
 
 # Iterate over all permutations, rendering the chart to obtain all possible
 # images.
