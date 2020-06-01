@@ -1092,6 +1092,10 @@ jobs:
     - {{ $previousTest | quote }}
     trigger: true
     version: "every"
+  - get: semver.gke-cluster
+    passed:
+    - {{ $previousTest | quote }}
+    trigger: true
   ensure:
    do:
    - task: cleanup-cluster
