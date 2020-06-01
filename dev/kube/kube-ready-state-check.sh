@@ -99,13 +99,13 @@ if having_category node; then
     fi
 fi
 
-# max_user_namespaces must be >= 10000, see https://github.com/cloudfoundry-incubator/kubecf/issues/484
+# max_user_namespaces must be >= 0, see https://github.com/cloudfoundry-incubator/kubecf/issues/484
 if having_category node ; then
     ns=$(cat /proc/sys/user/max_user_namespaces)
-    if [ $((ns)) -ge 10000 ] ; then
-        status "user_max_namespaces set to greater than 10000"
+    if [ $((ns)) -ge 0 ] ; then
+        status "user_max_namespaces set to greater than 0"
     else 
-        trouble "user_max_namespaces should be set to more than 10000"
+        trouble "user_max_namespaces should be set to more than 0"
     fi
 fi
 
