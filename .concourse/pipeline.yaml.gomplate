@@ -50,23 +50,39 @@ resource_types:
     tag: release
 
 resources:
-- name: semver.gke-cluster
-  type: semver
-  source:
-    driver: s3
-    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
-    key: gke-cluster
-    initial_version: 0.0.1
-    access_key_id: ((aws-access-key))
-    secret_access_key: ((aws-secret-key))
-    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
-
 - name: kubecf-github-release
   type: github-release
   source:
     owner: cloudfoundry-incubator
     repository: kubecf
     access_token: ((github-access-token))
+
+{{ range $_, $branch := (flatten (slice $branches $pr_resources) | uniq) }}
+{{- range $_, $cfScheduler := $availableCfSchedulers }}
+- name: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+  type: semver
+  source:
+    driver: s3
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
+    key: gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    initial_version: 0.0.1
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
+{{ end }} # availableCfSchedulers
+
+- name: semver.gke-cluster-{{ $branch }}-upgrade
+  type: semver
+  source:
+    driver: s3
+    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
+    key: gke-cluster-{{ $branch }}-upgrade
+    initial_version: 0.0.1
+    access_key_id: ((aws-access-key))
+    secret_access_key: ((aws-secret-key))
+    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
+{{ end }} # prs and branches (flattened)
+
 
 {{- range $_, $branch := $branches }}
 - name: kubecf-{{ $branch }}
@@ -163,7 +179,7 @@ deploy_args: &deploy_args
 
   export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
   export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
-  export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+  export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   gcloud --quiet beta container \
     --project "${GKE_PROJECT}" clusters create "${GKE_CLUSTER_NAME}" \
@@ -228,7 +244,7 @@ test_args: &test_args
 
   export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
   export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
-  export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+  export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   # Get a kubeconfig
   gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
@@ -255,7 +271,7 @@ rotate_args: &rotate_args
   export GKE_CRED_JSON=$PWD/gke-key.json
   export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
   export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
-  export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+  export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   gcloud auth activate-service-account --key-file $PWD/gke-key.json
   # Get a kubeconfig
@@ -429,12 +445,13 @@ jobs:
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
 {{- end }}
-  - put: semver.gke-cluster
+  - put: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     params: {bump: patch}
   - task: deploy
     timeout: 3h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
+      semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     config:
       platform: linux
       image_resource:
@@ -452,6 +469,8 @@ jobs:
         DEFAULT_STACK: cflinuxfs3
         CATS_NODES: 5
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
+        BRANCH: {{ $branch }}
+        CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *deploy_args
@@ -474,6 +493,8 @@ jobs:
 {{- end }}
     - try:
         task: cleanup-cluster
+        input_mapping:
+          semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
         config: &cleanup-cluster
           platform: linux
           image_resource:
@@ -493,7 +514,7 @@ jobs:
               gcloud auth activate-service-account --key-file $PWD/gke-key.json
               export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
               export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
-              export GKE_CLUSTER_NAME="kubecf-ci-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+              export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
               # Obtain pvc disks associated to the cluster
               IDS=$(gcloud compute disks list \
                     --filter="zone~${GKE_CLUSTER_ZONE}" \
@@ -551,7 +572,7 @@ jobs:
   - get: s3.kubecf-ci-bundle
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
-  - get: semver.gke-cluster
+  - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
     trigger: true
@@ -567,6 +588,7 @@ jobs:
   - task: test-{{ $cfScheduler }}
     input_mapping:
       kubecf: kubecf-{{ $branch }}
+      semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     timeout: 1h30m
     config:
       platform: linux
@@ -581,6 +603,8 @@ jobs:
       params:
         DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: smokes
+        BRANCH: {{ $branch }}
+        CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *test_args
@@ -646,7 +670,7 @@ jobs:
   - get: s3.kubecf-ci-bundle
     passed:
     - {{ $previousTest | quote }}
-  - get: semver.gke-cluster
+  - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -663,6 +687,7 @@ jobs:
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
+      semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     config:
       platform: linux
       image_resource:
@@ -676,6 +701,8 @@ jobs:
       params:
         DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: cats
+        BRANCH: {{ $branch }}
+        CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *test_args
@@ -746,7 +773,7 @@ jobs:
   - get: s3.kubecf-ci-bundle
     passed:
     - {{ $previousTest | quote }}
-  - get: semver.gke-cluster
+  - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -763,6 +790,7 @@ jobs:
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
+      semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     config:
       platform: linux
       image_resource:
@@ -776,6 +804,8 @@ jobs:
       params:
         DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: sits
+        BRANCH: {{ $branch }}
+        CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *test_args
@@ -843,7 +873,7 @@ jobs:
   - get: s3.kubecf-ci-bundle
     passed:
     - {{ $previousTest | quote }}
-  - get: semver.gke-cluster
+  - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -860,6 +890,7 @@ jobs:
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
+      semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     config:
       platform: linux
       image_resource:
@@ -869,8 +900,11 @@ jobs:
       inputs:
       - name: catapult
       - name: kubecf
+      - name: semver.gke-cluster
       params:
         DEFAULT_STACK: cflinuxfs3
+        BRANCH: {{ $branch }}
+        CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *rotate_args
@@ -938,7 +972,7 @@ jobs:
   - get: s3.kubecf-ci-bundle
     passed:
     - {{ $previousTest | quote }}
-  - get: semver.gke-cluster
+  - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -954,6 +988,7 @@ jobs:
   - task: test-{{ $cfScheduler }}
     input_mapping:
       kubecf: kubecf-{{ $branch }}
+      semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     timeout: 1h30m
     config:
       platform: linux
@@ -964,9 +999,12 @@ jobs:
       inputs:
       - name: catapult
       - name: kubecf
+      - name: semver.gke-cluster
       params:
         DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: smokes
+        BRANCH: {{ $branch }}
+        CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *test_args
@@ -1094,7 +1132,7 @@ jobs:
     - {{ $previousTest | quote }}
     trigger: true
     version: "every"
-  - get: semver.gke-cluster
+  - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -1104,7 +1142,7 @@ jobs:
      config:
        <<: *cleanup-cluster
 
-{{ end }} # of range cfscheduler
+{{ end }} # of range cfScheduler
 
 - name: upgrade-test-{{ $branch }}
   plan:
@@ -1122,11 +1160,14 @@ jobs:
       passed:
       - build-{{ $branch }}
     - get: catapult
-    - put: semver.gke-cluster
+    - put: semver.gke-cluster-{{ $branch }}-upgrade
       params: {bump: patch}
   - task: upgrade
+    params:
+      BRANCH: {{ $branch }}
     input_mapping:
       kubecf: kubecf-{{ $branch }}
+      semver.gke-cluster: semver.gke-cluster-{{ $branch }}-upgrade
     timeout: 4h
     file: kubecf-{{ $branch }}/.concourse/tasks/upgrade.yaml
   ensure:
