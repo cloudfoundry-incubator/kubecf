@@ -491,11 +491,11 @@ jobs:
           << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
-    - try:
+    - try: &cleanup-cluster
         task: cleanup-cluster
         input_mapping:
           semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
-        config: &cleanup-cluster
+        config:
           platform: linux
           image_resource:
             type: registry-image
@@ -531,10 +531,7 @@ jobs:
               done
   on_abort:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "deploy-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -544,10 +541,7 @@ jobs:
 {{- end }}
   on_error:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "deploy-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -624,16 +618,10 @@ jobs:
           << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
   on_abort:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -643,10 +631,7 @@ jobs:
 {{- end }}
   on_error:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -717,10 +702,7 @@ jobs:
 
   on_failure:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -730,10 +712,7 @@ jobs:
 {{- end }}
   on_abort:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -743,10 +722,7 @@ jobs:
 {{- end }}
   on_error:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -825,16 +801,10 @@ jobs:
           << : *sits_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
   on_abort:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable "sync-integration-tests" }}
     - try:
         put: status-{{ $branch }}.src
@@ -845,10 +815,7 @@ jobs:
 
   on_error:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable "sync-integration-tests" }}
     - try:
         put: status-{{ $branch }}.src
@@ -926,16 +893,10 @@ jobs:
           << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
   on_abort:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "rotate-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -945,10 +906,7 @@ jobs:
 {{- end }}
   on_error:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "rotate-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -1026,16 +984,10 @@ jobs:
           << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
   on_abort:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -1045,10 +997,7 @@ jobs:
 {{- end }}
   on_error:
     in_parallel:
-    - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+    - try: *cleanup-cluster
 {{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -1138,9 +1087,7 @@ jobs:
     trigger: true
   ensure:
    do:
-   - task: cleanup-cluster
-     config:
-       <<: *cleanup-cluster
+    - *cleanup-cluster
 
 {{ end }} # of range cfScheduler
 
@@ -1172,9 +1119,7 @@ jobs:
     file: kubecf-{{ $branch }}/.concourse/tasks/upgrade.yaml
   ensure:
     do:
-    - task: cleanup-cluster
-      config:
-        <<: *cleanup-cluster
+      - *cleanup-cluster
 
 {{ if not ($branch | regexp.Match "^pr|fork-pr") }}
 - name: publish-{{ $branch }}
