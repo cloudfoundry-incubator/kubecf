@@ -27,6 +27,9 @@ gcloud auth activate-service-account --key-file "${PWD}/gke-key.json"
 export GKE_PROJECT='{{ .gke_project | default "suse-225215" }}'
 export GKE_ZONE='{{ .gke_zone | default "europe-west3-c"}}'
 
+# TODO: lint?
+export DOMAIN="${GKE_CLUSTER_NAME}.kubecf.ci"
+
 gcloud --quiet beta container \
   --project "${GKE_PROJECT}" clusters create "${GKE_CLUSTER_NAME}" \
   --zone "${GKE_ZONE}" \
@@ -66,6 +69,13 @@ pushd catapult
 # Bring up a k8s cluster and builds+deploy kubecf
 # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
 make kubeconfig kubecf
+
+gcloud beta dns --project=suse-225215 record-sets transaction start --zone=kubecf-ci
+gcloud beta dns --project=suse-225215 record-sets transaction remove \
+  --name=\*.${DOMAIN}. --ttl=300 --type=A --zone=kubecf-ci $public_router_ip
+gcloud beta dns --project=suse-225215 record-sets transaction remove \
+  --name=tcp.${DOMAIN}. --ttl=300 --type=A --zone=kubecf-ci $tcp_router_ip
+gcloud beta dns --project=suse-225215 record-sets transaction execute --zone=kubecf-ci
 
 # Now upgrade to whatever chart we built for commit-to-test
 # The chart should be in s3.kubecf-ci directory
