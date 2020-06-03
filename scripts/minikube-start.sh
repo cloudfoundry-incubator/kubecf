@@ -3,7 +3,7 @@ source scripts/include/setup.sh
 
 require_tools minikube
 
-: "${K8S_VERSION:=1.15.6}"
+: "${K8S_VERSION:=1.17.5}"
 : "${VM_CPUS:=4}"
 : "${VM_MEMORY:=16384}"
 : "${VM_DISK_SIZE:=120g}"

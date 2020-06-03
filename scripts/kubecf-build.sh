@@ -13,22 +13,34 @@ HELM_DIR="${TEMP_DIR}/helm"
 mkdir "${HELM_DIR}"
 
 cp -a deploy/helm/kubecf/{Chart,values}.yaml "${HELM_DIR}"
+cp -a deploy/helm/kubecf/*.md "${HELM_DIR}"
+cp -a deploy/helm/kubecf/requirements.* "${HELM_DIR}"
 cp -a deploy/helm/kubecf/assets "${HELM_DIR}/assets"
 cp -a deploy/helm/kubecf/templates "${HELM_DIR}/templates"
 
 cp src/cf-deployment/cf-deployment.yml "${HELM_DIR}/assets"
+cp src/cf-deployment/operations/use-external-blobstore.yml "${HELM_DIR}/assets"
+cp src/cf-deployment/operations/use-s3-blobstore.yml "${HELM_DIR}/assets"
 cp src/cf-deployment/operations/bits-service/use-bits-service.yml "${HELM_DIR}/assets"
+cp src/cf-deployment/operations/bits-service/configure-bits-service-s3.yml "${HELM_DIR}/assets"
 
 mkdir -p "${HELM_DIR}/assets/jobs"
 
 function extract_job {
+    local output=$2
+    if [ "$1" = "doppler" ]; then
+        output="log-cache-${output}"
+    fi
     y2j < src/cf-deployment/cf-deployment.yml |
         jq ".instance_groups[] | select(.name == \"$1\") | .jobs[] | select(.name == \"$2\")" |
-        j2y > "${HELM_DIR}/assets/jobs/${2/-/_}_job.yaml"
+        j2y > "${HELM_DIR}/assets/jobs/${output//-/_}_job.yaml"
 }
 
 extract_job scheduler auctioneer
 extract_job api routing-api
+for LOG_CACHE_JOB in log-cache log-cache-gateway log-cache-nozzle log-cache-cf-auth-proxy route_registrar; do
+    extract_job doppler "${LOG_CACHE_JOB}"
+done
 
 mkdir -p "${HELM_DIR}/assets/operations/pre_render_scripts"
 
@@ -52,6 +64,7 @@ done
 echo "operatorChartUrl: \"${CF_OPERATOR_URL}\"" > "${HELM_DIR}/Metadata.yaml"
 
 VERSION="v0.0.0-$(git rev-parse --short HEAD)"
+helm dep up "${HELM_DIR}"
 helm package "${HELM_DIR}" --version "${VERSION}" --app-version "${VERSION}" --destination output/
 
 rm -rf "${HELM_DIR}"
