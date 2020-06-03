@@ -28,3 +28,6 @@ tools-install:
 
 tools-versions:
 	@./scripts/tools-versions.sh
+
+shellcheck:
+	@./scripts/shellcheck.sh
