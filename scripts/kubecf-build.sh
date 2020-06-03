@@ -12,11 +12,8 @@ HELM_DIR="${TEMP_DIR}/helm"
 [ -d "${HELM_DIR}" ] && rm -rf "${HELM_DIR}"
 mkdir "${HELM_DIR}"
 
-cp -a deploy/helm/kubecf/{Chart,values}.yaml "${HELM_DIR}"
-cp -a deploy/helm/kubecf/*.md "${HELM_DIR}"
-cp -a deploy/helm/kubecf/requirements.* "${HELM_DIR}"
-cp -a deploy/helm/kubecf/assets "${HELM_DIR}/assets"
-cp -a deploy/helm/kubecf/templates "${HELM_DIR}/templates"
+cp -a deploy/helm/kubecf/ "${HELM_DIR}"
+find "${HELM_DIR}" \( -name *.bazel -o -name *.bzl \) -delete
 
 cp src/cf-deployment/cf-deployment.yml "${HELM_DIR}/assets"
 cp src/cf-deployment/operations/use-external-blobstore.yml "${HELM_DIR}/assets"
