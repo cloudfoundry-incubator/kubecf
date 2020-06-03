@@ -15,7 +15,7 @@ export FORCE_DELETE=true
 export HELM_VERSION="v3.1.1"
 export BACKEND=imported
 export QUIET_OUTPUT=true
-GKE_CLUSTER_NAME="kubecf-ci-$(sed 'y/./-/' "semver.gke-cluster/version")"
+GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-upgrade-$(sed 'y/./-/' "semver.gke-cluster/version")"
 export GKE_CLUSTER_NAME
 KUBECFG="$(readlink --canonicalize ~/.kube/config)"
 export KUBECFG
