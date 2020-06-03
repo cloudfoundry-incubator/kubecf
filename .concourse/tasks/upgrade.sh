@@ -65,6 +65,7 @@ EOF
 export CONFIG_OVERRIDE
 
 pushd catapult
+export CLUSTER_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 # Bring up a k8s cluster and builds+deploy kubecf
 # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
 make kubeconfig kubecf
