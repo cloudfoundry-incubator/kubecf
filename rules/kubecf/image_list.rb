@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# This is a template script to be used by the 'image_list' Bazel rule.
-
 require 'json'
 require 'open3'
 require 'set'
@@ -27,14 +25,10 @@ def deep_populate_nil_values(hash)
   end
 end
 
-# Variable interpolation via Bazel template expansion.
-helm = '[[helm]]'
-bosh = '[[bosh]]'
-chart = '[[chart]]'
-output_path = '[[output_path]]'
+chart = ARGV.first
 
 # Inspect the chart to obtain the values YAML.
-values_cmd = "#{helm} inspect values #{chart}"
+values_cmd = "helm inspect values #{chart}"
 values = Open3.popen3(values_cmd) do |_, stdout, stderr, wait_thr|
   values = YAML.safe_load(stdout.read)
   raise stderr.read unless wait_thr.value.success?
@@ -80,8 +74,7 @@ end
 
 # HelmRenderer renders the helm chart
 class HelmRenderer
-  def initialize(helm:, chart:, values:)
-    @helm = helm
+  def initialize(chart:, values:)
     @chart = chart
     @values = values
     @documents = []
@@ -89,7 +82,7 @@ class HelmRenderer
     Tempfile.open(['values-', '.yaml']) do |values_file|
       values_file.write values.to_yaml
       values_file.close
-      template_cmd = "#{helm} template cf #{chart} --values #{values_file.path}"
+      template_cmd = "helm template cf #{chart} --values #{values_file.path}"
       Open3.popen3(template_cmd) do |_, stdout, stderr, wait_thr|
         YAML.load_stream(stdout) do |doc|
           next if doc.nil?
@@ -100,7 +93,7 @@ class HelmRenderer
       end
     end
   end
-  attr_reader :helm, :chart, :values, :documents
+  attr_reader :chart, :values, :documents
 
   # Find a resource from the documents
   def find(kind: nil, name: nil)
@@ -116,12 +109,11 @@ end
 
 # Generic base class
 class Resource
-  def initialize(bosh:, resources:, doc:)
-    @bosh = bosh
+  def initialize(resources:, doc:)
     @resources = resources
     @doc = doc
   end
-  attr_reader :bosh, :resources, :doc
+  attr_reader :resources, :doc
 
   # images used by this resource
   def images
@@ -170,7 +162,7 @@ class BOSHDeployment < Resource
         manifest_file.puts manifest.data.manifest
         manifest_file.close
         interpolate_cmd = <<~CMD
-          #{bosh} interpolate #{manifest_file.path} --ops-file #{ops_file.path}
+          bosh interpolate #{manifest_file.path} --ops-file #{ops_file.path}
         CMD
         env = { 'HOME' => Dir.pwd }
         Open3.popen3(env, interpolate_cmd) do |_, stdout, stderr, wait_thr|
@@ -269,7 +261,7 @@ permutations.each do |permutation|
   deep_populate_nil_values(values['features'])
 
   # Render the Helm chart.
-  docs = HelmRenderer.new(helm: helm, chart: chart, values: values)
+  docs = HelmRenderer.new(chart: chart, values: values)
   # Sanity check: we should have at least _one_ BDPL
   fail "Could not find BDPL" if docs.find(kind: :BOSHDeployment).nil?
 
@@ -278,7 +270,7 @@ permutations.each do |permutation|
     next unless Object.constants.include? doc.kind.to_sym
     clazz = Object.const_get(doc.kind)
     next unless clazz.ancestors.include? Resource
-    obj = clazz.new(bosh: bosh, resources: docs, doc: doc)
+    obj = clazz.new(resources: docs, doc: doc)
     output.keys.each do |key|
       output[key].merge obj.output[key]
     end
@@ -290,4 +282,4 @@ output.keys.each do |key|
   output[key] = output[key].to_a.sort if output[key].is_a?(Set)
 end
 
-File.write(output_path, output.to_json)
+puts output.to_json

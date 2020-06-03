@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source scripts/include/setup.sh
 
-require_tools jq j2y y2j helm
+require_tools bosh helm jq j2y ruby y2j
 
 if [[ ! "$(git submodule status -- src/cf-deployment)" =~ ^[[:space:]] ]]; then
     die "git submodule for cf-deployment is uninitialized or not up-to-date"
@@ -61,6 +61,7 @@ done
 echo "operatorChartUrl: \"${CF_OPERATOR_URL}\"" > "${HELM_DIR}/Metadata.yaml"
 
 ruby rules/kubecf/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
+ruby rules/kubecf/image_list.rb output/kubecf | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
 
 VERSION="v0.0.0-$(git rev-parse --short HEAD)"
 helm dep up "${HELM_DIR}"
