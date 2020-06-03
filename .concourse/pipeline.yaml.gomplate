@@ -531,7 +531,11 @@ jobs:
               done
   on_abort:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "deploy-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -541,7 +545,11 @@ jobs:
 {{- end }}
   on_error:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "deploy-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -618,10 +626,18 @@ jobs:
           << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
   on_abort:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -631,7 +647,11 @@ jobs:
 {{- end }}
   on_error:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -702,7 +722,11 @@ jobs:
 
   on_failure:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -712,7 +736,11 @@ jobs:
 {{- end }}
   on_abort:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -722,7 +750,11 @@ jobs:
 {{- end }}
   on_error:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -801,10 +833,18 @@ jobs:
           << : *sits_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
   on_abort:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable "sync-integration-tests" }}
     - try:
         put: status-{{ $branch }}.src
@@ -815,7 +855,11 @@ jobs:
 
   on_error:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable "sync-integration-tests" }}
     - try:
         put: status-{{ $branch }}.src
@@ -893,10 +937,18 @@ jobs:
           << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
   on_abort:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "rotate-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -906,7 +958,11 @@ jobs:
 {{- end }}
   on_error:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "rotate-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -984,10 +1040,18 @@ jobs:
           << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
   on_abort:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -997,7 +1061,11 @@ jobs:
 {{- end }}
   on_error:
     in_parallel:
-    - try: *cleanup-cluster
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -1087,7 +1155,10 @@ jobs:
     trigger: true
   ensure:
    do:
-    - *cleanup-cluster
+    - << : *cleanup-cluster
+      params:
+        BRANCH: {{ $branch }}
+        CFSCHEDULER: {{ $cfScheduler }}
 
 {{ end }} # of range cfScheduler
 
@@ -1119,7 +1190,10 @@ jobs:
     file: kubecf-{{ $branch }}/.concourse/tasks/upgrade.yaml
   ensure:
     do:
-      - *cleanup-cluster
+      - << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: upgrade
 
 {{ if not ($branch | regexp.Match "^pr|fork-pr") }}
 - name: publish-{{ $branch }}
