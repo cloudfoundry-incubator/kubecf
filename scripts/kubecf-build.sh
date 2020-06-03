@@ -13,7 +13,7 @@ HELM_DIR="${TEMP_DIR}/helm"
 mkdir "${HELM_DIR}"
 
 cp -a deploy/helm/kubecf/ "${HELM_DIR}"
-find "${HELM_DIR}" \( -name *.bazel -o -name *.bzl \) -delete
+find "${HELM_DIR}" \( -name "*.bazel" -o -name "*.bzl" -o -name ".*" \) -delete
 
 cp src/cf-deployment/cf-deployment.yml "${HELM_DIR}/assets"
 cp src/cf-deployment/operations/use-external-blobstore.yml "${HELM_DIR}/assets"
