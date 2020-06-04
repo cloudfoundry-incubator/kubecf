@@ -178,9 +178,14 @@ function tool_install {
         mv "${install_location}" "${install_location}.prev"
     fi
 
-    if [[ "$(file "${output}")" =~ gzip ]]; then
+    if [[ "$(file "${output}")" =~ "gzip compressed" ]]; then
         mv "${output}" "${output}.gz"
         gzip -d "${output}.gz"
+    fi
+
+    if [[ "$(file "${output}")" =~ "XZ compressed" ]]; then
+        mv "${output}" "${output}.xz"
+        xz -d "${output}.xz"
     fi
 
     local file_type
