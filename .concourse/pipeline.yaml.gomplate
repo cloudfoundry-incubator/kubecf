@@ -236,8 +236,8 @@ deploy_args: &deploy_args
   make kubeconfig kubecf
 
   # Setup dns
-  tcp_router_ip=$(kubectl  get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
-  public_router_ip=$(kubectl  get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+  tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+  public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 
   gcloud --quiet beta dns --project=suse-225215 record-sets transaction start --zone=kubecf-ci
   gcloud --quiet beta dns --project=suse-225215 record-sets transaction add --name=\*.${DOMAIN}. --ttl=300 --type=A --zone=kubecf-ci $public_router_ip
@@ -545,6 +545,9 @@ jobs:
                   gcloud compute disks delete ${ID} --zone=${GKE_CLUSTER_ZONE} \
                                                     --project="${GKE_PROJECT}" --quiet;
               done
+
+              tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+              public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 
               gcloud --quiet beta dns --project=suse-225215 record-sets transaction start --zone=kubecf-ci
               gcloud --quiet beta dns --project=suse-225215 record-sets transaction remove \
