@@ -9,6 +9,10 @@ mkdir -p "${TEMP_DIR}"
 TOOLS_DIR="${PWD}/output/bin"
 mkdir -p "${TOOLS_DIR}"
 
+# Python3 virtual env goes into $VENV_DIR
+VENV_DIR="${PWD}/output/venv"
+mkdir -p "${VENV_DIR}"
+
 # UNAME should be DARWIN, LINUX, or WINDOWS.
 UNAME="$(uname | tr "[:lower:]" "[:upper:]")"
 
@@ -29,7 +33,14 @@ TOOLS=($(printf '%s\n' "${TOOLS[@]}" | sort | uniq))
 # then the tool is downloaded and installed into $TOOLS_DIR.
 function require_tools {
     local status
+    local tool
+
     for tool in "$@"; do
+        # Make sure additional prerequisites for the tool are also available.
+        # They must be installed first because they might be needed to install the tool itself.
+        # In this case we *want* word-splitting.
+        # shellcheck disable=SC2046
+        require_tools $(var_lookup "${tool}_requires")
         if ! status=$(tool_status "${tool}"); then
             tool_install "${tool}"
 
@@ -38,10 +49,6 @@ function require_tools {
                 die "${status}"
             fi
         fi
-        # Make sure additional prerequisites for the tool are also available.
-        # In this case we *want* word-splitting.
-        # shellcheck disable=SC2046
-        require_tools $(var_lookup "${tool}_requires")
     done
 }
 
@@ -75,9 +82,10 @@ function tool_status {
                     fi
                     ;;
                 0)
-                    # PINNED_TOOLS *must* be installed in $TOOLS_DIR
-                    if [[ -n "${PINNED_TOOLS:-}" && ! -x "${TOOLS_DIR}/$(exe_name "${tool}")" ]]; then
-                        status="${status} (but not installed in ${TOOLS_DIR})"
+                    # PINNED_TOOLS *must* be installed in $TOOLS_DIR $VENV_DIR/bin.
+                    if [[ -n "${PINNED_TOOLS:-}" && ! -x "${TOOLS_DIR}/$(exe_name "${tool}")" && ! -x "${VENV_DIR}/bin/$(exe_name "${tool}")" ]];
+                    then
+                        status="${status} (but not installed in ${TOOLS_DIR} or ${VENV_DIR}/bin)"
                         rc=1
                     fi
                     ;;
@@ -128,6 +136,8 @@ function tool_version {
         # Version number must have at least a single dot.
         if [[ "${version}" =~ [0-9]+(\.[0-9]+)+ ]]; then
             echo "${BASH_REMATCH[0]}"
+        elif [ "${version}" = "missing" ]; then
+            echo "${version}"
         else
             if [ -n "${minimum_version}" ]; then
                 die "Cannot determine '${tool}' version (requires ${minimum_version})"
@@ -156,7 +166,13 @@ function tool_install {
 
     blue "Installing ${tool}"
 
-    # XXX (require_tools is not reentrant) require_tools file gzip sha256sum
+    # Look for custom install command first (e.g. for Python module install via pip).
+    if [ -n "$(type -t "${tool}_install")" ]; then
+        eval "${tool}_install"
+        return
+    fi
+
+    # XXX (require_tools is not reentrant) require_tools file gzip sha256sum xz
 
     url="$(var_lookup "${tool}_url_${UNAME}")"
     if [ -z "${url}" ]; then
