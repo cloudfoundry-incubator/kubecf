@@ -493,6 +493,9 @@ jobs:
 {{- end }}
     - try: &cleanup-cluster
         task: cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
         input_mapping:
           semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
         config:
