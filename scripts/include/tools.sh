@@ -164,7 +164,7 @@ function tool_install {
     fi
 
     local output="${TEMP_DIR}/output"
-    curl -s -L "${url/\{version\}/${version}}" -o "${output}"
+    curl -s -L "${url//\{version\}/${version}}" -o "${output}"
 
     sha256="$(var_lookup "${tool}_sha256_${UNAME}")"
     if [ -n "${sha256}" ] &&  ! echo "${sha256} ${output}" | sha256sum --check --status; then
