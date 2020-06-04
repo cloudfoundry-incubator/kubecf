@@ -74,10 +74,10 @@ make kubeconfig kubecf
 tcp_router_ip=$(kubectl  get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 public_router_ip=$(kubectl  get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 
-gcloud beta dns --project=suse-225215 record-sets transaction start --zone=kubecf-ci
-gcloud beta dns --project=suse-225215 record-sets transaction add --name="*.${DOMAIN}." --ttl=300 --type=A --zone=kubecf-ci "$public_router_ip"
-gcloud beta dns --project=suse-225215 record-sets transaction add --name="tcp.${DOMAIN}." --ttl=300 --type=A --zone=kubecf-ci "$tcp_router_ip"
-gcloud beta dns --project=suse-225215 record-sets transaction execute --zone=kubecf-ci
+gcloud --quiet beta dns --project=suse-225215 record-sets transaction start --zone=kubecf-ci
+gcloud --quiet beta dns --project=suse-225215 record-sets transaction add --name="*.${DOMAIN}." --ttl=300 --type=A --zone=kubecf-ci "$public_router_ip"
+gcloud --quiet beta dns --project=suse-225215 record-sets transaction add --name="tcp.${DOMAIN}." --ttl=300 --type=A --zone=kubecf-ci "$tcp_router_ip"
+gcloud --quiet beta dns --project=suse-225215 record-sets transaction execute --zone=kubecf-ci
 
 # Now upgrade to whatever chart we built for commit-to-test
 # The chart should be in s3.kubecf-ci directory
