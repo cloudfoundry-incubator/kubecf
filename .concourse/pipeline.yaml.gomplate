@@ -543,6 +543,8 @@ jobs:
               gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
 
               pvcs=$(kubectl get pvc -n scf -o json | jq -r .items[].spec.volumeName | paste -sd "|")
+              tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+              public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 
               # Delete cluster
               gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" \
@@ -563,9 +565,6 @@ jobs:
                   gcloud compute disks delete ${ID} --zone=${GKE_CLUSTER_ZONE} \
                                                     --project="${GKE_PROJECT}" --quiet;
               done
-
-              tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
-              public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 
               gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets \
                 transaction start --zone=${GKE_DNS_ZONE}
