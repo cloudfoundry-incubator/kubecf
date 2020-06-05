@@ -306,7 +306,6 @@ jobs:
 {{ $sanitized_branch_name := replaceAll "." "_" $branch }}
 
 - name: lint-{{ $branch }}
-  public: true
   plan:
   - get: kubecf-{{ $branch }}
 {{- if ne $branch "fork-pr" }}
@@ -421,7 +420,6 @@ jobs:
 # prod-jobs
 - name: deploy-{{ $cfScheduler }}-{{ $branch }}
   #max_in_flight: 1 # Re-enable to when we want to set a limit on concurrent deployments
-  public: true
   # Consider adding a serial_group between the two $cfScheduler
   # if jobs starts to starve
   plan:
@@ -575,7 +573,6 @@ jobs:
 {{ $previousTest := "" }}
 
 - name: smoke-tests-{{ $cfScheduler }}-{{ $branch }}
-  public: true
   plan:
   - get: kubecf-{{ $branch }}
     trigger: true
@@ -676,7 +673,6 @@ jobs:
 {{ $previousTest = (printf "smoke-tests-%s-%s" $cfScheduler $branch) }}
 
 - name: cf-acceptance-tests-{{ $cfScheduler }}-{{ $branch }}
-  public: true
   plan:
   - get: kubecf-{{ $branch }}
     passed:
@@ -782,7 +778,6 @@ jobs:
 
 {{- if eq $cfScheduler "diego" }}
 - name: sync-integration-tests-{{ $branch }}
-  public: true
   plan:
   - get: kubecf-{{ $branch }}
     passed:
@@ -885,7 +880,6 @@ jobs:
 {{- end }}
 
 - name: ccdb-rotate-{{ $cfScheduler }}-{{ $branch }}
-  public: true
   plan:
   - get: kubecf-{{ $branch }}
     passed:
@@ -987,7 +981,6 @@ jobs:
 {{ $previousTest = (printf "ccdb-rotate-%s-%s" $cfScheduler $branch) }}
 
 - name: smoke-tests-post-rotate-{{ $cfScheduler }}-{{ $branch }}
-  public: true
   plan:
   - get: kubecf-{{ $branch }}
     passed:
@@ -1091,7 +1084,6 @@ jobs:
 
 # TODO: re-enable and re-adapt once BRAIN tests are fixed.
 # - name: brain-tests-{{ $cfScheduler }}
-#   public: true
 #   plan:
 #   - get: commit-to-test
 #     passed:
@@ -1156,7 +1148,6 @@ jobs:
 
 
 - name: cleanup-{{ $cfScheduler }}-cluster-{{ $branch }}
-  public: true
   plan:
   - get: kubecf-{{ $branch }}
     passed:
@@ -1211,7 +1202,6 @@ jobs:
 
 {{ if not ($branch | regexp.Match "^pr|fork-pr") }}
 - name: publish-{{ $branch }}
-  public: true
   plan:
   - get: s3.kubecf-ci
     passed:
