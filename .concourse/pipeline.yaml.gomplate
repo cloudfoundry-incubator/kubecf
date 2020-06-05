@@ -519,6 +519,9 @@ jobs:
               export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
               export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
+              # Get a kubeconfig
+              gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
+
               pvcs=$(kubectl get pvc -n scf -o json | jq -r .items[].spec.volumeName | paste -sd "|")
 
               # Delete cluster
