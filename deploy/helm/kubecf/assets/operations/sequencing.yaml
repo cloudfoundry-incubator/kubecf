@@ -1,0 +1,125 @@
+# We specify the new dependencies (I) and remove the old serialization
+# hints (II).
+#
+# I. Custom pod dependencies for startup sequencing
+##
+# ATTENTION: Annotations are strings. While the cf-operator's
+# controller will unmarshall the value as a json array later on,
+# specification must be done as a string using json syntax inside.
+##
+# Short form of the ops changes below.
+# Dependencies pointing to dependents.
+# Order here matches order of ops instructions.
+##
+# auctioneer <-- diego-api
+# scheduler  <-- api
+# cc-worker  <-- api
+# router     <-- routing-api <-- uaa
+#                tcp-router  <-- uaa
+#                log-cache   <-- uaa
+#                credhub     <-- uaa
+#                diego-cell  <-- uaa
+#
+# asactors  <- asdatabase
+# asapi     <- asdatabase
+# asmetrics <- asdatabase
+# asnozzle  <- asdatabase
+##
+
+- type: replace
+  path: /instance_groups/name=auctioneer/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "diego-api" ]'
+
+- type: replace
+  path: /instance_groups/name=scheduler/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "api" ]'
+- type: replace
+  path: /instance_groups/name=cc-worker/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "api" ]'
+
+- type: replace
+  path: /instance_groups/name=router/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "routing-api" ]'
+
+- type: replace
+  path: /instance_groups/name=routing-api/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "uaa" ]'
+- type: replace
+  path: /instance_groups/name=tcp-router/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "uaa" ]'
+- type: replace
+  path: /instance_groups/name=log-cache/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "uaa" ]'
+- type: replace
+  path: /instance_groups/name=credhub/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "uaa" ]'
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "uaa" ]'
+
+#
+# II. Disable upstream pod startup serialization hints.
+#
+# Note: The serialization hints on the various test tasks are
+# irrelevant, and therefore ignored, and not changed.
+#
+
+- type: replace
+  value: false
+  path: /instance_groups/name=auctioneer/update/serial
+- type: replace
+  value: false
+  path: /instance_groups/name=scheduler/update/serial
+- type: replace
+  value: false
+  path: /instance_groups/name=router/update/serial
+- type: replace
+  value: false
+  path: /instance_groups/name=routing-api/update/serial
+
+- type: replace
+  value: false
+  path: /instance_groups/name=api/update/serial
+- type: replace
+  value: false
+  path: /instance_groups/name=diego-api/update/serial
+- type: replace
+  value: false
+  path: /instance_groups/name=log-api/update/serial
+- type: replace
+  value: false
+  path: /instance_groups/name=singleton-blobstore/update/serial
+
+#
+# III. auto-scaler. As I and II above, set custom dependencies
+#      and remove the old serialization hints.
+#
+
+{{- if .Values.features.autoscaler.enabled }}
+
+- type: replace
+  path: /instance_groups/name=asactors/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "asdatabase" ]'
+- type: replace
+  path: /instance_groups/name=asapi/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "asdatabase" ]'
+- type: replace
+  path: /instance_groups/name=asmetrics/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "asdatabase" ]'
+- type: replace
+  path: /instance_groups/name=asnozzle/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  value: '[ "asdatabase" ]'
+
+- type: replace
+  value: false
+  path: /instance_groups/name=asactors/update/serial
+- type: replace
+  value: false
+  path: /instance_groups/name=asapi/update/serial
+- type: replace
+  value: false
+  path: /instance_groups/name=asmetrics/update/serial
+- type: replace
+  value: false
+  path: /instance_groups/name=asnozzle/update/serial
+{{- end }}

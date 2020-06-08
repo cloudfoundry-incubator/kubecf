@@ -1,0 +1,177 @@
+#!/usr/bin/env tclsh
+## Given a namespace to watch this tool iteratively calls `kubectl get
+## pods` on the namespace to determine its current state and update
+## its internal state. Differences between current and internal state
+## (before it gets updated) are written to !stderr! as a series of
+## events. This kind of series can be processed by the other two
+## tools, `extent` and `sequence`. The first computes the size of the
+## time interval covered by the events, the other creates a diagram
+## visualizing the sequencing.
+#
+## The events are on stderr because stdout is used to continuously
+## display the (changing) current state. Including some animation to
+## ensure feedback of proper operation even when the state is
+## unchanging.
+#
+## Note: The tool aborts if `kubectl` fails with an error (except for
+## `No resources`, that just means that the namespace is empty.
+#
+## Note: The user has to stop the tool explicitly, via Ctrl-C. It does
+## not stop on its own, except for the error handling above.
+
+if {[llength $argv] != 1} {
+    puts stderr "Usage: $argv0 namespace"
+    exit 1
+}
+set ns [lindex $argv 0]
+
+array set igstate {} ;# per igroup state (last state)
+
+proc now {} { clock seconds }
+#proc now {} { clock format [clock seconds] -format {%Y-%m-%dT%H:%M:%S} }
+
+# Animation. Generates feedback that the tool is still properly
+# operating, and not stuck.
+proc ani {} {
+    global count
+    set x {
+	{.    }
+	{ .   }
+	{  .  }
+	{   . }
+	{    .}
+	{   ..}
+	{  .. }
+	{ ..  }
+	{..   }
+	{...  }
+	{ ... }
+	{  ...}
+	{ ....}
+	{.... }
+	{... .}
+	{.. ..}
+	{. ...}
+	{ ....}
+	{  ...}
+	{.  ..}
+	{..  .}
+	{...  }
+	{..   }
+	{.   .}
+	{   ..}
+	{    .}
+	{   . }
+	{  .  }
+	{ .   }
+    }
+    incr count ; if {$count >= [llength $x]} { set count 0 }
+    #puts $count:[llength $x]:[lindex $x $count]
+    lindex $x $count
+}
+
+# Query current state
+proc get {} {
+    global waiting ns ; set waiting 0
+    after 100
+    
+    set waiting 0
+    if {[catch {
+	set state [exec kubectl get pods --namespace $ns]
+    } msg]} {
+	puts -nonewline "\r\033\[K\033\[31m[ani]\033\[0m: $msg"
+	flush stdout
+	if {![string match "No resources found*" $msg]} { exit 1 }
+	incr waiting
+	return -code continue
+    }
+    return $state
+}
+
+# Convert base kube state for a pod into a canonical form enablign the
+# tracking of partial readiness.
+proc canonical-state {} {
+    global state counts
+    if {$state ne "Running"} return
+
+    foreach {ready requested} [split $counts /] break
+    # Tcl8.5+: lassign [split $counts /] ready requested
+    if {$ready == $requested} {
+	set state Ready
+    } else {
+	set state Run:$ready/$requested
+    }
+    return
+}
+
+proc stop-wait {} { global waiting ; incr waiting ; return -code return }
+
+proc reset {} { return \033\[0m }
+proc red   {} { return \033\[31m }
+
+# Emit a state difference as event
+proc achange {} {
+    global igstate igroup now state
+    set igstate($igroup) $state
+    puts stderr "change $now $state $igroup"
+    flush stderr
+    return
+}
+
+# Initialize internal state
+proc init {} {
+    global igroup igstate
+    if {[info exists igstate($igroup)]} return
+    achange
+    return
+}
+
+# Detect state changes, and emit events
+proc statechange {} {
+    global igroup igstate state
+    if {$igstate($igroup) eq $state} return
+    achange
+}
+
+# Helper for pod/state display 
+proc prefix {} {
+    global state waiting
+    if {$state ni {
+	Ready Completed
+    }} {
+	incr waiting
+	return "[ani] [red]"
+    }
+    return "      "
+}
+
+# Main loop. Retrieve and display state, detect changes and emit events.
+incr waiting 1
+while {1||$waiting} {
+    set state [get]
+    set now   [now]
+
+    # Clear terminal to ensure that display begins at the top/home
+    # position.
+    puts \033\[H\033\[J
+
+    # Iterate over current state/pods.
+    foreach line [split $state \n] {
+	# Hide empty lines.
+	if {$line eq {}} continue
+	# Extract pod state elements
+	foreach {igroup counts state restarts age} $line break
+	# Tcl 8.5+ lassign $line igroup counts state restarts age
+	# Hide header line
+	if {$state eq "STATUS"} continue
+
+	# Process pod state
+	canonical-state ; init ; statechange
+
+	# Display
+	puts "[prefix]$line[reset]"
+    }
+    flush stdout
+}
+
+exit
