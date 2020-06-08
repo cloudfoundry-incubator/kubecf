@@ -287,18 +287,19 @@ rotate_args: &rotate_args
   gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
 
   export BACKEND=gke
-  export KUBECF_NAMESPACE="scf"
   export QUIET_OUTPUT=true
   export DOWNLOAD_CATAPULT_DEPS=false
   export KUBECFG="$(readlink -f ~/.kube/config)"
-  export KUBECF_CHECKOUT="${PWD}/kubecf"
-  export KUBECF_INSTALL_NAME="susecf-scf"
 
   pushd catapult
   make kubeconfig
   source build*/.envrc
+  popd
 
-  pushd "${KUBECF_CHECKOUT}"
+  export KUBECF_INSTALL_NAME="susecf-scf"
+  export KUBECF_NAMESPACE="scf"
+
+  pushd kubecf
   testing/ccdb_key_rotation/rotate-ccdb-keys-test.sh
 
 jobs:
