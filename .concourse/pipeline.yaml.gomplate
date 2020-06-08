@@ -262,7 +262,6 @@ test_args: &test_args
   gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
 
   export BACKEND=gke
-  export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
   export KUBECF_NAMESPACE="scf"
   export QUIET_OUTPUT=true
   export DOWNLOAD_CATAPULT_DEPS=false
@@ -640,7 +639,7 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        TEST_SUITE: smokes
+        KUBECF_TEST_SUITE: smokes
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
@@ -739,7 +738,7 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        TEST_SUITE: cats
+        KUBECF_TEST_SUITE: cats
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
@@ -843,7 +842,7 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        TEST_SUITE: sits
+        KUBECF_TEST_SUITE: sits
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
@@ -1044,7 +1043,7 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        TEST_SUITE: smokes
+        KUBECF_TEST_SUITE: smokes
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
@@ -1133,7 +1132,7 @@ jobs:
 #       - name: output
 #       params:
 #         EKCP_HOST: ((ekcp-host))
-#         TEST_SUITE: brain
+#         KUBECF_TEST_SUITE: brain
 #       run:
 #         path: "/bin/bash"
 #         args: *test_args
