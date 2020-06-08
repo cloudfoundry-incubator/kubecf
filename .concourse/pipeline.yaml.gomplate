@@ -210,7 +210,6 @@ deploy_args: &deploy_args
   # Get a kubeconfig
   gcloud --quiet container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
 
-  export SCF_LOCAL="${PWD}/kubecf"
   export SCF_CHART="$(readlink -f s3.kubecf-ci/*.tgz)"
   export BACKEND=gke
   export DOCKER_ORG=cap-staging
@@ -264,12 +263,10 @@ test_args: &test_args
 
   export BACKEND=gke
   export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
-  export SCF_LOCAL="${PWD}/kubecf"
   export KUBECF_NAMESPACE="scf"
   export QUIET_OUTPUT=true
   export DOWNLOAD_CATAPULT_DEPS=false
   export KUBECFG="$(readlink -f ~/.kube/config)"
-  export KUBECF_CHECKOUT="${SCF_LOCAL}"
   pushd catapult
   # Grabs back a deployed cluster and runs test suites on it
   # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
