@@ -477,7 +477,6 @@ jobs:
       outputs:
       - name: output
       params:
-        DEFAULT_STACK: cflinuxfs3
         CATS_NODES: 5
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
         BRANCH: {{ $branch }}
@@ -644,7 +643,6 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: smokes
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
@@ -744,7 +742,6 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: cats
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
@@ -849,7 +846,6 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: sits
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
@@ -951,7 +947,6 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
@@ -1052,7 +1047,6 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: smokes
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
@@ -1141,7 +1135,6 @@ jobs:
 #       outputs:
 #       - name: output
 #       params:
-#         DEFAULT_STACK: cflinuxfs3
 #         EKCP_HOST: ((ekcp-host))
 #         TEST_SUITE: brain
 #       run:
