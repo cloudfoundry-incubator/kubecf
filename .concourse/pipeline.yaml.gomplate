@@ -212,9 +212,6 @@ deploy_args: &deploy_args
 
   export SCF_LOCAL="${PWD}/kubecf"
   export SCF_CHART="$(readlink -f s3.kubecf-ci/*.tgz)"
-  export SCF_OPERATOR=true
-  export HELM_VERSION="v3.1.1"
-  export SCF_TESTGROUP=true
   export BACKEND=gke
   export DOCKER_ORG=cap-staging
   export QUIET_OUTPUT=true
