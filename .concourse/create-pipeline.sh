@@ -28,7 +28,7 @@ if [[ -z "$2" ]]; then
     usage
     exit 1
 else
-    if [[ "$2" == "cap-release" || "$2" == "cap-pre-release" ]]; then
+    if [[ "$2" == "kubecf" || "$2" == "kubecf-pool-reconciler" ]]; then
         printf "This will modify the production pipeline: $2. Are you sure you want to proceed?(yes/no): "
         read -r ans
         if [[ "$ans" == "y" || "$ans" == "yes" ]]; then
@@ -54,4 +54,10 @@ fly_args=(
     "--pipeline=${PIPELINE}"
 )
 
-fly "${fly_args[@]}" --config <(gomplate -V --datasource config="$PIPELINE".yaml --file pipeline.yaml.gomplate)
+if [[ "$2" =~ "reconciler" ]]; then
+    fly "${fly_args[@]}" --config \
+        <(gomplate -V --datasource config="$PIPELINE".yaml --file kubecf-pool-reconciler.yaml.gomplate)
+else # kubecf pipeline
+    fly "${fly_args[@]}" --config \
+        <(gomplate -V --datasource config="$PIPELINE".yaml --file pipeline.yaml.gomplate)
+fi
