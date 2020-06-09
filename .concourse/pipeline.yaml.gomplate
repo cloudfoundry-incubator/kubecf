@@ -1,11 +1,4 @@
-# The config.yaml file is a collection of settings one might want to change
-# if they are deploying a second copy of the kubecf pipeline.
-# It is meant to provide a way to not pollute the "production" resources with
-# data from testing and developing the pipeline.
-# The production pipeline should always be deployed without a config.yaml.
-# This will use the same (default) values every time, so people deploying it
-# don't have to know what kind of values were used when it was deployed last
-# time.
+# load the config provided when evaluating the template
 {{ $config := (datasource "config") }}
 
 # Variables
