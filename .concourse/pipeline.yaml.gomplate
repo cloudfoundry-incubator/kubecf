@@ -1330,11 +1330,11 @@ jobs:
   - get: s3.kubecf-ci
     passed:
     - cf-acceptance-tests-diego-{{ $branch }}
-    trigger: true
+    trigger: {{ $config.trigger_publish }}
   - get: s3.kubecf-ci-bundle
     passed:
     - cf-acceptance-tests-diego-{{ $branch }}
-    trigger: true
+    trigger: {{ $config.trigger_publish }}
   - task: rename-artifacts
     config:
       platform: linux
