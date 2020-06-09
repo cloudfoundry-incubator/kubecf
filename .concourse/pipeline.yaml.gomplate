@@ -6,6 +6,7 @@
 # This will use the same (default) values every time, so people deploying it
 # don't have to know what kind of values were used when it was deployed last
 # time.
+{{ $config := (datasource "config") }}
 
 # Variables
 {{ $availableCfSchedulers := slice "diego" "eirini" }} # Diego / Eirini
