@@ -823,12 +823,12 @@ jobs:
   - get: s3.kubecf-ci-bundle
     passed:
     - {{ $previousTest | quote }}
-  - get: semver.gke-cluster
+  - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
   - get: catapult
-{{- if has $stable (printf "cats-internetless-tests-%s" $cfScheduler) }}
+{{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
   - put: status-{{ $branch }}.src
     params: &cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "cats-internetless-tests-{{ $cfScheduler }}"
@@ -840,6 +840,7 @@ jobs:
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
+      semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     config:
       platform: linux
       image_resource:
@@ -851,7 +852,10 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
+        DEFAULT_STACK: cflinuxfs3
         TEST_SUITE: cats-internetless
+        BRANCH: {{ $branch }}
+        CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
         args: *test_args
@@ -866,9 +870,10 @@ jobs:
   on_failure:
     in_parallel:
     - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -879,9 +884,10 @@ jobs:
   on_abort:
     in_parallel:
     - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
@@ -892,9 +898,10 @@ jobs:
   on_error:
     in_parallel:
     - try:
-        task: cleanup-cluster
-        config:
-          <<: *cleanup-cluster
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
     - try:
         put: status-{{ $branch }}.src
