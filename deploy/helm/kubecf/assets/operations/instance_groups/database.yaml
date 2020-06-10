@@ -16,28 +16,11 @@
 
 {{- if .Values.features.embedded_database.enabled }}
 
-# Add certificates for PXC.
-- type: replace
-  path: /variables/-
-  value:
-    name: pxc_ca
-    type: certificate
-    options:
-      common_name: pxc_ca
-      is_ca: true
-- type: replace
-  path: /variables/-
-  value:
-    name: pxc_tls
-    type: certificate
-    options:
-      ca: pxc_ca
-      common_name: &pxc-cluster-address {{ printf "database.%s" .Release.Namespace }}
-
 # Override the address and CA cert with the one from PXC.
+# See templates/database.yaml for the relevant quarks secrets.
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/db_host?
-  value: *pxc-cluster-address
+  value: &pxc-cluster-address {{ printf "database.%s" .Release.Namespace }}
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/ca_cert?
   value: &pxc-cluster-ca ((pxc_tls.ca))

@@ -4,6 +4,54 @@
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksSecret
 metadata:
+  name: var-pxc-ca
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+spec:
+  request:
+    certificate:
+      commonName: pxc_ca
+      isCA: true
+      signerType: cluster
+  secretName: var-pxc-ca
+  type: certificate
+
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksSecret
+metadata:
+  name: var-pxc-tls
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+spec:
+  request:
+    certificate:
+      CAKeyRef:
+        key: private_key
+        name: var-pcx-ca
+      CARef:
+        key: certificate
+        name: var-pcx-ca
+      commonName: {{ printf "database.%s" .Release.Namespace }}
+      isCA: false
+      signerType: cluster
+  secretName: var-pxc-tls
+  type: certificate
+
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksSecret
+metadata:
   name: var-pxc-root-password
   namespace: {{ .Release.Namespace | quote }}
   labels:
