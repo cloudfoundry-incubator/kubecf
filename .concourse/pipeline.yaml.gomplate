@@ -1,11 +1,5 @@
-# The config.yaml file is a collection of settings one might want to change
-# if they are deploying a second copy of the kubecf pipeline.
-# It is meant to provide a way to not pollute the "production" resources with
-# data from testing and developing the pipeline.
-# The production pipeline should always be deployed without a config.yaml.
-# This will use the same (default) values every time, so people deploying it
-# don't have to know what kind of values were used when it was deployed last
-# time.
+# load the config provided when evaluating the template
+{{ $config := (datasource "config") }}
 
 # Variables
 {{ $availableCfSchedulers := slice "diego" "eirini" }} # Diego / Eirini
@@ -63,24 +57,24 @@ resources:
   type: semver
   source:
     driver: s3
-    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
+    bucket: {{ $config.s3_bucket }}
     key: gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     initial_version: 0.0.1
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
+    region_name: {{ $config.s3_bucket_region }}
 {{ end }} # availableCfSchedulers
 
 - name: semver.gke-cluster-{{ $branch }}-upgrade
   type: semver
   source:
     driver: s3
-    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
+    bucket: {{ $config.s3_bucket }}
     key: gke-cluster-{{ $branch }}-upgrade
     initial_version: 0.0.1
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
+    region_name: {{ $config.s3_bucket_region }}
 {{ end }} # prs and branches (flattened)
 
 
@@ -89,11 +83,11 @@ resources:
   type: git
   source:
     branch: {{ $branch }}
-    uri: https://github.com/{{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
+    uri: https://github.com/{{ $config.kubecf_repository }}
 - name: status-{{ $branch }}.src
   type: github-status
   source:
-    repo: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
+    repo: {{ $config.kubecf_repository }}
     access_token: ((github-access-token))
 {{ end }}
 
@@ -101,7 +95,7 @@ resources:
   type: pull-request
   check_every: 10m
   source:
-    repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
+    repository: {{ $config.kubecf_repository }}
     access_token: ((github-access-token))
     disable_forks: true # Trigger on kubecf branches only
     required_review_approvals: 1
@@ -110,7 +104,7 @@ resources:
   type: pull-request
   check_every: 10m
   source:
-    repository: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
+    repository: {{ $config.kubecf_repository }}
     access_token: ((github-access-token))
     disable_forks: false # Trigger on kubecf branches only
     required_review_approvals: 1
@@ -120,7 +114,7 @@ resources:
 - name: status-{{$pr}}.src
   type: github-status
   source:
-    repo: {{ if has . "kubecf_repository" }}{{ .kubecf_repository }}{{ else }}{{ "cloudfoundry-incubator/kubecf" }}{{ end }}
+    repo: {{ $config.kubecf_repository }}
     access_token: ((github-access-token))
 
 {{- end }}
@@ -135,37 +129,37 @@ resources:
 - name: s3.kubecf-ci
   type: s3
   source:
-    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
+    bucket: {{ $config.s3_bucket }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
+    region_name: {{ $config.s3_bucket_region }}
     regexp: kubecf-v(.*).tgz
 
 - name: s3.kubecf-ci-bundle
   type: s3
   source:
-    bucket: {{ if has . "s3_bucket" }}{{ .s3_bucket }}{{ else }}kubecf-ci{{ end }}
+    bucket: {{ $config.s3_bucket }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: {{ if has . "s3_bucket_region" }}{{ .s3_bucket_region }}{{ else }}"eu-central-1"{{ end }}
+    region_name: {{ $config.s3_bucket_region }}
     regexp: kubecf-bundle-v(.*).tgz
 
 - name: s3.kubecf
   type: s3
   source:
-    bucket: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
+    bucket: {{ $config.s3_final_bucket }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: {{ if has . "s3_final_bucket_region" }}{{ .s3_final_bucket_region }}{{ else }}"us-west-2"{{ end }}
+    region_name: {{ $config.s3_final_bucket_region }}
     regexp: kubecf-v(.*).tgz
 
 - name: s3.kubecf-bundle
   type: s3
   source:
-    bucket: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
+    bucket: {{ $config.s3_final_bucket }}
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
-    region_name: {{ if has . "s3_final_bucket_region" }}{{ .s3_final_bucket_region }}{{ else }}"us-west-2"{{ end }}
+    region_name: {{ $config.s3_final_bucket_region }}
     regexp: kubecf-bundle-v(.*).tgz
 
 deploy_args: &deploy_args
@@ -177,11 +171,11 @@ deploy_args: &deploy_args
   export GKE_CRED_JSON=$PWD/gke-key.json
   gcloud auth activate-service-account --key-file $PWD/gke-key.json
 
-  export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
-  export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
+  export GKE_PROJECT="{{ $config.gke_project }}"
+  export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
   export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
-  export GKE_DNS_ZONE={{ if has . "gke_dns_zone" }}{{ .gke_dns_zone }}{{ else }}"kubecf-ci"{{ end }}
-  export GKE_DOMAIN={{ if has . "gke_domain" }}{{ .gke_domain }}{{ else }}"kubecf.ci"{{ end }}
+  export GKE_DNS_ZONE="{{ $config.gke_dns_zone }}"
+  export GKE_DOMAIN="{{ $config.gke_domain }}"
   export DOMAIN="${GKE_CLUSTER_NAME}.${GKE_DOMAIN}"
 
   gcloud --quiet beta container \
@@ -255,8 +249,8 @@ test_args: &test_args
   export GKE_CRED_JSON=$PWD/gke-key.json
   gcloud auth activate-service-account --key-file $PWD/gke-key.json
 
-  export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
-  export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
+  export GKE_PROJECT="{{ $config.gke_project }}"
+  export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
   export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   # Get a kubeconfig
@@ -279,8 +273,8 @@ rotate_args: &rotate_args
   # Login to gcloud
   printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
   export GKE_CRED_JSON=$PWD/gke-key.json
-  export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
-  export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
+  export GKE_PROJECT="{{ $config.gke_project }}"
+  export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
   export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   gcloud auth activate-service-account --key-file $PWD/gke-key.json
@@ -523,11 +517,11 @@ jobs:
               # Login to gcloud
               printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
               gcloud auth activate-service-account --key-file $PWD/gke-key.json
-              export GKE_PROJECT={{ if has . "gke_project" }}{{ .gke_project }}{{ else }}"suse-225215"{{ end }}
-              export GKE_CLUSTER_ZONE={{ if has . "gke_zone" }}{{ .gke_zone }}{{ else }}"europe-west3-c"{{ end }}
-              export GKE_DNS_ZONE={{ if has . "gke_dns_zone" }}{{ .gke_dns_zone }}{{ else }}"kubecf-ci"{{ end }}
+              export GKE_PROJECT="{{ $config.gke_project }}"
+              export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
+              export GKE_DNS_ZONE="{{ $config.gke_dns_zone }}"
               export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
-              export GKE_DOMAIN={{ if has . "gke_domain" }}{{ .gke_domain }}{{ else }}"kubecf.ci"{{ end }}
+              export GKE_DOMAIN="{{ $config.gke_domain }}"
               export DOMAIN="${GKE_CLUSTER_NAME}.${GKE_DOMAIN}"
 
               # Get a kubeconfig
@@ -1329,11 +1323,11 @@ jobs:
   - get: s3.kubecf-ci
     passed:
     - cf-acceptance-tests-diego-{{ $branch }}
-    trigger: true
+    trigger: {{ $config.trigger_publish }}
   - get: s3.kubecf-ci-bundle
     passed:
     - cf-acceptance-tests-diego-{{ $branch }}
-    trigger: true
+    trigger: {{ $config.trigger_publish }}
   - task: rename-artifacts
     config:
       platform: linux
@@ -1365,7 +1359,7 @@ jobs:
         source:
           repository: splatform/catapult
       params:
-        S3_BUCKET: {{ if has . "s3_final_bucket" }}{{ .s3_final_bucket }}{{ else }}kubecf{{ end }}
+        S3_BUCKET: {{ $config.s3_final_bucket }}
         AWS_ACCESS_KEY_ID: ((aws-access-key))
         AWS_SECRET_ACCESS_KEY: ((aws-secret-key))
       inputs:
