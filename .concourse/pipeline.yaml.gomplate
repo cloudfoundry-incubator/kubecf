@@ -211,12 +211,7 @@ deploy_args: &deploy_args
   # Get a kubeconfig
   gcloud --quiet container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
 
-  export SCF_LOCAL="${PWD}/kubecf"
   export SCF_CHART="$(readlink -f s3.kubecf-ci/*.tgz)"
-  export SCF_OPERATOR=true
-  export FORCE_DELETE=true
-  export HELM_VERSION="v3.1.1"
-  export SCF_TESTGROUP=true
   export BACKEND=gke
   export DOCKER_ORG=cap-staging
   export QUIET_OUTPUT=true
@@ -268,13 +263,10 @@ test_args: &test_args
   gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
 
   export BACKEND=gke
-  export KUBECF_TEST_SUITE="${TEST_SUITE:-smokes}"
-  export SCF_LOCAL="${PWD}/kubecf"
   export KUBECF_NAMESPACE="scf"
   export QUIET_OUTPUT=true
   export DOWNLOAD_CATAPULT_DEPS=false
   export KUBECFG="$(readlink -f ~/.kube/config)"
-  export KUBECF_CHECKOUT="${SCF_LOCAL}"
   pushd catapult
   # Grabs back a deployed cluster and runs test suites on it
   # See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
@@ -296,18 +288,19 @@ rotate_args: &rotate_args
   gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
 
   export BACKEND=gke
-  export KUBECF_NAMESPACE="scf"
   export QUIET_OUTPUT=true
   export DOWNLOAD_CATAPULT_DEPS=false
   export KUBECFG="$(readlink -f ~/.kube/config)"
-  export KUBECF_CHECKOUT="${PWD}/kubecf"
-  export KUBECF_INSTALL_NAME="susecf-scf"
 
   pushd catapult
   make kubeconfig
   source build*/.envrc
+  popd
 
-  pushd "${KUBECF_CHECKOUT}"
+  export KUBECF_INSTALL_NAME="susecf-scf"
+  export KUBECF_NAMESPACE="scf"
+
+  pushd kubecf
   testing/ccdb_key_rotation/rotate-ccdb-keys-test.sh
 
 jobs:
@@ -482,7 +475,6 @@ jobs:
       outputs:
       - name: output
       params:
-        DEFAULT_STACK: cflinuxfs3
         CATS_NODES: 5
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
         BRANCH: {{ $branch }}
@@ -649,8 +641,7 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
-        TEST_SUITE: smokes
+        KUBECF_TEST_SUITE: smokes
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
@@ -749,8 +740,7 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
-        TEST_SUITE: cats
+        KUBECF_TEST_SUITE: cats
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
@@ -955,8 +945,7 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
-        TEST_SUITE: sits
+        KUBECF_TEST_SUITE: sits
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
@@ -1057,7 +1046,6 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
@@ -1158,8 +1146,7 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        DEFAULT_STACK: cflinuxfs3
-        TEST_SUITE: smokes
+        KUBECF_TEST_SUITE: smokes
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
@@ -1247,9 +1234,8 @@ jobs:
 #       outputs:
 #       - name: output
 #       params:
-#         DEFAULT_STACK: cflinuxfs3
 #         EKCP_HOST: ((ekcp-host))
-#         TEST_SUITE: brain
+#         KUBECF_TEST_SUITE: brain
 #       run:
 #         path: "/bin/bash"
 #         args: *test_args
