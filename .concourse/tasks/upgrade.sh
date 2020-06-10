@@ -24,10 +24,15 @@ printf "%s" '((gke-suse-cap-json))' > "${PWD}/gke-key.json"
 export GKE_CRED_JSON=$PWD/gke-key.json
 gcloud auth activate-service-account --key-file "${PWD}/gke-key.json"
 
-export GKE_PROJECT="{{ $config.gke_project  }}"
-export GKE_ZONE="{{ $config.gke_zone }}"
-export GKE_DNS_ZONE="{{ $config.gke_dns_zone }}"
-export GKE_DOMAIN="{{ $config.gke_domain }}"
+# shellcheck disable=SC2016
+# Incorrect error; $config is for gomplate, not for bash
+export GKE_PROJECT='{{ $config.gke_project }}'
+# shellcheck disable=SC2016
+export GKE_ZONE='{{ $config.gke_zone }}'
+# shellcheck disable=SC2016
+export GKE_DNS_ZONE='{{ $config.gke_dns_zone }}'
+# shellcheck disable=SC2016
+export GKE_DOMAIN='{{ $config.gke_domain }}'
 export DOMAIN="${GKE_CLUSTER_NAME}.${GKE_DOMAIN}"
 
 gcloud --quiet beta container \
