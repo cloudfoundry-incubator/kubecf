@@ -816,7 +816,6 @@ jobs:
     passed:
     - {{ $previousTest | quote }}
     trigger: true
-    version: "every"
   - get: s3.kubecf-ci
     passed:
     - {{ $previousTest | quote }}
