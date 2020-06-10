@@ -29,7 +29,7 @@ if [[ -z "$2" ]]; then
     exit 1
 else
     if [[ "$2" == "kubecf" || "$2" == "kubecf-pool-reconciler" ]]; then
-        printf "This will modify the production pipeline: $s. Are you sure you want to proceed?(yes/no): " "$2"
+        printf "This will modify the production pipeline: %s. Are you sure you want to proceed?(yes/no): " "$2"
         read -r ans
         if [[ "$ans" == "y" || "$ans" == "yes" ]]; then
             export PIPELINE=$2
