@@ -18,7 +18,7 @@
 # Stable Jobs
 # TODO: Delete the special case here as soon as we get Eirini CATS green and we stabilize Eirini smoke (e.g. with a more large timeout)
 {{ $stable := slice "lint" "build" "deploy-diego" "deploy-eirini" "smoke-tests-diego" "smoke-tests-eirini" "cf-acceptance-tests-diego" "cleanup-diego-cluster" "cleanup-eirini-cluster" }}
-{{ $experimental := slice "cf-acceptance-tests-eirini" "sync-integration-tests" "ccdb-rotate-diego" "ccdb-rotate-eirini" "smoke-tests-post-rotate-diego" "smoke-tests-post-rotate-eirini" "upgrade-test" }}
+{{ $experimental := slice "cf-acceptance-tests-eirini" "cats-internetless-diego" "cats-internetless-eirini" "sync-integration-tests" "ccdb-rotate-diego" "ccdb-rotate-eirini" "smoke-tests-post-rotate-diego" "smoke-tests-post-rotate-eirini" "upgrade-test" }}
 
 groups:
 {{ range $_, $branch := (flatten (slice $branches $pr_resources) | uniq) }}
@@ -186,6 +186,7 @@ deploy_args: &deploy_args
 
   gcloud --quiet beta container \
     --project "${GKE_PROJECT}" clusters create "${GKE_CLUSTER_NAME}" \
+    --enable-network-policy \
     --zone "${GKE_CLUSTER_ZONE}" \
     --no-enable-basic-auth \
     --machine-type "n1-highcpu-16" \
@@ -807,6 +808,107 @@ jobs:
           state: failure
 {{- end }}
 {{ $previousTest = (printf "cf-acceptance-tests-%s-%s" $cfScheduler $branch) }}
+
+- name: cats-internetless-{{ $cfScheduler }}-{{ $branch }}
+  public: true
+  plan:
+  - get: kubecf-{{ $branch }}
+    passed:
+    - {{ $previousTest | quote }}
+    trigger: true
+  - get: s3.kubecf-ci
+    passed:
+    - {{ $previousTest | quote }}
+  - get: s3.kubecf-ci-bundle
+    passed:
+    - {{ $previousTest | quote }}
+  - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    passed:
+    - {{ $previousTest | quote }}
+    trigger: true
+  - get: catapult
+{{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
+  - put: status-{{ $branch }}.src
+    params: &cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+        context: "cats-internetless-tests-{{ $cfScheduler }}"
+        description: "Internetless acceptance tests {{ $cfScheduler }}"
+        path: kubecf-{{ $branch }}/{{ $path }}
+        state: pending
+{{- end }}
+  - task: test-{{ $cfScheduler }}
+    timeout: 5h30m
+    input_mapping:
+      kubecf: kubecf-{{ $branch }}
+      semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: splatform/catapult
+      inputs:
+      - name: catapult
+      - name: kubecf
+      - name: semver.gke-cluster
+      params:
+        DEFAULT_STACK: cflinuxfs3
+        TEST_SUITE: cats-internetless
+        BRANCH: {{ $branch }}
+        CFSCHEDULER: {{ $cfScheduler }}
+      run:
+        path: "/bin/bash"
+        args: *test_args
+
+{{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
+  on_success:
+    put: status-{{ $branch }}.src
+    params:
+      << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+      state: success
+{{- end }}
+  on_failure:
+    in_parallel:
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
+{{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
+{{- end }}
+  on_abort:
+    in_parallel:
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
+{{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
+{{- end }}
+  on_error:
+    in_parallel:
+    - try:
+        << : *cleanup-cluster
+        params:
+          BRANCH: {{ $branch }}
+          CFSCHEDULER: {{ $cfScheduler }}
+{{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          state: failure
+{{- end }}
+{{ $previousTest = (printf "cats-internetless-%s-%s" $cfScheduler $branch) }}
 
 # no-prod jobs
 
