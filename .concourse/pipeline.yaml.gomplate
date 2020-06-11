@@ -836,7 +836,7 @@ jobs:
       - name: semver.gke-cluster
       params:
         DEFAULT_STACK: cflinuxfs3
-        TEST_SUITE: cats-internetless
+        KUBECF_TEST_SUITE: cats-internetless
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
