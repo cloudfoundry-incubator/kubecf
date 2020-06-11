@@ -497,10 +497,10 @@ eirini:
 
 bits:
   download_eirinifs: false
+  resources:
+    cpu: ~
+    memory: ~
   global:
-    resources:
-      cpu: ~
-      memory: ~
     labels: {}
     annotations: {}
     images:
