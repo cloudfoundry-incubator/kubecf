@@ -56,4 +56,8 @@
       serial: true
     vm_type: minimal
 
+- type: replace
+  path: /instance_groups/name=brain-tests/env?/bosh/agent/settings/labels/delete?
+  value: "pod"
+
 {{- end }}
