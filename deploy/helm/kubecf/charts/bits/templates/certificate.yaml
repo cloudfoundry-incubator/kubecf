@@ -1,0 +1,18 @@
+{{- if not .Values.useExistingSecret }}
+{{- if not (hasKey .Values.secrets "BITS_TLS_CRT") }}
+_needsTlsCrt: {{ fail "secrets.BITS_TLS_CRT must be set" }}
+{{- end }}
+{{- if not (hasKey .Values.secrets "BITS_TLS_KEY") }}
+_needsTlsKey: {{ fail "secrets.BITS_TLS_KEY must be set" }}
+{{- end }}
+# Certificate
+---
+apiVersion: v1
+data:
+  tls.crt: {{ .Values.secrets.BITS_TLS_CRT | b64enc }}
+  tls.key: {{ .Values.secrets.BITS_TLS_KEY | b64enc }}
+kind: Secret
+metadata:
+  name: {{ .Values.tls_secret_name }}
+type: Opaque
+{{- end }}

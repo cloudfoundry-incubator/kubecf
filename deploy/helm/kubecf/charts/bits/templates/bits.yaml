@@ -1,0 +1,234 @@
+# ConfigMap
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bits
+data:
+  bits-config-key: |
+    logging:
+      level: debug
+    private_endpoint: "https://bits.{{ .Release.Namespace }}.svc.cluster.local"
+    {{- if .Values.ingress.use }}
+    public_endpoint: "https://registry.{{ .Values.ingress.endpoint }}:443"
+    {{- else if .Values.services.loadbalanced }}
+    public_endpoint: "https://registry.{{ .Values.env.DOMAIN }}:6666"
+    {{- else }}
+    public_endpoint: "https://bits.{{ index .Values.kube.external_ips 0 }}.nip.io"
+    {{- end }}
+    {{- if .Values.ingress.use }}
+    registry_endpoint: "https://registry.{{ .Values.ingress.endpoint }}"
+    {{- else if .Values.services.loadbalanced }}
+    registry_endpoint: "https://registry.{{ .Values.env.DOMAIN }}"
+    {{- else }}
+    registry_endpoint: "https://registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
+    {{- end }}
+    cert_file: /workspace/jobs/bits-service/certs/{{ if index .Values "tls_cert_name" }}{{ .Values.tls_cert_name }}{{ else }}{{ "tls.crt" }}{{ end }}
+    key_file: /workspace/jobs/bits-service/certs/{{ if index .Values "tls_key_name" }}{{ .Values.tls_key_name }}{{ else }}{{ "tls.key" }}{{ end }}
+    port: 6666
+    enable_http: true
+    http_port: 8888
+    secret:  {{ .Values.secrets.BITS_SERVICE_SECRET }}
+    skip_cert_verify: true
+    max_body_size: 2M
+    signing_users:
+      - username: admin
+        password:  {{ .Values.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD }}
+    app_stash_config:
+      maximum_size: 512M
+      minimum_size: 64K
+    {{- $hasBitsBlobstore := false }}
+    {{- if .Values.bits }}
+      {{- if.Values.bits.blobstore_config }}
+        {{- $hasBitsBlobstore = true }}
+      {{- end }}
+    {{- end }}
+    {{- if $hasBitsBlobstore }}
+    buildpacks: {{ .Values.bits.blobstore_config.buildpacks | toJson }}
+    droplets: {{ .Values.bits.blobstore_config.droplets | toJson }}
+    packages: {{ .Values.bits.blobstore_config.packages | toJson }}
+    app_stash: {{ .Values.bits.blobstore_config.app_stash | toJson }}
+    {{- else }}
+    buildpacks:
+      blobstore_type: webdav
+      webdav_config: &webdav_config
+        directory_key: cc-buildpacks
+        private_endpoint: https://{{ .Values.blobstore.serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:4443
+        {{- if .Values.ingress.use }}
+        public_endpoint: https://blobstore.{{ .Values.ingress.endpoint }}
+        {{- else if .Values.services.loadbalanced }}
+        public_endpoint: https://blobstore.{{ .Values.env.DOMAIN }}
+        {{- else }}
+        public_endpoint: https://blobstore.{{ index .Values.kube.external_ips 0 }}.nip.io
+        {{- end }}
+        username: {{ .Values.blobstore.userName }}
+        password: {{ .Values.secrets.BLOBSTORE_PASSWORD  }}
+        # TODO: provide proper cert file here
+        ca_cert_path: /workspace/jobs/bits-service/certs/{{ if index .Values "tls_ca_name" }}{{ .Values.tls_ca_name }}{{ else }}{{ "tls.crt" }}{{ end }}
+        # TODO: remove this skip, when we have propert cert file above
+        skip_cert_verify: true
+    droplets:
+      blobstore_type: webdav
+      webdav_config:
+        <<: *webdav_config
+        directory_key: cc-droplets
+    packages:
+      blobstore_type: webdav
+      webdav_config:
+        <<: *webdav_config
+        directory_key: cc-packages
+    app_stash:
+      blobstore_type: webdav
+      webdav_config:
+        <<: *webdav_config
+        directory_key: cc-resources
+    {{- end }}
+    enable_registry: true
+# Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "bits"
+{{- if .Values.global.labels }}
+  labels:
+{{ toYaml .Values.global.labels | indent 4 }}
+{{- end }}
+{{- if .Values.global.annotations }}
+  annotations:
+{{ toYaml .Values.global.annotations | indent 4 }}
+{{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: "bits"
+  template:
+    metadata:
+      labels:
+        name: "bits"
+{{- if .Values.global.labels }}
+{{ toYaml .Values.global.labels | indent 8 }}
+{{- end }}
+{{- if .Values.global.annotations }}
+      annotations:
+{{ toYaml .Values.global.annotations | indent 8 }}
+{{- end }}
+    spec:
+      dnsPolicy: "ClusterFirst"
+      volumes:
+        - name: bits-config
+          configMap:
+            name: "bits"
+            items:
+            - key: bits-config-key
+              path: bits-service.yml
+        - name: bits-cert
+          secret:
+            secretName: {{ .Values.tls_secret_name }}
+        - name: bits-assets
+          emptyDir: {}
+      containers:
+      - name: bits
+        image: {{ .Values.global.images.bits_service }}
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8888
+        {{- if and (.Values.blobstore.secret.name) (.Values.blobstore.secret.passwordPath) }}
+        env:
+        - name: BITS_BLOBSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: "{{ .Values.blobstore.secret.passwordPath }}"
+              name: "{{ .Values.blobstore.secret.name }}"
+        {{- end }}
+        volumeMounts:
+        - name: bits-config
+          mountPath: /workspace/jobs/bits-service/config
+        - name: bits-cert
+          mountPath: /workspace/jobs/bits-service/certs
+        {{- if .Values.download_eirinifs }}
+        - name: bits-assets
+          mountPath: /assets/
+        {{ end }}
+        resources:
+          requests:
+            cpu: 800m
+            memory: 150Mi
+      {{- if .Values.download_eirinifs }}
+      initContainers:
+      - name: "download-eirini-rootfs"
+        image: {{ .Values.global.images.rootfs_downloader }}
+        env:
+        - name: EIRINI_ROOTFS_VERSION
+          value: {{ .Values.global.rootfs_version }}
+          {{- if .Values.env.eirinifs_downloader_http_proxy }}
+        - name: http_proxy
+          value: "{{ .Values.env.eirinifs_downloader_http_proxy }}"
+        - name: https_proxy
+          value: "{{ .Values.env.eirinifs_downloader_http_proxy }}"
+          {{- end }}
+        command: ["/bin/sh", "-c", "./eirini-rootfs-downloader.sh"]
+        volumeMounts:
+        - name: bits-assets
+          mountPath: /assets/
+        resources:
+          requests:
+            cpu: 200m
+            memory: 50Mi
+      securityContext:
+        runAsNonRoot: true
+      {{ end }}
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "bits"
+  annotations:
+{{- if .Values.services.externalDNS }}
+    external-dns.alpha.kubernetes.io/hostname: registry.{{ .Values.env.DOMAIN }}
+{{- end }}
+spec:
+{{- if and (not .Values.ingress.use) (not .Values.services.loadbalanced) }}
+  externalIPs: {{ .Values.kube.external_ips | toJson }}
+{{- end }}
+  ports:
+    - port: {{ if .Values.ingress.use }}8888{{ else }}6666{{ end }}
+      protocol: TCP
+      targetPort: {{ if .Values.ingress.use }}8888{{ else }}6666{{ end }}
+      name: bits
+  selector:
+    name: "bits"
+
+  {{- if .Values.services.loadbalanced }}
+  type: "LoadBalancer"
+  {{- end }}
+
+# Ingress
+{{- if .Values.ingress.use }}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bits-registry
+  labels:
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+{{ toYaml .Values.ingress.annotations | indent 4 }}
+spec:
+  tls:
+    - hosts:
+      - "registry.{{ .Values.ingress.endpoint }}"
+      secretName: {{ .Values.tls_secret_name }}
+  rules:
+    - host: "registry.{{ .Values.ingress.endpoint }}"
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: bits
+              servicePort: 8888
+{{- end }}
