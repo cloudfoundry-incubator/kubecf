@@ -6,9 +6,13 @@ workspace=$(bazel info workspace)
 
 find_args=(
     -not \( -path "${workspace}/deploy/helm/kubecf/charts" -prune \)
-    -path "${workspace}/deploy/helm/kubecf/values.*"
-    -or -not -path "${workspace}/deploy/helm/kubecf/*"
-    -name '*.yaml' -or -name '*.yml'
+    -and
+    \( -path "${workspace}/deploy/helm/kubecf/values.*"
+       -or
+       -not \( -path "${workspace}/deploy/helm/kubecf" -prune \)
+    \)
+    -and
+    \( -name '*.yaml' -or -name '*.yml' \)
 )
 
 # shellcheck disable=SC2046
