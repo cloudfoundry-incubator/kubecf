@@ -113,12 +113,8 @@ and the subcharts can be searched with `grep` etc.
 The procedure to update the version of a subchart is:
 
 ```
-cd deploy/helm/kubecf
-vi requirements.yaml
-rm -rf charts/*
-helm dep up
-for CHART in charts/*.tgz; do tar xfz "${CHART}" -C charts; rm "${CHART}"; done
-git add --all .
+vi deploy/helm/kubecf/requirements.yaml
+./dev/helm/update_subcharts.sh
 git commit
 ```
 
