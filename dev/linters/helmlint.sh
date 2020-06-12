@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset
 
-if grep --exclude="helmlint.sh" --exclude-dir="./deploy/helm/kubecf/charts" -r "{{-.*-}}" .; then
+if git grep '{{-.*-}}' -- . ':!/deploy/helm/kubecf/charts' ':!/dev/linters/helmlint.sh'; then
     echo "Found double minus templates {{- ... -}}"
     exit 1
 fi
