@@ -9,7 +9,7 @@ find_args=(
     -and
     \( -path "${workspace}/deploy/helm/kubecf/values.*"
        -or
-       -not \( -path "${workspace}/deploy/helm/kubecf" -prune \)
+       -not -path "${workspace}/deploy/helm/kubecf/*"
     \)
     -and
     \( -name '*.yaml' -or -name '*.yml' \)
