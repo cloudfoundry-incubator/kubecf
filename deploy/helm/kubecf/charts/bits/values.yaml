@@ -19,6 +19,10 @@ global:
   labels: {}
   annotations: {}
 
+resources:
+  cpu: 800m
+  memory: 150Mi
+
 tls_secret_name: private-registry-cert
 # set to true if you wish to use a pre-populated
 # secret for TLS certs, such as that created by
