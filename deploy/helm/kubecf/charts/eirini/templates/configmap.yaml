@@ -8,7 +8,9 @@ data:
   opi.yml: |
     opi:
       app_namespace: {{ .Values.opi.namespace }}
-      {{- if .Values.opi.use_registry_ingress }}
+      {{- if .Values.opi.staging.registry }}
+      registry_address: {{ .Values.opi.staging.registry }}
+      {{- else if .Values.opi.use_registry_ingress }}
       registry_address: "registry.{{ .Values.opi.ingress_endpoint }}:443"
       {{- else if .Values.services.loadbalanced }}
       registry_address: "registry.{{ .Values.env.DOMAIN }}:6666"
@@ -20,32 +22,26 @@ data:
 
       {{- if .Values.opi.staging.downloader_image }}
       downloader_image: "{{ .Values.opi.staging.downloader_image }}:{{ .Values.opi.staging.downloader_image_tag }}"
-      {{- else }}
-      {{- if .Values.opi.staging.downloader_image_tag }}
+      {{- else if .Values.opi.staging.downloader_image_tag }}
       downloader_image: "eirini/recipe-downloader:{{ .Values.opi.staging.downloader_image_tag }}"
       {{- else }}
       downloader_image: eirini/recipe-downloader@{{ .Files.Get "versions/staging-downloader" }}
       {{- end }}
-      {{- end }}
 
       {{- if .Values.opi.staging.executor_image }}
       executor_image: "{{ .Values.opi.staging.executor_image }}:{{ .Values.opi.staging.executor_image_tag }}"
-      {{- else }}
-      {{- if .Values.opi.staging.executor_image_tag }}
+      {{- else if .Values.opi.staging.executor_image_tag }}
       executor_image: "eirini/recipe-executor:{{ .Values.opi.staging.executor_image_tag }}"
       {{- else }}
       executor_image: eirini/recipe-executor@{{ .Files.Get "versions/staging-executor" }}
       {{- end }}
-      {{- end }}
 
       {{- if .Values.opi.staging.uploader_image }}
       uploader_image: "{{ .Values.opi.staging.uploader_image }}:{{ .Values.opi.staging.uploader_image_tag }}"
-      {{- else }}
-      {{- if .Values.opi.staging.uploader_image_tag }}
+      {{- else if .Values.opi.staging.uploader_image_tag }}
       uploader_image: "eirini/recipe-uploader:{{ .Values.opi.staging.uploader_image_tag }}"
       {{- else }}
       uploader_image: eirini/recipe-uploader@{{ .Files.Get "versions/staging-uploader" }}
-      {{- end }}
       {{- end }}
 
       cc_uploader_secret_name: {{ .Values.opi.staging.tls.cc_uploader.secretName }}

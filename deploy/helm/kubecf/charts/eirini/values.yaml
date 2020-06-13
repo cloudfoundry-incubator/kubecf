@@ -82,6 +82,8 @@ opi:
 
   staging:
     enable: true
+    # Override the registry endpoint, including host name and port.
+    registry: ~
     tls:
       client:
         secretName: "secrets-2.16.4-2"
