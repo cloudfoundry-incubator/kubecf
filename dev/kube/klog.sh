@@ -6,9 +6,10 @@ KLOG=${HOME}/klog
 
 if [ "$1" == "-h" ]; then
   cat <<EOF
-usage: $0 [-f] [-v] [INSTANCE_ID]
+usage: $0 [-f] [-r] [INSTANCE_ID]
 
   -f  forces fetching of all logs even if a cache already exists
+  -r  activates fetching of the rendered jobs
 
   INSTANCE_ID defaults to "kubecf"
 EOF
@@ -19,6 +20,12 @@ FORCE=0
 if [ "$1" == "-f" ]; then
   shift
   FORCE=1
+fi
+
+RENDERED=0
+if [ "$1" == "-r" ]; then
+  shift
+  RENDERED=1
 fi
 
 NS=${1-kubecf}
@@ -74,6 +81,16 @@ function retrieve_container_cf_logs() {
     2> /dev/null > /dev/null
 }
 
+# Get the rendered jobs (scripts, config files) visible in the container.
+function retrieve_container_jobs() {
+  if [ "${RENDERED}" == "0" ] ; then return ; fi
+  printf " Jobs"
+  kubectl cp --namespace "${NS}" --container "${CONTAINER}" \
+    "${POD}":/var/vcap/jobs/ \
+    "${CONTAINER_DIR}-jobs/" \
+    2> /dev/null > /dev/null
+}
+
 # Get the pod logs - Note that previous may not be there if it was
 # successful on the first run. Unfortunately we can't get anything
 # past the previous one.
@@ -98,6 +115,7 @@ function handle_container() {
 	# of logs (It has no `tar` executable (in the path).
 	if [ "${CONTAINER}" != "logs" ] ; then
 	    retrieve_container_cf_logs
+	    retrieve_container_jobs
 	fi
     fi
 
