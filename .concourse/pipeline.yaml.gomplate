@@ -37,11 +37,13 @@ resource_types:
   source:
     repository: teliaoss/github-pr-resource
 
+{{- if $config.github_status }}
 - name: github-status
   type: docker-image
   source:
     repository: resource/github-status
     tag: release
+{{- end }}
 
 resources:
 - name: kubecf-github-release
@@ -84,11 +86,13 @@ resources:
   source:
     branch: {{ $branch }}
     uri: https://github.com/{{ $config.kubecf_repository }}
+{{- if $config.github_status }}
 - name: status-{{ $branch }}.src
   type: github-status
   source:
     repo: {{ $config.kubecf_repository }}
     access_token: ((github-access-token))
+{{- end }}
 {{ end }}
 
 - name: kubecf-pr
@@ -111,11 +115,13 @@ resources:
 
 {{- range $_, $pr := $pr_resources }}
 
+{{- if $config.github_status }}
 - name: status-{{$pr}}.src
   type: github-status
   source:
     repo: {{ $config.kubecf_repository }}
     access_token: ((github-access-token))
+{{- end }}
 
 {{- end }}
 
@@ -318,12 +324,14 @@ jobs:
 {{- end }}
     version: "every"
 {{- if has $stable "lint" }}
+  {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &lint_{{ $sanitized_branch_name }}_status
         context: lint
         description: "Lint started"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
+  {{- end }}
 {{- end }}
   - task: lint
     config:
@@ -347,6 +355,7 @@ jobs:
           bazel test //rules/kubecf:create_sample_values_test
 
 {{- if has $stable "lint" }}
+    {{- if $config.github_status }}
     on_success:
       put: status-{{ $branch }}.src
       params:
@@ -357,6 +366,7 @@ jobs:
       params:
         << : *lint_{{ $sanitized_branch_name }}_status
         state: failure
+    {{ end }}
 {{- end }}
 
 - name: build-{{ $branch }}
@@ -368,12 +378,14 @@ jobs:
     passed:
     - lint-{{ $branch }}
 {{- if has $stable "build" }}
+  {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &build_{{ $sanitized_branch_name }}_status
         context: build
         description: "Build started"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
+  {{- end }}
 {{- end }}
   - task: build
     config:
@@ -400,6 +412,7 @@ jobs:
           done
 
 {{- if has $stable "build" }}
+    {{- if $config.github_status }}
     on_success:
       put: status-{{ $branch }}.src
       params:
@@ -410,6 +423,7 @@ jobs:
       params:
         << : *build_{{ $sanitized_branch_name }}_status
         state: failure
+    {{- end }}
 {{- end }}
   - put: s3.kubecf-ci
     params:
@@ -441,12 +455,14 @@ jobs:
     - build-{{ $branch }}
   - get: catapult
 {{- if has $stable (printf "deploy-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "deploy-{{ $cfScheduler }}"
         description: "Deploy {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
+  {{- end }}
 {{- end }}
   - put: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
     params: {bump: patch}
@@ -477,21 +493,25 @@ jobs:
         path: "/bin/bash"
         args: *deploy_args
 {{- if has $stable (printf "deploy-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   on_success:
     do:
     - put: status-{{ $branch }}.src
       params:
         << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: success
+  {{- end }}
 {{- end }}
   on_failure:
     in_parallel:
 {{- if has $stable (printf "deploy-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+  {{- end }}
 {{- end }}
     - try: &cleanup-cluster
         task: cleanup-cluster
@@ -570,12 +590,14 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "deploy-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
+    {{- end }}
   on_error:
     in_parallel:
     - try:
@@ -584,11 +606,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "deploy-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
 
 {{ $previousTest := "" }}
@@ -612,12 +636,14 @@ jobs:
     trigger: true
   - get: catapult
 {{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "smoke-tests-{{ $cfScheduler }}"
         description: "Smoke tests {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
+  {{- end }}
 {{- end }}
   - task: test-{{ $cfScheduler }}
     input_mapping:
@@ -642,20 +668,24 @@ jobs:
         path: "/bin/bash"
         args: *test_args
 {{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
     params:
       << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
+  {{- end }}
 {{- end }}
   on_failure:
     in_parallel:
 {{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
     - try:
         << : *cleanup-cluster
@@ -670,12 +700,14 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
+    {{- end }}
   on_error:
     in_parallel:
     - try:
@@ -684,11 +716,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "smoke-tests-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
 {{ $previousTest = (printf "smoke-tests-%s-%s" $cfScheduler $branch) }}
 
@@ -711,12 +745,14 @@ jobs:
     trigger: true
   - get: catapult
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "cf-acceptance-tests-{{ $cfScheduler }}"
         description: "Acceptance tests {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
+  {{- end }}
 {{- end }}
   - task: test-{{ $cfScheduler }}
     timeout: 5h30m
@@ -742,12 +778,14 @@ jobs:
         args: *test_args
 
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
     params:
       << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
 {{- end }}
+  {{- end }}
 
   on_failure:
     in_parallel:
@@ -757,11 +795,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+  {{- end }}
 {{- end }}
   on_abort:
     in_parallel:
@@ -771,12 +811,14 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
+    {{- end }}
   on_error:
     in_parallel:
     - try:
@@ -785,11 +827,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cf-acceptance-tests-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
 {{ $previousTest = (printf "cf-acceptance-tests-%s-%s" $cfScheduler $branch) }}
 
@@ -812,12 +856,14 @@ jobs:
     trigger: true
   - get: catapult
 {{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "cats-internetless-tests-{{ $cfScheduler }}"
         description: "Internetless acceptance tests {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
+  {{- end }}
 {{- end }}
   - task: test-{{ $cfScheduler }}
     timeout: 5h30m
@@ -844,12 +890,14 @@ jobs:
         args: *test_args
 
 {{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
     params:
       << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
 {{- end }}
+  {{- end }}
   on_failure:
     in_parallel:
     - try:
@@ -858,11 +906,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
   on_abort:
     in_parallel:
@@ -872,12 +922,14 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
 {{- end }}
+    {{- end }}
   on_error:
     in_parallel:
     - try:
@@ -886,11 +938,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "cats-internetless-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
 {{ $previousTest = (printf "cats-internetless-%s-%s" $cfScheduler $branch) }}
 
@@ -916,12 +970,14 @@ jobs:
     trigger: true
   - get: catapult
 {{- if has $stable "sync-integration-tests" }}
+  {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &sits_{{ $sanitized_branch_name }}_status
         context: "sync-integration-tests"
         description: "Sync Integration tests"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
+  {{- end }}
 {{- end }}
   - task: test-{{ $cfScheduler }}
     timeout: 1h30m
@@ -946,20 +1002,24 @@ jobs:
         path: "/bin/bash"
         args: *test_args
 {{- if has $stable "sync-integration-tests" }}
+  {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
     params:
       << : *sits_{{ $sanitized_branch_name }}_status
       state: success
+  {{- end }}
 {{- end }}
   on_failure:
     in_parallel:
 {{- if has $stable "sync-integration-tests" }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *sits_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
     - try:
         << : *cleanup-cluster
@@ -974,11 +1034,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable "sync-integration-tests" }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *sits_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
 
   on_error:
@@ -989,11 +1051,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable "sync-integration-tests" }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *sits_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
 {{ $previousTest = (printf "sync-integration-tests-%s" $branch) }}
 {{- end }}
@@ -1017,12 +1081,14 @@ jobs:
     trigger: true
   - get: catapult
 {{- if has $stable (printf "rotate-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "rotate-{{ $cfScheduler }}"
         description: "Rotating secrets {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
+  {{- end }}
 {{- end }}
   - task: rotate-{{ $cfScheduler }}
     timeout: 1h30m
@@ -1047,21 +1113,25 @@ jobs:
         args: *rotate_args
 
 {{- if has $stable (printf "rotate-%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
     params:
       << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
+  {{- end }}
 {{- end }}
 
   on_failure:
     in_parallel:
 {{- if has $stable (printf "rotate-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
     - try:
         << : *cleanup-cluster
@@ -1076,11 +1146,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "rotate-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
   on_error:
     in_parallel:
@@ -1090,11 +1162,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "rotate-%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
 {{ $previousTest = (printf "ccdb-rotate-%s-%s" $cfScheduler $branch) }}
 
@@ -1117,12 +1191,14 @@ jobs:
     trigger: true
   - get: catapult
 {{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "smoke-rotated-{{ $cfScheduler }}"
         description: "Smoke tests after rotating secrets {{ $cfScheduler }}"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
+  {{- end }}
 {{- end }}
   - task: test-{{ $cfScheduler }}
     input_mapping:
@@ -1148,21 +1224,25 @@ jobs:
         args: *test_args
 
 {{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
+  {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
     params:
       << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
+  {{- end }}
 {{- end }}
 
   on_failure:
     in_parallel:
 {{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
     - try:
         << : *cleanup-cluster
@@ -1177,11 +1257,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
   on_error:
     in_parallel:
@@ -1191,11 +1273,13 @@ jobs:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $stable (printf "smoke-rotated-{%s" $cfScheduler) }}
+    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
+    {{- end }}
 {{- end }}
 {{ $previousTest = (printf "smoke-tests-post-rotate-%s-%s" $cfScheduler $branch) }}
 

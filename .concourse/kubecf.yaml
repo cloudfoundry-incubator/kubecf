@@ -12,4 +12,7 @@ gke_zone: europe-west3-c
 gke_dns_zone: kubecf-ci
 gke_domain: kubecf.ci
 
-trigger_publish: true  # Please disable triggering the publish job when you are developing
+# NOTE please disable the following if you are developing or deploying a copy of
+# the pipeline:
+trigger_publish: true
+github_status: true
