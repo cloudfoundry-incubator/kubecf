@@ -4,7 +4,7 @@ dependencies:
   repository: http://opensource.suse.com/eirini-release/
   condition: features.eirini.enabled
 - name: bits
-  version: 1.0.16
+  version: 1.0.17
   repository: http://opensource.suse.com/bits-service-release/
   condition: features.eirini.enabled
 - name: eirini-extensions

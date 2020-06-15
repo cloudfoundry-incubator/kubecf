@@ -497,6 +497,9 @@ eirini:
 
 bits:
   download_eirinifs: false
+  resources:
+    cpu: ~
+    memory: ~
   global:
     labels: {}
     annotations: {}
