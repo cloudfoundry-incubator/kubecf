@@ -1,4 +1,5 @@
-{{ $kind_pool_size := 31 }}
+# load the config provided when evaluating the template
+{{ $config := (datasource "config") }}
 
 resources:
 - name: kind-environments
@@ -26,7 +27,7 @@ deploy_args: &deploy_args
   export CLUSTER_NAME="$CLUSTER_PREFIX-$(date +%s | sha256sum | base64 | head -c 32 ; echo)"
   CURRENT_CLUSTERS=$(ls kind-environments/kind/**/* | grep -v .keep | wc -l)
 
-  if [ $CURRENT_CLUSTERS -lt {{ $kind_pool_size }} ]; then
+  if [ $CURRENT_CLUSTERS -lt {{ $config.kind_pool_size }} ]; then
     pushd catapult
     make k8s
   else

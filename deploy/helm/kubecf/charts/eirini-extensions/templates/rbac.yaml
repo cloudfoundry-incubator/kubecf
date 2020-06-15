@@ -1,0 +1,53 @@
+{{ if .Values.rbac.enable }}
+# eirini-webhook cluster role for eirini service account.
+# Used to implement eirinix extensions. 
+# Wide permissions needed until https://github.com/SUSE/eirinix/issues/22 is done.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Namespace }}:eirini-webhook
+rules:
+- apiGroups: ['admissionregistration.k8s.io']
+  resources: ['mutatingwebhookconfigurations']
+  verbs: ['*']
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Namespace }}:eirini-webhook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Namespace }}:eirini-webhook
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.service_account.name }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}
+
+{{- if gt (len .Values.rbac.webhook.cluster_role.rules) 0 }}
+# eirini-webhook-user-provided cluster role for eirini service account.
+# If user provides a customized cluster role, it is used to implement eirinix extensions.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Namespace }}:eirini-webhook-user-provided
+rules: {{ .Values.rbac.webhook.cluster_role.rules | toJson }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Namespace }}:eirini-webhook-user-provided
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Namespace }}:eirini-webhook-user-provided
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.service_account.name }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}

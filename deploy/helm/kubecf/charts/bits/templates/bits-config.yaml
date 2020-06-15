@@ -1,0 +1,80 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bits
+type: Opaque
+stringData:
+  bits-config-key: |
+    logging:
+      level: debug
+    private_endpoint: "https://bits.{{ .Release.Namespace }}.svc.cluster.local"
+    {{- if .Values.ingress.use }}
+    public_endpoint: "https://registry.{{ .Values.ingress.endpoint }}:443"
+    {{- else if .Values.services.loadbalanced }}
+    public_endpoint: "https://registry.{{ .Values.env.DOMAIN }}:6666"
+    {{- else }}
+    public_endpoint: "https://bits.{{ index .Values.kube.external_ips 0 }}.nip.io"
+    {{- end }}
+    {{- if .Values.ingress.use }}
+    registry_endpoint: "https://registry.{{ .Values.ingress.endpoint }}"
+    {{- else if .Values.services.loadbalanced }}
+    registry_endpoint: "https://registry.{{ .Values.env.DOMAIN }}"
+    {{- else }}
+    registry_endpoint: "https://registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
+    {{- end }}
+    cert_file: /workspace/jobs/bits-service/certs/{{ index .Values "tls_cert_name" | default "tls.crt" }}
+    key_file: /workspace/jobs/bits-service/certs/{{ index .Values "tls_key_name" | default "tls.key" }}
+    port: 6666
+    enable_http: true
+    http_port: 8888
+    secret:  {{ .Values.secrets.BITS_SERVICE_SECRET }}
+    skip_cert_verify: true
+    max_body_size: 2M
+    signing_users:
+      - username: admin
+        password:  {{ .Values.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD }}
+    app_stash_config:
+      maximum_size: 512M
+      minimum_size: 64K
+    {{- if index (default (dict) .Values.bits) "blobstore_config" }}
+    buildpacks: {{ .Values.bits.blobstore_config.buildpacks | toJson }}
+    droplets: {{ .Values.bits.blobstore_config.droplets | toJson }}
+    packages: {{ .Values.bits.blobstore_config.packages | toJson }}
+    app_stash: {{ .Values.bits.blobstore_config.app_stash | toJson }}
+    {{- else }}
+    buildpacks:
+      blobstore_type: webdav
+      webdav_config: &webdav_config
+        directory_key: cc-buildpacks
+        private_endpoint: https://{{ .Values.blobstore.serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:4443
+        {{- if .Values.ingress.use }}
+        public_endpoint: https://blobstore.{{ .Values.ingress.endpoint }}
+        {{- else if .Values.services.loadbalanced }}
+        public_endpoint: https://blobstore.{{ .Values.env.DOMAIN }}
+        {{- else }}
+        public_endpoint: https://blobstore.{{ index .Values.kube.external_ips 0 }}.nip.io
+        {{- end }}
+        username: {{ .Values.blobstore.userName }}
+        password: {{ .Values.secrets.BLOBSTORE_PASSWORD  }}
+        # TODO: provide proper cert file here
+        ca_cert_path: /workspace/jobs/bits-service/certs/{{ index .Values "tls_ca_name" | default "tls.crt" }}
+        # TODO: remove this skip, when we have propert cert file above
+        skip_cert_verify: true
+    droplets:
+      blobstore_type: webdav
+      webdav_config:
+        <<: *webdav_config
+        directory_key: cc-droplets
+    packages:
+      blobstore_type: webdav
+      webdav_config:
+        <<: *webdav_config
+        directory_key: cc-packages
+    app_stash:
+      blobstore_type: webdav
+      webdav_config:
+        <<: *webdav_config
+        directory_key: cc-resources
+    {{- end }}
+    enable_registry: true

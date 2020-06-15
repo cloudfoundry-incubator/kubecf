@@ -1,0 +1,118 @@
+# Default values for eirinix.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# The namespace into which Eirini applications will be deployed.
+# This does not have to (and probably shouldn't) match the namespace in which
+# Eirini, or the extensions helm chart, is deployed into.
+namespace: eirini
+
+loggregator-bridge:
+  replicaCount: 1
+  image:
+    repository: splatform
+    tag: v0.0.0-0.gfd70cac
+    pullPolicy: IfNotPresent
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+  endpoint: doppler:8082
+  secrets:
+    ca: var-loggregator-ca          # Name of secret containing loggregator CA
+    cert: var-loggregator-tls-agent # Name of secret containing cert info
+
+persi:
+  replicaCount: 1
+  image:
+    repository: splatform
+    tag: v0.0.0-67.ge68b3d3
+    pullPolicy: IfNotPresent
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+persi-broker:
+  replicaCount: 1
+  image:
+    repository: splatform
+    tag: v0.0.0-g47355df
+    pullPolicy: IfNotPresent
+  setup-image:
+    repository: splatform
+    tag: v0.0.0-ge2799d8
+    pullPolicy: IfNotPresent
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+  service-plans:
+  - id: default
+    name: "default"
+    description: "Existing default storage class"
+    kube_storage_class: "default"
+    free: true
+    default_size: "1Gi"
+  description: Eirini persistence broker
+  long_description: Eirini persistence broker to provide Kubernete storage classes
+  provider_display_name: Eirini broker
+  documentation_url: https://github.com/SUSE/eirini-persi-broker
+  support_url: https://github.com/SUSE/eirini-persi-broker/issues
+  display_name: Eirini broker
+  icon_image: Eirini broker
+  secrets:
+    auth-password: ~ # Password is randomly generated if not given
+
+ssh:
+  replicaCount: 1
+  image:
+    repository: splatform
+    tag: v0.0.0-0.ge2ed1ab
+    pullPolicy: IfNotPresent
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+  cc-api-url: https://api:9024
+  uaa-token-url: https://uaa:8443/oauth/token
+
+ssh-proxy:
+  replicaCount: 1
+  image:
+    repository: splatform
+    tag: v0.0.0-0.ge2ed1ab
+    pullPolicy: IfNotPresent
+  setup-image:
+    repository: splatform
+    tag: v0.0.0-ge2799d8
+    pullPolicy: IfNotPresent
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+  secrets:
+    host-keys: var-diego-ssh-proxy-host-key
+    uaa-client-proxy-secret: var-uaa-clients-ssh-proxy-secret
+    uaa-ca: var-uaa-ca
+    cc-api-ca: var-cc-public-tls
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+externalIPs: []
+
+rbac:
+  enable: true
+  webhook:
+    cluster_role:
+      rules: []
+
+service_account:
+  create: true
+  name: "eirinix"

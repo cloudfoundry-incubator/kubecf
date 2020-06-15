@@ -1,0 +1,20 @@
+    Welcome to your new deployment of KubeCF.
+
+    The endpoint for use by the `cf` client is
+        [1;36mhttps://api.{{ .Values.system_domain }}[0m
+
+    To target this endpoint and login, run
+        [1;36mcf login --skip-ssl-validation -a https://api.{{ .Values.system_domain }} -u admin[0m
+
+    Please remember, it may take some time for everything to come online.
+
+    You can use
+        [1;36mkubectl get pods --namespace {{ .Release.Namespace }}[0m
+
+    to spot-check if everything is up and running, or
+        [1;36mwatch -c 'kubectl get pods --namespace {{ .Release.Namespace }}'[0m
+
+    to monitor continuously.
+
+    The online documentation (release notes, deployment guide) can be found at
+        [1;36mhttps://kubecf.suse.dev/docs[0m

@@ -1,0 +1,48 @@
+# set ingress endpoint when 'use_registry_ingress' is set to true
+ingress:
+  use: false
+  endpoint: ~
+  annotations: {}
+
+blobstore:
+  serviceName: "blobstore-blobstore"
+  userName: "blobstore_user"
+  secret:
+    name: ~
+    passwordPath: ~
+
+global:
+  rootfs_version: v129.0.0
+  images:
+    bits_service: eirini/bits-service:2.36.0@sha256:4cf84e13890890f5d8443a5e6e129b701d524f51d35c9c4295a0562ed8bb1bb2
+    rootfs_downloader: eirini/rootfs-downloader:2.32.0@sha256:6ae511688a27a453dcf31bf5a3bd7287ba99233e1586c7aeb78c87a18c68dbe4
+  labels: {}
+  annotations: {}
+
+tls_secret_name: private-registry-cert
+# set to true if you wish to use a pre-populated
+# secret for TLS certs, such as that created by
+# cert-manager
+useExistingSecret: false
+
+# If set to false, the eirinifs will not be downloaded when the bits pod
+# is started. It should be used when the eirinifs is provided in some other way.
+download_eirinifs: true
+
+kube:
+  external_ips: []
+
+services:
+  loadbalanced: false
+
+secrets:
+  BITS_SERVICE_SECRET: secret
+  BITS_SERVICE_SIGNING_USER_PASSWORD: notpassword123
+  BLOBSTORE_PASSWORD:  blobstore
+  BITS_TLS_CRT: ~
+  BITS_TLS_KEY: ~
+env:
+  # Base domain of the SCF cluster.
+  # Example: "my-scf-cluster.com"
+  DOMAIN: ~
+  eirinifs_downloader_http_proxy: ~
