@@ -1,0 +1,18 @@
+---
+
+s3_bucket: kubecf-ci
+s3_bucket_region: eu-central-1
+s3_final_bucket: kubecf
+s3_final_bucket_region: us-west-2
+kubecf_repository: cloudfoundry-incubator/kubecf
+
+# for preemptible gke clusters
+gke_project: suse-225215
+gke_zone: europe-west3-c
+gke_dns_zone: kubecf-ci
+gke_domain: kubecf.ci
+
+# NOTE please disable the following if you are developing or deploying a copy of
+# the pipeline:
+trigger_publish: true
+github_status: true

@@ -1,12 +1,12 @@
 dependencies:
 - name: eirini
   repository: http://opensource.suse.com/eirini-release/
-  version: 1.0.2
+  version: 1.0.5
 - name: bits
   repository: http://opensource.suse.com/bits-service-release/
-  version: 1.0.14
+  version: 1.0.17
 - name: eirini-extensions
   repository: https://opensource.suse.com/eirinix-helm-release/
   version: 0.0.0-10+g3df5bb4
-digest: sha256:b07ec982acce3951548e2f4a15fb68b3dd974ac0500e9d270b9a953b3a7451d8
-generated: "2020-05-13T09:20:47.01515391-07:00"
+digest: sha256:ef3ea5ab17a55bb2cd371ea8e0f6a93bab6a0163be49f368304f6154b3bdab69
+generated: "2020-06-13T08:59:59.521728-07:00"

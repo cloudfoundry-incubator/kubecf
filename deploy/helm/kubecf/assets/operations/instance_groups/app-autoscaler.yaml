@@ -1005,4 +1005,8 @@
 {{ $bytes | toString }}
 {{- end }}
 
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/asactors_*" }}
+{{ $bytes | toString }}
+{{- end }}
+
 {{- end }}

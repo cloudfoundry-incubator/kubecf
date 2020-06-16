@@ -81,13 +81,13 @@ binaries:
     version: 1.9.2
   shellcheck:
     sha256:
-      darwin: a5d77cbe4c3e92916bce712b959f6d54392f94bcf8ea84f80ba425a9e72e2afe
-      linux: c37d4f51e26ec8ab96b03d84af8c050548d7288a47f755ffb57706c6c458e027
-      windows: 8aafdeff31095613308e92ce6a13e3c41249b51e757fd4fcdfdfc7a81d29286a
+      darwin: c4edf1f04e53a35c39a7ef83598f2c50d36772e4cc942fb08a1114f9d48e5380
+      linux: 39c501aaca6aae3f3c7fc125b3c3af779ddbe4e67e4ebdc44c2ae5cba76c847f
+      windows: 02cfa14220c8154bb7c97909e80e74d3a7fe2cbb7d80ac32adcac7988a95e387
     url:
-      darwin: https://storage.googleapis.com/shellcheck/shellcheck-v{version}.darwin-x86_64
-      linux: https://storage.googleapis.com/shellcheck/shellcheck-v{version}.linux-x86_64
-      windows: https://storage.googleapis.com/shellcheck/shellcheck-v{version}.exe
+      darwin: https://github.com/koalaman/shellcheck/releases/download/v{version}/shellcheck-v{version}.darwin.x86_64.tar.xz
+      linux: https://github.com/koalaman/shellcheck/releases/download/v{version}/shellcheck-v{version}.linux.x86_64.tar.xz
+      windows: https://github.com/koalaman/shellcheck/releases/download/v{version}/shellcheck-v{version}.zip
     version: 0.7.0
   yq:
     sha256:
