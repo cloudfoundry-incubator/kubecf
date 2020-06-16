@@ -1405,6 +1405,8 @@ jobs:
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: upgrade
+        input_mapping:
+          semver.gke-cluster: semver.gke-cluster-{{ $branch }}-upgrade
 
 {{ if not ($branch | regexp.Match "^pr|fork-pr") }}
 - name: publish-{{ $branch }}
