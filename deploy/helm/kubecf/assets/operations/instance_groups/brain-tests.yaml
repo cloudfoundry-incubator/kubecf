@@ -37,6 +37,15 @@
           password: ((cf_admin_password))
           skip_ssl_validation: true
           user: admin
+        tests:
+          autoscaler:
+            enabled: {{ .Values.features.autoscaler.enabled }}
+          tcprouting:
+            enabled: {{ .Values.features.routing_api.enabled }}
+          insecure_registry:
+            enabled: {{ .Values.features.routing_api.enabled }}
+          credhub:
+            enabled: {{ .Values.features.credhub.enabled }}
       release: brain-tests
     lifecycle: errand
     name: brain-tests

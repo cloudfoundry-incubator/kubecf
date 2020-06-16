@@ -14,15 +14,15 @@ Move to the origin/master branch:
 
 Create a release branch following the semver rules:
 ```
-> git checkout -b v2.0.0
+> git checkout -b release-2.0
 ```
 
 ```
-> git push --set-upstream origin v2.0.0
+> git push --set-upstream origin release-2.0
 ```
 
 
-Check [here](https://github.com/cloudfoundry-incubator/kubecf/branches) if the v2.0.0 branch is protected by verifying if the release branch as the lock icon:
+Check [here](https://github.com/cloudfoundry-incubator/kubecf/branches) if the release-2.0 branch is protected by verifying if the release branch as the lock icon:
 
 ![](https://i.imgur.com/n8DHyeF.png)
 
@@ -52,7 +52,7 @@ helm_package(
 ```
 
 Update the Concourse pipeline _.concourse/pipeline.yaml.gomplate_ by adding the new release branch to the list of branches:
-```{{ $branches := slice "master" "v2.0.0" }} # Repository branches to track```
+```{{ $branches := slice "master" "release-2.0" }} # Repository branches to track```
 
 ## Concourse
 

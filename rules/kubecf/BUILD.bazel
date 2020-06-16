@@ -1,7 +1,14 @@
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
+    "create_sample_values.rb",
     "image_list.tmpl.rb",
     "release_chart.sh",
     "test.tmpl.sh",
 ])
+
+sh_test(
+    name = "create_sample_values_test",
+    size = "small",
+    srcs = [":create_sample_values.rb"]
+)

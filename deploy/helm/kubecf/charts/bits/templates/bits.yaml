@@ -1,0 +1,156 @@
+# Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "bits"
+{{- if .Values.global.labels }}
+  labels:
+{{ toYaml .Values.global.labels | indent 4 }}
+{{- end }}
+{{- if .Values.global.annotations }}
+  annotations:
+{{ toYaml .Values.global.annotations | indent 4 }}
+{{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: "bits"
+  template:
+    metadata:
+      labels:
+        name: "bits"
+{{- if .Values.global.labels }}
+{{ toYaml .Values.global.labels | indent 8 }}
+{{- end }}
+{{- if .Values.global.annotations }}
+      annotations:
+{{ toYaml .Values.global.annotations | indent 8 }}
+{{- end }}
+    spec:
+      dnsPolicy: "ClusterFirst"
+      volumes:
+        - name: bits-config
+          secret:
+            secretName: "bits"
+            items:
+            - key: bits-config-key
+              path: bits-service.yml
+        - name: bits-cert
+          secret:
+            secretName: {{ .Values.tls_secret_name }}
+        - name: bits-assets
+          emptyDir: {}
+      containers:
+      - name: bits
+        image: {{ .Values.global.images.bits_service }}
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8888
+        {{- if and (.Values.blobstore.secret.name) (.Values.blobstore.secret.passwordPath) }}
+        env:
+        - name: BITS_BLOBSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: "{{ .Values.blobstore.secret.passwordPath }}"
+              name: "{{ .Values.blobstore.secret.name }}"
+        {{- end }}
+        volumeMounts:
+        - name: bits-config
+          mountPath: /workspace/jobs/bits-service/config
+        - name: bits-cert
+          mountPath: /workspace/jobs/bits-service/certs
+        {{- if .Values.download_eirinifs }}
+        - name: bits-assets
+          mountPath: /assets/
+        {{ end }}
+        {{- with .Values.resources }}
+        {{- if or .cpu .memory }}
+        resources:
+          requests:
+            {{- with .cpu }}
+            cpu: {{ . }}
+            {{ end }}
+            {{- with .memory }}
+            memory: {{ . }}
+            {{- end }}
+        {{- end }}
+        {{- end }}
+      {{- if .Values.download_eirinifs }}
+      initContainers:
+      - name: "download-eirini-rootfs"
+        image: {{ .Values.global.images.rootfs_downloader }}
+        env:
+        - name: EIRINI_ROOTFS_VERSION
+          value: {{ .Values.global.rootfs_version }}
+          {{- if .Values.env.eirinifs_downloader_http_proxy }}
+        - name: http_proxy
+          value: "{{ .Values.env.eirinifs_downloader_http_proxy }}"
+        - name: https_proxy
+          value: "{{ .Values.env.eirinifs_downloader_http_proxy }}"
+          {{- end }}
+        command: ["/bin/sh", "-c", "./eirini-rootfs-downloader.sh"]
+        volumeMounts:
+        - name: bits-assets
+          mountPath: /assets/
+        resources:
+          requests:
+            cpu: 200m
+            memory: 50Mi
+      securityContext:
+        runAsNonRoot: true
+      {{ end }}
+
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "bits"
+  annotations:
+{{- if .Values.services.externalDNS }}
+    external-dns.alpha.kubernetes.io/hostname: registry.{{ .Values.env.DOMAIN }}
+{{- end }}
+spec:
+{{- if and (not .Values.ingress.use) (not .Values.services.loadbalanced) }}
+  externalIPs: {{ .Values.kube.external_ips | toJson }}
+{{- end }}
+  ports:
+    - port: {{ if .Values.ingress.use }}8888{{ else }}6666{{ end }}
+      protocol: TCP
+      targetPort: {{ if .Values.ingress.use }}8888{{ else }}6666{{ end }}
+      name: bits
+  selector:
+    name: "bits"
+
+  {{- if .Values.services.loadbalanced }}
+  type: "LoadBalancer"
+  {{- end }}
+
+# Ingress
+{{- if .Values.ingress.use }}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bits-registry
+  labels:
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+{{ toYaml .Values.ingress.annotations | indent 4 }}
+spec:
+  tls:
+    - hosts:
+      - "registry.{{ .Values.ingress.endpoint }}"
+      secretName: {{ .Values.tls_secret_name }}
+  rules:
+    - host: "registry.{{ .Values.ingress.endpoint }}"
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: bits
+              servicePort: 8888
+{{- end }}

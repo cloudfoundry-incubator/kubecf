@@ -1,3 +1,4 @@
+# REQUIRED: the domain that the deployment will be visible to the user.
 system_domain: ~
 
 # Set or override job properties. The first level of the map is the instance group name. The second
@@ -10,19 +11,6 @@ system_domain: ~
 #            logs:
 #              addr: kubecf-log-api:8082
 #
-#  Eirini Persistence Broker setup example:
-#
-# properties:
-#   eirini:
-#     eirini-persi-broker:
-#       eirini-persi-broker:
-#         service_plans:
-#           - id: "default"
-#             name: "default"
-#             description: "Persistence storage service broker for applications."
-#             free: true
-#             kube_storage_class: "default"
-#             default_size: "1Gi"
 properties: {}
 
 credentials: {}
@@ -51,15 +39,25 @@ releases:
   bits-service:
     version: 2.28.0
   brain-tests:
-    version: v0.0.11
+    version: v0.0.12
     stemcell:
       os: SLE_15_SP1
-      version: 23.24-7.0.0_374.gb8e8e6af
+      version: 25.1-7.0.0_374.gb8e8e6af
   cf-acceptance-tests:
     version: 0.0.13
     stemcell:
       os: SLE_15_SP1
       version: 23.21-7.0.0_374.gb8e8e6af
+  cf-smoke-tests:
+    version: 40.0.128
+    stemcell:
+      os: SLE_15_SP1
+      version: 25.2-7.0.0_374.gb8e8e6af
+  cflinuxfs3:
+    version: 0.192.0
+    stemcell:
+      os: SLE_15_SP1
+      version: 26.3-7.0.0_374.gb8e8e6af
   # pxc is not a BOSH release.
   pxc:
     image:
@@ -78,53 +76,53 @@ releases:
     version: v0.0.3
   suse-staticfile-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.5.5.1"
+    version: "1.5.6.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.1-7.0.0_374.gb8e8e6af
-    file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.5.1-5.1-eaf36a02.zip
+      version: 26.3-7.0.0_374.gb8e8e6af
+    file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.6.1-2.1-a74620df.zip
   suse-java-buildpack:
     url: registry.suse.com/cap-staging
-    version: "4.29.1.1"
+    version: "4.31.0.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.1-7.0.0_374.gb8e8e6af
-    file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.29.1.1-543ec059.zip
+      version: 26.3-7.0.0_374.gb8e8e6af
+    file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.31.0.1-a4991aaa.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.8.15.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.1-7.0.0_374.gb8e8e6af
+      version: 26.3-7.0.0_374.gb8e8e6af
     file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.15.1-4.1-2b6d6879.zip
   suse-dotnet-core-buildpack:
     url: registry.suse.com/cap-staging
     version: "2.3.9.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.1-7.0.0_374.gb8e8e6af
+      version: 26.3-7.0.0_374.gb8e8e6af
     file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.9.1-1.1-e74bd89e.zip
   suse-nodejs-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.7.17.1"
+    version: "1.7.18.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.1-7.0.0_374.gb8e8e6af
-    file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.17.1-1.1-7e96d2dd.zip
+      version: 26.3-7.0.0_374.gb8e8e6af
+    file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.18.1-1.1-d2f6559e.zip
   suse-go-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.9.11.1"
+    version: "1.9.12.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.1-7.0.0_374.gb8e8e6af
-    file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.11.1-2.1-d5c02636.zip
+      version: 26.3-7.0.0_374.gb8e8e6af
+    file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.12.1-1.1-b4deef1b.zip
   suse-python-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.7.12.1"
+    version: "1.7.14.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.1-7.0.0_374.gb8e8e6af
-    file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.12.1-2.1-ebd0f50d.zip
+      version: 26.3-7.0.0_374.gb8e8e6af
+    file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.14.1-1.1-a828fa62.zip
   suse-php-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.4.14.1"
@@ -137,14 +135,14 @@ releases:
     version: "1.1.7.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.1-7.0.0_374.gb8e8e6af
+      version: 26.3-7.0.0_374.gb8e8e6af
     file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.7.1-1.1-fbf90d1f.zip
   suse-binary-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.0.36.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.1-7.0.0_374.gb8e8e6af
+      version: 26.3-7.0.0_374.gb8e8e6af
     file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
 
 multi_az: false
@@ -244,10 +242,11 @@ settings:
 
 features:
   eirini:
+    # When eirini is enabled, both suse_default_stack and suse_buildpacks must be enabled as well.
     enabled: false
     registry:
       service:
-        # This setting is not currently configurable
+        # This setting is not currently configurable and must be HIDDEN
         nodePort: 31666
   ingress:
     enabled: false
@@ -256,6 +255,8 @@ features:
       key: ~
     annotations: {}
     labels: {}
+  suse_default_stack:
+    enabled: false
   suse_buildpacks:
     enabled: true
   autoscaler:
@@ -345,8 +346,7 @@ testing:
 ccdb:
   encryption:
     rotation:
-      # Key labels must be <= 240 characters long. Each label will be prepended with the
-      # "ccdb_key_label_" value.
+      # Key labels must be <= 240 characters long.
       key_labels:
       - encryption_key_0
       current_key_label: encryption_key_0
@@ -375,7 +375,7 @@ eirini:
     annotations: {}
 
   env:
-    # This setting is not configurable
+    # This setting is not configurable and must be HIDDEN from the user.
     # It's a workaround to replace the port eirini uses for the registry
     DOMAIN: '127.0.0.1.nip.io:31666" #'
   services:
@@ -449,6 +449,8 @@ eirini:
 
     events:
       enable: true
+      # All configs in this section should be HIDDEN from the user; they are
+      # here to adapt the Eirini helm chart for KubeCF use.
       tls:
         capiClient:
           secretName: "var-cc-tls"
@@ -459,9 +461,13 @@ eirini:
           caPath: "ca"
 
     logs:
-      enable: false # disable fluentd, use eirinix-loggregator-bridge
+      # disable fluentd, use eirinix-loggregator-bridge (HIDDEN from the user).
+      enable: false
+      # HIDDEN from the user as changing this breaks logging.
       serviceName: doppler
 
+    # All configs in this section should be HIDDEN from the user; they are here
+    # to adapt the Eirini helm chart for KubeCF use.
     metrics:
       enable: true
       tls:
@@ -477,6 +483,8 @@ eirini:
       enable: false
       timeout: 2m
 
+    # All configs in this section should be HIDDEN from the user; they are here
+    # to adapt the Eirini helm chart for KubeCF use.
     routing:
       enable: true
       nats:
@@ -489,13 +497,16 @@ eirini:
 
 bits:
   download_eirinifs: false
+  resources:
+    cpu: ~
+    memory: ~
   global:
     labels: {}
     annotations: {}
     images:
       bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.15-15.1.6.2.220-24.2
   env:
-    # This setting is not configurable
+    # This setting is not configurable and must be HIDDEN from the user.
     DOMAIN: 127.0.0.1.nip.io
   ingress:
     endpoint: ~

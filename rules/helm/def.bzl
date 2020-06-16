@@ -47,7 +47,9 @@ _package = rule(
         "srcs": attr.label_list(
             mandatory = True,
         ),
-        "generated": attr.label_list(),
+        "generated": attr.label_list(
+            allow_files = True,
+        ),
         "tars": attr.label_list(),
         "package_dir": attr.string(
             mandatory = True,
@@ -83,9 +85,6 @@ def _dependencies_impl(ctx):
     ctx.symlink(requirements, "requirements.yaml")
     ctx.symlink(requirements_lock, "requirements.lock")
 
-    # Fetch the dependencies.
-    ctx.execute([helm, "dep", "up"])
-
     # Create the workspace root BUILD.bazel.
     ctx.file("BUILD.bazel", 'package(default_visibility = ["//visibility:public"])\n')
 
@@ -97,8 +96,7 @@ dependencies = repository_rule(
     _dependencies_impl,
     doc = """A repository rule for fetching and caching Helm dependencies.
 
-    It creates a filegroup that exports all the files under the charts/ directory in the cache after
-    `helm dep up` runs.
+    It creates a filegroup that exports all the files under the charts/ directory in the cache.
     """,
     attrs = {
         "chart_yaml": attr.label(

@@ -5,8 +5,11 @@ set -o errexit -o nounset
 target="/var/vcap/all-releases/jobs-src/eirini/opi/templates/bpm.yml.erb"
 sentinel="${target}.patch_sentinel"
 if [[ -f "${sentinel}" ]]; then
-  echo "Patch already applied. Skipping"
-  exit 0
+  if sha256sum --check "${sentinel}" ; then
+    echo "Patch already applied. Skipping"
+    exit 0
+  fi
+  echo "Sentinel mismatch, re-patching"
 fi
 
 # Patch BPM, since we're actually running in-cluster without BPM
@@ -31,4 +34,4 @@ patch --verbose "${target}" <<'EOT'
 -    <% end %>
 EOT
 
-touch "${sentinel}"
+sha256sum "${target}" > "${sentinel}"
