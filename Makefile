@@ -32,5 +32,8 @@ tools-versions:
 shellcheck:
 	@./scripts/shellcheck.sh
 
+version:
+	@./scripts/version.sh
+
 yamllint:
 	@./scripts/yamllint.sh
