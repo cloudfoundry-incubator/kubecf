@@ -61,10 +61,9 @@ done
 echo "operatorChartUrl: \"${CF_OPERATOR_URL}\"" > "${HELM_DIR}/Metadata.yaml"
 
 ruby rules/kubecf/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
-ruby rules/kubecf/image_list.rb output/kubecf | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
+ruby rules/kubecf/image_list.rb "${HELM_DIR}" | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
 
 VERSION="v0.0.0-$(git rev-parse --short HEAD)"
-helm dep up "${HELM_DIR}"
 helm package "${HELM_DIR}" --version "${VERSION}" --app-version "${VERSION}" --destination output/
 
 rm -rf "${HELM_DIR}"
