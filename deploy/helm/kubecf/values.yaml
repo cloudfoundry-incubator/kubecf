@@ -504,7 +504,7 @@ bits:
     labels: {}
     annotations: {}
     images:
-      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.15-15.1.6.2.220-24.2
+      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.17-15.1.6.2.251-24.19
   env:
     # This setting is not configurable and must be HIDDEN from the user.
     DOMAIN: 127.0.0.1.nip.io
@@ -542,3 +542,7 @@ eirinix:
       kube_storage_class: "default"
       free: true
       default_size: "1Gi"
+  ssh-proxy:
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~

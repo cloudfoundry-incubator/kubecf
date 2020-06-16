@@ -131,7 +131,14 @@ spec:
     protocol: TCP
     port: 2222
     targetPort: 2222
-  type: ClusterIP
-  {{- if gt (len .Values.externalIPs) 0 }}
-  externalIPs: {{ .Values.externalIPs | toJson }}
+  type: {{- with index .Values $component }}
+  {{- if gt (len .externalIPs) 0 }}
+  externalIPs: {{ .externalIPs | toJson }}
+  {{- end }}
+  {{- if .clusterIP }}
+  clusterIP: {{ .clusterIP | quote }}
+  {{- end }}
+  {{- if .loadBalancerIP }}
+  loadBalancerIP: {{ .loadBalancerIP | quote }}
+  {{- end }}
   {{- end }}
