@@ -838,12 +838,12 @@ jobs:
 {{ $previousTest = (printf "cf-acceptance-tests-%s-%s" $cfScheduler $branch) }}
 
 - name: cats-internetless-{{ $cfScheduler }}-{{ $branch }}
-  public: true
   plan:
   - get: kubecf-{{ $branch }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
+    version: "every"
   - get: s3.kubecf-ci
     passed:
     - {{ $previousTest | quote }}
