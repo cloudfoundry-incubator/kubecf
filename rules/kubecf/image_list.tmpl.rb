@@ -251,10 +251,12 @@ class ConfigMap < Resource
   end
 end
 
-# Create all permutations for enabling and disabling the features.
+# Running through all permutations takes very long, and makes it impractical to
+# add additional feature flags. Some flag combinations also could throw errors.
+# So far running with features either all enabled or all disabled generates
+# the complete set of used images and is nearly instantaneous.
 features = values['features'].keys
-permutations = [true, false].repeated_permutation(features.size)
-                            .map { |v| features.zip(v).to_h }
+permutations = [ features.map{ |x| [x, false] }.to_h, features.map{ |x| [x, true] }.to_h ]
 
 # Iterate over all permutations, rendering the chart to obtain all possible
 # images.

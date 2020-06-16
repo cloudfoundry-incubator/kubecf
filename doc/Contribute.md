@@ -12,6 +12,7 @@ which go deeper into the details of each aspect.
   - [Deployment](#deployment)
   - [Pull Requests](#pull-requests)
   - [Source Organization](#source-organization)
+  - [Updating Subcharts](#updating-subcharts)
   - [Docker Images](#docker-images)
   - [Linting](#linting)
   - [Patching](#patching)
@@ -99,6 +100,23 @@ associated documentation, if we have any.
 |                                                                       |manifest into a helm chart.                            |
 |__top__/rules                                                          |Supporting bazel definitions.                          |
 |[__top__/testing](tests.md)                                            |Bazel targets to run CF smoke and acceptance tests.    |
+
+
+## Updating subcharts
+
+The kubecf helm chart includes a number of subcharts. They are declared in
+[requirements.yaml](../deploy/helm/kubecf/requirements.yaml). For the
+convenience of development they are included in unpacked form directly in
+this repo, so version changes can be inspected with regular `git` tools,
+and the subcharts can be searched with `grep` etc.
+
+The procedure to update the version of a subchart is:
+
+```
+vi deploy/helm/kubecf/requirements.yaml
+./dev/helm/update_subcharts.sh
+git commit
+```
 
 ## Docker Images
 
@@ -277,7 +295,7 @@ secrets to new values and restarting all affected pods so that they
 will use these new values.
 
 Most of the process is automatic. How to trigger it is explained
-in [General Secret Rotation](secret_rotation_general.md).
+in [Secret Rotation](secret_rotation.md).
 
 Beyond this, the keys used to encrypt the Cloud Controller Database
 (CCDB) can also be rotated, however, they do not exist as general
@@ -285,4 +303,4 @@ secrets of the KubeCF deployment. This means that the general process
 explained above __does not apply__ to them.
 
 Their custom process is explained in
-[Rotating the CCDB encryption keys](secret_rotation.md).
+[CCDB encryption key rotation](encryption_key_rotation.md).

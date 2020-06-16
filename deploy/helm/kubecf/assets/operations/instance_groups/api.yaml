@@ -1,3 +1,24 @@
+# TODO(jandubois) Starting with v2.3.0 enabling eirini will no longer automatically switch to the suse stack.
+{{- if or .Values.features.suse_default_stack.enabled .Values.features.eirini.enabled }}
+
+{{- if not .Values.features.suse_buildpacks.enabled }}
+{{- fail "feature.suse_buildpacks.enabled must be true when features.suse_default_stack.enabled is true" }}
+{{- end }}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_stack?
+  value: sle15
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/default_stack?
+  value: sle15
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/default_stack?
+  value: sle15
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/default_stack?
+  value: sle15
+{{- end }}
+
 {{- if .Values.features.suse_buildpacks.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/stacks/-
