@@ -12,3 +12,9 @@ inputs:
 - name: semver.gke-cluster
 run:
   path: kubecf/.concourse/tasks/upgrade.sh
+params:
+  GKE_KEY: ~
+  GKE_PROJECT: ~
+  GKE_ZONE: ~
+  GKE_DNS_ZONE: ~
+  GKE_DOMAIN: ~
