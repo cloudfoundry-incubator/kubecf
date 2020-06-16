@@ -3,10 +3,14 @@ source scripts/include/setup.sh
 
 require_tools shellcheck
 
+find_args=(
+    -not \( -path "./deploy/helm/kubecf/charts" -prune \)
+    -not \( -path "./output" -prune \)
+    -not \( -path "./src" -prune \)
+    -name '*.sh'
+)
+
 # shellcheck disable=SC2046
 # We want word splitting with find.
 # Ignore all submodule files under output/ and under src/.
-shellcheck $(find . \
-                  -not \( -path ./src -prune \) \
-                  -not \( -path ./output -prune \) \
-                  -name '*.sh')
+shellcheck $(find . "${find_args[@]}")
