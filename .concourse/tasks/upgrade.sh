@@ -18,6 +18,7 @@
 #   - CONFIG_OVERRIDE
 #   - ENABLE_EIRINI
 #   - KUBECFG
+#   - DOWNLOAD_CATAPULT_DEPS=false
 #   - QUIET_OUTPUT
 #   - SCF_CHART
 #   - SCF_OPERATOR
@@ -47,7 +48,8 @@ export SCF_OPERATOR=true
 
 export HELM_VERSION="v3.1.1"
 export BACKEND=gke
-export QUIET_OUTPUT=false
+export DOWNLOAD_CATAPULT_DEPS=false
+export QUIET_OUTPUT=true
 
 GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-upgrade-$(sed 'y/./-/' "semver.gke-cluster/version")"
 export GKE_CLUSTER_NAME
