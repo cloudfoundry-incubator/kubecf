@@ -45,7 +45,6 @@ export SCF_CHART="https://github.com/cloudfoundry-incubator/kubecf/releases/down
 export ENABLE_EIRINI=false
 export SCF_OPERATOR=true
 
-export FORCE_DELETE=true
 export HELM_VERSION="v3.1.1"
 export BACKEND=gke
 export QUIET_OUTPUT=false
