@@ -16,12 +16,10 @@
 #
 #   - BACKEND
 #   - CONFIG_OVERRIDE
-#   - ENABLE_EIRINI
 #   - KUBECFG
 #   - DOWNLOAD_CATAPULT_DEPS=false
 #   - QUIET_OUTPUT
 #   - SCF_CHART
-#   - SCF_OPERATOR
 #
 # Variables used by kubectl, gcloud, ...
 #   - KUBECONFIG
@@ -43,10 +41,6 @@ KUBECF_LATEST_RELEASE="$(cat kubecf-github-release/version)"
 export KUBECF_LATEST_RELEASE
 export SCF_CHART="https://github.com/cloudfoundry-incubator/kubecf/releases/download/v${KUBECF_LATEST_RELEASE}/kubecf-bundle-v${KUBECF_LATEST_RELEASE}.tgz"
 
-export ENABLE_EIRINI=false
-export SCF_OPERATOR=true
-
-export HELM_VERSION="v3.1.1"
 export BACKEND=gke
 export DOWNLOAD_CATAPULT_DEPS=false
 export QUIET_OUTPUT=true
