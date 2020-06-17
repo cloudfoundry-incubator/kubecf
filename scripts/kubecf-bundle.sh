@@ -27,5 +27,5 @@ fi
 TARGET_FILE="${BUNDLE_DIR}/kubecf_release.tgz" ./scripts/kubecf-build.sh
 
 # Build bundle
-mkdir -p $(dirname "${TARGET_FILE}")
+mkdir -p "$(dirname "${TARGET_FILE}")"
 tar cfz "${TARGET_FILE}" -C "${BUNDLE_DIR}" .

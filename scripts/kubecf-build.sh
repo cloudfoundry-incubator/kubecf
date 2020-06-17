@@ -69,6 +69,6 @@ helm package "${HELM_DIR}" --version "${VERSION}" --app-version "${VERSION}" --d
 rm -rf "${HELM_DIR}"
 
 if [ -n "${TARGET_FILE:-}" ]; then
-    mkdir -p $(dirname "${TARGET_FILE}")
+    mkdir -p "$(dirname "${TARGET_FILE}")"
     cp "output/kubecf-${VERSION}.tgz" "${TARGET_FILE}"
 fi
