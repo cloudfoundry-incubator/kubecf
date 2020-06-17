@@ -1,16 +1,20 @@
 # shellcheck shell=bash
 # shellcheck disable=SC2034
 
+# All generated files should be placed in $OUTPUT_DIR, which is .gitignored.
+OUTPUT_DIR="${PWD}/output"
+mkdir -p "${OUTPUT_DIR}"
+
 # Temporary files (e.g. downloads) should go to $TEMP_DIR.
-TEMP_DIR="${PWD}/output/tmp"
+TEMP_DIR="${OUTPUT_DIR}/tmp"
 mkdir -p "${TEMP_DIR}"
 
 # All downloaded tools will be installed into $TOOLS_DIR.
-TOOLS_DIR="${PWD}/output/bin"
+TOOLS_DIR="${OUTPUT_DIR}/bin"
 mkdir -p "${TOOLS_DIR}"
 
 # Python3 virtual env goes into $VENV_DIR
-VENV_DIR="${PWD}/output/venv"
+VENV_DIR="${OUTPUT_DIR}/venv"
 mkdir -p "${VENV_DIR}"
 
 # UNAME should be DARWIN, LINUX, or WINDOWS.

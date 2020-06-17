@@ -11,6 +11,9 @@ kubecf-apply:
 kubecf-build:
 	@./scripts/kubecf-build.sh
 
+kubecf-bundle:
+	@./scripts/kubecf-bundle.sh
+
 kubecf-delete:
 	@./scripts/kubecf-delete.sh
 
