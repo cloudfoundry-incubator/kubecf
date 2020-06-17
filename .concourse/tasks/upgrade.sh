@@ -100,7 +100,7 @@ export CLUSTER_PASSWORD
 # Bring up a k8s cluster and builds+deploy kubecf
 # https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
 make kubeconfig
-make kubecf
+make kubecf kubecf-login
 
 # Setup dns
 tcp_router_ip=$(kubectl  get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
@@ -121,4 +121,4 @@ SCF_CHART="$(readlink -f ../s3.kubecf-ci/*.tgz)"
 export SCF_CHART
 
 make kubecf-chart
-make kubecf-upgrade
+make kubecf-upgrade kubecf-login
