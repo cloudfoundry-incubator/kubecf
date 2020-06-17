@@ -32,11 +32,16 @@ tools-install:
 tools-versions:
 	@./scripts/tools-versions.sh
 
-shellcheck:
-	@./scripts/shellcheck.sh
-
 version:
 	@./scripts/version.sh
+
+lint: shellcheck yamllint helmlint
+
+helmlint:
+	@./scripts/helmlint.sh
+
+shellcheck:
+	@./scripts/shellcheck.sh
 
 yamllint:
 	@./scripts/yamllint.sh
