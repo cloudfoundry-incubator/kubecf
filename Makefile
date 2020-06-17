@@ -23,9 +23,6 @@ minikube-start:
 minikube-delete:
 	@./scripts/minikube-delete.sh
 
-testing-smoke:
-	@./scripts/testing-smoke.sh
-
 tools-install:
 	@./scripts/tools-install.sh
 
@@ -45,3 +42,17 @@ shellcheck:
 
 yamllint:
 	@./scripts/yamllint.sh
+
+tests: smoke brain sits cats
+
+acceptance-tests cats:
+	@TEST=acceptance ./scripts/test.sh
+
+brain-tests brain:
+	@TEST=brain ./scripts/test.sh
+
+smoke-tests smoke:
+	@TEST=smoke ./scripts/test.sh
+
+sync-integration-tests sits:
+	@TEST=sync-integration ./scripts/test.sh
