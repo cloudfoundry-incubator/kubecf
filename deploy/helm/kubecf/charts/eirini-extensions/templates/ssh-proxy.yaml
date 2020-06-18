@@ -131,7 +131,11 @@ spec:
     protocol: TCP
     port: 2222
     targetPort: 2222
-  type: {{- with index .Values $component }}
+  {{- with index .Values $component }}
+  {{- if .type }}
+  type: {{ .type | quote }}
+  {{- end}}
+
   {{- if gt (len .externalIPs) 0 }}
   externalIPs: {{ .externalIPs | toJson }}
   {{- end }}
