@@ -97,9 +97,9 @@ export KUBECFG="${KUBECONFIG}"
 pushd catapult
 CLUSTER_PASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/random | fold -w 32 | head -n 1)
 export CLUSTER_PASSWORD
-# Bring up a k8s cluster and builds+deploy kubecf
-# https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
+# Import k8s cluster
 make kubeconfig
+# Deploy kubecf from public GH release
 make kubecf kubecf-login
 
 # Setup dns
