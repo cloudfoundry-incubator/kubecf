@@ -101,7 +101,7 @@ export CLUSTER_PASSWORD
 # Import k8s cluster
 make kubeconfig
 # Deploy kubecf from public GH release
-make kubecf kubecf-login
+make kubecf
 
 # Setup dns
 tcp_router_ip=$(kubectl  get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
@@ -115,6 +115,9 @@ gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
   --name="tcp.${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "$tcp_router_ip"
 gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction execute \
   --zone="${GKE_DNS_ZONE}"
+
+# Do cf login as sanity check
+make kubecf-login
 
 # Now upgrade to whatever chart we built for commit-to-test
 # The chart should be in s3.kubecf-ci directory
