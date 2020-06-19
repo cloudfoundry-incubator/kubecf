@@ -102,7 +102,7 @@ export CLUSTER_PASSWORD
 # Import k8s cluster
 make kubeconfig
 # Deploy kubecf from public GH release
-make kubecf kubecf-login
+make kubecf
 
 # Setup dns
 tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
@@ -123,4 +123,7 @@ SCF_CHART="$(readlink -f ../s3.kubecf-ci/*.tgz)"
 export SCF_CHART
 
 make kubecf-chart
-make kubecf-upgrade kubecf-login
+make kubecf-upgrade
+
+# Run smoke tests as sanity check
+KUBECF_TEST_SUITE=smokes make tests-kubecf
