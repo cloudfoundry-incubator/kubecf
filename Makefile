@@ -1,33 +1,5 @@
-cf-login:
-	@./scripts/cf-login.sh
-
-cf-operator-apply:
-	@./scripts/cf-operator-apply.sh
-
-kubecf-apply:
-	@./scripts/kubecf-build.sh
-	@./scripts/kubecf-apply.sh
-
-kubecf-build:
-	@./scripts/kubecf-build.sh
-
-kubecf-bundle:
-	@./scripts/kubecf-bundle.sh
-
-kubecf-delete:
-	@./scripts/kubecf-delete.sh
-
-kind-start:
-	@./scripts/kind-start.sh
-
-kind-delete:
-	@./scripts/kind-delete.sh
-
-minikube-start:
-	@./scripts/minikube-start.sh
-
-minikube-delete:
-	@./scripts/minikube-delete.sh
+########################################################################
+# Development
 
 tools-install:
 	@./scripts/tools-install.sh
@@ -48,6 +20,49 @@ shellcheck:
 
 yamllint:
 	@./scripts/yamllint.sh
+
+########################################################################
+# Build
+
+kubecf-build:
+	@./scripts/kubecf-build.sh
+
+kubecf-bundle:
+	@./scripts/kubecf-bundle.sh
+
+########################################################################
+# Kube dev environments
+
+kind-start:
+	@./scripts/kind-start.sh
+
+kind-delete:
+	@./scripts/kind-delete.sh
+
+minikube-start:
+	@./scripts/minikube-start.sh
+
+minikube-delete:
+	@./scripts/minikube-delete.sh
+
+########################################################################
+# Run
+
+cf-login:
+	@./scripts/cf-login.sh
+
+cf-operator-apply:
+	@./scripts/cf-operator-apply.sh
+
+kubecf-apply:
+	@./scripts/kubecf-build.sh
+	@./scripts/kubecf-apply.sh
+
+kubecf-delete:
+	@./scripts/kubecf-delete.sh
+
+########################################################################
+# Test
 
 tests: smoke brain sits cats
 
