@@ -16,11 +16,10 @@
 #
 #   - BACKEND
 #   - CONFIG_OVERRIDE
-#   - ENABLE_EIRINI
 #   - KUBECFG
+#   - DOWNLOAD_CATAPULT_DEPS=false
 #   - QUIET_OUTPUT
 #   - SCF_CHART
-#   - SCF_OPERATOR
 #
 # Variables used by kubectl, gcloud, ...
 #   - KUBECONFIG
@@ -41,14 +40,11 @@ export GKE_CLUSTER_ZONE="$GKE_ZONE"
 KUBECF_LATEST_RELEASE="$(cat kubecf-github-release/version)"
 export KUBECF_LATEST_RELEASE
 export SCF_CHART="https://github.com/cloudfoundry-incubator/kubecf/releases/download/v${KUBECF_LATEST_RELEASE}/kubecf-bundle-v${KUBECF_LATEST_RELEASE}.tgz"
-
 export ENABLE_EIRINI=false
-export SCF_OPERATOR=true
 
-export FORCE_DELETE=true
-export HELM_VERSION="v3.1.1"
 export BACKEND=gke
-export QUIET_OUTPUT=false
+export DOWNLOAD_CATAPULT_DEPS=false
+export QUIET_OUTPUT=true
 
 GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-upgrade-$(sed 'y/./-/' "semver.gke-cluster/version")"
 export GKE_CLUSTER_NAME
@@ -102,10 +98,10 @@ export KUBECFG="${KUBECONFIG}"
 pushd catapult
 CLUSTER_PASSWORD=$(tr -dc 'a-zA-Z0-9' < /dev/random | fold -w 32 | head -n 1)
 export CLUSTER_PASSWORD
-# Bring up a k8s cluster and builds+deploy kubecf
-# https://github.com/SUSE/catapult/wiki/Build-and-run-SCF#build-and-run-kubecf
+# Import k8s cluster
 make kubeconfig
-make kubecf
+# Deploy kubecf from public GH release
+make kubecf kubecf-login
 
 # Setup dns
 tcp_router_ip=$(kubectl  get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
@@ -126,4 +122,4 @@ SCF_CHART="$(readlink -f ../s3.kubecf-ci/*.tgz)"
 export SCF_CHART
 
 make kubecf-chart
-make kubecf-upgrade
+make kubecf-upgrade kubecf-login
