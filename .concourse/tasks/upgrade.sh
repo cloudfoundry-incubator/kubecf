@@ -79,7 +79,8 @@ gcloud --quiet beta container \
   --no-enable-master-authorized-networks \
   --addons HorizontalPodAutoscaling,HttpLoadBalancing \
   --no-enable-autorepair \
-  --no-enable-autoupgrade
+  --no-enable-autoupgrade \
+  --no-enable-autoprovisioning
 
 # Get a kubeconfig - Placed into KUBECONFIG
 gcloud container clusters get-credentials "${GKE_CLUSTER_NAME}" --zone "${GKE_CLUSTER_ZONE}" --project "${GKE_PROJECT}"
