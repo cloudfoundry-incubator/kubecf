@@ -3,10 +3,11 @@ source scripts/include/setup.sh
 
 require_tools minikube
 
-: "${K8S_VERSION:=1.17.5}"
 : "${VM_CPUS:=4}"
 : "${VM_MEMORY:=16384}"
 : "${VM_DISK_SIZE:=120g}"
+
+: "${MINIKUBE_ISO_URL:=https://github.com/f0rmiga/opensuse-minikube-image/releases/download/v0.1.6/minikube-openSUSE.x86_64-0.1.6.iso}"
 
 if ! minikube status > /dev/null; then
     # shellcheck disable=SC2086
@@ -23,6 +24,9 @@ if ! minikube status > /dev/null; then
 
     # Enable hairpin by setting the docker0 promiscuous mode on.
     minikube ssh -- "sudo ip link set docker0 promisc on"
+
+    minikube addons enable dashboard
+    minikube addons enable metrics-server
 else
     echo "Minikube is already started"
 fi

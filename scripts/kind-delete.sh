@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
+source scripts/include/setup.sh
 
-set -o nounset
+require_tools kind
 
-"${KIND}" delete cluster --name "${CLUSTER_NAME}"
+kind delete cluster --name "${CLUSTER_NAME}"

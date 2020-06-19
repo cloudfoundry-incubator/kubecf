@@ -17,6 +17,12 @@ kubecf-bundle:
 kubecf-delete:
 	@./scripts/kubecf-delete.sh
 
+kind-start:
+	@./scripts/kind-start.sh
+
+kind-delete:
+	@./scripts/kind-delete.sh
+
 minikube-start:
 	@./scripts/minikube-start.sh
 

@@ -8,14 +8,24 @@ for TEST in brain cf_acceptance smoke; do
     HELM_ARGS+=(--set "testing.${TEST}_tests.enabled=true")
 done
 
-if [ "$(kubectl config current-context)" = "minikube" ]; then
-    require_tools minikube
-    MINIKUBE_IP=$(minikube ip)
-    HELM_ARGS+=(--set "system_domain=${MINIKUBE_IP}.xip.io")
+
+if [ -z "${LOCAL_IP:-}" ]; then
+    CONTEXT="$(kubectl config current-context)"
+    if [ "${CONTEXT}" = "minikube" ]; then
+        require_tools minikube
+        LOCAL_IP=$(minikube ip)
+    elif [[ "${CONTEXT}" =~ ^kind- ]]; then
+        LOCAL_IP="$(kubectl get node ${CLUSTER_NAME}-control-plane \
+         -o jsonpath='{ .status.addresses[?(@.type == "InternalIP")].address }')"
+    fi
+fi
+
+if [ -n "${LOCAL_IP:-}" ]; then
+    HELM_ARGS+=(--set "system_domain=${LOCAL_IP}.xip.io")
     for SERVICE in router tcp-router ssh-proxy; do
         HELM_ARGS+=(
             --set "services.${SERVICE}.type=LoadBalancer"
-            --set "services.${SERVICE}.externalIPs[0]=${MINIKUBE_IP}"
+            --set "services.${SERVICE}.externalIPs[0]=${LOCAL_IP}"
         )
     done
 fi
