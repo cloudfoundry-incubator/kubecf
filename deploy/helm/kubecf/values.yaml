@@ -659,6 +659,7 @@ bits:
   kube:
     external_ips: []
   services:
+    # This setting is not configurable and must be HIDDEN from the user.
     nodePort: 31666
 
   # The blobstore configuration is part of kubecf and should be HIDDEN.
