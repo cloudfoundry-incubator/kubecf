@@ -2,8 +2,16 @@
 
 s3_bucket: kubecf-ci
 s3_bucket_region: eu-central-1
+# NOTE use the following if developing
+# s3_bucket: kubecf-ci-draft
+# s3_bucket_region: eu-central-1
+
 s3_final_bucket: kubecf
 s3_final_bucket_region: us-west-2
+# NOTE use the following if developing
+# s3_final_bucket: kubecf-draft
+# s3_final_bucket_region: us-west-2
+
 kubecf_repository: cloudfoundry-incubator/kubecf
 
 # for preemptible gke clusters
