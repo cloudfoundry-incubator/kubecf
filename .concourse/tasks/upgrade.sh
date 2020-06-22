@@ -110,7 +110,7 @@ public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.
 
 gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction start \
        --zone="${GKE_DNS_ZONE}"
-gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets transaction add \
+gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
        --name="\*.${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "$public_router_ip"
 gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
        --name=tcp."${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "$tcp_router_ip"
