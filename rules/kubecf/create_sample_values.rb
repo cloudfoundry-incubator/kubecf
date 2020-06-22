@@ -54,7 +54,8 @@ class Psych::Nodes::Node
     attr_accessor :previous_node # Head comment lives between this node & previous
     attr_accessor :next_node # Line comment lives between this node & next
     attr_accessor :depth # top level is 1
-    attr_accessor :parent_node, :required
+    attr_accessor :parent_node
+    attr_accessor :required # tri-state: true, false (hidden), nil (not specified)
     attr_writer :start_pos, :end_pos
     attr_accessor :line_map # for debugging
     attr_accessor :head_comment, :line_comment
@@ -71,8 +72,22 @@ class Psych::Nodes::Node
         !(children.nil? || children.empty?)
     end
 
-    def comment
+    def raw_comment
         [head_comment, line_comment].compact.reject(&:empty?).join("\n")
+    end
+
+    def comment
+        # If this node has a comment, return it
+        return raw_comment unless raw_comment.gsub(/^[-:]/, '').strip.empty?
+        # Otherwise, if the parent is a mapping, try to find the key
+        if parent_node.is_a? Psych::Nodes::Mapping
+            pair = parent_node.children.each_slice(2).find do |k, v|
+                k.eql?(previous_node)
+            end
+            return pair.first.comment unless pair.nil?
+        end
+        # This node has no comment
+        ''
     end
 
     # These two functions are used to assert preconditions:
@@ -92,7 +107,7 @@ class Psych::Nodes::Node
         end
     end
 
-    def to_s(previous = nil)
+    def to_s(previous = nil) # previous is true, false, or nil
         color = Hash.new do |h, k|
             h[k] = "\e[#{(previous == false ? '2;' : '')}#{k}m"
         end
@@ -106,7 +121,7 @@ class Psych::Nodes::Node
         else "#{color[37]}~"
         end
         parts << "#{color[37]}#{value.inspect}" if respond_to?(:value)
-        parts << "#{color[33]}#{comment.gsub("\n", '|')}"
+        parts << "#{color[33]}{#{comment.gsub("\n", '|')}}"
         parts << "#{color["1;34"]}^" if parent_node.nil?
         parts << "#{color["2;37"]}p=#{previous_node&.to_s(false)}" if previous
         return parts.join(' ') + "#{color[37]}>\e[0m"
@@ -422,26 +437,11 @@ def pretty_print(lines, nodes)
     printf "%*s 012345678901234567890123456789\n", num_length, ''
 end
 
-def render_help_docs(nodes, output=STDOUT)
-    roots = nodes.select { |n| n.parent_node.nil? }
+# Walk every node, and yield on finding a scalar with the node and the path to get there.
+def walk_nodes(nodes)
     walk = nil
     walk_scalar = lambda do |node, path|
-        next if node.required == false
-        comment_node = case node.parent_node
-        when Psych::Nodes::Mapping
-            node.parent_node.each_slice(2).find do |k, v|
-                k.eql?(node) || v.eql?(node)
-            end.first
-        else
-            node
-        end
-        lines = comment_node.comment.strip.gsub(/^[-:]/, '').lines
-        lines.map! do |line|
-            line.strip.delete_prefix('#').strip
-        end
-        comment = lines.join(' ').strip
-        next if comment.empty?
-        output.puts "`#{path.reject(&:empty?).join('.')}` | #{comment}"
+        yield node, path
     end
     walk_mapping = lambda do |node, path|
         if node.has_children?
@@ -470,11 +470,88 @@ def render_help_docs(nodes, output=STDOUT)
             fail "Unknown node #{node.class}"
         end
     end
-    output.puts 'Parameter | Description'
-    output.puts '--- | ---'
-    roots.each do |node|
+
+    nodes.select { |n| n.parent_node.nil? }.each do |node|
         walk.call node, []
     end
+end
+
+def render_help_docs(nodes, output=STDOUT)
+    output.puts 'Parameter | Description'
+    output.puts '--- | ---'
+    walk_nodes nodes do |node, path|
+        next if node.required == false
+        lines = node.comment.strip.gsub(/^[-:]/, '').lines
+        lines.map! do |line|
+            line.strip.delete_prefix('#').strip
+        end
+        comment = lines.join(' ').strip
+        next if comment.empty?
+        output.puts "`#{path.reject(&:empty?).join('.')}` | #{comment}"
+    end
+end
+
+# Check that all nodes have documentation.  Print out any nodes that do not have
+# documentation, and exit the script with an error if found.
+def check_documentation(nodes)
+    has_errors = false
+    puts "Undocumented values:"
+    walk_nodes nodes do |node, path|
+        next unless node.required.nil?
+        # We count nodes as having documentation (for now) if _any_ ancestor has
+        # a comment
+        comment = ''
+        target = node
+        until target.nil? do
+            lines = target.comment.strip.gsub(/^[-:]/, '').lines
+            lines.map! do |line|
+                line.strip.delete_prefix('#').strip
+            end
+            comment = lines.join(' ').strip
+            break unless comment.empty?
+            target = target.parent_node
+        end
+        next unless comment.empty?
+        pretty_path = path.reject(&:empty?).join('.')
+        if ENV['DEBUG']
+            puts "#{pretty_path} -> #{node}"
+        else
+            puts pretty_path
+        end
+        has_errors = true
+    end
+    exit 1 if has_errors
+    puts "No undocumented values found."
+    exit 0
+end
+
+# Given a path (a dot-separated path to the node), find it within the given
+# nodes and print out information about it.
+def print_node_info(nodes, path)
+    roots = nodes.select { |n| n.parent_node.nil? }
+    fail "Too many root nodes: found #{roots.length}" unless roots.length == 1
+    node = roots.first
+    path.split('.').each do |part|
+        node.children.each_slice(2) do |k, v|
+            if k.value == part
+                puts "Found #{part}: #{v.to_s(true)}"
+                if v.comment.empty?
+                    if v.parent_node.is_a? Psych::Nodes::Mapping
+                        keys = v.parent_node.each_slice(2).map(&:first)
+                        if keys.include? v
+                            puts "This is a key with no comment"
+                        else
+                            c = v.previous_node.comment
+                            puts "Previous comment: c"
+                        end
+                    end
+                end
+                node = v
+                break
+            end
+        end
+    end
+    puts node.to_s(true)
 end
 
 def process(text, output=STDOUT, test_case=nil)
@@ -499,9 +576,16 @@ def process(text, output=STDOUT, test_case=nil)
     if test_case.nil?
         case ENV.fetch('MODE', '').upcase
         when 'DEBUG'
-            pretty_print original_lines, nodes
+            path = ENV.fetch('NODE_PATH', '')
+            if path.empty?
+                pretty_print original_lines, nodes
+            else
+                print_node_info(nodes, path)
+            end
         when 'HELP'
             render_help_docs nodes, output
+        when 'CHECK'
+            check_documentation nodes
         else
             output.puts lines
         end
@@ -536,6 +620,12 @@ def process(text, output=STDOUT, test_case=nil)
             if expect.has_key? 'required'
                 unless node.required.eql? expect['required']
                     fail_test.call "Invalid required state: #{expect.inspect} vs #{node.required.inspect}"
+                end
+            end
+            if expect.has_key? 'comment'
+                comment = node.comment.rstrip
+                unless comment.eql? expect['comment']
+                    fail_test.call "Incorrect comment: #{expect['comment'].inspect} vs #{comment.inspect}"
                 end
             end
         rescue fail_marker
@@ -575,7 +665,7 @@ test_cases = YAML.load %q(
     - text: |
         # REQUIRED
         required: true
-      nodes: { scalar: required, require: true }
+      nodes: { scalar: required, require: true, comment: "# REQUIRED" }
       expect: |
         # REQUIRED
         required: true
@@ -587,7 +677,7 @@ test_cases = YAML.load %q(
     - text: |
         # whatever
         commented: nil
-      nodes: { scalar: commented, required: ~ }
+      nodes: { scalar: commented, required: ~, comment: '# whatever' }
       expect: |
         # whatever
         # commented: nil
