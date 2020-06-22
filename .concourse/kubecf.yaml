@@ -20,3 +20,38 @@ gke_domain: kubecf.ci
 # the pipeline:
 trigger_publish: true
 github_status: true
+
+availableCfSchedulers: # Diego / Eirini
+- diego
+- eirini
+
+branches: # Repository branches to track
+- master
+- release-2.2
+- release-2.3
+pr_resources:
+- pr
+
+# Stable Jobs
+# TODO: Delete the special case here as soon as we get Eirini CATS green and we stabilize Eirini smoke (e.g. with a more large timeout)
+stable_jobs:
+- lint
+- build
+- deploy-diego
+- deploy-eirini
+- smoke-tests-diego
+- smoke-tests-eirini
+- cf-acceptance-tests-diego
+- cats-internetless-diego
+- sync-integration-tests
+- ccdb-rotate-diego
+- smoke-tests-post-rotate-diego
+- upgrade-test
+- cleanup-diego-cluster
+- cleanup-eirini-cluster
+
+experimental_jobs:
+- cf-acceptance-tests-eirini
+- cats-internetless-eirini
+- ccdb-rotate-eirini
+- smoke-tests-post-rotate-eirini
