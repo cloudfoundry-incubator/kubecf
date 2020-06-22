@@ -323,9 +323,7 @@ jobs:
 - name: lint-{{ $branch }}
   plan:
   - get: kubecf-{{ $branch }}
-{{- if ne $branch "fork-pr" }}
     trigger: true
-{{- end }}
     version: "every"
 {{- if has $stable "lint" }}
   {{- if $config.github_status }}
