@@ -32,10 +32,14 @@ groups:
 {{ end }}
 
 resource_types:
+# Use manually built and pushed image until upstream provides a solution:
+# https://github.com/cloudfoundry-incubator/kubecf/issues/903
+# https://github.com/SUSE/github-pr-resource/commit/3ee0816d801a7038d6125796725aa3718c688b53
 - name: pull-request
   type: docker-image
   source:
-    repository: teliaoss/github-pr-resource
+    repository: splatform/github-pr-resource
+    tag: 3ee0816
 
 {{- if $config.github_status }}
 - name: github-status
