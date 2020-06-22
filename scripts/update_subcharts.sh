@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
+source scripts/include/setup.sh
 
-set -e
+require_tools git helm
 
 cd deploy/helm/kubecf
 rm -rf charts/*
