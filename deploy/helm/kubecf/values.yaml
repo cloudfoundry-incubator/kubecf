@@ -364,11 +364,6 @@ operations:
   #       type: password
   inline: []
 
-k8s-host-url: ""
-k8s-service-token: ""
-k8s-service-username: ""
-k8s-node-ca: ""
-
 eirini:
   global:
     labels: {}
