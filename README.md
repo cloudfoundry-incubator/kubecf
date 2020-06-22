@@ -1,5 +1,7 @@
 # KubeCF
 
+test
+
 | Build step | State |
 | ---     | ---   |
 | Linting | [![lint](https://concourse.suse.dev/api/v1/teams/main/pipelines/kubecf/jobs/lint-master/badge)](https://concourse.suse.dev/teams/main/pipelines/kubecf/jobs/lint-master/) |
