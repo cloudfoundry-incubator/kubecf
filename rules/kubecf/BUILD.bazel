@@ -5,6 +5,7 @@ exports_files([
     "image_list.tmpl.rb",
     "release_chart.sh",
     "test.tmpl.sh",
+    "values_documentation_check.tmpl.sh",
 ])
 
 sh_test(

@@ -11,6 +11,7 @@ load(
     "image_list",
     "metadata_file_generator",
     "create_sample_values_binary",
+    "values_documentation_test",
 )
 load("//rules/yaml_extractor:defs.bzl", "yaml_extractor")
 
@@ -95,8 +96,14 @@ pkg_tar(
 # Create a values file that is mostly commented out for user reference.
 create_sample_values_binary(
     name = "sample_values",
-    input = "//deploy/helm/kubecf:values.yaml",
+    input = ":values.yaml",
     output = ":sample-values.yaml",
+)
+
+values_documentation_test(
+    name = "values_doc_test",
+    size = "small",
+    input = ":values.yaml",
 )
 
 # Packages the KubeCF Helm chart.
