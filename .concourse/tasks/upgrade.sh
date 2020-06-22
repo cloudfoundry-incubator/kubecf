@@ -79,7 +79,8 @@ gcloud --quiet beta container \
   --no-enable-master-authorized-networks \
   --addons HorizontalPodAutoscaling,HttpLoadBalancing \
   --no-enable-autorepair \
-  --no-enable-autoupgrade
+  --no-enable-autoupgrade \
+  --no-enable-autoprovisioning
 
 # Get a kubeconfig - Placed into KUBECONFIG
 gcloud container clusters get-credentials "${GKE_CLUSTER_NAME}" --zone "${GKE_CLUSTER_ZONE}" --project "${GKE_PROJECT}"
@@ -104,17 +105,17 @@ make kubeconfig
 make kubecf
 
 # Setup dns
-tcp_router_ip=$(kubectl  get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
-public_router_ip=$(kubectl  get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 
-gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction start \
-  --zone="${GKE_DNS_ZONE}"
-gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
-  --name="*.${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "$public_router_ip"
-gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
-  --name="tcp.${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "$tcp_router_ip"
-gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction execute \
-  --zone="${GKE_DNS_ZONE}"
+gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets transaction start \
+       --zone=${GKE_DNS_ZONE}
+gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets transaction add \
+       --name=\*.${DOMAIN}. --ttl=300 --type=A --zone=${GKE_DNS_ZONE} $public_router_ip
+gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets transaction add \
+       --name=tcp.${DOMAIN}. --ttl=300 --type=A --zone=${GKE_DNS_ZONE} $tcp_router_ip
+gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets transaction execute \
+       --zone=${GKE_DNS_ZONE}
 
 # Do cf login as sanity check
 make kubecf-login
@@ -125,4 +126,4 @@ SCF_CHART="$(readlink -f ../s3.kubecf-ci/*.tgz)"
 export SCF_CHART
 
 make kubecf-chart
-make kubecf-upgrade kubecf-login
+make kubecf-upgrade
