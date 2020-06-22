@@ -11,7 +11,7 @@ version:
 	@./scripts/version.sh
 
 update-subcharts:
-	@./scripts/update_subcharts.sh
+	@./scripts/update-subcharts.sh
 
 lint: shellcheck yamllint helmlint
 
