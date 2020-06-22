@@ -3,7 +3,7 @@ source scripts/include/setup.sh
 
 require_tools kubectl
 
-: ${TEST:=smoke}
+: "${TEST:=smoke}"
 
 # Trigger the test.
 kubectl patch qjob "${TEST}-tests" \

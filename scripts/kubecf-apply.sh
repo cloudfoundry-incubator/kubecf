@@ -30,15 +30,15 @@ if [ -n "${LOCAL_IP:-}" ]; then
 fi
 
 if [ -n "${FEATURE_AUTOSCALER:-}" ]; then
-    HELM_ARGS+=(--set features.autoscaler.enabled=true)
+    HELM_ARGS+=(--set "features.autoscaler.enabled=true")
 fi
 
 if [ -n "${FEATURE_EIRINI:-}" ]; then
-    HELM_ARGS+=(--set features.eirini.enabled=true)
+    HELM_ARGS+=(--set "features.eirini.enabled=true")
 fi
 
 if [ -n "${FEATURE_INGRESS:-}" ]; then
-    HELM_ARGS+=(--set features.ingress.enabled=true)
+    HELM_ARGS+=(--set "features.ingress.enabled=true")
 fi
 
 if [ -n "${VALUES:-}" ]; then
