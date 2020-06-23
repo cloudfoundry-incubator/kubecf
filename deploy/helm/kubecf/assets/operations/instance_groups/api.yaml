@@ -1,10 +1,6 @@
 # TODO(jandubois) Starting with v2.3.0 enabling eirini will no longer automatically switch to the suse stack.
 {{- if or (eq .Values.features.stack.default "suse") (.Values.features.eirini.enabled) }}
 
-{{- if not .Values.features.suse_buildpacks.enabled }}
-{{- fail "features.suse_buildpacks.enabled must be true when features.stack.default is suse" }}
-{{- end }}
-
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_stack?
   value: sle15
