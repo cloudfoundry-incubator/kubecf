@@ -45,6 +45,9 @@ if [ -n "${VALUES:-}" ]; then
     HELM_ARGS+=(--values "${VALUES}")
 fi
 
-VERSION=${VERSION:-v0.0.0-$(git rev-parse --short HEAD)}
-helm upgrade kubecf "output/kubecf-${VERSION}.tgz" \
+if [ -z "${CHART:-}" ]; then
+    CHART="output/kubecf-$(./scripts/version.sh).tgz"
+fi
+
+helm upgrade kubecf "${CHART}" \
      --install --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
