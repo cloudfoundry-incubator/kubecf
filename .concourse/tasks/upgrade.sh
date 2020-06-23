@@ -113,7 +113,7 @@ gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction start
 gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
        --name="\*.${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "$public_router_ip"
 gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
-       --name=tcp."${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "$tcp_router_ip"
+       --name="tcp.${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "${tcp_router_ip}"
 gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction execute \
        --zone="${GKE_DNS_ZONE}"
 
