@@ -255,7 +255,8 @@ features:
       key: ~
     annotations: {}
     labels: {}
-  # Supported stacks for Eirini which are {suse, ubi}. Eirini only supports one stack at a time. `suse` is set by default
+  # Supported stacks for Eirini which are {suse, ubi}. Eirini only supports one stack at a time.
+  # `suse` is set by default
   default_stack: suse
   suse_buildpacks:
     enabled: true
