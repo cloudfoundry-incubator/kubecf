@@ -336,15 +336,19 @@ features:
 testing:
   brain_tests:
     enabled: false
+    # Delete the testing pod after completion (default: false)
     delete_pod: false
   cf_acceptance_tests:
     enabled: false
+    # Delete the testing pod after completion (default: false)
     delete_pod: false
   smoke_tests:
     enabled: true
+    # Delete the testing pod after completion (default: false)
     delete_pod: false
   sync_integration_tests:
     enabled: false
+    # Delete the testing pod after completion (default: false)
     delete_pod: false
 
 ccdb:
