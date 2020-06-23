@@ -3,4 +3,4 @@ source scripts/include/setup.sh
 
 require_tools git
 
-echo "v0.0.0-$(git rev-parse --short HEAD)"
+echo "v${KUBECF_VERSION}-$(git rev-parse --short HEAD)"

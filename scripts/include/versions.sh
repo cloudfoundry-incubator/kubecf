@@ -1,5 +1,7 @@
 # shellcheck shell=bash
 
+: "${KUBECF_VERSION:=2.2.2}"
+
 # Used by both kind-start and minikube-start
 : "${K8S_VERSION:=1.17.5}"
 
