@@ -3,7 +3,7 @@ source scripts/include/setup.sh
 
 require_tools kubectl helm
 
-: "${MYSQL_CHART:=https://kubernetes-charts.storage.googleapis.com/mysql-1.3.3.tgz}"
+: "${MYSQL_CHART:=https://kubernetes-charts.storage.googleapis.com/mysql-1.6.4.tgz}"
 : "${MYSQL_CLIENT_IMAGE:=mysql@sha256:c93ba1bafd65888947f5cd8bd45deb7b996885ec2a16c574c530c389335e9169}"
 
 default_name="kubecf-mysql"
