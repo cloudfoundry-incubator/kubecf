@@ -45,8 +45,7 @@ if ! kubectl get namespace "${namespace}" 1> /dev/null 2> /dev/null; then
   kubectl create namespace "${namespace}"
 fi
 
-helm template "${MYSQL_CHART}" \
-  --name "${name}" \
+helm template "${name}" "${MYSQL_CHART}" \
   --namespace "${namespace}" \
   --set "mysqlRootPassword=${root_password}" \
   --set "testFramework.enabled=false" \
