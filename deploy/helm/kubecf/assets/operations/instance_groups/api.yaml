@@ -1,8 +1,8 @@
 # TODO(jandubois) Starting with v2.3.0 enabling eirini will no longer automatically switch to the suse stack.
-{{- if or (eq .Values.features.default_stack "suse") (.Values.features.eirini.enabled) }}
+{{- if or (eq .Values.features.stack.default "suse") (.Values.features.eirini.enabled) }}
 
 {{- if not .Values.features.suse_buildpacks.enabled }}
-{{- fail "feature.suse_buildpacks.enabled must be true when features.default_stack.enabled is `suse`" }}
+{{- fail "feature.suse_buildpacks.enabled must be true when features.stack.default is `suse`" }}
 {{- end }}
 
 - type: replace

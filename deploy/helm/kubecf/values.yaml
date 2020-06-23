@@ -242,7 +242,7 @@ settings:
 
 features:
   eirini:
-    # When eirini is enabled, both default_stack must be `suse` and suse_buildpacks must be enabled as well.
+    # When eirini is enabled, both stack.default must be `suse` and suse_buildpacks must be enabled as well.
     enabled: false
     registry:
       service:
@@ -257,7 +257,8 @@ features:
     labels: {}
   # Supported stacks for Eirini which are {suse, ubi}. Eirini only supports one stack at a time.
   # `suse` is set by default
-  default_stack: suse
+  stack:
+    default: suse
   suse_buildpacks:
     enabled: true
   autoscaler:
