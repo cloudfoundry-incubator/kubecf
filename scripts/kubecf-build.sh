@@ -12,7 +12,7 @@ HELM_DIR="${TEMP_DIR}/helm"
 [ -d "${HELM_DIR}" ] && rm -rf "${HELM_DIR}"
 mkdir "${HELM_DIR}"
 
-cp -a deploy/helm/kubecf/ "${HELM_DIR}"
+cp -a deploy/helm/kubecf/* "${HELM_DIR}"
 find "${HELM_DIR}" \( -name "*.bazel" -o -name "*.bzl" -o -name ".*" \) -delete
 
 cp src/cf-deployment/cf-deployment.yml "${HELM_DIR}/assets"
