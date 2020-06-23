@@ -5,14 +5,14 @@
 
 # TODO(jandubois) This check is disabled until v2.3.0 for backwards compatibility reasons.
 # {{- /*
-# {{- if not .Values.features.suse_default_stack.enabled }}
-# {{- fail "feature.suse_default_stack.enabled must be true to use Eirini" }}
+# {{- if ne .Values.features.default_stack "suse"}}
+# {{- fail "feature.default_stack must be `suse` to use Eirini" }}
 # {{- end }}
 # */ -}}
 
 # TODO(jandubois) This check becomes redundant once the previous check is enabled because
 # TODO(jandubois) the api.yaml file already checks that suse_buildpacks are enabled when
-# TODO(jandubois) suse_default_stack is set.
+# TODO(jandubois) default_stack is `suse`.
 {{- if not .Values.features.suse_buildpacks.enabled }}
 {{- fail "feature.suse_buildpacks.enabled must be true to use Eirini" }}
 {{- end }}
