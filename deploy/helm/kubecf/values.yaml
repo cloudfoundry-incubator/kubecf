@@ -517,7 +517,7 @@ eirini:
   env:
     # This setting is not configurable and must be HIDDEN from the user.
     # It's a workaround to replace the port eirini uses for the registry
-    DOMAIN: '127.0.0.1.nip.io:31666" #'
+    DOMAIN: '127.0.0.1.nip.io'
   services:
     loadbalanced: true
   opi:
