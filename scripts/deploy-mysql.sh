@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
+source scripts/include/setup.sh
 
-set -o errexit -o nounset -o pipefail
+require_tools kubectl helm
 
-MYSQL_CLIENT_IMAGE="mysql@sha256:c93ba1bafd65888947f5cd8bd45deb7b996885ec2a16c574c530c389335e9169"
+: "${MYSQL_CHART:=https://kubernetes-charts.storage.googleapis.com/mysql-1.3.3.tgz}"
+: "${MYSQL_CLIENT_IMAGE:=mysql@sha256:c93ba1bafd65888947f5cd8bd45deb7b996885ec2a16c574c530c389335e9169}"
 
 default_name="kubecf-mysql"
 printf "Name (%s): " "${default_name}"
@@ -39,31 +41,31 @@ databases=(
   "credhub"
 )
 
-if ! "{KUBECTL}" get namespace "${namespace}" 1> /dev/null 2> /dev/null; then
-  "{KUBECTL}" create namespace "${namespace}"
+if ! kubectl get namespace "${namespace}" 1> /dev/null 2> /dev/null; then
+  kubectl create namespace "${namespace}"
 fi
 
-"{HELM}" template "{MYSQL_CHART}" \
+helm template "${MYSQL_CHART}" \
   --name "${name}" \
   --namespace "${namespace}" \
   --set "mysqlRootPassword=${root_password}" \
   --set "testFramework.enabled=false" \
-  | "{KUBECTL}" apply -f - \
+  | kubectl apply -f - \
     --namespace "${namespace}"
 
-"{KUBECTL}" wait pod \
+kubectl wait pod \
   --for condition=ready \
   --namespace "${namespace}" \
   --selector "app=${name}" \
   --timeout 300s
 
 # Ensure the database is fully functional.
-until echo "SELECT 'Ready!'" | "{KUBECTL}" run mysql-client --rm -i --restart='Never' --image "${MYSQL_CLIENT_IMAGE}" --namespace "${namespace}" --command -- \
+until echo "SELECT 'Ready!'" | kubectl run mysql-client --rm -i --restart='Never' --image "${MYSQL_CLIENT_IMAGE}" --namespace "${namespace}" --command -- \
     mysql --host="${name}.${namespace}.svc" --user=root --password="${root_password}"; do
       sleep 1
 done
 
-"{KUBECTL}" run mysql-client --rm -i --restart='Never' --image "${MYSQL_CLIENT_IMAGE}" --namespace "${namespace}" --command -- \
+kubectl run mysql-client --rm -i --restart='Never' --image "${MYSQL_CLIENT_IMAGE}" --namespace "${namespace}" --command -- \
     mysql --host="${name}.${namespace}.svc" --user=root --password="${root_password}" \
     < <(
       for database in ${databases[*]}; do
