@@ -7,8 +7,10 @@
 #
 # We have no idea how we can implement the change in an upstream-
 # compatible way: we hack around things by changing the POD_IP
-# environment variable via an ops file, which wouldn't make any sense
-# in the BOSH VM world.
+# environment variable via an ops file [1], which wouldn't make any
+# sense in the BOSH VM world.
+#
+# [1] deploy/helm/kubecf/assets/operations/instance_groups/routing-api.yaml
 #
 # Result: The patch is extremely specific to kubecf, and cannot be
 # upstreamed.
