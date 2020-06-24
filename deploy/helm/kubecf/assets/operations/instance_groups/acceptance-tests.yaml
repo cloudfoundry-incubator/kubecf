@@ -40,4 +40,12 @@
       serial: true
     vm_type: minimal
 
+
+{{- if .Values.testing.cf_acceptance_tests.delete_pod }}
+- type: replace
+  path: /instance_groups/name=acceptance-tests/env?/bosh/agent/settings/labels/delete
+  value: "pod"
+{{- end }}
+
+
 {{- end }}
