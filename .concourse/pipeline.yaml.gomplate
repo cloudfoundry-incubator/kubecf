@@ -4,7 +4,7 @@
 # Variables
 {{ $availableCfSchedulers := slice "diego" "eirini" }} # Diego / Eirini
 {{ $pr_resources := slice "pr" "fork-pr" }}
-{{ $branches := slice "master" "release-2.2"}} # Repository branches to track
+{{ $branches := slice "master" "release-2.2" "release-2.3"}} # Repository branches to track
 
 # Split Concourse jobs in tabs (aka groups)
 # We split by "branch" and we also split the "experimental" jobs of each branch.
