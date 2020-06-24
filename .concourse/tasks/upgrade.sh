@@ -117,9 +117,6 @@ gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
 gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction execute \
        --zone="${GKE_DNS_ZONE}"
 
-# Do cf login as sanity check
-make kubecf-login
-
 # Now upgrade to whatever chart we built for commit-to-test
 # The chart should be in s3.kubecf-ci directory
 SCF_CHART="$(readlink -f ../s3.kubecf-ci/*.tgz)"
