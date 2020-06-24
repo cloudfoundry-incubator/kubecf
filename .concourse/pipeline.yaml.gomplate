@@ -183,7 +183,7 @@ deploy_args: &deploy_args
 
   export GKE_PROJECT="{{ $config.gke_project }}"
   export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
-  export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+  export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
   export GKE_DNS_ZONE="{{ $config.gke_dns_zone }}"
   export GKE_DOMAIN="{{ $config.gke_domain }}"
   export DOMAIN="${GKE_CLUSTER_NAME}.${GKE_DOMAIN}"
@@ -261,7 +261,7 @@ test_args: &test_args
 
   export GKE_PROJECT="{{ $config.gke_project }}"
   export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
-  export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+  export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   # Get a kubeconfig
   gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
@@ -285,7 +285,7 @@ rotate_args: &rotate_args
   export GKE_CRED_JSON=$PWD/gke-key.json
   export GKE_PROJECT="{{ $config.gke_project }}"
   export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
-  export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+  export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   gcloud auth activate-service-account --key-file $PWD/gke-key.json
   # Get a kubeconfig
@@ -542,7 +542,7 @@ jobs:
               export GKE_PROJECT="{{ $config.gke_project }}"
               export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
               export GKE_DNS_ZONE="{{ $config.gke_dns_zone }}"
-              export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH}-${CFSCHEDULER}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+              export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
               export GKE_DOMAIN="{{ $config.gke_domain }}"
               export DOMAIN="${GKE_CLUSTER_NAME}.${GKE_DOMAIN}"
 
