@@ -1415,11 +1415,11 @@ jobs:
   plan:
   - get: s3.kubecf-ci
     passed:
-    - cf-acceptance-tests-diego-{{ $branch }}
+    - smoke-tests-post-rotate-diego-{{ $branch }}
     trigger: {{ $config.trigger_publish }}
   - get: s3.kubecf-ci-bundle
     passed:
-    - cf-acceptance-tests-diego-{{ $branch }}
+    - smoke-tests-post-rotate-diego-{{ $branch }}
     trigger: {{ $config.trigger_publish }}
   - task: rename-artifacts
     config:
