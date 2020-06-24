@@ -5,14 +5,7 @@ TOOLS+=(python3)
 
 PYTHON3_VERSION=3.3
 
-function python3_version {
-    # Only return a version when virtualenv is setup and activated.
-    if [ "${VIRTUAL_ENV:-}" = "${VENV_DIR}" ]; then
-        python3 --version
-    else
-        echo "missing"
-    fi
-}
+function python3_version { python3 --version; }
 
 VENV_ACTIVATE="${VENV_DIR}/bin/activate"
 if [ ! -f "${VENV_ACTIVATE}" ]; then
