@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# This patch changes the BPM command to not use spec.ip because the
+# quarks-operator implements process management very differently from
+# BOSH: BPM is rendered from a completely different container (and
+# therefore has no chance of having a valid spec.ip.
+#
+# We have no idea how we can implement the change in an upstream-
+# compatible way: we hack around things by changing the POD_IP
+# environment variable via an ops file, which wouldn't make any sense
+# in the BOSH VM world.
+#
+# Result: The patch is extremely specific to kubecf, and cannot be
+# upstreamed.
+
 set -o errexit -o nounset
 
 target="/var/vcap/all-releases/jobs-src/routing/routing-api/templates/bpm.yml.erb"
