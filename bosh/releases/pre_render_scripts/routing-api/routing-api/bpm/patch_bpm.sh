@@ -3,7 +3,7 @@
 # This patch changes the BPM command to not use spec.ip because the
 # quarks-operator implements process management very differently from
 # BOSH: BPM is rendered from a completely different container (and
-# therefore has no chance of having a valid spec.ip.
+# therefore has no chance of having a valid spec.ip).
 #
 # We have no idea how we can implement the change in an upstream-
 # compatible way: we hack around things by changing the POD_IP
