@@ -11,8 +11,8 @@
 
 # Stable Jobs
 # TODO: Delete the special case here as soon as we get Eirini CATS green and we stabilize Eirini smoke (e.g. with a more large timeout)
-{{ $stable := slice "lint" "build" "deploy-diego" "deploy-eirini" "smoke-tests-diego" "smoke-tests-eirini" "cf-acceptance-tests-diego" "cleanup-diego-cluster" "cleanup-eirini-cluster" }}
-{{ $experimental := slice "cf-acceptance-tests-eirini" "cats-internetless-diego" "cats-internetless-eirini" "sync-integration-tests" "ccdb-rotate-diego" "ccdb-rotate-eirini" "smoke-tests-post-rotate-diego" "smoke-tests-post-rotate-eirini" "upgrade-test" }}
+{{ $stable := slice "lint" "build" "deploy-diego" "deploy-eirini" "smoke-tests-diego" "smoke-tests-eirini" "cf-acceptance-tests-diego" "cats-internetless-diego" "sync-integration-tests" "ccdb-rotate-diego" "smoke-tests-post-rotate-diego" "upgrade-test" "cleanup-diego-cluster" "cleanup-eirini-cluster" }}
+{{ $experimental := slice "cf-acceptance-tests-eirini" "cats-internetless-eirini" "ccdb-rotate-eirini" "smoke-tests-post-rotate-eirini" }}
 
 groups:
 {{ range $_, $branch := (flatten (slice $branches $pr_resources) | uniq) }}
