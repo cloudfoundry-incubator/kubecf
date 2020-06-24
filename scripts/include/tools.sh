@@ -176,7 +176,7 @@ function tool_install {
         return
     fi
 
-    # XXX (require_tools is not reentrant) require_tools file gzip sha256sum xz
+    require_tools file gzip sha256sum xz
 
     url="$(var_lookup "${tool}_url_${UNAME}")"
     if [ -z "${url}" ]; then
