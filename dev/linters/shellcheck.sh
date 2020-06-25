@@ -22,13 +22,15 @@ find_args=(
 
 # Determine shellcheck version because it is part of the path inside the cache.
 VERSION=$( < dependencies.yaml bazel run --experimental_ui_limit_console_output=1 @yq//:binary \
-             -- read - binaries.shellcheck.version)
+             -- read - binaries.shellcheck.version )
 
 # Make sure shellcheck is downloaded into the Bazel cache.
 bazel run @shellcheck//:binary -- --version &> /dev/null
 
+# Bazel 2 and 3 use different locations for the cache
+SHELLCHECK="$(find -L . -type f -name shellcheck | grep "shellcheck-v${VERSION}")"
+
 # Call cached bazel binary of shellcheck from current directory manually.
 # shellcheck disable=SC2046
 # We want word splitting with find.
-"./bazel-kubecf/external/shellcheck/shellcheck-v${VERSION}/shellcheck" \
-    -- $(find "${workspace}" "${find_args[@]}")
+"${SHELLCHECK}" -- $(find "${workspace}" "${find_args[@]}")
