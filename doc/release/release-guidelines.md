@@ -30,7 +30,7 @@ Check [here](https://github.com/cloudfoundry-incubator/kubecf/branches) if the r
 ## Files to Change
 
 Add the version to the KubeCF helm chart target in _deploy/helm/kubecf/BUILD.bazel_:
-> ```version = "v2.0.0"```
+> ```version = "2.0.0"```
 
 As an example:
 ```
