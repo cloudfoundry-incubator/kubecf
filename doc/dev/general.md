@@ -54,8 +54,8 @@ with Helm Tiller pre-installed.
 ```shell
 helm install --name cf-operator \
      --namespace kubecf \
-     --set "global.operator.watchNamespace=kubecf" \
-     https://s3.amazonaws.com/cf-operators/helm-charts/cf-operator-v0.4.2-147.gb88e4296.tgz
+     --set "global.singleNamespace.name=kubecf" \
+     https://s3.amazonaws.com/cf-operators/release/helm-charts/cf-operator-5.0.0%2B0.gd7ac12bc.tgz
 ```
 
 In the example above, version 0.4.1 of the operator was used. Look
