@@ -157,6 +157,14 @@ are running before deploying the `kubecf` chart.
 Deploys the `kubecf` chart. This script assumes that the `kubecf-build.sh`
 script has just been run. The `make kubecf-apply` target ensures this.
 
+Alternatively, the `CHART` environment variable can be used to specify a
+the KubeCF chart to be deployed. Helm configuration variables can be set
+in a YAML file pointed to by `VALUES`.
+
+Some common features can be enabled by setting their configuration variable
+to a non-empty value: `FEATURE_AUTOSCALER`, `FEATURE_EIRINI`, and
+`FEATURE_INGRESS`.
+
 #### ./scripts/cf-login.sh
 
 `cf-login` can be run once the cluster is ready and all pods are running.  It
