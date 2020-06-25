@@ -127,7 +127,7 @@ resources:
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
     region_name: {{ $config.s3_bucket_region }}
-    regexp: kubecf-v(.*).tgz
+    regexp: kubecf-(.*).tgz
 
 - name: s3.kubecf-ci-bundle
   type: s3
@@ -136,7 +136,7 @@ resources:
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
     region_name: {{ $config.s3_bucket_region }}
-    regexp: kubecf-bundle-v(.*).tgz
+    regexp: kubecf-bundle-(.*).tgz
 
 - name: s3.kubecf
   type: s3
@@ -145,7 +145,7 @@ resources:
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
     region_name: {{ $config.s3_final_bucket_region }}
-    regexp: kubecf-v(.*).tgz
+    regexp: kubecf-(.*).tgz
 
 - name: s3.kubecf-bundle
   type: s3
@@ -154,7 +154,7 @@ resources:
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
     region_name: {{ $config.s3_final_bucket_region }}
-    regexp: kubecf-bundle-v(.*).tgz
+    regexp: kubecf-bundle-(.*).tgz
 
 deploy_args: &deploy_args
 - -ce
@@ -464,7 +464,7 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      file: output/kubecf-v*.tgz
+      file: output/kubecf-*.tgz
       acl: public-read
   - put: s3.kubecf-ci-bundle
     {{- if $config.workertags }}
@@ -472,7 +472,7 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      file: output/kubecf-bundle-v*.tgz
+      file: output/kubecf-bundle-*.tgz
       acl: public-read
 
 {{- range $_, $cfScheduler := $config.availableCfSchedulers }}
@@ -2035,13 +2035,13 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      file: output/kubecf-v*.tgz
+      file: output/kubecf-*.tgz
   - put: s3.kubecf-bundle
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      file: output/kubecf-bundle-v*.tgz
+      file: output/kubecf-bundle-*.tgz
 {{ end }} # of publish
 {{ end }} # of branch
