@@ -1,6 +1,7 @@
 # shellcheck shell=bash
 
-: "${KUBECF_VERSION:=2.2.2}"
+# Version is 0.0.0 on master, and x.y.z on release-x.y branches
+: "${KUBECF_VERSION:=0.0.0}"
 
 # Used by both kind-start and minikube-start
 : "${K8S_VERSION:=1.17.5}"

@@ -64,7 +64,8 @@ List all configured tools and their current versions.
 
 Prints the current KubeCF version to STDOUT. It is used by `kubecf-build` and
 `kubecf-bundle` to create default output filenames, and is also available to
-CI. This script will fail when not running inside a git checkout.
+CI. The version will be `0.0.0` on the master branch and `x.y.z` on a
+`release-x.y` release branch.
 
 #### ./dev/helm/update_subcharts.sh
 
