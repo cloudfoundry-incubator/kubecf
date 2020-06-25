@@ -60,6 +60,11 @@ unless the installed version is already an exact match.
 
 List all configured tools and their current versions.
 
+When running with `PINNED_TOOLS` set to a non-empty value, it will throw an
+error for each [installable tool](tools/README.md#installable_tools) that
+is missing, is not installed with the required version, or is not installed
+in the `TOOLS_DIR`.
+
 #### ./scripts/version.sh
 
 Prints the current KubeCF version to STDOUT. It is used by `kubecf-build` and
