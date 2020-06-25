@@ -3,7 +3,7 @@
 
 # Variables
 {{ $availableCfSchedulers := slice "diego" "eirini" }} # Diego / Eirini
-{{ $pr_resources := slice "pr" "fork-pr" }}
+{{ $pr_resources := slice "pr" }}
 {{ $branches := slice "master" "release-2.2" "release-2.3"}} # Repository branches to track
 
 # Split Concourse jobs in tabs (aka groups)
@@ -21,7 +21,7 @@ groups:
   {{ range $_, $job := $stable }}
   - {{ $job }}-{{ $branch }}
   {{ end }}
-  {{ if not ($branch | regexp.Match "^pr|fork-pr") }}
+  {{ if not ($branch | regexp.Match "^pr") }}
   - publish-{{ $branch }}
   {{ end }}
 - name: {{ $branch }}-experimental
@@ -105,16 +105,6 @@ resources:
   source:
     repository: {{ $config.kubecf_repository }}
     access_token: ((github-access-token))
-    disable_forks: true # Trigger on kubecf branches only
-    required_review_approvals: 1
-
-- name: kubecf-fork-pr
-  type: pull-request
-  check_every: 10m
-  source:
-    repository: {{ $config.kubecf_repository }}
-    access_token: ((github-access-token))
-    disable_forks: false # Trigger on kubecf branches only
     required_review_approvals: 1
 
 {{- range $_, $pr := $pr_resources }}
@@ -312,7 +302,7 @@ jobs:
 {{ $path := "" }}
 {{- range $_, $branch := flatten (slice $branches $pr_resources)  }}
 
-{{ if or (eq $branch "fork-pr") (eq $branch "pr" )}}
+{{ if ( eq $branch "pr" )}}
 {{ $path = ".git/resource/head_sha" }}
 {{ else }}
 {{ $path = ".git/short_ref" }}
@@ -1410,7 +1400,7 @@ jobs:
         input_mapping:
           semver.gke-cluster: semver.gke-cluster-{{ $branch }}-upgrade
 
-{{ if not ($branch | regexp.Match "^pr|fork-pr") }}
+{{ if not ($branch | regexp.Match "^pr") }}
 - name: publish-{{ $branch }}
   plan:
   - get: s3.kubecf-ci
