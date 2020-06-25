@@ -1391,47 +1391,33 @@ jobs:
       semver.gke-cluster: semver.gke-cluster-{{ $branch }}-upgrade
     timeout: 4h
     file: kubecf-{{ $branch }}/.concourse/tasks/upgrade.yaml
-{{- if has $stable (printf "upgrade-test") }}
-  {{- if $config.github_status }}
+{{- if (has $stable (printf "upgrade-test")) and $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
     params:
       << : *upgrade-test_{{ $sanitized_branch_name }}_status
       state: success
-  {{- end }}
-{{- end }}
   on_failure:
     in_parallel:
-{{- if has $stable (printf "upgrade-test") }}
-    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *upgrade-test_{{ $sanitized_branch_name }}_status
           state: failure
-    {{- end }}
-{{- end }}
   on_abort:
     in_parallel:
-{{- if has $stable (printf "upgrade-test") }}
-    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *upgrade-test_{{ $sanitized_branch_name }}_status
           state: failure
-    {{- end }}
-{{- end }}
   on_error:
     in_parallel:
-{{- if has $stable (printf "upgrade-test") }}
-    {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
         params:
           << : *upgrade-test_{{ $sanitized_branch_name }}_status
           state: failure
-    {{- end }}
 {{- end }}
   ensure:
     do:
