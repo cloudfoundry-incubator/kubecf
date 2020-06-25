@@ -1,0 +1,36 @@
+{{ define "scripts_rotate_args" }}
+
+# Login to gcloud
+printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
+export GKE_CRED_JSON=$PWD/gke-key.json
+export GKE_PROJECT="{{ .gke_project }}"
+export GKE_CLUSTER_ZONE="{{ .gke_zone }}"
+export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+
+gcloud auth activate-service-account --key-file $PWD/gke-key.json
+# Get a kubeconfig
+gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
+
+export BACKEND=gke
+export QUIET_OUTPUT=true
+export DOWNLOAD_CATAPULT_DEPS=false
+export KUBECFG="$(readlink -f ~/.kube/config)"
+
+pushd catapult
+make kubeconfig
+source build*/.envrc
+popd
+
+export KUBECF_INSTALL_NAME="susecf-scf"
+export KUBECF_NAMESPACE="scf"
+
+pushd kubecf
+testing/ccdb_key_rotation/rotate-ccdb-keys-test.sh
+
+echo "Waiting for all pods to be back"
+while ! ( kubectl get pods --namespace "${KUBECF_NAMESPACE}" | gawk '{ if ((match($2, /^([0-9]+)\/([0-9]+)$/, c) && c[1] != c[2] && !match($3, /Completed/)) || !match($3, /STATUS|Completed|Running/)) { print ; exit 1 } }' )
+do
+  sleep 10
+done
+
+{{ end }}

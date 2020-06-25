@@ -1,0 +1,25 @@
+{{ define "scripts_test_args" }}
+
+# Login to gcloud
+printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
+export GKE_CRED_JSON=$PWD/gke-key.json
+gcloud auth activate-service-account --key-file $PWD/gke-key.json
+
+export GKE_PROJECT="{{ .gke_project }}"
+export GKE_CLUSTER_ZONE="{{ .gke_zone }}"
+export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+
+# Get a kubeconfig
+gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
+
+export BACKEND=gke
+export KUBECF_NAMESPACE="scf"
+export QUIET_OUTPUT=true
+export DOWNLOAD_CATAPULT_DEPS=false
+export KUBECFG="$(readlink -f ~/.kube/config)"
+pushd catapult
+# Grabs back a deployed cluster and runs test suites on it
+# See: https://github.com/SUSE/catapult/wiki/Running-SCF-tests#kubecf
+make kubeconfig tests-kubecf
+
+{{ end }}
