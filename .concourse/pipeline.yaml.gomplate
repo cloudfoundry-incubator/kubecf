@@ -1366,6 +1366,16 @@ jobs:
     - get: catapult
     - put: semver.gke-cluster-{{ $branch }}-upgrade
       params: {bump: patch}
+{{- if has $stable (printf "upgrade-test") }}
+  {{- if $config.github_status }}
+  - put: status-{{ $branch }}.src
+    params: &upgrade-test_{{ $sanitized_branch_name }}_status
+        context: "upgrade-test"
+        description: "Upgrade from latest GH available release"
+        path: kubecf-{{ $branch }}/{{ $path }}
+        state: pending
+  {{- end }}
+{{- end }}
   - task: upgrade
     params:
       BRANCH: {{ $branch }}
@@ -1380,6 +1390,48 @@ jobs:
       semver.gke-cluster: semver.gke-cluster-{{ $branch }}-upgrade
     timeout: 4h
     file: kubecf-{{ $branch }}/.concourse/tasks/upgrade.yaml
+{{- if has $stable (printf "upgrade-test") }}
+  {{- if $config.github_status }}
+  on_success:
+    put: status-{{ $branch }}.src
+    params:
+      << : *upgrade-test_{{ $sanitized_branch_name }}_status
+      state: success
+  {{- end }}
+{{- end }}
+  on_failure:
+    in_parallel:
+{{- if has $stable (printf "upgrade-test") }}
+    {{- if $config.github_status }}
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *upgrade-test_{{ $sanitized_branch_name }}_status
+          state: failure
+    {{- end }}
+{{- end }}
+  on_abort:
+    in_parallel:
+{{- if has $stable (printf "upgrade-test") }}
+    {{- if $config.github_status }}
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *upgrade-test_{{ $sanitized_branch_name }}_status
+          state: failure
+    {{- end }}
+{{- end }}
+  on_error:
+    in_parallel:
+{{- if has $stable (printf "upgrade-test") }}
+    {{- if $config.github_status }}
+    - try:
+        put: status-{{ $branch }}.src
+        params:
+          << : *upgrade-test_{{ $sanitized_branch_name }}_status
+          state: failure
+    {{- end }}
+{{- end }}
   ensure:
     do:
       - << : *cleanup-cluster
