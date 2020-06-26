@@ -58,7 +58,7 @@ helm install --name cf-operator \
      https://s3.amazonaws.com/cf-operators/release/helm-charts/cf-operator-5.0.0%2B0.gd7ac12bc.tgz
 ```
 
-In the example above, version 0.4.1 of the operator was used. Look
+In the example above, version 5.0.0 of the operator was used. Look
 into the `cf_operator` section of the top-level `def.bzl` file to find
 the version of the operator validated against the current kubecf
 master.
