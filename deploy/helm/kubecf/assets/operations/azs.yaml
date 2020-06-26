@@ -41,8 +41,10 @@
 {{- end }}
 
 {{- if .Values.features.autoscaler.enabled }}
+{{- if not .Values.features.autoscaler.mysql.enabled }}
 - type: remove
   path: /instance_groups/name=asdatabase/azs?
+{{- end }}
 - type: remove
   path: /instance_groups/name=asactors/azs?
 - type: remove
