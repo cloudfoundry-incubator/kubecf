@@ -466,7 +466,7 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      file: output/kubecf-*.tgz
+      file: output/kubecf-[0-9]*.tgz
       acl: public-read
   - put: s3.kubecf-ci-bundle
     {{- if $config.workertags }}
@@ -2037,7 +2037,7 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      file: output/kubecf-*.tgz
+      file: output/kubecf-[0-9]*.tgz
   - put: s3.kubecf-bundle
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
