@@ -36,6 +36,6 @@ If you wish to deploy a custom pipeline:
 
 It is possible to run the job of the pipeline locally without having a full
 Concourse + GKE clusters.
-Catapult allows the replication of every step regardless the Kubernetes provider.
+Catapult allows the replication of every step regardless of the Kubernetes provider.
 [See the Catapult wiki page for a short summary on how to run the same tests
 locally](https://github.com/SUSE/catapult/wiki/KubeCF-testing).
