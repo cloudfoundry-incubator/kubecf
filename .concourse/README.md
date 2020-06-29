@@ -2,7 +2,7 @@
 
 [This pipeline](https://concourse.suse.dev/teams/main/pipelines/kubecf) lints
 builds and tests kubecf both with Eirini and Diego. The clusters used are
-GKE preemptible ones.
+GKE pre-emptible ones.
 
 The pipeline tests the kubecf master branch as well as PRs with the tag
 "Trigger: CI".
