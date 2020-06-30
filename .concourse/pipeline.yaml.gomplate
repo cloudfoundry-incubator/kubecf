@@ -1366,15 +1366,14 @@ jobs:
     - get: catapult
     - put: semver.gke-cluster-{{ $branch }}-upgrade
       params: {bump: patch}
-{{- if has $stable (printf "upgrade-test") }}
-  {{- if $config.github_status }}
+
+{{- if (has $config.stable_jobs "upgrade-test") and $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &upgrade-test_{{ $sanitized_branch_name }}_status
         context: "upgrade-test"
         description: "Upgrade from latest GH available release"
         path: kubecf-{{ $branch }}/{{ $path }}
         state: pending
-  {{- end }}
 {{- end }}
   - task: upgrade
     params:
@@ -1390,7 +1389,7 @@ jobs:
       semver.gke-cluster: semver.gke-cluster-{{ $branch }}-upgrade
     timeout: 4h
     file: kubecf-{{ $branch }}/.concourse/tasks/upgrade.yaml
-{{- if (has $stable (printf "upgrade-test")) and $config.github_status }}
+{{- if (has $config.stable_jobs "upgrade-test") and $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
     params:
