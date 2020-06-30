@@ -33,7 +33,6 @@ pr_resources:
 - pr
 
 # Stable Jobs
-# TODO: Delete the special case here as soon as we get Eirini CATS green and we stabilize Eirini smoke (e.g. with a more large timeout)
 stable_jobs:
 - lint
 - build
