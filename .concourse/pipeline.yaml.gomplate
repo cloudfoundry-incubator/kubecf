@@ -2,17 +2,17 @@
 {{ $config := (datasource "config") }}
 
 # Variables
-{{ $availableCfSchedulers := slice "diego" "eirini-suse" "eirini-ubi" } # Diego / Eirini
+{{ $availableCfSchedulers := slice "diego" "eirini-suse" "eirini-ubi" }} # Diego / Eirini
 {{ $pr_resources := slice "pr" "fork-pr" }}
-{{ $branches := slice "jbuns-add-ubi"}} # Repository branches to track
+{{ $branches := slice "add-ubi" }} # Repository branches to track
 
 # Split Concourse jobs in tabs (aka groups)
 # We split by "branch" and we also split the "experimental" jobs of each branch.
 
 # Stable Jobs
 # TODO: Delete the special case here as soon as we get Eirini CATS green and we stabilize Eirini smoke (e.g. with a more large timeout)
-{{ $stable := slice "lint" "build" "deploy-diego" "deploy-eirini" "smoke-tests-diego" "smoke-tests-eirini" "cf-acceptance-tests-diego" "cleanup-diego-cluster" "cleanup-eirini-cluster" }}
-{{ $experimental := slice "cf-acceptance-tests-eirini" "cats-internetless-diego" "cats-internetless-eirini" "sync-integration-tests" "ccdb-rotate-diego" "ccdb-rotate-eirini" "smoke-tests-post-rotate-diego" "smoke-tests-post-rotate-eirini" "upgrade-test" }}
+{{ $stable := slice "lint" "build" "deploy-diego" "deploy-eirini-suse" "deploy-eirini-ubi" "smoke-tests-diego" "smoke-tests-eirini-suse" "smoke-tests-eirini-ubi" "cf-acceptance-tests-diego" "cleanup-diego-cluster" "cleanup-eirini-suse-cluster" "cleanup-eirini-ubi-cluster" }}
+{{ $experimental := slice "cf-acceptance-tests-eirini-suse" "cf-acceptance-tests-eirini-ubi"  "cats-internetless-diego" "cats-internetless-eirini-suse" "cats-internetless-eirini-ubi" "sync-integration-tests" "ccdb-rotate-diego" "ccdb-rotate-eirini-suse" "ccdb-rotate-eirini-ubi" "smoke-tests-post-rotate-diego" "smoke-tests-post-rotate-eirini-suse" "smoke-tests-post-rotate-eirini-ubi" "upgrade-test" }}
 
 groups:
 {{ range $_, $branch := (flatten (slice $branches $pr_resources) | uniq) }}
@@ -221,6 +221,7 @@ deploy_args: &deploy_args
   export QUIET_OUTPUT=true
   export DOWNLOAD_CATAPULT_DEPS=false
   export KUBECFG="$(readlink -f ~/.kube/config)"
+  test="TESTING"
 
   # https://unix.stackexchange.com/a/265151
   read -r -d '' CONFIG_OVERRIDE <<'EOF' || true
@@ -229,7 +230,13 @@ deploy_args: &deploy_args
       ephemeral_disk:
         size: 300000
   EOF
+
+  echo ${CONFIG_OVERRIDE}
+  echo " is the CONFIG_OVERRIDE"
   export CONFIG_OVERRIDE
+  echo "UBICONFIGOVERRIDE is: ${UBICONFIGOVERRIDE}"
+  echo ${CONFIG_OVERRIDE}
+  echo "BRANCH is: ${BRANCH}"
 
   pushd catapult
   export CLUSTER_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
@@ -488,9 +495,12 @@ jobs:
       - name: output
       params:
         CATS_NODES: 5
-        ENABLE_EIRINI: {{ if hasPrefix "eirini" $cfScheduler }}
+        ENABLE_EIRINI: {{ hasPrefix "eirini" $cfScheduler }}
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
+        {{- if hasSuffix "ubi" $cfScheduler }}
+        UBICONFIGOVERRIDE: {{ $config.ubi_config_override }}
+        {{- end }}
       run:
         path: "/bin/bash"
         args: *deploy_args
@@ -535,6 +545,8 @@ jobs:
             args:
             - -ce
             - |
+
+              exit 1
 
               # Login to gcloud
               printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
