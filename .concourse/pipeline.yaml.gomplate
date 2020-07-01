@@ -1367,7 +1367,7 @@ jobs:
     - put: semver.gke-cluster-{{ $branch }}-upgrade
       params: {bump: patch}
 
-{{- if (has $config.stable_jobs "upgrade-test") and $config.github_status }}
+{{- if and (has $config.stable_jobs "upgrade-test") $config.github_status }}
   - put: status-{{ $branch }}.src
     params: &upgrade-test_{{ $sanitized_branch_name }}_status
         context: "upgrade-test"
@@ -1389,7 +1389,7 @@ jobs:
       semver.gke-cluster: semver.gke-cluster-{{ $branch }}-upgrade
     timeout: 4h
     file: kubecf-{{ $branch }}/.concourse/tasks/upgrade.yaml
-{{- if (has $config.stable_jobs "upgrade-test") and $config.github_status }}
+{{- if and (has $config.stable_jobs "upgrade-test") $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
     params:
