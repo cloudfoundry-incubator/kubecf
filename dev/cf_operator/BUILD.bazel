@@ -16,7 +16,7 @@ helm_upgrade(
     namespace = project.cf_operator_namespace,
     chart_package = "@cf_operator//file",
     set_values = {
-        "global.operator.watchNamespace": project.namespace,
+        "global.singleNamespace.name": project.namespace,
     },
     values = glob(["**/*values.yaml"]),
     reset_values = True,
