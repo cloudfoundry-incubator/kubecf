@@ -54,10 +54,14 @@ fly_args=(
     "--pipeline=${PIPELINE}"
 )
 
+# space-separated paths to template files and directories which contain template files
+template_paths="scripts"
+templates=$(find ${template_paths} -type f -exec echo "--template="{} \;)
+
 if [[ "$2" =~ "reconciler" ]]; then
     fly "${fly_args[@]}" --config \
         <(gomplate -V --datasource config="$PIPELINE".yaml --file kubecf-pool-reconciler.yaml.gomplate)
 else # kubecf pipeline
     fly "${fly_args[@]}" --config \
-        <(gomplate -V --datasource config="$PIPELINE".yaml --file pipeline.yaml.gomplate)
+        <(gomplate -V --datasource config="$PIPELINE".yaml ${templates} --file pipeline.yaml.gomplate)
 fi
