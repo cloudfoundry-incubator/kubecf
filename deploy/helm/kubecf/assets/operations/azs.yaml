@@ -34,8 +34,10 @@
 {{- end }}
 
 {{- if not .Values.features.eirini.enabled }}
+{{- if not .Values.features.control_plane.enabled }}
 - type: remove
   path: /instance_groups/name=diego-cell/azs?
+{{- end }}
 {{- end }}
 
 {{- if .Values.features.autoscaler.enabled }}

@@ -1,0 +1,21 @@
+{{- if .Values.features.control_plane.enabled }}
+{{- range .Values.features.control_plane.workers }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}
+spec:
+  clusterIP: None
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .name }}
+subsets:
+  - addresses:
+    - ip: {{ .address }}
+{{- end }}
+{{- end }}

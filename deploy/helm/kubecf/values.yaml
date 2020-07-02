@@ -248,6 +248,15 @@ settings:
 
 
 features:
+  # To support multi-clusters, the control_plane is used to deploy cf components except diego-cell. 
+  # While the cluster_worker is to enable diego-cell. When control plane feature is enabled, the cluster-worker cannot be enabled.
+  control_plane:
+    enabled: false
+    workers:
+    - name: minions-1-diego-cell-0
+      address: 172.30.6.59
+  cluster_worker:
+    enabled: false
   eirini:
     # When eirini is enabled, both suse_default_stack and suse_buildpacks must be enabled as well.
     enabled: false
