@@ -96,6 +96,11 @@ resources:
     access_token: ((github-access-token))
     disable_forks: true # Trigger on kubecf branches only
     required_review_approvals: 1
+    {{- if not $config.pr_base_branch }}
+    # base_branch must not be defined to catch all PRs, null value is not enough.
+    {{ else }}
+    base_branch: {{ $config.pr_base_branch }}
+    {{- end }}
 
 {{- range $_, $pr := $config.pr_resources }}
 
