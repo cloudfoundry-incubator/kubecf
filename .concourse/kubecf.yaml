@@ -1,5 +1,8 @@
 ---
 
+workertags:
+  # - yourtag
+
 # NOTE use your own bucket when developing
 s3_bucket: kubecf-ci
 s3_bucket_region: eu-central-1

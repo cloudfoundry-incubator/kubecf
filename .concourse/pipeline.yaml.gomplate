@@ -308,11 +308,19 @@ jobs:
 - name: lint-{{ $branch }}
   plan:
   - get: kubecf-{{ $branch }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     trigger: true
     version: "every"
 {{- if has $config.stable_jobs "lint" }}
   {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: &lint_{{ $sanitized_branch_name }}_status
         context: lint
         description: "Lint started"
@@ -321,6 +329,10 @@ jobs:
   {{- end }}
 {{- end }}
   - task: lint
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     config:
       platform: linux
       image_resource:
@@ -346,11 +358,19 @@ jobs:
     {{- if $config.github_status }}
     on_success:
       put: status-{{ $branch }}.src
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       params:
         << : *lint_{{ $sanitized_branch_name }}_status
         state: success
     on_failure:
       put: status-{{ $branch }}.src
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       params:
         << : *lint_{{ $sanitized_branch_name }}_status
         state: failure
@@ -361,6 +381,10 @@ jobs:
   public: false # TODO: public or not?
   plan:
   - get: kubecf-{{ $branch }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     trigger: true
     version: "every"
     passed:
@@ -368,6 +392,10 @@ jobs:
 {{- if has $config.stable_jobs "build" }}
   {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: &build_{{ $sanitized_branch_name }}_status
         context: build
         description: "Build started"
@@ -376,6 +404,10 @@ jobs:
   {{- end }}
 {{- end }}
   - task: build
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     config:
       platform: linux
       image_resource:
@@ -403,21 +435,37 @@ jobs:
     {{- if $config.github_status }}
     on_success:
       put: status-{{ $branch }}.src
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       params:
         << : *build_{{ $sanitized_branch_name }}_status
         state: success
     on_failure:
       put: status-{{ $branch }}.src
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       params:
         << : *build_{{ $sanitized_branch_name }}_status
         state: failure
     {{- end }}
 {{- end }}
   - put: s3.kubecf-ci
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       file: output/kubecf-v*.tgz
       acl: public-read
   - put: s3.kubecf-ci-bundle
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       file: output/kubecf-bundle-v*.tgz
       acl: public-read
@@ -431,20 +479,40 @@ jobs:
   # if jobs starts to starve
   plan:
   - get: kubecf-{{ $branch }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     trigger: true
     version: "every"
     passed:
     - build-{{ $branch }}
   - get: s3.kubecf-ci
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - build-{{ $branch }}
   - get: s3.kubecf-ci-bundle
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - build-{{ $branch }}
   - get: catapult
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
 {{- if has $config.stable_jobs (printf "deploy-%s" $cfScheduler) }}
   {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: &deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "deploy-{{ $cfScheduler }}"
         description: "Deploy {{ $cfScheduler }}"
@@ -453,8 +521,16 @@ jobs:
   {{- end }}
 {{- end }}
   - put: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: {bump: patch}
   - task: deploy
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     timeout: 3h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -485,6 +561,10 @@ jobs:
   on_success:
     do:
     - put: status-{{ $branch }}.src
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       params:
         << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         state: success
@@ -496,6 +576,10 @@ jobs:
   {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -503,6 +587,10 @@ jobs:
 {{- end }}
     - try: &cleanup-cluster
         task: cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -574,6 +662,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -581,6 +673,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -590,6 +686,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -597,6 +697,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *deploy_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -608,24 +712,48 @@ jobs:
 - name: smoke-tests-{{ $cfScheduler }}-{{ $branch }}
   plan:
   - get: kubecf-{{ $branch }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     trigger: true
     version: "every"
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
   - get: s3.kubecf-ci
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
   - get: s3.kubecf-ci-bundle
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
   - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
     trigger: true
   - get: catapult
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
 {{- if has $config.stable_jobs (printf "smoke-tests-%s" $cfScheduler) }}
   {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: &smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "smoke-tests-{{ $cfScheduler }}"
         description: "Smoke tests {{ $cfScheduler }}"
@@ -634,6 +762,10 @@ jobs:
   {{- end }}
 {{- end }}
   - task: test-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     input_mapping:
       kubecf: kubecf-{{ $branch }}
       semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
@@ -659,8 +791,16 @@ jobs:
   {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       state: success
   {{- end }}
 {{- end }}
@@ -670,13 +810,25 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          {{- if $config.workertags }}
+          tags: {{ range $config.workertags }}
+          - {{ . -}}{{ end }}
+          {{- end }}
           state: failure
     {{- end }}
 {{- end }}
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -684,6 +836,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -691,8 +847,16 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
+          {{- if $config.workertags }}
+          tags: {{ range $config.workertags }}
+          - {{ . -}}{{ end }}
+          {{- end }}
           state: failure
 {{- end }}
     {{- end }}
@@ -700,6 +864,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -707,6 +875,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *smoke_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -717,24 +889,48 @@ jobs:
 - name: cf-acceptance-tests-{{ $cfScheduler }}-{{ $branch }}
   plan:
   - get: kubecf-{{ $branch }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
   - get: s3.kubecf-ci-bundle
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
   - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
   - get: catapult
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
 {{- if has $config.stable_jobs (printf "cf-acceptance-tests-%s" $cfScheduler) }}
   {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: &cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "cf-acceptance-tests-{{ $cfScheduler }}"
         description: "Acceptance tests {{ $cfScheduler }}"
@@ -743,6 +939,10 @@ jobs:
   {{- end }}
 {{- end }}
   - task: test-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -769,6 +969,10 @@ jobs:
   {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
@@ -779,6 +983,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -786,6 +994,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -795,6 +1007,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -802,6 +1018,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -811,6 +1031,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -818,6 +1042,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *cats_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -828,24 +1056,48 @@ jobs:
 - name: cats-internetless-{{ $cfScheduler }}-{{ $branch }}
   plan:
   - get: kubecf-{{ $branch }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
   - get: s3.kubecf-ci-bundle
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
   - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
   - get: catapult
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
 {{- if has $config.stable_jobs (printf "cats-internetless-%s" $cfScheduler) }}
   {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: &cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "cats-internetless-tests-{{ $cfScheduler }}"
         description: "Internetless acceptance tests {{ $cfScheduler }}"
@@ -854,6 +1106,10 @@ jobs:
   {{- end }}
 {{- end }}
   - task: test-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -881,6 +1137,10 @@ jobs:
   {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
@@ -890,6 +1150,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -897,6 +1161,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -906,6 +1174,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -913,6 +1185,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -922,6 +1198,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -929,6 +1209,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *cats_internetless_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -942,24 +1226,48 @@ jobs:
 - name: sync-integration-tests-{{ $branch }}
   plan:
   - get: kubecf-{{ $branch }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
   - get: s3.kubecf-ci-bundle
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
   - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
   - get: catapult
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
 {{- if has $config.stable_jobs "sync-integration-tests" }}
   {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: &sits_{{ $sanitized_branch_name }}_status
         context: "sync-integration-tests"
         description: "Sync Integration tests"
@@ -968,6 +1276,10 @@ jobs:
   {{- end }}
 {{- end }}
   - task: test-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -993,6 +1305,10 @@ jobs:
   {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       << : *sits_{{ $sanitized_branch_name }}_status
       state: success
@@ -1004,6 +1320,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *sits_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1011,6 +1331,10 @@ jobs:
 {{- end }}
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -1018,6 +1342,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -1025,6 +1353,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *sits_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1035,6 +1367,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -1042,6 +1378,11 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
+        params:
         params:
           << : *sits_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1053,24 +1394,48 @@ jobs:
 - name: ccdb-rotate-{{ $cfScheduler }}-{{ $branch }}
   plan:
   - get: kubecf-{{ $branch }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
   - get: s3.kubecf-ci-bundle
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
   - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
   - get: catapult
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
 {{- if has $config.stable_jobs (printf "rotate-%s" $cfScheduler) }}
   {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: &rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "rotate-{{ $cfScheduler }}"
         description: "Rotating secrets {{ $cfScheduler }}"
@@ -1079,6 +1444,10 @@ jobs:
   {{- end }}
 {{- end }}
   - task: rotate-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
@@ -1104,6 +1473,10 @@ jobs:
   {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
@@ -1116,6 +1489,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1123,6 +1500,10 @@ jobs:
 {{- end }}
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -1130,6 +1511,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -1137,6 +1522,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1146,6 +1535,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -1153,6 +1546,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1163,24 +1560,48 @@ jobs:
 - name: smoke-tests-post-rotate-{{ $cfScheduler }}-{{ $branch }}
   plan:
   - get: kubecf-{{ $branch }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   - get: s3.kubecf-ci
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
   - get: s3.kubecf-ci-bundle
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
   - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
   - get: catapult
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
 {{- if has $config.stable_jobs (printf "smoke-rotated-{%s" $cfScheduler) }}
   {{- if $config.github_status }}
   - put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: &smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
         context: "smoke-rotated-{{ $cfScheduler }}"
         description: "Smoke tests after rotating secrets {{ $cfScheduler }}"
@@ -1189,6 +1610,10 @@ jobs:
   {{- end }}
 {{- end }}
   - task: test-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     input_mapping:
       kubecf: kubecf-{{ $branch }}
       semver.gke-cluster: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
@@ -1215,6 +1640,10 @@ jobs:
   {{- if $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
       state: success
@@ -1227,6 +1656,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1234,6 +1667,10 @@ jobs:
 {{- end }}
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -1241,6 +1678,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -1248,6 +1689,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1257,6 +1702,10 @@ jobs:
     in_parallel:
     - try:
         << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: {{ $cfScheduler }}
@@ -1264,6 +1713,10 @@ jobs:
     {{- if $config.github_status }}
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *smoke_rotate_{{ $cfScheduler }}_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1338,17 +1791,29 @@ jobs:
 - name: cleanup-{{ $cfScheduler }}-cluster-{{ $branch }}
   plan:
   - get: kubecf-{{ $branch }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
     version: "every"
   - get: semver.gke-cluster-{{ $branch }}-{{ $cfScheduler }}
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
   ensure:
    do:
     - << : *cleanup-cluster
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       params:
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
@@ -1359,23 +1824,51 @@ jobs:
   plan:
   - in_parallel:
     - get: kubecf-github-release
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
     - get: kubecf-{{ $branch }}
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       trigger: true
       version: "every"
       passed:
       - build-{{ $branch }}
     - get: s3.kubecf-ci
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       passed:
       - build-{{ $branch }}
     - get: s3.kubecf-ci-bundle
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       passed:
       - build-{{ $branch }}
     - get: catapult
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
     - put: semver.gke-cluster-{{ $branch }}-upgrade
+      {{- if $config.workertags }}
+      tags: {{ range $config.workertags }}
+      - {{ . -}}{{ end }}
+      {{- end }}
       params: {bump: patch}
 
 {{- if and (has $config.stable_jobs "upgrade-test") $config.github_status }}
   - put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params: &upgrade-test_{{ $sanitized_branch_name }}_status
         context: "upgrade-test"
         description: "Upgrade from latest GH available release"
@@ -1383,6 +1876,10 @@ jobs:
         state: pending
 {{- end }}
   - task: upgrade
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       BRANCH: {{ $branch }}
       CFSCHEDULER: upgrade # hack to re-use the same cleanup code
@@ -1399,6 +1896,10 @@ jobs:
 {{- if and (has $config.stable_jobs "upgrade-test") $config.github_status }}
   on_success:
     put: status-{{ $branch }}.src
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       << : *upgrade-test_{{ $sanitized_branch_name }}_status
       state: success
@@ -1406,6 +1907,10 @@ jobs:
     in_parallel:
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *upgrade-test_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1413,6 +1918,10 @@ jobs:
     in_parallel:
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *upgrade-test_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1420,6 +1929,10 @@ jobs:
     in_parallel:
     - try:
         put: status-{{ $branch }}.src
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           << : *upgrade-test_{{ $sanitized_branch_name }}_status
           state: failure
@@ -1427,6 +1940,10 @@ jobs:
   ensure:
     do:
       - << : *cleanup-cluster
+        {{- if $config.workertags }}
+        tags: {{ range $config.workertags }}
+        - {{ . -}}{{ end }}
+        {{- end }}
         params:
           BRANCH: {{ $branch }}
           CFSCHEDULER: upgrade
@@ -1437,14 +1954,26 @@ jobs:
 - name: publish-{{ $branch }}
   plan:
   - get: s3.kubecf-ci
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - smoke-tests-post-rotate-diego-{{ $branch }}
     trigger: {{ $config.trigger_publish }}
   - get: s3.kubecf-ci-bundle
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     passed:
     - smoke-tests-post-rotate-diego-{{ $branch }}
     trigger: {{ $config.trigger_publish }}
   - task: rename-artifacts
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     config:
       platform: linux
       image_resource:
@@ -1468,6 +1997,10 @@ jobs:
               mv "$file" "output/${new_filename}"
           done
   - task: test-if-file-exists
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     config:
       platform: linux
       image_resource:
@@ -1491,9 +2024,17 @@ jobs:
           done
           exit 0
   - put: s3.kubecf
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       file: output/kubecf-v*.tgz
   - put: s3.kubecf-bundle
+    {{- if $config.workertags }}
+    tags: {{ range $config.workertags }}
+    - {{ . -}}{{ end }}
+    {{- end }}
     params:
       file: output/kubecf-bundle-v*.tgz
 {{ end }} # of publish
