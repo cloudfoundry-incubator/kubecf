@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 
 scriptname=$(basename "${0}")
-input_value_file="values.yaml"
 minions_value_file="minions-values.yaml"
-
+placement_tags='minions-1'
 #
 # Usage statement
-#
+# This script generates a helm value file for kubecf worker clusters
+# 
 usage() {
     echo
     echo "Usage: $scriptname [OPTIONS]"
     echo
-    echo "   -i"
-    echo "              The provided input value file"
     echo "   -o"
-    echo "              The output value file for minions cluster"
+    echo "              The output value file name for minions cluster, default is minions-values.yaml"
+    echo "   -t"
+    echo "              The placement tag for minions cluster, default is minions-1"
     echo
     echo "   -h --help  Output this help."
 }
@@ -27,12 +27,12 @@ do
 key="$1"
 shift
 case $key in
-    -i)
-    input_value_file=$1
-    shift
-    ;;
     -o)
     minions_value_file=$1
+    shift
+    ;;
+    -t)
+    placement_tags=$1
     shift
     ;;
     -h|--help)
@@ -85,7 +85,7 @@ properties:
     rep:
       diego:
         rep:
-          placement_tags: ['minions-1']
+          placement_tags: ['${placement_tags}']
 EOF
 }
 
@@ -96,12 +96,12 @@ function AddCredentialsFun(){
     credential_name=$(echo "${credentials_list[$i]}" | cut -d "." -f 1 | sed "s/_/-/g" )
 
     if [ "X${credential_name}" != "X" ] && [ "X${credential_type}" != "X" ]; then
-      credential_value=$(kubectl get secret var-"${credential_name}" -n kubecf -o yaml 2> /dev/null | grep "^  ${credential_type}:" | awk '{print $2}' | base64 -d)
+      credential_value=$(kubectl get secret var-"${credential_name}" -n kubecf -o yaml 2> /dev/null | grep "^  ${credential_type}:" | awk '{print $2}' | base64 --decode)
       if [ "X${credential_value}" != "X" ]; then
         echo "  ${credentials_list[$i]}: |" >> "${minions_value_file}"
         for j in ${credential_value}; do
           if [[ "$j" =~ "-----"$ ]] || [ "$j" == "RSA" ] || [ "$j" == "PRIVATE" ]; then
-            sed -i "$ s/$/ $j/" "${minions_value_file}"
+            ${sed_cmd} "$ s/$/ $j/" "${minions_value_file}"
           else
             echo "    $j" >> "${minions_value_file}"
           fi
@@ -112,7 +112,7 @@ function AddCredentialsFun(){
     fi
   done
 
-  credential_value=$(kubectl get secret var-uaa-clients-tcp-emitter-secret -n kubecf -o yaml | grep "^  password:" | awk '{print $2}' | base64 -d)
+  credential_value=$(kubectl get secret var-uaa-clients-tcp-emitter-secret -n kubecf -o yaml 2> /dev/null | grep "^  password:" | awk '{print $2}' | base64 --decode)
   if [ "X${credential_value}" != "X" ]; then
     echo "  uaa_clients_tcp_emitter_secret: ${credential_value}" >> "${minions_value_file}"
   else
@@ -121,7 +121,8 @@ function AddCredentialsFun(){
 }
 
 function AddInlineFun(){
-    cat >>"${minions_value_file}" <<EOF
+  cat >>"${minions_value_file}" <<EOF
+operations:
   inline:
   # To deploy a cell
   - type: remove
@@ -179,88 +180,66 @@ function AddInlineFun(){
 EOF
 }
 
-function AddValueFun(){
-  i=$1
-  if [ "$i" == "inline" ]; then
-    echo "add inline config to value file."
-    AddInlineFun
-  elif [ "$i" == "credentials" ]; then
-    echo "add credentials config to value file."
-    AddCredentialsFun
-  elif [ "$i" == "properties" ]; then
-    echo "add properties config to value file."
-    AddPropertiesFun 
-  else
-    echo "Warning: No new value file."
-  fi
+function AddFeaturesFun(){
+   cat >>"${minions_value_file}" <<EOF 
+features:
+  embedded_database:
+    enabled: false
+  routing_api:
+    enabled: false
+  credhub:
+    enabled: false
+EOF
 }
 
-#Add required properties, credentials, inline into value.yaml
-##find properties, credentials, inline's line number in value.yaml
-properties_line=$(grep -n "^properties: {}" "${input_value_file}" | cut -d ":" -f 1)
-credentials_line=$(grep -n "^credentials: {}" "${input_value_file}" | cut -d ":" -f 1)
-inline_line=$(grep -n "^  inline: \[\]" "${input_value_file}" | cut -d ":" -f 1)
-
-if [ "${credentials_line}" -gt "${properties_line}" ]; then
-  section0=("properties" "${properties_line}")
-  section1=("credentials" "${credentials_line}")
-  if [ "${inline_line}" -gt "${credentials_line}" ]; then
-    section2=("inline" "${inline_line}")
-  elif [ "${inline_line}" -lt "${credentials_line}" ] && [ "${inline_line}" -gt "${properties_line}" ] ; then
-    section1=("inline" "${inline_line}")
-    section2=("credentials" "${credentials_line}")
-  else
-    section0=("inline" "${inline_line}")
-    section1=("properties" "${properties_line}")
-    section2=("credentials" "${credentials_line}")
-  fi
-else
-  section0=("credentials" "${credentials_line}")
-  section1=("properties" "${properties_line}")
-  if [ "${inline_line}" -gt "${properties_line}" ]; then
-    section2=("inline" "${inline_line}")
-  elif [ "${inline_line}" -lt "${properties_line}" ] && [ "${inline_line}" -gt "${credentials_line}" ] ; then
-    section1=("inline" "${inline_line}")
-    section2=("properties" "${properties_line}")
-  else
-    section0=("inline" "${inline_line}")
-    section1=("credentials" "${credentials_line}")
-    section2=("properties" "${properties_line}")
-  fi
+#Check placement tag file
+if  [[ -z ${placement_tags} ]]; then
+  echo  "Not find placement tag, please provide one with -t option."
+  usage
+  exit 1
 fi
 
-##insert required properties, credentials, inline into value.yaml
-sed -n "1,$((section0[1]-1))p" "${input_value_file}" >> "${minions_value_file}"
-AddValueFun "${section0[0]}"
-sed -n "$((section0[1]+1)),$((section1[1]-1))p" "${input_value_file}" >> "${minions_value_file}"
-AddValueFun "${section1[0]}"
-sed -n "$((section1[1]+1)),$((section2[1]-1))p" "${input_value_file}" >> "${minions_value_file}"
-AddValueFun "${section2[0]}"
-sed -n "$((section2[1]+1)),\$p" "${input_value_file}" >> "${minions_value_file}"
+#Check kubectl command
+if ! hash kubectl 2>/dev/null; then
+  echo "Not find command kubectl, please install it and set it connect to control plane."
+  exit 1
+fi
 
-#update system_domain
-system_domain=$(kubectl get secret var-system-domain -n kubecf -o yaml | grep "^  value:" | awk '{print $2}' | base64 -d)
+#Check if kubectl connected to control plane.
+kubectl get pod -n kubecf &> /dev/null
+isConnected=$?
+if [ "$isConnected" -ne 0 ]; then
+  echo "Not find namespace kubecf, please set kubectl connect to control plane."
+  exit 1
+fi
+
+#Check operation system 
+os_name=$(uname -a)
+if [[ "${os_name}" =~ "Darwin" ]]; then
+  sed_cmd="sed -i ''"
+else
+  sed_cmd="sed -i"
+fi
+
+echo "Generating value file for minions cluster ..."
+#Add system_domain
+system_domain=$(kubectl get secret var-system-domain -n kubecf -o yaml 2> /dev/null | grep "^  value:" | awk '{print $2}' | base64 --decode)
 if [ "X$system_domain" == "X" ]; then
   echo "Warning: Not find system domain, please manually update it in file ${minions_value_file}."
 else
-  sed -i "s/system_domain: ~/system_domain: $system_domain/g" "${minions_value_file}"
+  echo "add system_domain ..."
+  echo "system_domain: $system_domain" >> "${minions_value_file}"
 fi
 
-#update embedded_database to be false
-echo "set embedded_database enabled: false"
-for num in $(grep -n "^  embedded_database:" "${minions_value_file}" | cut -d ":" -f 1 | xargs); do
-  sed -i "$((num+1))s/enabled: true/enabled: false/" "${minions_value_file}"
-done
+#Add required properties, credentials, inline, features into output value file
+echo "add Properties ..."
+AddPropertiesFun
+echo "add Credentials ..."
+AddCredentialsFun
+echo "add Inline ..."
+AddInlineFun
+echo "add Features ..."
+AddFeaturesFun
 
-#update routing_api to be false
-echo "set routing_api enabled: false"
-for num in $(grep -n "^  routing_api:" "${minions_value_file}" | cut -d ":" -f 1 | xargs); do
-  sed -i "$((num+1))s/enabled: true/enabled: false/" "${minions_value_file}"
-done
-
-#update credhub to be false
-echo "set credhub enabled: false"
-for num in $(grep -n "^  credhub:" "${minions_value_file}" | cut -d ":" -f 1 | xargs); do
-  sed -i "$((num+1))s/enabled: true/enabled: false/" "${minions_value_file}"
-done
+echo "Complete. Please check output value file ${minions_value_file}."
 
