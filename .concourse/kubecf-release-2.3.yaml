@@ -1,0 +1,53 @@
+---
+
+s3_bucket: kubecf-ci
+s3_bucket_region: eu-central-1
+s3_final_bucket: kubecf
+s3_final_bucket_region: us-west-2
+kubecf_repository: cloudfoundry-incubator/kubecf
+
+# for preemptible gke clusters
+gke_project: suse-225215
+gke_zone: europe-west3-c
+gke_dns_zone: kubecf-ci
+gke_domain: kubecf.ci
+
+# NOTE please disable the following if you are developing or deploying a copy of
+# the pipeline:
+trigger_publish: true
+github_status: true
+
+availableCfSchedulers: # Diego / Eirini
+- diego
+- eirini
+
+branches: # Repository branches to track
+- master
+- release-2.2
+- release-2.3
+pr_resources:
+- pr
+pr_base_branch: ~ # filter PRs depending on the branch they target. `~` for all branches
+
+# Stable Jobs
+stable_jobs:
+- lint
+- build
+- deploy-diego
+- deploy-eirini
+- smoke-tests-diego
+- smoke-tests-eirini
+- cf-acceptance-tests-diego
+- cats-internetless-diego
+- sync-integration-tests
+- ccdb-rotate-diego
+- smoke-tests-post-rotate-diego
+- upgrade-test
+- cleanup-diego-cluster
+- cleanup-eirini-cluster
+
+experimental_jobs:
+- cf-acceptance-tests-eirini
+- cats-internetless-eirini
+- ccdb-rotate-eirini
+- smoke-tests-post-rotate-eirini
