@@ -61,6 +61,8 @@ done
 echo "operatorChartUrl: \"${CF_OPERATOR_URL//\{version\}/${CF_OPERATOR_VERSION}}\"" > "${HELM_DIR}/Metadata.yaml"
 
 ruby rules/kubecf/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
+MODE=check ruby rules/kubecf/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
+
 ruby rules/kubecf/image_list.rb "${HELM_DIR}" | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
 
 VERSION="$(./scripts/version.sh)"

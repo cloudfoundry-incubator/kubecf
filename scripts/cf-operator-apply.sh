@@ -10,4 +10,4 @@ fi
 helm install cf-operator \
      "${CF_OPERATOR_URL//\{version\}/${CF_OPERATOR_VERSION}}" \
      --namespace "${CF_OPERATOR_NS}" \
-     --set "global.operator.watchNamespace=${KUBECF_NS}"
+     --set "global.singleNamespace.name=${KUBECF_NS}"
