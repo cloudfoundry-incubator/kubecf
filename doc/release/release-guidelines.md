@@ -57,7 +57,7 @@ helm_package(
 If the pipeline is not there already, define, commit, push, and deploy a new
 Concourse pipeline for the new release branch.
 
-Copy the kubecf.yaml config the new release branch to the list of branches:
+Copy the kubecf.yaml config into a new config for the new release branch:
 
     > cp ./concourse/kubecf.yaml ./concourse/kubecf-release-X.Y.yaml
 
