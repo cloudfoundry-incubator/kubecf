@@ -22,12 +22,10 @@ availableCfSchedulers: # Diego / Eirini
 - eirini
 
 branches: # Repository branches to track
-- master
-- release-2.2
 - release-2.3
 pr_resources:
 - pr
-pr_base_branch: ~ # filter PRs depending on the branch they target. `~` for all branches
+pr_base_branch: release-2.3 # filter PRs depending on the branch they target. `~` for all branches
 
 # Stable Jobs
 stable_jobs:
