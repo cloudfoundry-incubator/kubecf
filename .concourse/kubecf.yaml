@@ -1,6 +1,6 @@
 ---
 
-workertags:
+workertags: # list of worker tags, to run the pipeline on specific (tagged) workers
   # - yourtag
 
 # NOTE use your own bucket when developing
