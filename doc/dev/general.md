@@ -150,7 +150,7 @@ In the case of the `tcp-router` ports, one `--set` for each port is required, st
 `services.tcp-router.port_range.start` and ending with `services.tcp-router.port_range.end`. Those
 values are defined on the `values.yaml` file with default values.
 
-If you are deploying with Eirini your ssh-proxy service will be named differently (`eirinx-ssh-proxy`), make sure you use the correct value
+If you are deploying with Eirini your ssh-proxy service will be named differently (`eirinix-ssh-proxy`), make sure you use the correct value
 for `tcp.2222` (the ssh-proxy service). The above command assumes you deployed kubecf in a namespace called `kubecf`.
 If you used a different name, make sure you adapt the command.
 
