@@ -1,0 +1,240 @@
+{{- if and .Values.features.multiple_cluster_mode.multiple_cluster.enabled .Values.features.multiple_cluster_mode.diego_segment.enabled }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-provided-inline-operations
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: operations
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+data:
+  ops: |-
+    - path: /instance_groups/name=adapter
+      type: remove
+    - path: /instance_groups/name=api
+      type: remove
+    - path: /instance_groups/name=auctioneer
+      type: remove
+    - path: /instance_groups/name=cc-worker
+      type: remove
+    - path: /instance_groups/name=diego-api
+      type: remove
+    - path: /instance_groups/name=doppler
+      type: remove
+    - path: /instance_groups/name=log-api
+      type: remove
+    - path: /instance_groups/name=log-cache
+      type: remove
+    - path: /instance_groups/name=nats
+      type: remove
+    - path: /instance_groups/name=router
+      type: remove
+    - path: /instance_groups/name=routing-api
+      type: remove
+    - path: /instance_groups/name=scheduler
+      type: remove
+    - path: /instance_groups/name=singleton-blobstore
+      type: remove
+    - path: /instance_groups/name=tcp-router
+      type: remove
+    - path: /instance_groups/name=uaa
+      type: remove
+    - path: /instance_groups/name=rotate-cc-database-key
+      type: remove
+    - path: /instance_groups/name=smoke-tests
+      type: remove    
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats.secret_name }} 
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"nats","type":"nats"}'
+stringData:
+  link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.nats.link | nindent 4 }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats_tls.secret_name }} 
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"nats-tls","type":"nats-tls"}'
+stringData:
+  link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.nats_tls.link | nindent 4 }} 
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.routing_api.secret_name }} 
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"routing_api","type":"routing_api"}'
+stringData:
+  link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.routing_api.link | nindent 4 }} 
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.doppler.secret_name }} 
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"doppler","type":"doppler"}'
+stringData:
+  link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.doppler.link | nindent 4 }} 
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.loggregator.secret_name }} 
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"loggregator","type":"loggregator"}'
+stringData:
+  link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.loggregator.link | nindent 4 }} 
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.secret_name }}
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"cloud_controller","type":"cloud_controller"}'
+stringData:
+  link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.link | nindent 4 }} 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: nats
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats.service_name }} 
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: nats-tls
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats_tls.service_name }}
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: routing_api
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.routing_api.service_name }}
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: doppler
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.doppler.service_name }}
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: loggregator
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.loggregator.service_name }}
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: cloud_controller
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.service_name }}
+spec:
+  clusterIP: None
+  type: ClusterIP
+
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats.service_name }} 
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.provider_link_service.nats.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats_tls.service_name }}
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.provider_link_service.nats_tls.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.routing_api.service_name }}
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.provider_link_service.routing_api.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.doppler.service_name }}
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.provider_link_service.doppler.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.loggregator.service_name }}
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.provider_link_service.loggregator.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.service_name }} 
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+{{- end }}

@@ -279,7 +279,7 @@ features:
         # link: |
         #   ---
         #   nats.user: "nats"
-        #   nats.password: "KvEG6zmTicAJvzUhA1zau79WDUJHNScdLT9O0lqXlhwNBuYWqpr6VOdsC2SaNPxL"
+        #   nats.password: "xxxxxx"
         #   nats.hostname: "nats"
         #   nats.port: 4222
         link: ~
@@ -292,7 +292,7 @@ features:
         # link: |
         #   ---
         #   nats.user: "nats"
-        #   nats.password: "KvEG6zmTicAJvzUhA1zau79WDUJHNScdLT9O0lqXlhwNBuYWqpr6VOdsC2SaNPxL"
+        #   nats.password: "xxxxxx"
         #   nats.hostname: "nats"
         #   nats.port: 4223
         #   nats.external.tls.ca: ""
@@ -304,7 +304,15 @@ features:
           - ip: ~
         # To support multi-clusters, fill the provider link secrets context of routing-api, for example:
         # link: |
-        #   doppler.grpc_port: 8082
+        #   routing_api.clients: ~
+        #   routing_api.system_domain: "xxx.xxx.xxx"
+        #   routing_api.port: 3000
+        #   routing_api.mtls_port: 3001
+        #   routing_api.mtls_ca: |
+        #     -----BEGIN CERTIFICATE-----
+        #     xxxxxx
+        #     -----END CERTIFICATE-----
+        #   ......
         link: ~
       doppler:
         secret_name: minion-link-doppler
@@ -313,11 +321,7 @@ features:
           - ip: ~
         # To support multi-clusters, fill the provider link secrets context of doppler, for example:
         # link: |
-        #   loggregator.tls.ca_cert: |
-        #     -----BEGIN CERTIFICATE-----
-        #     xxxxxx
-        #     -----END CERTIFICATE-----
-        #   ......
+        #   doppler.grpc_port: 8082 
         link: ~
       loggregator:
         secret_name: minion-link-loggregator

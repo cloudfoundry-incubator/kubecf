@@ -224,6 +224,7 @@
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/disable_swap_limit?
   value: true
 
+# To support multi-clusters and deploy a cell
 {{- if and .Values.features.multiple_cluster_mode.multiple_cluster.enabled .Values.features.multiple_cluster_mode.diego_segment.enabled }}
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=route_emitter/consumes?

@@ -72,5 +72,10 @@ spec:
   - name: user-provided-inline-operations
     type: configmap
 {{- end }}
+# To support multi-clusters and deploy a cell
+{{- if and .Values.features.multiple_cluster_mode.multiple_cluster.enabled .Values.features.multiple_cluster_mode.diego_segment.enabled }}
+  - name: user-provided-inline-operations
+    type: configmap
+{{- end }}
   - name: user-provided-properties
     type: configmap
