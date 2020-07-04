@@ -224,6 +224,27 @@
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/disable_swap_limit?
   value: true
 
+{{- if and .Values.features.multiple_cluster_mode.multiple_cluster.enabled .Values.features.multiple_cluster_mode.diego_segment.enabled }}
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/consumes?
+  value:
+    nats: {from: nats}
+    nats-tls: {from: nats-tls}
+    routing_api: {from: routing_api}
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=loggr-udp-forwarder/consumes?
+  value:
+    cloud_controller: {from: cloud_controller}
+- type: replace
+  path: /addons/name=prom_scraper/jobs/name=prom_scraper/consumes?
+  value:
+    loggregator: {from: loggregator}
+- type: replace
+  path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/consumes?
+  value:
+    doppler: {from: doppler}
+{{- end }}
+
 {{- if .Values.features.suse_buildpacks.enabled }}
 {{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
 {{ $bytes | toString }}
