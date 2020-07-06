@@ -18,3 +18,4 @@ params:
   GKE_ZONE: ~
   GKE_DNS_ZONE: ~
   GKE_DOMAIN: ~
+  RESOURCE_PREFIX: {{ $config.resource_prefix }}
