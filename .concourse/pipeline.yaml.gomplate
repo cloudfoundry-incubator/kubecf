@@ -48,7 +48,7 @@ resources:
 
 {{ range $_, $branch := (flatten (slice $config.branches $config.pr_resources) | uniq) }}
 {{- range $_, $cfScheduler := $config.availableCfSchedulers }}
-- name: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+- name: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
   type: semver
   source:
     driver: s3
@@ -60,12 +60,12 @@ resources:
     region_name: {{ $config.s3_bucket_region }}
 {{ end }} # availableCfSchedulers
 
-- name: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-upgrade
+- name: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-upgrade
   type: semver
   source:
     driver: s3
     bucket: {{ $config.s3_bucket }}
-    key: gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-upgrade
+    key: gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-upgrade
     initial_version: 0.0.1
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
@@ -167,7 +167,7 @@ deploy_args: &deploy_args
 
   export GKE_PROJECT="{{ $config.gke_project }}"
   export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
-  export GKE_CLUSTER_NAME="kubecf-ci-{{ $config.resource_prefix}}${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+  export GKE_CLUSTER_NAME="{{ $config.resource_prefix | strings.Trunc 12 }}-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
   export GKE_DNS_ZONE="{{ $config.gke_dns_zone }}"
   export GKE_DOMAIN="{{ $config.gke_domain }}"
   export DOMAIN="${GKE_CLUSTER_NAME}.${GKE_DOMAIN}"
@@ -245,7 +245,7 @@ test_args: &test_args
 
   export GKE_PROJECT="{{ $config.gke_project }}"
   export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
-  export GKE_CLUSTER_NAME="kubecf-ci-{{ $config.resource_prefix }}${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+  export GKE_CLUSTER_NAME="{{ $config.resource_prefix | strings.Trunc 12 }}-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   # Get a kubeconfig
   gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --zone ${GKE_CLUSTER_ZONE} --project "${GKE_PROJECT}"
@@ -269,7 +269,7 @@ rotate_args: &rotate_args
   export GKE_CRED_JSON=$PWD/gke-key.json
   export GKE_PROJECT="{{ $config.gke_project }}"
   export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
-  export GKE_CLUSTER_NAME="kubecf-ci-{{ $config.resource_prefix }}${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+  export GKE_CLUSTER_NAME="{{ $config.resource_prefix | strings.Trunc 12 }}-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
   gcloud auth activate-service-account --key-file $PWD/gke-key.json
   # Get a kubeconfig
@@ -525,7 +525,7 @@ jobs:
         state: pending
   {{- end }}
 {{- end }}
-  - put: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+  - put: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
@@ -539,7 +539,7 @@ jobs:
     timeout: 3h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
-      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     config:
       platform: linux
       image_resource:
@@ -556,7 +556,7 @@ jobs:
       params:
         CATS_NODES: 5
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
-        BRANCH: {{ $branch }}
+        BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
@@ -597,10 +597,10 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
         input_mapping:
-          semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+          semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
         config:
           platform: linux
           image_resource:
@@ -621,7 +621,7 @@ jobs:
               export GKE_PROJECT="{{ $config.gke_project }}"
               export GKE_CLUSTER_ZONE="{{ $config.gke_zone }}"
               export GKE_DNS_ZONE="{{ $config.gke_dns_zone }}"
-              export GKE_CLUSTER_NAME="kubecf-ci-{{ $config.resource_prefix }}${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+              export GKE_CLUSTER_NAME="{{ $config.resource_prefix | strings.Trunc 12 }}-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
               export GKE_DOMAIN="{{ $config.gke_domain }}"
               export DOMAIN="${GKE_CLUSTER_NAME}.${GKE_DOMAIN}"
 
@@ -672,7 +672,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "deploy-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -696,7 +696,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "deploy-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -739,7 +739,7 @@ jobs:
     {{- end }}
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
-  - get: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+  - get: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
@@ -773,7 +773,7 @@ jobs:
     {{- end }}
     input_mapping:
       kubecf: kubecf-{{ $branch }}
-      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     timeout: 1h30m
     config:
       platform: linux
@@ -787,7 +787,7 @@ jobs:
       - name: semver.gke-cluster
       params:
         KUBECF_TEST_SUITE: smokes
-        BRANCH: {{ $branch }}
+        BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
@@ -835,7 +835,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
   on_abort:
     in_parallel:
@@ -846,7 +846,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "smoke-tests-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -874,7 +874,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "smoke-tests-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -916,7 +916,7 @@ jobs:
     {{- end }}
     passed:
     - {{ $previousTest | quote }}
-  - get: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+  - get: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
@@ -951,7 +951,7 @@ jobs:
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
-      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     config:
       platform: linux
       image_resource:
@@ -964,7 +964,7 @@ jobs:
       - name: semver.gke-cluster
       params:
         KUBECF_TEST_SUITE: cats
-        BRANCH: {{ $branch }}
+        BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
@@ -993,7 +993,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -1017,7 +1017,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -1041,7 +1041,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "cf-acceptance-tests-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -1083,7 +1083,7 @@ jobs:
     {{- end }}
     passed:
     - {{ $previousTest | quote }}
-  - get: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+  - get: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
@@ -1118,7 +1118,7 @@ jobs:
     timeout: 5h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
-      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     config:
       platform: linux
       image_resource:
@@ -1132,7 +1132,7 @@ jobs:
       params:
         DEFAULT_STACK: cflinuxfs3
         KUBECF_TEST_SUITE: cats-internetless
-        BRANCH: {{ $branch }}
+        BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
@@ -1160,7 +1160,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "cats-internetless-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -1184,7 +1184,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "cats-internetless-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -1208,7 +1208,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "cats-internetless-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -1253,7 +1253,7 @@ jobs:
     {{- end }}
     passed:
     - {{ $previousTest | quote }}
-  - get: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+  - get: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
@@ -1288,7 +1288,7 @@ jobs:
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
-      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     config:
       platform: linux
       image_resource:
@@ -1301,7 +1301,7 @@ jobs:
       - name: semver.gke-cluster
       params:
         KUBECF_TEST_SUITE: sits
-        BRANCH: {{ $branch }}
+        BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
@@ -1341,7 +1341,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
   on_abort:
     in_parallel:
@@ -1352,7 +1352,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs "sync-integration-tests" }}
     {{- if $config.github_status }}
@@ -1377,7 +1377,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs "sync-integration-tests" }}
     {{- if $config.github_status }}
@@ -1421,7 +1421,7 @@ jobs:
     {{- end }}
     passed:
     - {{ $previousTest | quote }}
-  - get: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+  - get: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
@@ -1456,7 +1456,7 @@ jobs:
     timeout: 1h30m
     input_mapping:
       kubecf: kubecf-{{ $branch }}
-      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     config:
       platform: linux
       image_resource:
@@ -1468,7 +1468,7 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
-        BRANCH: {{ $branch }}
+        BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
@@ -1510,7 +1510,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
   on_abort:
     in_parallel:
@@ -1521,7 +1521,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "rotate-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -1545,7 +1545,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "rotate-%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -1587,7 +1587,7 @@ jobs:
     {{- end }}
     passed:
     - {{ $previousTest | quote }}
-  - get: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+  - get: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
@@ -1621,7 +1621,7 @@ jobs:
     {{- end }}
     input_mapping:
       kubecf: kubecf-{{ $branch }}
-      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     timeout: 1h30m
     config:
       platform: linux
@@ -1635,7 +1635,7 @@ jobs:
       - name: semver.gke-cluster
       params:
         KUBECF_TEST_SUITE: smokes
-        BRANCH: {{ $branch }}
+        BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
         path: "/bin/bash"
@@ -1677,7 +1677,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
   on_abort:
     in_parallel:
@@ -1688,7 +1688,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "smoke-rotated-{%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -1712,7 +1712,7 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: {{ $cfScheduler }}
 {{- if has $config.stable_jobs (printf "smoke-rotated-{%s" $cfScheduler) }}
     {{- if $config.github_status }}
@@ -1804,7 +1804,7 @@ jobs:
     - {{ $previousTest | quote }}
     trigger: true
     version: "every"
-  - get: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-{{ $cfScheduler }}
+  - get: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
@@ -1820,7 +1820,7 @@ jobs:
       - {{ . -}}{{ end }}
       {{- end }}
       params:
-        BRANCH: {{ $branch }}
+        BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
 
 {{ end }} # of range cfScheduler
@@ -1861,7 +1861,7 @@ jobs:
       tags: {{ range $config.workertags }}
       - {{ . -}}{{ end }}
       {{- end }}
-    - put: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-upgrade
+    - put: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-upgrade
       {{- if $config.workertags }}
       tags: {{ range $config.workertags }}
       - {{ . -}}{{ end }}
@@ -1886,7 +1886,7 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      BRANCH: {{ $branch }}
+      BRANCH: {{ $branch | strings.Trunc 12 }}
       CFSCHEDULER: upgrade # hack to re-use the same cleanup code
       GKE_KEY: '((gke-suse-cap-json))'
       GKE_PROJECT: '{{ $config.gke_project }}'
@@ -1895,7 +1895,7 @@ jobs:
       GKE_DOMAIN: '{{ $config.gke_domain }}'
     input_mapping:
       kubecf: kubecf-{{ $branch }}
-      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-upgrade
+      semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-upgrade
     timeout: 4h
     file: kubecf-{{ $branch }}/.concourse/tasks/upgrade.yaml
 {{- if and (has $config.stable_jobs "upgrade-test") $config.github_status }}
@@ -1950,10 +1950,10 @@ jobs:
         - {{ . -}}{{ end }}
         {{- end }}
         params:
-          BRANCH: {{ $branch }}
+          BRANCH: {{ $branch | strings.Trunc 12 }}
           CFSCHEDULER: upgrade
         input_mapping:
-          semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix }}{{ $branch }}-upgrade
+          semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-upgrade
 
 {{ if not ($branch | regexp.Match "^pr") }}
 - name: publish-{{ $branch }}
