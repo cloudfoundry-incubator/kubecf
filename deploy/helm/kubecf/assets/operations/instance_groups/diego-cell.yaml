@@ -225,7 +225,8 @@
   value: true
 
 # To support multi-clusters and deploy a cell
-{{- if and .Values.features.multiple_cluster_mode.multiple_cluster.enabled .Values.features.multiple_cluster_mode.diego_segment.enabled }}
+{{- if not .Values.features.multiple_cluster.control_plane.enabled  }}
+{{- if .Values.features.multiple_cluster.cell_segment.enabled }}
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=route_emitter/consumes?
   value:
@@ -244,6 +245,7 @@
   path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/consumes?
   value:
     doppler: {from: doppler}
+{{- end }}
 {{- end }}
 
 {{- if .Values.features.suse_buildpacks.enabled }}

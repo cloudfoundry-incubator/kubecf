@@ -244,12 +244,12 @@ features:
         # This setting is not currently configurable and must be HIDDEN
         nodePort: 31666
 
-  # To support multi-clusters, the diego-cell would be deployed separately in another different cluster if these two flags, multiple-cluster and diego-segment, are true 
-  multiple_cluster_mode:
-    multiple_cluster:
+  # To support multi-clusters, the diego-cell would be deployed separately in another different cluster if control_plane is false  and cell_segment  is true 
+  multiple_cluster:
+    control_plane:
       enabled: false
-    diego_segment:
-      enabled: false
+    cell_segment:
+      enabled: true
     # To support multi-clusters, services for diego-cell deployed separately
     control_plane_workers:
       uaa:
