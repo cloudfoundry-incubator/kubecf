@@ -964,6 +964,7 @@ jobs:
       - name: semver.gke-cluster
       params:
         KUBECF_TEST_SUITE: cats
+        CATS_REPO: https://github.com/jimmykarily/cf-acceptance-tests
         BRANCH: {{ $branch }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
