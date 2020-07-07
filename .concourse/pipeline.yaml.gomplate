@@ -1893,6 +1893,7 @@ jobs:
       GKE_ZONE: '{{ $config.gke_zone }}'
       GKE_DNS_ZONE: '{{ $config.gke_dns_zone }}'
       GKE_DOMAIN: '{{ $config.gke_domain }}'
+      RESOURCE_PREFIX: '{{ $config.resource_prefix | strings.Trunc 12 }}'
     input_mapping:
       kubecf: kubecf-{{ $branch }}
       semver.gke-cluster: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-upgrade

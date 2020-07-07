@@ -46,7 +46,7 @@ export BACKEND=gke
 export DOWNLOAD_CATAPULT_DEPS=false
 export QUIET_OUTPUT=true
 
-GKE_CLUSTER_NAME="${RESOURCE_PREFIX}${BRANCH//./-}-upgrade-$(sed 'y/./-/' "semver.gke-cluster/version")"
+GKE_CLUSTER_NAME="${RESOURCE_PREFIX}-${BRANCH//./-}-upgrade-$(sed 'y/./-/' "semver.gke-cluster/version")"
 export GKE_CLUSTER_NAME
 KUBECONFIG="$(readlink --canonicalize "${PWD}/kubeconfig")"
 export KUBECONFIG
