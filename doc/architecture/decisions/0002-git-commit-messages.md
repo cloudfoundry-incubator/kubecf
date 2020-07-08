@@ -32,16 +32,8 @@ Most wanted rules:
 
 Other rules are also important!
 
-In order to automate the release notes/changelog process, we also need to define basic semantics:
-
-| Commit message                                           | Release type                                            |
-|----------------------------------------------------------|-------------------------------------------------------- |
-| fix: Stop the O2 leak dock comportment (DC)              | Patch release                                           |
-| feat: Implements dog space travel module (BARK)          | Feature release                                         |
-| <type>!: Removes the compase from the control room       | Exclamation after the type mark means a breaking change |
-| docs: Peter and the wolf: Cloud version                  | Documentation only changes                              |
-| style: Replace tabs with spaces                          | Changes that not affect the code                        |
-| test: Add unit test at last                              | Add or correct existing tests                           |
+In order to automate the release notes/changelog process, we will enforce the
+[conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) rules usage. 
 
 ## Consequences
 
