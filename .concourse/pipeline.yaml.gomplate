@@ -128,7 +128,8 @@ resources:
     secret_access_key: ((aws-secret-key))
     region_name: {{ $config.s3_bucket_region }}
     # adapted from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
-    regexp: kubecf-(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?.tgz
+    # with 1 capturing group for the whole semver, as the s3 resource expects
+    regexp: kubecf-[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?.tgz
 
 - name: s3.kubecf-ci-bundle
   type: s3
@@ -138,7 +139,8 @@ resources:
     secret_access_key: ((aws-secret-key))
     region_name: {{ $config.s3_bucket_region }}
     # adapted from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
-    regexp: kubecf-bundle-(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?.tgz
+    # with 1 capturing group for the whole semver, as the s3 resource expects
+    regexp: kubecf-bundle-[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?.tgz
 
 - name: s3.kubecf
   type: s3
