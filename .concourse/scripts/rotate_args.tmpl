@@ -5,7 +5,7 @@ printf "%s" '((gke-suse-cap-json))' > $PWD/gke-key.json
 export GKE_CRED_JSON=$PWD/gke-key.json
 export GKE_PROJECT="{{ .gke_project }}"
 export GKE_CLUSTER_ZONE="{{ .gke_zone }}"
-export GKE_CLUSTER_NAME="kubecf-ci-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
+export GKE_CLUSTER_NAME="{{ .resource_prefix | strings.Trunc 12 }}-${BRANCH//./-}-${CFSCHEDULER//./-}-$(cat semver.gke-cluster/version | sed 's/\./-/g')"
 
 gcloud auth activate-service-account --key-file $PWD/gke-key.json
 # Get a kubeconfig
