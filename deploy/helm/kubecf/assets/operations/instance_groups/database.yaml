@@ -2,6 +2,8 @@
 - type: remove
   path: /instance_groups/name=database
 
+{{- if .Values.features.embedded_database.enabled }}
+
 # Remove the PXC release and related variables.
 - type: remove
   path: /releases/name=pxc
@@ -13,8 +15,6 @@
   path: /variables/name=galera_server_certificate
 - type: remove
   path: /variables/name=mysql_server_certificate
-
-{{- if .Values.features.embedded_database.enabled }}
 
 # Add certificates for PXC.
 - type: replace
@@ -192,7 +192,19 @@
 {{- end }}
 
 
-{{- else }}
+{{- else if .Values.features.external_database.enabled }}
+
+# Remove the PXC release and related variables.
+- type: remove
+  path: /releases/name=pxc
+- type: remove
+  path: /variables/name=pxc_galera_ca
+- type: remove
+  path: /variables/name=pxc_server_ca
+- type: remove
+  path: /variables/name=galera_server_certificate
+- type: remove
+  path: /variables/name=mysql_server_certificate
 
 # Remove the database variables.
 - type: remove
