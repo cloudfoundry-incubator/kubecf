@@ -1,5 +1,10 @@
 ---
 
+# NOTE: unique prefix for resource names. This way they don't collide among
+# different pipelines. Use your own when developing. Must not start with a
+# number as it breaks gcloud clusters.
+resource_prefix: kubecf
+
 workertags: # list of worker tags, to run the pipeline on specific (tagged) workers
   # - yourtag
 
