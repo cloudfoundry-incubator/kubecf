@@ -343,8 +343,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          repository: thulioassis/bazel-docker-image
-          tag: 2.0.0
+          repository: splatform/catapult
       inputs:
       - name: kubecf-{{ $branch }}
       run:
@@ -353,11 +352,9 @@ jobs:
         - -ce
         - |
           cd kubecf-{{ $branch }}
-          ./dev/linters/shellcheck.sh
-          ./dev/linters/yamllint.sh
-          ./dev/linters/helmlint.sh
           bazel test //rules/kubecf:create_sample_values_test
           bazel test //deploy/helm/kubecf:values_doc_test
+          make lint
 
 {{- if has $config.stable_jobs "lint" }}
     {{- if $config.github_status }}
