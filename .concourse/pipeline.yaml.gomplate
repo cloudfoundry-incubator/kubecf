@@ -352,8 +352,6 @@ jobs:
         - -ce
         - |
           cd kubecf-{{ $branch }}
-          bazel test //rules/kubecf:create_sample_values_test
-          bazel test //deploy/helm/kubecf:values_doc_test
           make lint
 
 {{- if has $config.stable_jobs "lint" }}
