@@ -594,7 +594,7 @@ eirinix:
     - id: default
       name: "default"
       description: "Existing default storage class"
-      kube_storage_class: "default"
+      kube_storage_class: ~
       free: true
       default_size: "1Gi"
   ssh-proxy:
