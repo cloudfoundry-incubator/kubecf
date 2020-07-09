@@ -415,8 +415,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          repository: thulioassis/bazel-docker-image
-          tag: 2.0.0
+          repository: splatform/catapult
       inputs:
       - name: kubecf-{{ $branch }}
       outputs:
@@ -427,7 +426,9 @@ jobs:
         - -ce
         - |
           cd kubecf-{{ $branch }}
-          ./dev/build.sh ../output
+          VERSION="$(./scripts/version.sh)"
+          TARGET_FILE=../output/kubecf-${VERSION}.tgz make kubecf-build
+          TARGET_FILE=../output/kubecf-bundle-${VERSION}.tgz make kubecf-bundle
           timestamp=$(date +%s%3N)
           for file in ../output/*.tgz; do
               mv "$file" "${file%.tgz}-${timestamp}.tgz"
