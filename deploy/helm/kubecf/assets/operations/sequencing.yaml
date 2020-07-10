@@ -11,14 +11,14 @@
 # Dependencies pointing to dependents.
 # Order here matches order of ops instructions.
 ##
-# auctioneer <-- diego-api		(diego only, not eirini)
+# auctioneer <-- diego-api		(feature: not eirini)
 # scheduler  <-- api
 # cc-worker  <-- api
-# router     <-- routing-api <-- uaa
-#                tcp-router  <-- uaa
+# router     <-- routing-api <-- uaa	(feature: routing-api)
+#                tcp-router  <-- uaa	(feature: routing-api)
 #                log-cache   <-- uaa
-#                credhub     <-- uaa
-#                diego-cell  <-- uaa	(diego only, not eirini)
+#                credhub     <-- uaa	(feature: credhub)
+#                diego-cell  <-- uaa	(feature: not eirini)
 #
 # asactors  <- asdatabase
 # asapi     <- asdatabase
@@ -41,23 +41,31 @@
   path: /instance_groups/name=cc-worker/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
   value: '[ "api" ]'
 
+{{- if .Values.features.routing_api.enabled }}
+
 - type: replace
   path: /instance_groups/name=router/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
   value: '[ "routing-api" ]'
-
 - type: replace
   path: /instance_groups/name=routing-api/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
   value: '[ "uaa" ]'
 - type: replace
   path: /instance_groups/name=tcp-router/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
   value: '[ "uaa" ]'
+
+{{- end }}
+
 - type: replace
   path: /instance_groups/name=log-cache/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
   value: '[ "uaa" ]'
+
+{{- if .Values.features.credhub.enabled }}
+
 - type: replace
   path: /instance_groups/name=credhub/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
   value: '[ "uaa" ]'
 
+{{- end }}
 {{- if not .Values.features.eirini.enabled }}
 
 - type: replace
@@ -87,9 +95,14 @@
 - type: replace
   value: false
   path: /instance_groups/name=router/update/serial
+
+{{- if .Values.features.routing_api.enabled }}
+
 - type: replace
   value: false
   path: /instance_groups/name=routing-api/update/serial
+
+{{- end }}
 
 - type: replace
   value: false
@@ -100,9 +113,14 @@
 - type: replace
   value: false
   path: /instance_groups/name=log-api/update/serial
+
+{{- if eq .Values.features.blobstore.provider "singleton" }}
+
 - type: replace
   value: false
   path: /instance_groups/name=singleton-blobstore/update/serial
+
+{{- end }}
 
 #
 # III. auto-scaler. As I and II above, set custom dependencies
