@@ -348,7 +348,7 @@ jobs:
       inputs:
       - name: kubecf-{{ $branch }}
       run:
-        path: "/bin/make"
+        path: "/usr/bin/make"
         args:
         - kubecf-{{ $branch }}
         - lint
