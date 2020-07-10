@@ -1,4 +1,4 @@
-{{- if .Values.features.control_plane.enabled }}
+{{- if .Values.features.multiple_cluster_mode.control_plane.enabled }}
 # To deploy the control plane
 - type: remove
   path: /instance_groups/name=diego-cell
