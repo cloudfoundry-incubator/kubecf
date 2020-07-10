@@ -340,10 +340,11 @@ jobs:
     {{- end }}
     config:
       platform: linux
-      image_resource:
+      image_resource: &catapult-image
         type: registry-image
         source:
           repository: splatform/catapult
+          tag: bedde80dff4cd8c296c5c9774f83a9a191a963af
       inputs:
       - name: kubecf-{{ $branch }}
       run:
@@ -409,9 +410,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: kubecf-{{ $branch }}
       outputs:
@@ -533,9 +532,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: kubecf
       - name: catapult
@@ -594,9 +591,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: registry-image
-            source:
-              repository: splatform/catapult
+            <<: *catapult-image
           inputs:
           - name: semver.gke-cluster
           run:
@@ -768,9 +763,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -945,9 +938,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1112,9 +1103,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1282,9 +1271,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1450,9 +1437,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1616,9 +1601,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1739,9 +1722,7 @@ jobs:
 #     config:
 #       platform: linux
 #       image_resource:
-#         type: registry-image
-#         source:
-#           repository: splatform/catapult
+#          <<: *catapult-image
 #       inputs:
 #       - name: catapult
 #       - name: commit-to-test
@@ -1973,7 +1954,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
+        <<: *catapult-image
         source:
           repository: splatform/catapult
       inputs:
@@ -1999,9 +1980,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       params:
         S3_BUCKET: {{ $config.s3_final_bucket }}
         AWS_ACCESS_KEY_ID: ((aws-access-key))
