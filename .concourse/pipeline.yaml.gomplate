@@ -423,12 +423,8 @@ jobs:
         - |
           cd kubecf-{{ $branch }}
           VERSION="$(./scripts/version.sh)"
-          TARGET_FILE=../output/kubecf-${VERSION}.tgz make kubecf-build
-          TARGET_FILE=../output/kubecf-bundle-${VERSION}.tgz make kubecf-bundle
-          timestamp=$(date +%s%3N)
-          for file in ../output/*.tgz; do
-              mv "$file" "${file%.tgz}-${timestamp}.tgz"
-          done
+          TARGET_FILE=../output/kubecf-${VERSION}-$(date +%s%3N).tgz make kubecf-build
+          TARGET_FILE=../output/kubecf-bundle-${VERSION}-$(date +%s%3N).tgz make kubecf-bundle
 
 {{- if has $config.stable_jobs "build" }}
     {{- if $config.github_status }}
