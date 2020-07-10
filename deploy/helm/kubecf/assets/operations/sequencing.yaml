@@ -11,14 +11,14 @@
 # Dependencies pointing to dependents.
 # Order here matches order of ops instructions.
 ##
-# auctioneer <-- diego-api
+# auctioneer <-- diego-api		(diego only, not eirini)
 # scheduler  <-- api
 # cc-worker  <-- api
 # router     <-- routing-api <-- uaa
 #                tcp-router  <-- uaa
 #                log-cache   <-- uaa
 #                credhub     <-- uaa
-#                diego-cell  <-- uaa
+#                diego-cell  <-- uaa	(diego only, not eirini)
 #
 # asactors  <- asdatabase
 # asapi     <- asdatabase
@@ -26,9 +26,13 @@
 # asnozzle  <- asdatabase
 ##
 
+{{- if not .Values.features.eirini.enabled }}
+
 - type: replace
   path: /instance_groups/name=auctioneer/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
   value: '[ "diego-api" ]'
+
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=scheduler/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
@@ -53,9 +57,14 @@
 - type: replace
   path: /instance_groups/name=credhub/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
   value: '[ "uaa" ]'
+
+{{- if not .Values.features.eirini.enabled }}
+
 - type: replace
   path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
   value: '[ "uaa" ]'
+
+{{- end }}
 
 #
 # II. Disable upstream pod startup serialization hints.
@@ -64,9 +73,14 @@
 # irrelevant, and therefore ignored, and not changed.
 #
 
+{{- if not .Values.features.eirini.enabled }}
+
 - type: replace
   value: false
   path: /instance_groups/name=auctioneer/update/serial
+
+{{- end }}
+
 - type: replace
   value: false
   path: /instance_groups/name=scheduler/update/serial
