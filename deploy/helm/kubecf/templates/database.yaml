@@ -347,6 +347,12 @@ spec:
 {{- $databases = append $databases (dict "name" "routing-api" "path" "routing-api" "secretName" "routing-api") }}
 {{- end }}
 
+{{- if .Values.features.autoscaler.enabled }}
+{{- if .Values.features.autoscaler.mysql.enabled }}
+{{- $databases = append $databases (dict "name" "autoscaler" "path" "autoscaler" "secretName" "autoscaler") }}
+{{- end }}
+{{- end }}
+
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksJob
 metadata:
@@ -473,3 +479,4 @@ spec:
           restartPolicy: Never
 
 {{- end }}
+

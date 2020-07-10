@@ -51,10 +51,29 @@ helm_package(
 )
 ```
 
-Update the Concourse pipeline _.concourse/pipeline.yaml.gomplate_ by adding the new release branch to the list of branches:
-```{{ $branches := slice "master" "release-2.0" }} # Repository branches to track```
 
 ## Concourse
+
+If the pipeline is not there already, define, commit, push, and deploy a new
+Concourse pipeline for the new release branch.
+
+Copy the kubecf.yaml config into a new config for the new release branch:
+
+    > cp ./concourse/kubecf.yaml ./concourse/kubecf-release-X.Y.yaml
+
+Edit `.concourse/kubecf-release-X.Y.yaml` so it targets the correct branch (See
+other pipeline configs in other release branches):
+
+```
+branches:
+- release-X.Y
+pr_base_branch: release-X.Y
+```
+
+Commit the config into the release branch:
+```
+> git add .concourse/kubecf-release-X.Y.yaml; git commit -m "Add release-X.Y config"; git push
+```
 
 Login to the Concourse server:
 
@@ -64,10 +83,11 @@ Login to the Concourse server:
 
 Deploy the pipeline:
 ```
-> (cd "$(git rev-parse --show-toplevel)/.concourse"; ./fly --target concourse.suse.dev set-pipeline --pipeline kubecf)
+> cd "$(git rev-parse --show-toplevel)/.concourse"; ./create-pipeline.sh concourse.suse.dev kubecf-release-X.Y
 ```
 
 Download the bundle directly from the _build_ job and perform a sanity check on the chart:
+
 ```
 > helm inspect chart https://s3.eu-central-1.amazonaws.com/kubecf-ci/kubecf-v2.0.0.tgz
 ```

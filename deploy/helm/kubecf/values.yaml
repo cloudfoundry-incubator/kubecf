@@ -13,8 +13,21 @@ system_domain: ~
 #
 properties: {}
 
+# Override credentials to not be auto-generated.  The credentials can either be
+# specified as a nested mapping, or with a dot-separated key.  For example:
+#  credentials:
+#    cf_admin_password: changeme
+#    credhub_tls.ca: credhub-real-ca
+#    credhub_tls:
+#      certificate: the-cert
 credentials: {}
 
+# Override variable values to not be auto-generated.  The variables are a simple
+# mapping with keys/values.  Note that the `system_domain` domain is handled
+# differently and must be set via the top-level key (which is required).
+# For example:
+#  variables:
+#    key: value
 variables: {}
 
 kube:
@@ -27,6 +40,8 @@ kube:
   psp:
     default: ~
 
+# Overrides for individual releases.  This should not be needed in general use
+# and should be HIDDEN by default.
 releases:
   # The defaults for all releases, where we do not otherwise override them.
   defaults:
@@ -35,7 +50,10 @@ releases:
       os: SLE_15_SP1
       version: 25.2-7.0.0_374.gb8e8e6af
   app-autoscaler:
-    version: 3.0.0
+    version: 3.0.1
+    stemcell:
+      os: SLE_15_SP1
+      version: 26.3-7.0.0_374.gb8e8e6af
   bits-service:
     version: 2.28.0
   brain-tests:
@@ -54,10 +72,10 @@ releases:
       os: SLE_15_SP1
       version: 25.2-7.0.0_374.gb8e8e6af
   cflinuxfs3:
-    version: 0.195.0
+    version: 0.197.0
     stemcell:
       os: SLE_15_SP1
-      version: 26.3-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
   # pxc is not a BOSH release.
   pxc:
     image:
@@ -79,73 +97,77 @@ releases:
     version: "1.5.6.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.3-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
     file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.6.1-2.1-a74620df.zip
   suse-java-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.31.0.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.3-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
     file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.31.0.1-a4991aaa.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.8.19.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.2-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
     file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.19.1-1.1-63c0bb58.zip
   suse-dotnet-core-buildpack:
     url: registry.suse.com/cap-staging
     version: "2.3.9.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.3-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
     file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.9.1-1.1-e74bd89e.zip
   suse-nodejs-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.18.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.3-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
     file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.18.1-1.1-d2f6559e.zip
   suse-go-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.9.13.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.1-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
     file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.13.1-1.1-826f794c.zip
   suse-python-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.14.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.3-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
     file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.14.1-1.1-a828fa62.zip
   suse-php-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.4.14.1"
     stemcell:
       os: SLE_15_SP1
-      version: 25.1-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
     file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.14.1-1.1-bf878677.zip
   suse-nginx-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.1.7.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.3-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
     file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.7.1-1.1-fbf90d1f.zip
   suse-binary-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.0.36.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.3-7.0.0_374.gb8e8e6af
+      version: 26.6-7.0.0_374.gb8e8e6af
     file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
 
+# Set to true to enable support for multiple availability zones.
 multi_az: false
+
+# Set to true to enable high availability mode, where pods are replicated in
+# order to prevent downtime when a node is temporarily unavailable.
 high_availability: false
 
 # Sizing takes precedence over the high_availability property. I.e. setting the instance count
@@ -251,7 +273,11 @@ features:
   ingress:
     enabled: false
     tls:
+      # TLS certificate for the ingress controller.  This should be a wildcard certificate for the
+      # system domain (*.example.com, where api.example.com is the API endpoint).  It should also
+      # include the full certificate chain (that is, include the intermediate certificates).
       crt: ~
+      # TLS certificate private key for the ingress controller, matching features.ingress.tls.crt.
       key: ~
     annotations: {}
     labels: {}
@@ -260,14 +286,24 @@ features:
   suse_buildpacks:
     enabled: true
   autoscaler:
+    # Enable the application autoscaler.  The autoscaler service must be manually registered; see
+    # https://github.com/cloudfoundry/app-autoscaler-release#register-service for details.
     enabled: false
+    mysql:
+      enabled: false
   credhub:
+    # Enable credhub; this is only used as a service broker for applications, and is not used for
+    # authentication with the Cloud Foundry deployment.
     enabled: true
-  # Disabling routing_api will also disable the tcp_router instance_group
   routing_api:
+    # Enable the routing API.  Disabling this will also disable TCP routing, which is used for TCP
+    # port forwarding.
     enabled: true
-  # embedded_database enables the embedded PXC sub-chart. Disabling it allows using an external, already seeded,
   embedded_database:
+    # Enable the embedded database (the PXC helm sub-chart).  Disabled it allows using an external,
+    # already seeded, database.  Please refer to
+    # https://kubecf.suse.dev/docs/getting-started/kubernetes-deploy/#external-database for details.
+    # See also features.external_database.
     enabled: true
   blobstore:
     # Possible values for provider: singleton and s3.
@@ -283,11 +319,11 @@ features:
       droplet_directory_key: ~
       resource_directory_key: ~
 
-  # The external database type can be either 'mysql' or 'postgres'.
+  # Configuration for the external database; see also features.embedded_database.
   external_database:
-    enabled: false
     require_ssl: false
     ca_cert: ~
+    # The external database type; it can be either 'mysql' or 'postgres'.
     type: ~
     host: ~
     port: ~
@@ -327,13 +363,11 @@ features:
 
 # Enable or disable instance groups for the different test suites.
 # Only smoke tests should be run in production environments.
-#
-# __ATTENTION__: The brain tests do things with the cluster which
-# required them to have `cluster-admin` permissions (i.e. root).
-# Enabling them is thus potentially insecure. They should only be
-# activated for isolated testing.
-
 testing:
+  # __ATTENTION__: The brain tests do things with the cluster which
+  # required them to have `cluster-admin` permissions (i.e. root).
+  # Enabling them is thus potentially insecure. They should only be
+  # activated for isolated testing.
   brain_tests:
     enabled: false
     # Delete the testing pod after completion (default: false)
@@ -353,6 +387,8 @@ testing:
 
 ccdb:
   encryption:
+    # Configure CCDB key rotation.  Please see
+    # https://kubecf.suse.dev/docs/tasks/secrets/#rotating-the-ccdb-encryption-keys for details.
     rotation:
       # Key labels must be <= 240 characters long.
       key_labels:
@@ -372,11 +408,9 @@ operations:
   #       type: password
   inline: []
 
-k8s-host-url: ""
-k8s-service-token: ""
-k8s-service-username: ""
-k8s-node-ca: ""
-
+# Configuration for the eirini sub-chart; please refer to
+# https://github.com/cloudfoundry-incubator/eirini-release/blob/master/docs/installation.md
+# for details.
 eirini:
   global:
     labels: {}
@@ -400,7 +434,6 @@ eirini:
     event_reporter_image_tag: "1.5.0"
     staging_reporter_image: registry.suse.com/cap-staging/staging-reporter
     staging_reporter_image_tag: "1.5.0"
-    #
     registry_secret_name: eirini-registry-credentials
     namespace: eirini
     kubecf:
@@ -421,6 +454,7 @@ eirini:
       uploader_image: registry.suse.com/cap-staging/recipe-uploader
       uploader_image_tag: "1.5.0-24.1"
       enable: true
+      # The TLS secrets are generated by quarks-operator and should be HIDDEN from the user.
       tls:
         client:
           secretName: "var-eirini-tls-client-cert"
@@ -439,6 +473,7 @@ eirini:
           keyPath: "private_key"
           caPath: "ca"
 
+    # The TLS secrets are generated by quarks-operator and should be HIDDEN from the user.
     tls:
       opiCapiClient:
         secretName: "var-eirini-tls-client-cert"
@@ -456,6 +491,7 @@ eirini:
         caPath: "ca"
 
     events:
+      # Events should always be enabled and HIDDEN from the user.
       enable: true
       # All configs in this section should be HIDDEN from the user; they are
       # here to adapt the Eirini helm chart for KubeCF use.
@@ -501,8 +537,11 @@ eirini:
         serviceName: "nats"
 
     secretSmuggler:
+      # We never want to enable the secret-smuggler (it's for SCF), so this option should be HIDDEN.
       enable: false
 
+# Configuration for the BITS sub-chart; please refer to
+# https://github.com/SUSE/bits-service-release for details.
 bits:
   download_eirinifs: false
   resources:
@@ -524,6 +563,7 @@ bits:
   services:
     loadbalanced: true
 
+  # The blobstore configuration is part of kubecf and should be HIDDEN.
   blobstore:
     serviceName: "singleton-blobstore"
     userName: "blobstore-user"
@@ -535,19 +575,26 @@ bits:
     BITS_SERVICE_SECRET: "secret"
     BITS_SERVICE_SIGNING_USER_PASSWORD: "notpassword123"
 
+  # We always create the secret for bits and this should be HIDDEN
   useExistingSecret: true
+  # The TLS secret is created via quarks-operator and should be HIDDEN
   tls_secret_name: bits-service-ssl
+  # The TLS secret is created via quarks-operator and should be HIDDEN
   tls_cert_name: certificate
+  # The TLS secret is created via quarks-operator and should be HIDDEN
   tls_key_name: private_key
+  # The TLS secret is created via quarks-operator and should be HIDDEN
   tls_ca_name: ca
 
+# Configuration options for eirini extensions; please refer to
+# https://github.com/SUSE/eirinix-helm-release for details.
 eirinix:
   persi-broker:
     service-plans:
     - id: default
       name: "default"
       description: "Existing default storage class"
-      kube_storage_class: "default"
+      kube_storage_class: ~
       free: true
       default_size: "1Gi"
   ssh-proxy:

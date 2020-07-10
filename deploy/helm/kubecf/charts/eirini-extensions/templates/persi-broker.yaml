@@ -43,9 +43,11 @@ spec:
                 - plan_id: {{ .id }}
                   plan_name: {{ .name }}
                   description: {{ .description }}
-                  kube_storage_class: {{ .kube_storage_class }}
+                  {{- with .kube_storage_class }}
+                  kube_storage_class: {{ . }}
+                  {{- end }}
                   free: {{ .free }}
-                  deault_size: {{ .default_size }}
+                  default_size: {{ .default_size }}
                 {{- end }}
               description: {{ .description }}
               long_description: {{ .long_description }}
