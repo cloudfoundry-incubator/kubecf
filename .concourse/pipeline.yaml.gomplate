@@ -347,12 +347,10 @@ jobs:
       inputs:
       - name: kubecf-{{ $branch }}
       run:
-        path: "/bin/bash"
+        path: "/bin/make"
         args:
-        - -ce
-        - |
-          cd kubecf-{{ $branch }}
-          make lint
+        - kubecf-{{ $branch }}
+        - lint
 
 {{- if has $config.stable_jobs "lint" }}
     {{- if $config.github_status }}
