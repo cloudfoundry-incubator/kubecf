@@ -38,11 +38,11 @@ persi-broker:
   replicaCount: 1
   image:
     repository: splatform
-    tag: v0.0.0-g5bb88d3
+    tag: v0.0.0-g47355df
     pullPolicy: IfNotPresent
   setup-image:
     repository: splatform
-    tag: v0.0.0-gf340692
+    tag: v0.0.0-ge2799d8
     pullPolicy: IfNotPresent
   resources: {}
   nodeSelector: {}
@@ -53,7 +53,7 @@ persi-broker:
   - id: default
     name: "default"
     description: "Existing default storage class"
-    kube_storage_class: ~
+    kube_storage_class: "default"
     free: true
     default_size: "1Gi"
   description: Eirini persistence broker
@@ -70,7 +70,7 @@ ssh:
   replicaCount: 1
   image:
     repository: splatform
-    tag: v0.0.0-0.ge2ed1ab
+    tag: v0.0.0-0.g04a3871
     pullPolicy: IfNotPresent
   resources: {}
   nodeSelector: {}
@@ -88,12 +88,13 @@ ssh-proxy:
     pullPolicy: IfNotPresent
   setup-image:
     repository: splatform
-    tag: v0.0.0-gf340692
+    tag: v0.0.0-ge2799d8
     pullPolicy: IfNotPresent
   resources: {}
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  externalIPs: []
 
   secrets:
     host-keys: var-diego-ssh-proxy-host-key
