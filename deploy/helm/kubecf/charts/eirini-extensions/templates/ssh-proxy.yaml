@@ -145,3 +145,4 @@ spec:
   {{- if .loadBalancerIP }}
   loadBalancerIP: {{ .loadBalancerIP | quote }}
   {{- end }}
+  {{- end }}
