@@ -1,63 +1,62 @@
 ---
+# NOTE: unique prefix for resource names. This way they don't collide among
+# different pipelines. Use your own when developing. Must not start with a
+# number as it breaks gcloud clusters.
+resource_prefix: release-2-3
 
-  # NOTE: unique prefix for resource names. This way they don't collide among
-  # different pipelines. Use your own when developing. Must not start with a
-  # number as it breaks gcloud clusters.
-  resource_prefix: release-2-3
-  
-  workertags: # list of worker tags, to run the pipeline on specific (tagged) workers
-    # - yourtag
-  
-  # NOTE use your own bucket when developing
-  s3_bucket: kubecf-ci
-  s3_bucket_region: eu-central-1
-  
-  # NOTE use your own bucket when developing
-  s3_final_bucket: kubecf
-  s3_final_bucket_region: us-west-2
-  
-  kubecf_repository: cloudfoundry-incubator/kubecf
-  
-  # for preemptible gke clusters
-  gke_project: suse-225215
-  gke_zone: europe-west3-c
-  gke_dns_zone: kubecf-ci
-  gke_domain: kubecf.ci
-  
-  # NOTE please disable the following when developing or deploying a copy of
-  # the pipeline:
-  trigger_publish: true
-  github_status: true
-  
-  availableCfSchedulers: # Diego / Eirini
-  - diego
-  - eirini
-  
-  branches: # Repository branches to track
-  - release-2.3
-  pr_resources:
-  - pr
-  pr_base_branch: release-2.3 # filter PRs depending on the branch they target. `~` for all branches
-  
-  # Stable Jobs
-  stable_jobs:
-  - lint
-  - build
-  - deploy-diego
-  - deploy-eirini
-  - smoke-tests-diego
-  - smoke-tests-eirini
-  - cf-acceptance-tests-diego
-  - cats-internetless-diego
-  - sync-integration-tests
-  - ccdb-rotate-diego
-  - smoke-tests-post-rotate-diego
-  - upgrade-test
-  - cleanup-diego-cluster
-  - cleanup-eirini-cluster
-  
-  experimental_jobs:
-  - cf-acceptance-tests-eirini
-  - cats-internetless-eirini
-  - ccdb-rotate-eirini
-  - smoke-tests-post-rotate-eirini
+workertags: # list of worker tags, to run the pipeline on specific (tagged) workers
+  # - yourtag
+
+# NOTE use your own bucket when developing
+s3_bucket: kubecf-ci
+s3_bucket_region: eu-central-1
+
+# NOTE use your own bucket when developing
+s3_final_bucket: kubecf
+s3_final_bucket_region: us-west-2
+
+kubecf_repository: cloudfoundry-incubator/kubecf
+
+# for preemptible gke clusters
+gke_project: suse-225215
+gke_zone: europe-west3-c
+gke_dns_zone: kubecf-ci
+gke_domain: kubecf.ci
+
+# NOTE please disable the following when developing or deploying a copy of
+# the pipeline:
+trigger_publish: true
+github_status: true
+
+availableCfSchedulers: # Diego / Eirini
+- diego
+- eirini
+
+branches: # Repository branches to track
+- release-2.3
+pr_resources:
+- pr
+pr_base_branch: release-2.3 # filter PRs depending on the branch they target. `~` for all branches
+
+# Stable Jobs
+stable_jobs:
+- lint
+- build
+- deploy-diego
+- deploy-eirini
+- smoke-tests-diego
+- smoke-tests-eirini
+- cf-acceptance-tests-diego
+- cats-internetless-diego
+- sync-integration-tests
+- ccdb-rotate-diego
+- smoke-tests-post-rotate-diego
+- upgrade-test
+- cleanup-diego-cluster
+- cleanup-eirini-cluster
+
+experimental_jobs:
+- cf-acceptance-tests-eirini
+- cats-internetless-eirini
+- ccdb-rotate-eirini
+- smoke-tests-post-rotate-eirini
