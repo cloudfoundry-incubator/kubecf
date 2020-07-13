@@ -29,7 +29,7 @@ If you wish to deploy a custom pipeline:
 1. copy either `kubecf.yaml` or `kubecf-pool-reconciler.yaml` into
    `<your-pipeline-name>.yaml`.
 2. Edit the yaml and disable production options as said by the NOTEs (publishing
-   artifacts, updating github status, s3 buckets to consume, etc)
+   artifacts, updating github status, s3 buckets to consume, etc).
 3. If needed, change the branches to track in the `branches` map in
    `<your-pipeline-name>`.yaml
 4. Deploy as usual with `$ ./create_pipeline.sh <concourse-target> <your-pipeline-name>`
