@@ -8,9 +8,9 @@ load(
 load("//rules/ioutil:def.bzl", "print_files")
 load(
     "//rules/kubecf:def.bzl",
+    "create_sample_values_binary",
     "image_list",
     "metadata_file_generator",
-    "create_sample_values_binary",
     "values_documentation_test",
 )
 load("//rules/yaml_extractor:defs.bzl", "yaml_extractor")
@@ -21,7 +21,7 @@ package(default_visibility = ["//visibility:public"])
 metadata_file_generator(
     name = "metadata",
     file = "Metadata.yaml",
-    operator_chart = external_files["cf_operator"]["url"].format(version = external_files["cf_operator"]["version"])
+    operator_chart = external_files["cf_operator"]["url"].format(version = external_files["cf_operator"]["version"]),
 )
 
 exports_files([
@@ -44,10 +44,10 @@ filegroup(
 # packaging target.
 pkg_tar(
     name = "cf_deployment",
-    package_dir = "assets",
     srcs = [
-        "@cf_deployment//:cf_deployment",
+        "@cf_deployment",
     ],
+    package_dir = "assets",
 )
 
 # Extracts the auctioneer job YAML out of the scheduler instance group.
@@ -86,11 +86,11 @@ LOG_CACHE_JOBS = [
 # Helm packaging target.
 pkg_tar(
     name = "extracted_jobs",
-    package_dir = "assets/jobs",
     srcs = [
         ":auctioneer_job",
         ":routing_api_job",
     ] + [":log_cache_{}_job".format(job).replace("-", "_") for job in LOG_CACHE_JOBS],
+    package_dir = "assets/jobs",
 )
 
 # Create a values file that is mostly commented out for user reference.
@@ -116,27 +116,28 @@ helm_package(
         ":metadata",
         ":sample-values.yaml",
     ],
+    subcharts = ["@kubecf_helm_dependencies//charts"],
     tars = [
         "//bosh/releases:pre_render_scripts",
         ":cf_deployment",
         ":extracted_jobs",
     ],
-    subcharts = ["@kubecf_helm_dependencies//charts"],
+    version = "v2.3.0",
 )
 
 genrule(
     name = "release_chart",
-    tools = [
-        "//rules/kubecf:release_chart.sh",
-        "@jq//:binary",
-        "@helm//:binary",
-    ],
     srcs = [
         ":kubecf",
         ":image_list",
     ],
     outs = ["kubecf_release.tgz"],
     cmd = "$(location //rules/kubecf:release_chart.sh) $(location :kubecf) $(location :image_list) $@ $(location @jq//:binary) $(location @helm//:binary)",
+    tools = [
+        "//rules/kubecf:release_chart.sh",
+        "@helm//:binary",
+        "@jq//:binary",
+    ],
 )
 
 # Generates a file containing only the KubeCF version.
