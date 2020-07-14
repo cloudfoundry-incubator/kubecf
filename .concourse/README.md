@@ -31,7 +31,7 @@ If you wish to deploy a custom pipeline:
 2. Edit the yaml and disable production options as said by the NOTEs (publishing
    artifacts, updating github status, s3 buckets to consume, etc).
 3. If needed, change the branches to track in the `branches` map in
-   `<your-pipeline-name>`.yaml
+   `<your-pipeline-name>`.yaml.
 4. Deploy as usual with `$ ./create_pipeline.sh <concourse-target> <your-pipeline-name>`
 
 
