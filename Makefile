@@ -57,12 +57,18 @@ cf-login:
 cf-operator-apply:
 	@./scripts/cf-operator-apply.sh
 
+cf-operator-wait:
+	@./scripts/cf-operator-wait.sh
+
 kubecf-apply:
 	@./scripts/kubecf-build.sh
 	@./scripts/kubecf-apply.sh
 
 kubecf-delete:
 	@./scripts/kubecf-delete.sh
+
+kubecf-wait:
+	@./scripts/kubecf-wait.sh
 
 ########################################################################
 # Test
