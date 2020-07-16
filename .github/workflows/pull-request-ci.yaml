@@ -160,19 +160,6 @@ jobs:
       env:
         BACKEND: aks
 
-    - name: Fix up storage class
-      # This works around an issue in brains-acceptance-tests
-      # https://github.com/SUSE/brain-tests-release/blob/1bf94d8a64a0/src/acceptance-tests-brain/test-scripts/testutils.rb#L26
-      # AKS only has the beta annotation for now
-      run: |
-        kubectl patch storageclass/default -p '{
-          "metadata": {
-            "annotations": {
-              "storageclass.kubernetes.io/is-default-class": "true"
-            }
-          }
-        }'
-
     - run: make cf-operator-apply
     - run: make cf-operator-wait
 
@@ -182,9 +169,7 @@ jobs:
     - run: make kubecf-wait
 
     - run: make smoke-tests
-    # Brains suite is busted, and we can't skip tests
-    # https://github.com/SUSE/brain-tests-release/pull/17
-    #- run: make brain-tests
+    - run: make brain-tests
     - run: make sync-integration-tests
     - run: make acceptance-tests
 
