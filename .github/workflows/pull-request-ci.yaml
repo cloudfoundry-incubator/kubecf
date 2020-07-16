@@ -159,6 +159,7 @@ jobs:
         EOF
       env:
         BACKEND: aks
+        AUTOSCALER: enabled
 
     - run: make cf-operator-apply
     - run: make cf-operator-wait
