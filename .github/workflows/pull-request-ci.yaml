@@ -233,7 +233,12 @@ jobs:
 
     - name: kubernetes:teardown
       if: always()
-      run: make clean
+      run: |
+        set +o errexit
+        # Remove any terraform locks, because we don't care if the previous run
+        # has finished successfully (e.g. on cancel).
+        find "build${BACKEND}" -name '.terraform.*.lock*' -delete
+        make clean
       working-directory: catapult
       env:
         AZURE_APP_ID: ${{ secrets.AZURE_APP_ID }}
