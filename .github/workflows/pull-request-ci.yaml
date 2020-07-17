@@ -133,7 +133,7 @@ jobs:
             acceptance-tests-brain:
               tests:
                 minibroker:
-                  {{- range slice "mariadb" "mongo" "postgres" "redis" }}
+                  {{- range slice "mariadb" "mongodb" "postgres" "redis" }}
                   {{ . }}:
                     enabled: false
                   {{- end }}
