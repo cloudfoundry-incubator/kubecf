@@ -106,7 +106,8 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: kubecf-bundle.tgz
-        path: ${{ github.workspace }}/kubecf-bundle.tgz
+        # The artifact upload/download creates an extra directory
+        path: ${{ github.workspace }}
 
     - name: Download gomplate
       run: |
@@ -331,7 +332,8 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: kubecf-bundle.tgz
-        path: ${{ github.workspace }}/kubecf-bundle.tgz
+        # The artifact upload/download creates an extra directory
+        path: ${{ github.workspace }}
 
     - name: Download gomplate
       run: |
