@@ -59,11 +59,15 @@ jobs:
     - run: make kubecf-bundle
       env:
         TARGET_FILE: ${{ github.workspace }}/kubecf-bundle.tgz
+    - run: |
+        mkdir bundle
+        tar xf kubecf-bundle.tgz -C bundle
+      working-directory: ${{ github.workspace }}
     - name: Upload bundle
       uses: actions/upload-artifact@v2
       with:
         name: kubecf-bundle.tgz
-        path: ${{ github.workspace }}/kubecf-bundle.tgz
+        path: ${{ github.workspace }}/bundle
 
   test-diego:
     name: test-diego
@@ -103,11 +107,13 @@ jobs:
         key: ${{ runner.os }}-tools
     - run: make tools-install
 
-    - uses: actions/download-artifact@v2
+    - id: download-bundle
+      name: Download chart bundle
+      uses: actions/download-artifact@v2
       with:
         name: kubecf-bundle.tgz
         # The artifact upload/download creates an extra directory
-        path: ${{ github.workspace }}
+        path: ${{ github.workspace }}/kubecf-bundle
 
     - name: Download gomplate
       run: |
@@ -217,11 +223,13 @@ jobs:
         AUTOSCALER: "true"
 
     - run: make cf-operator-apply
+      env:
+        CF_OPERATOR_URL: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
     - run: make cf-operator-wait
 
     - run: make kubecf-apply
       env:
-        CHART: ${{ github.workspace }}/kubecf-bundle.tgz
+        CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
         VALUES: dev/kubecf/kubecf-values.yaml
     - run: make kubecf-wait
 
@@ -329,11 +337,13 @@ jobs:
         key: ${{ runner.os }}-tools
     - run: make tools-install
 
-    - uses: actions/download-artifact@v2
+    - id: download-bundle
+      name: Download chart bundle
+      uses: actions/download-artifact@v2
       with:
         name: kubecf-bundle.tgz
         # The artifact upload/download creates an extra directory
-        path: ${{ github.workspace }}
+        path: ${{ github.workspace }}/kubecf-bundle
 
     - name: Download gomplate
       run: |
@@ -443,11 +453,13 @@ jobs:
         AUTOSCALER: "true"
 
     - run: make cf-operator-apply
+      env:
+        CF_OPERATOR_URL: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
     - run: make cf-operator-wait
 
     - run: make kubecf-apply
       env:
-        CHART: ${{ github.workspace }}/kubecf-bundle.tgz
+        CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
         FEATURE_EIRINI: "true"
         VALUES: dev/kubecf/kubecf-values.yaml
     - run: make kubecf-wait
