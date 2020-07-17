@@ -244,7 +244,7 @@ features:
         # This setting is not currently configurable and must be HIDDEN
         nodePort: 31666
 
-  # To support multi-clusters, the diego-cell would be deployed separately in another different cluster if control_plane is false  and cell_segment  is true 
+  # To support multi-clusters, deploy diego-cell separately please set control_plane is false  and cell_segment is true
   multiple_cluster:
     control_plane:
       enabled: false
@@ -254,26 +254,26 @@ features:
     control_plane_workers:
       uaa:
         name: uaa
-        addresses: 
+        addresses:
           - ip: ~
       diego_api:
         name: diego-api
-        addresses: 
+        addresses:
           - ip: ~
       api:
         name: api
-        addresses: 
+        addresses:
           - ip: ~
       singleton_blobstore:
         name: singleton-blobstore
-        addresses: 
+        addresses:
           - ip: ~
     # To support multi-clusters, provider link secrets for diego-cell deployed separately
     provider_link_service:
       nats:
         secret_name: minion-link-nats
         service_name: minion-service-nats
-        addresses: 
+        addresses:
           - ip: ~
         # To support multi-clusters, fill the provider link secrets context of nats, for example:
         # link: |
@@ -286,7 +286,7 @@ features:
       nats_tls:
         secret_name: minion-link-nats-tls
         service_name: minion-service-nats-tls
-        addresses: 
+        addresses:
           - ip: ~
         # To support multi-clusters, fill the provider link secrets context of nats_tls, for example:
         # link: |
@@ -300,7 +300,7 @@ features:
       routing_api:
         secret_name: minion-link-routing-api
         service_name: minion-service-routing-api
-        addresses: 
+        addresses:
           - ip: ~
         # To support multi-clusters, fill the provider link secrets context of routing-api, for example:
         # link: |
@@ -317,16 +317,16 @@ features:
       doppler:
         secret_name: minion-link-doppler
         service_name: minion-service-doppler
-        addresses: 
+        addresses:
           - ip: ~
         # To support multi-clusters, fill the provider link secrets context of doppler, for example:
         # link: |
-        #   doppler.grpc_port: 8082 
+        #   doppler.grpc_port: 8082
         link: ~
       loggregator:
         secret_name: minion-link-loggregator
         service_name: minion-service-loggregator
-        addresses: 
+        addresses:
           - ip: ~
         # To support multi-clusters, fill the provider link secrets context of loggregator, for example:
         # link: |
@@ -339,7 +339,7 @@ features:
       cloud_controller:
         secret_name: minion-link-cloud-controller
         service_name: minion-service-cloud-controller
-        addresses: 
+        addresses:
           - ip: ~
         # To support multi-clusters, fill the provider link secrets context of cloud-controller, for example:
         # link: |
@@ -447,7 +447,7 @@ ccdb:
     rotation:
       # Key labels must be <= 240 characters long.
       key_labels:
-      - encryption_key_0
+        - encryption_key_0
       current_key_label: encryption_key_0
 
 operations:
@@ -632,7 +632,7 @@ bits:
 eirinix:
   persi-broker:
     service-plans:
-    - id: default
+      - id: default
       name: "default"
       description: "Existing default storage class"
       kube_storage_class: "default"
