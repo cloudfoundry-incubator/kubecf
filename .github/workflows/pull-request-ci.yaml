@@ -69,9 +69,10 @@ jobs:
         name: kubecf-bundle.tgz
         path: ${{ github.workspace }}/bundle
 
-  test-diego:
-    name: test-diego
+  tests:
+    name: tests
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
     needs: build
     env:
       # For KubeCF
@@ -86,6 +87,15 @@ jobs:
     defaults:
       run:
         working-directory: kubecf
+
+    strategy:
+      matrix:
+        include:
+        - backend: diego
+          experimental: false
+        - backend: eirini
+          experimental: true
+
     steps:
     - name: Checkout KubeCF
       uses: actions/checkout@v2
@@ -154,10 +164,10 @@ jobs:
       working-directory: catapult
       env:
         AZURE_APP_ID: ${{ secrets.AZURE_APP_ID }}
-        AZURE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-diego
+        AZURE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
         AZURE_DNS_RESOURCE_GROUP: ${{ secrets.AZURE_DNS_RESOURCE_GROUP }}
         AZURE_PASSWORD: ${{ secrets.AZURE_PASSWORD }}
-        AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}-${{ github.run_id }}-diego
+        AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}-${{ github.run_id }}-${{ matrix.backend }}
         AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         OWNER: ${{ github.repository_owner }}
@@ -230,6 +240,7 @@ jobs:
     - run: make kubecf-apply
       env:
         CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
+        FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
         VALUES: dev/kubecf/kubecf-values.yaml
     - run: make kubecf-wait
 
@@ -265,7 +276,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: diego-values.yaml
+        name: ${{ matrix.backend }}-values.yaml
         path: ${{ github.workspace }}/kubecf/dev/kubecf/kubecf-values.yaml
 
     - name: Fetch logs
@@ -278,7 +289,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: diego-klog.tgz
+        name: ${{ matrix.backend }}-klog.tgz
         path: ${{ github.workspace }}/kubecf/klog.tar.gz
 
     - name: kubernetes:teardown
@@ -292,240 +303,9 @@ jobs:
       working-directory: catapult
       env:
         AZURE_APP_ID: ${{ secrets.AZURE_APP_ID }}
-        AZURE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-diego
+        AZURE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
         AZURE_DNS_RESOURCE_GROUP: ${{ secrets.AZURE_DNS_RESOURCE_GROUP }}
         AZURE_PASSWORD: ${{ secrets.AZURE_PASSWORD }}
-        AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}-${{ github.run_id }}-diego
-        AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
-  test-eirini:
-    name: test-eirini
-    runs-on: ubuntu-latest
-    needs: build
-    env:
-      # For KubeCF
-      PINNED_TOOLS: true
-      TOOLS_DIR: ${{ github.workspace }}/tools
-      # For catapult
-      # Note that credentials-related parts are in the individual steps
-      BACKEND: aks
-      AUTOSCALER: "true"
-      DOWNLOAD_CATAPULT_DEPS: "false"
-
-    defaults:
-      run:
-        working-directory: kubecf
-    steps:
-    - name: Checkout KubeCF
-      uses: actions/checkout@v2
-      with:
-        path: kubecf
-        submodules: recursive
-    - name: Checkout catapult
-      uses: actions/checkout@v2
-      with:
-        repository: SUSE/catapult
-        path: catapult
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-    - name: cache.tools
-      uses: actions/cache@v2
-      with:
-        path: ${{ github.workspace }}/tools
-        key: ${{ runner.os }}-tools
-    - run: make tools-install
-
-    - id: download-bundle
-      name: Download chart bundle
-      uses: actions/download-artifact@v2
-      with:
-        name: kubecf-bundle.tgz
-        # The artifact upload/download creates an extra directory
-        path: ${{ github.workspace }}/kubecf-bundle
-
-    - name: Download gomplate
-      run: |
-        if test -x "${TOOLS_DIR}/gomplate" ; then
-          echo "gomplate already exists; skipping."
-          exit 0
-        fi
-        mkdir -p "${TOOLS_DIR}"
-        wget -O "${TOOLS_DIR}/gomplate" \
-          https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
-
-    - name: Start SSH agent
-      run: |
-        set -o errexit -o pipefail -o nounset
-        eval "$(ssh-agent -s)"
-        ssh-keygen -t rsa -b 4096 -N '' -C "KubeCF CI #${{ github.run_id }}" -f ssh-key
-        ssh-add ssh-key
-        echo "::add-mask::$(cat ssh-key.pub)"
-        rm -f ssh-key ssh-key.pub
-        echo "::set-env name=SSH_AUTH_SOCK::${SSH_AUTH_SOCK}"
-        echo "::set-env name=SSH_AGENT_PID::${SSH_AGENT_PID}"
-
-    - name: Create DNS Config
-      run: |
-        json_file="$(mktemp)"
-        echo "$AZURE_DNS_JSON" > "${json_file}"
-        echo "::set-env name=AZURE_DNS_JSON::${json_file}"
-      env:
-        AZURE_DNS_JSON: ${{ secrets.AZURE_DNS_JSON }}
-
-    - name: cache.catapult-common-tools
-      uses: actions/cache@v2
-      with:
-        path: ${{ github.workspace }}/catapult/modules/common/bin
-        key: ${{ runner.os }}-catapult-common-tools
-
-    - run: make k8s
-      working-directory: catapult
-      env:
-        AZURE_APP_ID: ${{ secrets.AZURE_APP_ID }}
-        AZURE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-eirini
-        AZURE_DNS_RESOURCE_GROUP: ${{ secrets.AZURE_DNS_RESOURCE_GROUP }}
-        AZURE_PASSWORD: ${{ secrets.AZURE_PASSWORD }}
-        AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}-${{ github.run_id }}-eirini
-        AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        OWNER: ${{ github.repository_owner }}
-
-    - name: export KUBECONFIG
-      run: |
-        set -o errexit -o nounset -o pipefail
-        cd "build${BACKEND}"
-        source .envrc
-        echo "::set-env name=KUBECONFIG::${KUBECONFIG}"
-        # Debugging aid; should be safe as the cluster will be torn down
-        # at the end of the run.
-        cat "${KUBECONFIG}" | gzip | base64 --wrap=0
-      working-directory: catapult
-
-    - name: Add tools to path
-      run: |
-        echo "::add-path::${TOOLS_DIR}"
-
-    - name: Generate KubeCF Configuration
-      run: |
-        set -o errexit -o nounset -o pipefail
-
-        make -C ${{ github.workspace }}/catapult kubecf-gen-config
-
-        cd ${{ github.workspace }}/catapult/build${BACKEND}
-
-        gomplate --context .=scf-config-values.yaml <<"EOF" \
-          > ${{ github.workspace }}/kubecf/dev/kubecf/kubecf-values.yaml
-        {{- /* Disable brain minibroker tests */}}
-        {{- define "minibroker-tests" }}
-        properties:
-          brain-tests:
-            acceptance-tests-brain:
-              tests:
-                minibroker:
-                  {{- range slice "mariadb" "mongodb" "postgres" "redis" }}
-                  {{ . }}:
-                    enabled: false
-                  {{- end }}
-        {{- end }}
-        {{- $ = tmpl.Exec "minibroker-tests" | yaml | merge $ }}
-
-        {{- /* Disable registry overrides */}}
-        {{- $ = coll.Omit "kube" $ }}
-
-        {{- /* Set DNS annotations */}}
-        {{- define "svc_annotation" }}
-        services:
-          {{ index . 0 }}:
-            annotations:
-              "external-dns.alpha.kubernetes.io/hostname": {{ index . 1 }}
-        {{- end }}
-        {{- $d := .system_domain }}
-        {{- $ = printf "%s, *.%s" $d $d | slice "router" | tmpl.Exec "svc_annotation" | yaml | merge $ }}
-        {{- $ = printf "ssh.%s" $d | slice "ssh-proxy" | tmpl.Exec "svc_annotation" | yaml | merge $ }}
-        {{- $ = printf "tcp.%s, *.tcp.%s" $d $d | slice "tcp-router" | tmpl.Exec "svc_annotation" | yaml | merge $ }}
-
-        {{- $ | toYAML }}
-        EOF
-      env:
-        BACKEND: aks
-        AUTOSCALER: "true"
-
-    - run: make cf-operator-apply
-      env:
-        CF_OPERATOR_URL: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
-    - run: make cf-operator-wait
-
-    - run: make kubecf-apply
-      env:
-        CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
-        FEATURE_EIRINI: "true"
-        VALUES: dev/kubecf/kubecf-values.yaml
-    - run: make kubecf-wait
-
-    - run: make smoke-tests
-    - run: make brain-tests
-    - run: make sync-integration-tests
-    - run: make acceptance-tests
-
-    - name: Get Resource Info
-      if: always()
-      run: |
-        set +o errexit
-        resources=(
-          BOSHDeployment
-          QuarksJob
-          QuarksStatefulSet
-          Job
-          StatefulSet
-          Endpoints
-          pods
-        )
-
-        echo "Getting namespaces..."
-        kubectl get namespaces --output=wide
-        for namespace in cf-operator kubecf ; do
-          for resource in "${resources[@]}" ; do
-            printf "%bGetting %s:%s...%b\n" "\e[0;1;33m" "${namespace}" "${resource}" "\e[0m"
-            kubectl get "${resource}" --namespace="${namespace}" --output=wide
-          done
-        done
-
-    - name: Upload config
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: eirini-values.yaml
-        path: ${{ github.workspace }}/kubecf/dev/kubecf/kubecf-values.yaml
-
-    - name: Fetch logs
-      if: always()
-      run: |
-        # Running klog.sh twice will grab logs from both namespaces
-        dev/kube/klog.sh -f -r cf-operator
-        dev/kube/klog.sh -f -r
-    - name: Upload logs
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: eirini-klog.tgz
-        path: ${{ github.workspace }}/kubecf/klog.tar.gz
-
-    - name: kubernetes:teardown
-      if: always()
-      run: |
-        set +o errexit
-        # Remove any terraform locks, because we don't care if the previous run
-        # has finished successfully (e.g. on cancel).
-        find "build${BACKEND}" -name '.terraform.*.lock*' -delete
-        make clean
-      working-directory: catapult
-      env:
-        AZURE_APP_ID: ${{ secrets.AZURE_APP_ID }}
-        AZURE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-eirini
-        AZURE_DNS_RESOURCE_GROUP: ${{ secrets.AZURE_DNS_RESOURCE_GROUP }}
-        AZURE_PASSWORD: ${{ secrets.AZURE_PASSWORD }}
-        AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}-${{ github.run_id }}-eirini
+        AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}-${{ github.run_id }}-${{ matrix.backend }}
         AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
