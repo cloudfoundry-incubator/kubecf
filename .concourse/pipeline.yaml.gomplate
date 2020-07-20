@@ -350,6 +350,7 @@ jobs:
       run:
         path: "/usr/bin/make"
         args:
+        - -C
         - kubecf-{{ $branch }}
         - lint
 
