@@ -344,7 +344,7 @@ jobs:
         type: registry-image
         source:
           repository: splatform/catapult
-          tag: bedde80dff4cd8c296c5c9774f83a9a191a963af
+          tag: beffe83a8db9cf81340f8e291d9031baed388fc4
       inputs:
       - name: kubecf-{{ $branch }}
       run:
