@@ -59,10 +59,10 @@ begin
 
   # A semver that matches what Helm uses.
   # https://github.com/Masterminds/semver/blob/910aa146bd66780c2815d652b92a7fc5331e533c/version.go#L41-L43
-  semver_regex = /^v?([0-9]+)(\.[0-9]+)?(\.[0-9]+)?(-([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?$/
+  semver_regex = /^([0-9]+)(\.[0-9]+)?(\.[0-9]+)?(-([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?$/
 
   # Handle chart versioning based on git state if version doesn't match semver.
-  version = "v0.0.0-#{git_commit_short}" unless version.match(semver_regex)
+  version = "0.0.0-#{git_commit_short}" unless version.match(semver_regex)
 
   # Package and return the output path.
   package_cmd = <<-EOS
