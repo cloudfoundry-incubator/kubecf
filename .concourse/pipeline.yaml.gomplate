@@ -1955,8 +1955,6 @@ jobs:
       platform: linux
       image_resource:
         <<: *catapult-image
-        source:
-          repository: splatform/catapult
       inputs:
       - name: s3.kubecf-ci
       - name: s3.kubecf-ci-bundle
