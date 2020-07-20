@@ -249,10 +249,12 @@
 {{- end }}
 
 {{- if .Values.features.suse_buildpacks.enabled }}
+# For SUSE buildpacks take all patches
 {{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
 {{ $bytes | toString }}
 {{- end }}
 {{- else }}
+# Without SUSE buildpacks, exclude the SLE15 patch and rootfs
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
 {{- if not (regexMatch "diego-cell_sle15-rootfs-setup" $path) }}
 {{ $bytes | toString }}

@@ -53,6 +53,51 @@ create_sample_values_binary = rule(
     }
 )
 
+def _values_documentation_test(ctx):
+    """A rule to check a values.yaml file to ensure it is adequately documented.
+
+    This is a test that runs against a values.yaml file and checks that all values have some sort of
+    documentation comment.  If any mapping has a comment it applies to the whole mapping (and
+    therefore the descendants don't require individual comments).
+    """
+
+    script_name = paths.basename(ctx.file._script_tmpl.path).replace(".tmpl", "")
+    script = ctx.actions.declare_file(script_name)
+    ctx.actions.expand_template(
+        output = script,
+        substitutions = {
+            "[[test_script]]": ctx.executable._create_sample_values.path,
+            "[[test_input]]": ctx.file.input.path,
+        },
+        template = ctx.file._script_tmpl,
+    )
+    runfiles = [
+        ctx.executable._create_sample_values,
+        ctx.file.input,
+    ]
+    return [DefaultInfo(
+        executable = script,
+        runfiles = ctx.runfiles(files = runfiles),
+    )]
+
+values_documentation_test = rule(
+    implementation = _values_documentation_test,
+    attrs = {
+        "input": attr.label(allow_single_file = True, mandatory = True),
+        "_create_sample_values": attr.label(
+            executable = True,
+            cfg = "host",
+            allow_files = True,
+            default = ":create_sample_values.rb"
+        ),
+        "_script_tmpl": attr.label(
+            allow_single_file = True,
+            default = ":values_documentation_check.tmpl.sh"
+        )
+    },
+    test = True,
+)
+
 def _image_list_impl(ctx):
     """A specialized rule for KubeCF to list all the container images being used by the project.
 

@@ -2,6 +2,8 @@
 - type: remove
   path: /instance_groups/name=database
 
+{{- if .Values.features.embedded_database.enabled }}
+
 # Remove the PXC release and related variables.
 - type: remove
   path: /releases/name=pxc
@@ -13,8 +15,6 @@
   path: /variables/name=galera_server_certificate
 - type: remove
   path: /variables/name=mysql_server_certificate
-
-{{- if .Values.features.embedded_database.enabled }}
 
 # Add certificates for PXC.
 - type: replace
@@ -117,7 +117,94 @@
   path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/ca_cert?
   value: *pxc-cluster-ca
 
-{{- else }}
+{{- if .Values.features.autoscaler.enabled }}
+{{- if .Values.features.autoscaler.mysql.enabled }}
+- type: remove
+  path: /instance_groups/name=asdatabase
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/scalingengine_db
+  value: &autoscaler_database
+    sslmode: &sslmode "verify-ca"
+    tls:
+      ca: *pxc-cluster-ca
+    databases:
+    - name: autoscaler
+      tag: default
+    address: *pxc-cluster-address
+    db_scheme: mysql
+    port: 3306
+    roles:
+    - name: autoscaler
+      password: ((autoscaler_database_password))
+      tag: default
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/scheduler_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=scalingengine/properties/autoscaler/policy_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=scheduler/properties/autoscaler/policy_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=scheduler/properties/autoscaler/scheduler_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/policy_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/appmetrics_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/instancemetrics_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/scalingengine_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asactors/jobs/name=operator/properties/autoscaler/lock_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asmetrics/jobs/name=metricsserver/properties/autoscaler/instancemetrics_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asmetrics/jobs/name=metricsserver/properties/autoscaler/policy_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/autoscaler/appmetrics_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/autoscaler/policy_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asnozzle/jobs/name=metricsgateway/properties/autoscaler/policy_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/policy_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/binding_db
+  value: *autoscaler_database
+- type: replace
+  path: /instance_groups/name=asapi/jobs/name=metricsforwarder/properties/autoscaler/policy_db
+  value: *autoscaler_database
+{{- end }}
+{{- end }}
+
+
+{{- else if .Values.features.external_database.enabled }}
+
+# Remove the PXC release and related variables.
+- type: remove
+  path: /releases/name=pxc
+- type: remove
+  path: /variables/name=pxc_galera_ca
+- type: remove
+  path: /variables/name=pxc_server_ca
+- type: remove
+  path: /variables/name=galera_server_certificate
+- type: remove
+  path: /variables/name=mysql_server_certificate
 
 # Remove the database variables.
 - type: remove
@@ -497,3 +584,4 @@
 {{- end }}
 
 {{- end }}
+

@@ -1,3 +1,0 @@
-# The charts directory under the root of the Helm chart definitions is ignore as it is cached and
-# managed with Bazel.
-/charts/

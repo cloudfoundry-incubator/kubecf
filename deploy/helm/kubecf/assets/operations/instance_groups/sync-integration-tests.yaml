@@ -49,4 +49,10 @@
       serial: true
     vm_type: minimal
 
+{{- if .Values.testing.sync_integration_tests.delete_pod }}
+- type: replace
+  path: /instance_groups/name=sync-integration-tests/env?/bosh/agent/settings/labels/delete
+  value: "pod"
+{{- end }}
+
 {{- end }}
