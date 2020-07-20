@@ -122,11 +122,11 @@ releases:
     file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.9.1-1.1-e74bd89e.zip
   suse-nodejs-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.7.18.1"
+    version: "1.7.24.1"
     stemcell:
       os: SLE_15_SP1
       version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.18.1-1.1-d2f6559e.zip
+    file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.24.1-1.1-3642228f.zip
   suse-go-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.9.13.1"
