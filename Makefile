@@ -51,6 +51,8 @@ minikube-delete:
 ########################################################################
 # Run
 
+all: cf-operator-apply cf-operator-wait kubecf-apply kubecf-wait cf-login
+
 cf-login:
 	@./scripts/cf-login.sh
 
