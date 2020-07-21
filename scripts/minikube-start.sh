@@ -7,7 +7,7 @@ require_tools minikube
 : "${VM_MEMORY:=16384}"
 : "${VM_DISK_SIZE:=120g}"
 
-: "${MINIKUBE_ISO_URL:=https://github.com/f0rmiga/opensuse-minikube-image/releases/download/v0.1.6/minikube-openSUSE.x86_64-0.1.6.iso}"
+: "${MINIKUBE_ISO_URL:=https://github.com/f0rmiga/opensuse-minikube-image/releases/download/v0.1.6/minikube-openSUSE.x86_64-0.1.8.iso}"
 
 if ! minikube status > /dev/null; then
     # shellcheck disable=SC2086
