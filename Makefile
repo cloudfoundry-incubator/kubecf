@@ -67,9 +67,6 @@ cf-operator-apply:
 cf-operator-wait:
 	@./scripts/cf-operator-wait.sh
 
-kubecf-build:
-	@./scripts/kubecf-build.sh
-
 kubecf-apply:
 	@./scripts/kubecf-apply.sh
 
