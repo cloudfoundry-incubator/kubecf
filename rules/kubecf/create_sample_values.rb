@@ -495,7 +495,6 @@ end
 # documentation, and exit the script with an error if found.
 def check_documentation(nodes)
     has_errors = false
-    puts "Undocumented values:"
     walk_nodes nodes do |node, path|
         next unless node.required.nil?
         # We count nodes as having documentation (for now) if _any_ ancestor has
@@ -516,12 +515,11 @@ def check_documentation(nodes)
         if ENV['DEBUG']
             puts "#{pretty_path} -> #{node}"
         else
-            puts pretty_path
+            puts "Undocumented value: " + pretty_path
         end
         has_errors = true
     end
     exit 1 if has_errors
-    puts "No undocumented values found."
     exit 0
 end
 

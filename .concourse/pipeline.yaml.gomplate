@@ -344,24 +344,19 @@ jobs:
     {{- end }}
     config:
       platform: linux
-      image_resource:
+      image_resource: &catapult-image
         type: registry-image
         source:
-          repository: thulioassis/bazel-docker-image
-          tag: 2.0.0
+          repository: splatform/catapult
+          tag: beffe83a8db9cf81340f8e291d9031baed388fc4
       inputs:
       - name: kubecf-{{ $branch }}
       run:
-        path: "/bin/bash"
+        path: "/usr/bin/make"
         args:
-        - -ce
-        - |
-          cd kubecf-{{ $branch }}
-          ./dev/linters/shellcheck.sh
-          ./dev/linters/yamllint.sh
-          ./dev/linters/helmlint.sh
-          bazel test //rules/kubecf:create_sample_values_test
-          bazel test //deploy/helm/kubecf:values_doc_test
+        - -C
+        - kubecf-{{ $branch }}
+        - lint
 
 {{- if has $config.stable_jobs "lint" }}
     {{- if $config.github_status }}
@@ -420,10 +415,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: thulioassis/bazel-docker-image
-          tag: 2.0.0
+        <<: *catapult-image
       inputs:
       - name: kubecf-{{ $branch }}
       outputs:
@@ -434,11 +426,9 @@ jobs:
         - -ce
         - |
           cd kubecf-{{ $branch }}
-          ./dev/build.sh ../output
-          timestamp=$(date +%s%3N)
-          for file in ../output/*.tgz; do
-              mv "$file" "${file%.tgz}-${timestamp}.tgz"
-          done
+          VERSION="$(./scripts/version.sh)"
+          TARGET_FILE=../output/kubecf-${VERSION}-$(date +%s%3N).tgz make kubecf-build
+          TARGET_FILE=../output/kubecf-bundle-${VERSION}-$(date +%s%3N).tgz make kubecf-bundle
 
 {{- if has $config.stable_jobs "build" }}
     {{- if $config.github_status }}
@@ -547,9 +537,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: kubecf
       - name: catapult
@@ -608,9 +596,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: registry-image
-            source:
-              repository: splatform/catapult
+            <<: *catapult-image
           inputs:
           - name: semver.gke-cluster
           run:
@@ -782,9 +768,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -959,9 +943,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1126,9 +1108,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1296,9 +1276,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1464,9 +1442,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1630,9 +1606,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1753,9 +1727,7 @@ jobs:
 #     config:
 #       platform: linux
 #       image_resource:
-#         type: registry-image
-#         source:
-#           repository: splatform/catapult
+#          <<: *catapult-image
 #       inputs:
 #       - name: catapult
 #       - name: commit-to-test
@@ -1987,10 +1959,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: thulioassis/bazel-docker-image
-          tag: 2.0.0
+        <<: *catapult-image
       inputs:
       - name: s3.kubecf-ci
       - name: s3.kubecf-ci-bundle
@@ -2014,9 +1983,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       params:
         S3_BUCKET: {{ $config.s3_final_bucket }}
         AWS_ACCESS_KEY_ID: ((aws-access-key))
