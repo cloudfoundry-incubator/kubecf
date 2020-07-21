@@ -693,12 +693,12 @@ bits:
 eirinix:
   persi-broker:
     service-plans:
-    - id: default
-      name: "default"
-      description: "Existing default storage class"
-      kube_storage_class: "default"
-      free: true
-      default_size: "1Gi"
+      - id: default
+        name: "default"
+        description: "Existing default storage class"
+        kube_storage_class: "default"
+        free: true
+        default_size: "1Gi"
   ssh-proxy:
     type: LoadBalancer
     externalIPs: []
