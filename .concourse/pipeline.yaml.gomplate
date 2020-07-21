@@ -321,6 +321,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     trigger: true
     version: "every"
 {{- if has $config.stable_jobs "lint" }}
