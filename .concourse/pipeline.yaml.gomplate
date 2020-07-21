@@ -393,6 +393,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     trigger: true
     version: "every"
     passed:
@@ -485,6 +489,10 @@ jobs:
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
+    {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
     {{- end }}
     trigger: true
     version: "every"
@@ -715,6 +723,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     trigger: true
     version: "every"
     passed:
@@ -890,6 +902,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -1054,6 +1070,10 @@ jobs:
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
+    {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
     {{- end }}
     passed:
     - {{ $previousTest | quote }}
@@ -1223,6 +1243,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -1389,6 +1413,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -1552,6 +1580,10 @@ jobs:
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
+    {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
     {{- end }}
     passed:
     - {{ $previousTest | quote }}
@@ -1779,6 +1811,10 @@ jobs:
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
+    {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
     {{- end }}
     passed:
     - {{ $previousTest | quote }}
