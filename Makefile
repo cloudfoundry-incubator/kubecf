@@ -54,7 +54,6 @@ minikube-delete:
 all:
 	./scripts/cf-operator-apply.sh
 	./scripts/cf-operator-wait.sh
-	./scripts/kubecf-build.sh
 	./scripts/kubecf-apply.sh
 	./scripts/kubecf-wait.sh
 	./scripts/cf-login.sh
