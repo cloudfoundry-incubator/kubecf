@@ -4,11 +4,11 @@ dependencies:
   repository: http://opensource.suse.com/eirini-release/
   condition: features.eirini.enabled
 - name: bits
-  version: 1.0.17
+  version: 1.0.21
   repository: http://opensource.suse.com/bits-service-release/
   condition: features.eirini.enabled
 - name: eirini-extensions
   alias: eirinix
-  repository: https://opensource.suse.com/eirinix-helm-release/
+  repository: https://cloudfoundry-incubator.github.io/eirinix-helm-release/
   version: "0.0.0-10+g3df5bb4"
   condition: features.eirini.enabled

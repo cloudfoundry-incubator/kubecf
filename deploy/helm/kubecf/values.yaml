@@ -551,7 +551,7 @@ bits:
     labels: {}
     annotations: {}
     images:
-      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.17-15.1.6.2.251-24.20
+      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.20-15.1.6.2.264-24.33
   env:
     # This setting is not configurable and must be HIDDEN from the user.
     DOMAIN: 127.0.0.1.nip.io
