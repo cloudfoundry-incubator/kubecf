@@ -11,12 +11,12 @@ function retry {
 
     local cr
     local nl
+    local isa_tty="false"
     if [ -t 1 ]; then
+        isa_tty="true"
         # Output is to a TTY; don't scroll display while waiting.
         cr="\r"
         # Display a trailing space between the last character and the cursor.
-        # Also overwrites trailing character when number of seconds shrink from
-        # two to one digit, e.g. "1m 58s" → "2m 3s".
         nl=" "
     else
         # Output is to a file; don't overwrite lines.
@@ -24,18 +24,34 @@ function retry {
         nl="\n"
     fi
 
+    local output
+    output="$(mktemp)"
     while test "${i}" -lt "${max}" ; do
-        printf "${cr}[%dm %ds] %s/%s: %s${nl}" \
+        printf "${cr}[%2dm %2ds] %s/%s: %s${nl}" \
                "$(( SECONDS / 60 ))" "$(( SECONDS % 60))"\
                "$(( i + 1 ))" "${max}" \
                "$*"
-        if "$@" &> /dev/null ; then
-            [ -n "${cr}" ] && printf "\n"
+
+        # Output is printed if command is successful, or after last failed attempt.
+        if "$@" &> "${output}"; then
+            if "${isa_tty}"; then
+                printf "\n"
+            else
+                # This is mostly just for CI logs.
+                cat "${output}"
+            fi
+            rm "${output}"
             return
         fi
         sleep "${delay}"
         i="$(( i + 1 ))"
     done
-    [ -n "${cr}" ] && printf "\n"
+
+    if "${isa_tty}"; then
+        printf "\n"
+    fi
+
+    cat "${output}"
+    rm "${output}"
     return 1
 }
