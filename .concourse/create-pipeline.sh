@@ -50,7 +50,7 @@ fi
 
 # Determine if the pipeline being pushed is a new pipeline
 existing_pipeline_job_count=$(
-  fly --target ${target} get-pipeline --pipeline ${PIPELINE} --json | jq '.jobs | length' || true
+  fly --target "${target}" get-pipeline --pipeline "${PIPELINE}" --json | jq '.jobs | length' || true
 )
 if [[ ${existing_pipeline_job_count} -gt 0 ]]; then
   pipeline_already_existed=true
