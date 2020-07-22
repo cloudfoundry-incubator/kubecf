@@ -275,7 +275,7 @@ features:
     control_plane:
       enabled: false
     cell_segment:
-      enabled: false 
+      enabled: false
     # To support multi-clusters, services for diego-cell deployed separately
     control_plane_workers:
       uaa:
