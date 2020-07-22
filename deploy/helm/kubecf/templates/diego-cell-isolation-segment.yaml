@@ -1,5 +1,5 @@
-{{- if not .Values.features.multiple_cluster.control_plane.enabled  }}
-{{- if .Values.features.multiple_cluster.cell_segment.enabled }}
+{{- if not .Values.features.multiple_cluster_mode.control_plane.enabled  }}
+{{- if .Values.features.multiple_cluster_mode.cell_segment.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap

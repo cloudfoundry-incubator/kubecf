@@ -271,11 +271,11 @@ features:
         # This setting is not currently configurable and must be HIDDEN
         nodePort: 31666
   # To support multi-clusters, deploy diego-cell separately please set control_plane is false  and cell_segment is true
-  multiple_cluster:
+  multiple_cluster_mode:
     control_plane:
       enabled: false
     cell_segment:
-      enabled: true
+      enabled: false 
     # To support multi-clusters, services for diego-cell deployed separately
     control_plane_workers:
       uaa:
