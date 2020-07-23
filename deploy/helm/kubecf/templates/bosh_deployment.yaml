@@ -72,5 +72,12 @@ spec:
   - name: user-provided-inline-operations
     type: configmap
 {{- end }}
+# To support multi-clusters and deploy a cell
+{{- if not .Values.features.multiple_cluster_mode.control_plane.enabled  }}
+{{- if .Values.features.multiple_cluster_mode.cell_segment.enabled }}
+  - name: user-provided-inline-operations
+    type: configmap
+{{- end }}
+{{- end }}
   - name: user-provided-properties
     type: configmap

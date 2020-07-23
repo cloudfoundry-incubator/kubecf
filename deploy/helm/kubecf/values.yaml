@@ -270,6 +270,108 @@ features:
       service:
         # This setting is not currently configurable and must be HIDDEN
         nodePort: 31666
+  # To support multi-clusters, deploy diego-cell separately please set control_plane is false  and cell_segment is true
+  multiple_cluster_mode:
+    control_plane:
+      enabled: false
+    cell_segment:
+      enabled: false
+    # To support multi-clusters, services for diego-cell deployed separately
+    control_plane_workers:
+      uaa:
+        name: uaa
+        addresses:
+          - ip: ~
+      diego_api:
+        name: diego-api
+        addresses:
+          - ip: ~
+      api:
+        name: api
+        addresses:
+          - ip: ~
+      singleton_blobstore:
+        name: singleton-blobstore
+        addresses:
+          - ip: ~
+    # To support multi-clusters, provider link secrets for diego-cell deployed separately
+    provider_link_service:
+      nats:
+        secret_name: minion-link-nats
+        service_name: minion-service-nats
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of nats, for example:
+        # link: |
+        #   ---
+        #   nats.user: "nats"
+        #   nats.password: "xxxxxx"
+        #   nats.hostname: "nats"
+        #   nats.port: 4222
+        link: ~
+      nats_tls:
+        secret_name: minion-link-nats-tls
+        service_name: minion-service-nats-tls
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of nats_tls, for example:
+        # link: |
+        #   ---
+        #   nats.user: "nats"
+        #   nats.password: "xxxxxx"
+        #   nats.hostname: "nats"
+        #   nats.port: 4223
+        #   nats.external.tls.ca: ""
+        link: ~
+      routing_api:
+        secret_name: minion-link-routing-api
+        service_name: minion-service-routing-api
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of routing-api, for example:
+        # link: |
+        #   routing_api.clients: ~
+        #   routing_api.system_domain: "xxx.xxx.xxx"
+        #   routing_api.port: 3000
+        #   routing_api.mtls_port: 3001
+        #   routing_api.mtls_ca: |
+        #     -----BEGIN CERTIFICATE-----
+        #     xxxxxx
+        #     -----END CERTIFICATE-----
+        #   ......
+        link: ~
+      doppler:
+        secret_name: minion-link-doppler
+        service_name: minion-service-doppler
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of doppler, for example:
+        # link: |
+        #   doppler.grpc_port: 8082
+        link: ~
+      loggregator:
+        secret_name: minion-link-loggregator
+        service_name: minion-service-loggregator
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of loggregator, for example:
+        # link: |
+        #   loggregator.tls.ca_cert: |
+        #     -----BEGIN CERTIFICATE-----
+        #     xxxxxx
+        #     -----END CERTIFICATE-----
+        #   ......
+        link: ~
+      cloud_controller:
+        secret_name: minion-link-cloud-controller
+        service_name: minion-service-cloud-controller
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of cloud-controller, for example:
+        # link: |
+        #   system_domain: "{{ .Values.system_domain }}"
+        #   app_domains: []
+        link: ~
   ingress:
     enabled: false
     tls:
@@ -392,7 +494,7 @@ ccdb:
     rotation:
       # Key labels must be <= 240 characters long.
       key_labels:
-      - encryption_key_0
+        - encryption_key_0
       current_key_label: encryption_key_0
 
 operations:
@@ -591,12 +693,12 @@ bits:
 eirinix:
   persi-broker:
     service-plans:
-    - id: default
-      name: "default"
-      description: "Existing default storage class"
-      kube_storage_class: "default"
-      free: true
-      default_size: "1Gi"
+      - id: default
+        name: "default"
+        description: "Existing default storage class"
+        kube_storage_class: "default"
+        free: true
+        default_size: "1Gi"
   ssh-proxy:
     type: LoadBalancer
     externalIPs: []
