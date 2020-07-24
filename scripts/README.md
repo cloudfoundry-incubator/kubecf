@@ -154,12 +154,9 @@ are running before deploying the `kubecf` chart.
 
 #### ./scripts/kubecf-apply.sh
 
-Deploys the `kubecf` chart. This script assumes that the `kubecf-build.sh`
-script has just been run. The `make kubecf-apply` target ensures this.
+Deploys the `kubecf` chart. If the `CHART` environment variable is not set then this script will first run `./scripts/kubecf-build.sh` to make certain that the chart is up-to-date with regard to the current state of the working directory. Otherwise it will deploy the chart specified by `CHART`.
 
-Alternatively, the `CHART` environment variable can be used to specify a
-the KubeCF chart to be deployed. Helm configuration variables can be set
-in a YAML file pointed to by `VALUES`.
+Helm configuration variables can be set in a YAML file pointed to by `VALUES`.
 
 Some common features can be enabled by setting their configuration variable
 to a non-empty value: `FEATURE_AUTOSCALER`, `FEATURE_EIRINI`, and
