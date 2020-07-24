@@ -97,70 +97,70 @@ releases:
     version: "1.5.9.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.9.1-1.1-a0f266f5.zip
   suse-java-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.32.0.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.32.0.1-3d7579b2.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.8.19.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.19.1-1.1-63c0bb58.zip
   suse-dotnet-core-buildpack:
     url: registry.suse.com/cap-staging
     version: "2.3.9.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.9.1-1.1-e74bd89e.zip
   suse-nodejs-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.18.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.18.1-1.1-d2f6559e.zip
   suse-go-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.9.14.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.14.1-1.1-37b6744d.zip
   suse-python-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.16.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.16.1-1.1-ae2e4da3.zip
   suse-php-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.4.18.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.8-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.18.1-1.1-c83670cc.zip
   suse-nginx-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.1.7.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.7.1-1.1-fbf90d1f.zip
   suse-binary-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.0.36.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
 
 # Set to true to enable support for multiple availability zones.
