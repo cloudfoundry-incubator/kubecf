@@ -35,10 +35,10 @@ Instead of trying to document all the possibilities and all their
 interactions at once, supporting documents will describe specific
 combinations of choices in detail, from the bottom up.
 
-|Document                          |Description                                    |
-|---                               |---                                            |
-|[Local Minikube](dev/minikube.md) |Minikube/Bazel + Operator/Bazel + Kubecf/Bazel |
-|[General Kube](dev/general.md)    |Any Kube + Operator/Helm + Kubecf/Helm         |
+| Document                          | Description                            |
+|-----------------------------------|----------------------------------------|
+| [Local Minikube](dev/minikube.md) | Minikube + Operator + Kubecf           |
+| [General Kube](dev/general.md)    | Any Kube + Operator/Helm + Kubecf/Helm |
 
 ## Pull Requests
 
@@ -89,17 +89,14 @@ associated documentation, if we have any.
 |[__top__/dev/cf_cli](cf_cli.md)                                        |Deploy cf cli into a helper pod from which to then     |
 |                                                                       |inspect the deployed Kubecf                            |
 |[__top__/dev/kube](inspection.md)                                      |Tools to inspect kube clusters and kubecf deployments. |
-|[__top__/dev/linters](linters.md)                                      |Tools for statically checking the kubecf sources.      |
-|[__top__/dev/minikube](kube/minikube.md)                               |Targets to manage a local kubernetes cluster.          |
-|                                                                       |Minikube based.                                        |
-|[__top__/dev/kind](kube/kind.md)                                       |Targets to manage a local kubernetes cluster.          |
-|                                                                       |KinD based (Kube-in-Docker).                           |
-|[__top__/dev/kubecf](../dev/kubecf/README.md)                          |Kubecf chart configuration, and targets for            |
-|                                                                       |local chart application.                               |
+|[__top__/dev/kubecf](../dev/kubecf/README.md)                          |Kubecf chart configuration                             |
 |__top__/deploy/helm/kubecf                                             |Templates and assets wrapping a CF deployment          |
 |                                                                       |manifest into a helm chart.                            |
-|__top__/rules                                                          |Supporting bazel definitions.                          |
-|[__top__/testing](tests.md)                                            |Bazel targets to run CF smoke and acceptance tests.    |
+|__top__/rules                                                          |Supporting scripts.                                    |
+|[__top__/testing](tests.md)                                            |Scripts with specific testing                          |
+|[__top__/scripts](../scripts/README.md)                                |Developer scripts used by make to start a k8s cluster  |
+|                                                                       |(for example on kind), lint, build, run & test kubecf  |
+|[__top__/scripts/tools](../scripts/tools/README.md)                    |Developer scripts pinning the development dependencies |
 
 
 ## Updating subcharts
@@ -128,23 +125,19 @@ This scheme is explained in a separate document:
 
 ## Linting
 
-Currently, 3 linters are available:
+Currently, 3 linters are available: shellcheck, yamllint, & helm linting.
 
-  - `dev/linters/shellcheck.sh`
-  - `dev/linters/yamllint.sh`
-  - `dev/linters/helmlint.sh`
-
-Invoke these linters as
+Invoke these linters with
 
 ```sh
-dev/linters/shellcheck.sh
-dev/linters/yamllint.sh
-dev/linters/helmlint.sh
+make lint
 ```
 
 to run shellcheck on all `.sh` files found in the entire checkout, or yamllint
 on all `.yaml` or `.yml` files respectively, and report any issues found.  The
 last option runs `helm lint` (without `--strict`) on the generated helm chart.
+
+See the authoritative list of linters being called in the `make lint` target.
 
 ## Patching
 

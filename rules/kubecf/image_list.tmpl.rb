@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # This is a template script to be used by the 'image_list' Bazel rule.
+# Can be safely removed when Bazel is removed, Make build system uses image_list.rb
 
 require 'json'
 require 'open3'

@@ -42,8 +42,8 @@ BOSH deployment like Kubecf for use.
 It has to be installed in the same Kubernetes cluster that Kubecf will
 be deployed to.
 
-Here we are not using development-specific dependencies like bazel,
-but only generic tools, i.e. `kubectl` and `helm`.
+Here we are not using development-specific dependencies, but only
+generic tools, i.e. `kubectl` and `helm`.
 
 [Installing and configuring Helm](helm.md) is the same regardless of
 the chosen foundation, and assuming that the cluster does not come
@@ -59,7 +59,7 @@ helm install --name cf-operator \
 ```
 
 In the example above, version 5.0.0 of the operator was used. Look
-into the `cf_operator` section of the top-level `def.bzl` file to find
+into the `external_files.cf_operator` section of __dependencies.yaml__ to find
 the version of the operator validated against the current kubecf
 master.
 
@@ -165,10 +165,11 @@ details.
 [values.yaml]: ../../deploy/helm/kubecf/values.yaml
 
 For local development with an external database, the
-`bazel run //dev/external_database:deploy_mysql` command will bring a mysql database up and running
+`make deploy-external-mysql` command will bring a mysql database up and running
 ready to be consumed by kubecf.
 
-An example for the additional values to be provided to `//dev/kubecf:apply`:
+An example for the additional values to be provided when deploying kubecf with
+`make kubecf-apply`:
 
 ```yaml
 features:

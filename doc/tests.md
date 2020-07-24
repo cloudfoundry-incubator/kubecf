@@ -4,10 +4,16 @@ The smoke, brain, acceptance, and sync integration tests can be run after KubeCF
 deployment has completed, via:
 
 ```sh
-bazel run //testing:smoke_tests
-bazel run //testing:brain_tests
-bazel run //testing:acceptance_tests
-bazel run //testing:sync_integration_tests
+make tests
+```
+
+or each by:
+
+```sh
+make smoke
+make brain
+make sits
+make cats
 ```
 
 The [acceptance tests] can be limited to specific suites of interest,
