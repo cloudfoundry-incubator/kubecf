@@ -94,73 +94,73 @@ releases:
     version: v0.0.3
   suse-staticfile-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.5.6.1"
+    version: "1.5.9.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.6.1-2.1-a74620df.zip
+      version: 27.1-7.0.0_374.gb8e8e6af
+    file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.9.1-1.1-a0f266f5.zip
   suse-java-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.32.0.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.32.0.1-3d7579b2.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.8.19.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.19.1-1.1-63c0bb58.zip
   suse-dotnet-core-buildpack:
     url: registry.suse.com/cap-staging
     version: "2.3.9.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.9.1-1.1-e74bd89e.zip
   suse-nodejs-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.24.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.24.1-1.1-3642228f.zip
   suse-go-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.9.13.1"
+    version: "1.9.14.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.13.1-1.1-826f794c.zip
+      version: 27.1-7.0.0_374.gb8e8e6af
+    file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.14.1-1.1-37b6744d.zip
   suse-python-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.16.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.16.1-1.1-ae2e4da3.zip
   suse-php-buildpack:
     url: registry.suse.com/cap-staging
-    version: "4.4.16.1"
+    version: "4.4.18.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.16.1-1.1-ddbeaa14.zip
+      version: 27.1-7.0.0_374.gb8e8e6af
+    file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.18.1-1.1-c83670cc.zip
   suse-nginx-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.1.7.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.7.1-1.1-fbf90d1f.zip
   suse-binary-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.0.36.1"
     stemcell:
       os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
     file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
 
 # Set to true to enable support for multiple availability zones.
@@ -270,6 +270,108 @@ features:
       service:
         # This setting is not currently configurable and must be HIDDEN
         nodePort: 31666
+  # To support multi-clusters, deploy diego-cell separately please set control_plane is false  and cell_segment is true
+  multiple_cluster_mode:
+    control_plane:
+      enabled: false
+    cell_segment:
+      enabled: false
+    # To support multi-clusters, services for diego-cell deployed separately
+    control_plane_workers:
+      uaa:
+        name: uaa
+        addresses:
+          - ip: ~
+      diego_api:
+        name: diego-api
+        addresses:
+          - ip: ~
+      api:
+        name: api
+        addresses:
+          - ip: ~
+      singleton_blobstore:
+        name: singleton-blobstore
+        addresses:
+          - ip: ~
+    # To support multi-clusters, provider link secrets for diego-cell deployed separately
+    provider_link_service:
+      nats:
+        secret_name: minion-link-nats
+        service_name: minion-service-nats
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of nats, for example:
+        # link: |
+        #   ---
+        #   nats.user: "nats"
+        #   nats.password: "xxxxxx"
+        #   nats.hostname: "nats"
+        #   nats.port: 4222
+        link: ~
+      nats_tls:
+        secret_name: minion-link-nats-tls
+        service_name: minion-service-nats-tls
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of nats_tls, for example:
+        # link: |
+        #   ---
+        #   nats.user: "nats"
+        #   nats.password: "xxxxxx"
+        #   nats.hostname: "nats"
+        #   nats.port: 4223
+        #   nats.external.tls.ca: ""
+        link: ~
+      routing_api:
+        secret_name: minion-link-routing-api
+        service_name: minion-service-routing-api
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of routing-api, for example:
+        # link: |
+        #   routing_api.clients: ~
+        #   routing_api.system_domain: "xxx.xxx.xxx"
+        #   routing_api.port: 3000
+        #   routing_api.mtls_port: 3001
+        #   routing_api.mtls_ca: |
+        #     -----BEGIN CERTIFICATE-----
+        #     xxxxxx
+        #     -----END CERTIFICATE-----
+        #   ......
+        link: ~
+      doppler:
+        secret_name: minion-link-doppler
+        service_name: minion-service-doppler
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of doppler, for example:
+        # link: |
+        #   doppler.grpc_port: 8082
+        link: ~
+      loggregator:
+        secret_name: minion-link-loggregator
+        service_name: minion-service-loggregator
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of loggregator, for example:
+        # link: |
+        #   loggregator.tls.ca_cert: |
+        #     -----BEGIN CERTIFICATE-----
+        #     xxxxxx
+        #     -----END CERTIFICATE-----
+        #   ......
+        link: ~
+      cloud_controller:
+        secret_name: minion-link-cloud-controller
+        service_name: minion-service-cloud-controller
+        addresses:
+          - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of cloud-controller, for example:
+        # link: |
+        #   system_domain: "{{ .Values.system_domain }}"
+        #   app_domains: []
+        link: ~
   ingress:
     enabled: false
     tls:
@@ -392,7 +494,7 @@ ccdb:
     rotation:
       # Key labels must be <= 240 characters long.
       key_labels:
-      - encryption_key_0
+        - encryption_key_0
       current_key_label: encryption_key_0
 
 operations:
@@ -591,12 +693,12 @@ bits:
 eirinix:
   persi-broker:
     service-plans:
-    - id: default
-      name: "default"
-      description: "Existing default storage class"
-      kube_storage_class: "default"
-      free: true
-      default_size: "1Gi"
+      - id: default
+        name: "default"
+        description: "Existing default storage class"
+        kube_storage_class: "default"
+        free: true
+        default_size: "1Gi"
   ssh-proxy:
     type: LoadBalancer
     externalIPs: []

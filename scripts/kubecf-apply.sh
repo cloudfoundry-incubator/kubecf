@@ -49,6 +49,9 @@ fi
 
 if [ -z "${CHART:-}" ]; then
     CHART="output/kubecf-$(./scripts/version.sh).tgz"
+    export TARGET_FILE="${CHART}"
+    ./scripts/kubecf-build.sh
+
 fi
 
 helm upgrade kubecf "${CHART}" \
