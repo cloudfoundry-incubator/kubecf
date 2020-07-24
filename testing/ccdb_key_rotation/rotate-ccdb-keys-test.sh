@@ -177,7 +177,8 @@ EOF
 
 # Get the deployed chart (tarball)
 make kubecf-build
-chart_file="$(ls -1 -t output/kubecf-*.tgz | head -1)"
+chart_file="$(find output -name 'kubecf-*.tgz' -type f -printf "%T+ %p\n" \
+                   | sort | tail -1 | tr -s ' ' | cut -d ' ' -f 2)"
 
 echo
 echo "Chart file ... $(blue "${chart_file}")"
