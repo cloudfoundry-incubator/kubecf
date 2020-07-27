@@ -61,6 +61,8 @@ done
 echo "operatorChartUrl: \"${CF_OPERATOR_URL//\{version\}/${CF_OPERATOR_VERSION}}\"" > "${HELM_DIR}/Metadata.yaml"
 
 ruby rules/kubecf/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
+MODE=check ruby rules/kubecf/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
+
 ruby rules/kubecf/image_list.rb "${HELM_DIR}" | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
 
 VERSION="$(./scripts/version.sh)"
@@ -68,7 +70,8 @@ helm package "${HELM_DIR}" --version "${VERSION}" --app-version "${VERSION}" --d
 
 rm -rf "${HELM_DIR}"
 
-if [ -n "${TARGET_FILE:-}" ]; then
+HELM_CHART="output/kubecf-${VERSION}.tgz"
+if [[ -n "${TARGET_FILE:-}" && "${TARGET_FILE}" != "${HELM_CHART}" ]]; then
     mkdir -p "$(dirname "${TARGET_FILE}")"
-    cp "output/kubecf-${VERSION}.tgz" "${TARGET_FILE}"
+    cp "${HELM_CHART}" "${TARGET_FILE}"
 fi

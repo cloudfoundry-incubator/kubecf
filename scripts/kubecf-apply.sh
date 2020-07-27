@@ -3,6 +3,8 @@ source scripts/include/setup.sh
 
 require_tools helm kubectl
 
+: "${MAGIC_DNS_SERVICE:=xip.io}"
+
 HELM_ARGS=()
 for TEST in brain cf_acceptance smoke; do
     HELM_ARGS+=(--set "testing.${TEST}_tests.enabled=true")
@@ -20,7 +22,7 @@ if [ -z "${LOCAL_IP:-}" ]; then
 fi
 
 if [ -n "${LOCAL_IP:-}" ]; then
-    HELM_ARGS+=(--set "system_domain=${LOCAL_IP}.xip.io")
+    HELM_ARGS+=(--set "system_domain=${LOCAL_IP}.${MAGIC_DNS_SERVICE}")
     for SERVICE in router tcp-router ssh-proxy; do
         HELM_ARGS+=(
             --set "services.${SERVICE}.type=LoadBalancer"
@@ -47,6 +49,9 @@ fi
 
 if [ -z "${CHART:-}" ]; then
     CHART="output/kubecf-$(./scripts/version.sh).tgz"
+    export TARGET_FILE="${CHART}"
+    ./scripts/kubecf-build.sh
+
 fi
 
 helm upgrade kubecf "${CHART}" \
