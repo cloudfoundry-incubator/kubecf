@@ -108,11 +108,11 @@ releases:
     file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.32.0.1-3d7579b2.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.8.19.1"
+    version: "1.8.21.1"
     stemcell:
       os: SLE_15_SP1
       version: 27.1-7.0.0_374.gb8e8e6af
-    file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.19.1-1.1-63c0bb58.zip
+    file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.21.1-1.1-eb7b3b65.zip
   suse-dotnet-core-buildpack:
     url: registry.suse.com/cap-staging
     version: "2.3.9.1"
@@ -281,26 +281,26 @@ features:
       uaa:
         name: uaa
         addresses:
-          - ip: ~
+        - ip: ~
       diego_api:
         name: diego-api
         addresses:
-          - ip: ~
+        - ip: ~
       api:
         name: api
         addresses:
-          - ip: ~
+        - ip: ~
       singleton_blobstore:
         name: singleton-blobstore
         addresses:
-          - ip: ~
+        - ip: ~
     # To support multi-clusters, provider link secrets for diego-cell deployed separately
     provider_link_service:
       nats:
         secret_name: minion-link-nats
         service_name: minion-service-nats
         addresses:
-          - ip: ~
+        - ip: ~
         # To support multi-clusters, fill the provider link secrets context of nats, for example:
         # link: |
         #   ---
@@ -313,7 +313,7 @@ features:
         secret_name: minion-link-nats-tls
         service_name: minion-service-nats-tls
         addresses:
-          - ip: ~
+        - ip: ~
         # To support multi-clusters, fill the provider link secrets context of nats_tls, for example:
         # link: |
         #   ---
@@ -327,7 +327,7 @@ features:
         secret_name: minion-link-routing-api
         service_name: minion-service-routing-api
         addresses:
-          - ip: ~
+        - ip: ~
         # To support multi-clusters, fill the provider link secrets context of routing-api, for example:
         # link: |
         #   routing_api.clients: ~
@@ -344,7 +344,7 @@ features:
         secret_name: minion-link-doppler
         service_name: minion-service-doppler
         addresses:
-          - ip: ~
+        - ip: ~
         # To support multi-clusters, fill the provider link secrets context of doppler, for example:
         # link: |
         #   doppler.grpc_port: 8082
@@ -353,7 +353,7 @@ features:
         secret_name: minion-link-loggregator
         service_name: minion-service-loggregator
         addresses:
-          - ip: ~
+        - ip: ~
         # To support multi-clusters, fill the provider link secrets context of loggregator, for example:
         # link: |
         #   loggregator.tls.ca_cert: |
@@ -366,7 +366,7 @@ features:
         secret_name: minion-link-cloud-controller
         service_name: minion-service-cloud-controller
         addresses:
-          - ip: ~
+        - ip: ~
         # To support multi-clusters, fill the provider link secrets context of cloud-controller, for example:
         # link: |
         #   system_domain: "{{ .Values.system_domain }}"
@@ -494,7 +494,7 @@ ccdb:
     rotation:
       # Key labels must be <= 240 characters long.
       key_labels:
-        - encryption_key_0
+      - encryption_key_0
       current_key_label: encryption_key_0
 
 operations:
@@ -693,12 +693,12 @@ bits:
 eirinix:
   persi-broker:
     service-plans:
-      - id: default
-        name: "default"
-        description: "Existing default storage class"
-        kube_storage_class: "default"
-        free: true
-        default_size: "1Gi"
+    - id: default
+      name: "default"
+      description: "Existing default storage class"
+      kube_storage_class: "default"
+      free: true
+      default_size: "1Gi"
   ssh-proxy:
     type: LoadBalancer
     externalIPs: []
