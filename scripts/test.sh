@@ -37,10 +37,10 @@ is_container_running() {
 wait_for_test_running() {
   local timeout="300"
   local new_pod_names pod_name
-  while [[ "${timeout}" -gt 0 ]] ; do
+  while [[ "${timeout}" -gt 0 ]]; do
     new_pod_names="$(pod_name)"
     pod_name="$(comm -13 <(echo "${existing_pods}") <(echo "${new_pod_names}"))"
-    if [[ -n "${pod_name}" ]] ; then
+    if [[ -n "${pod_name}" ]]; then
       break
     fi
     sleep 1
