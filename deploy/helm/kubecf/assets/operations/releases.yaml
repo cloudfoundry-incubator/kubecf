@@ -10,7 +10,6 @@
 {{- $releases = append $releases "capi" }}
 {{- $releases = append $releases "cf-networking" }}
 {{- $releases = append $releases "cf-smoke-tests" }}
-{{- $releases = append $releases "cf-syslog-drain" }}
 {{- $releases = append $releases "cflinuxfs3" }}
 {{- if .Values.features.credhub.enabled }}
   {{- $releases = append $releases "credhub" }}

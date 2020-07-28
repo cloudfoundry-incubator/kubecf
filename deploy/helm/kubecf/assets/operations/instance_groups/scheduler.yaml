@@ -1,11 +1,3 @@
-# Add quarks properties for the scheduler job.
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/quarks?/run/healthcheck/scheduler
-  value:
-    readiness:
-      exec:
-        command: ["curl", "--fail", "--head", "--silent", "http://127.0.0.1:8080/health"]
-
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/quarks?/run/healthcheck/cloud_controller_clock
   value:
