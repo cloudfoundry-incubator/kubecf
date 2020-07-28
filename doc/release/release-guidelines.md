@@ -27,10 +27,9 @@ Check [here](https://github.com/cloudfoundry-incubator/kubecf/branches) if the r
 ![](https://i.imgur.com/n8DHyeF.png)
 
 
-## Files to Change
+## Version
 
-Add the version to the KubeCF helm chart target in _scripts/include/versions.sh_:
-> ```: "${KUBECF_VERSION:=X.Y.Z}"```
+Version string is obtained from the last git tag present in parents.
 
 ## Concourse
 
