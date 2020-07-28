@@ -9,8 +9,8 @@ The tooling in this directory is meant to rectify that, somewhat.
 
 ## Requirements
 
-The tools require a working Tcl (`tclsh`) in the `PATH`.
-Everything from Tcl 8.4 and higher should be good enough.
+The tools require a working ruby in the `PATH`. It has to support the
+`open3` package.
 
 ## Usage
 
@@ -38,7 +38,7 @@ Stop watching by aborting the command with Ctrl-C.
 
 ### Postprocessing
 
-The tools `extent` and `sequence` can post process a sequence/event
+The tools `extent` and `sequence` can post-process a sequence/event
 file. Invoked with the path to the sequence/event file they
 respectively return (on `stdout`)
 
