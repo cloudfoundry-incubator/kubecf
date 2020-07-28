@@ -30,7 +30,7 @@ Stop watching by aborting the command with Ctrl-C.
 ```
 % pwd
 /home/work/SUSE/dev/kubecf-1
-% dev/kube/unsupported/upwatch kubecf 2> sequence.txt
+% dev/kube/ig-tools/upwatch kubecf 2> sequence.txt
 ... (continuous display of kubecf state)
 ^C
 %
@@ -57,7 +57,7 @@ from it.
 ```
 % pwd
 /home/work/SUSE/dev/kubecf-1
-% dev/kube/unsupported/extent sequence.txt
+% dev/kube/ig-tools/extent sequence.txt
 2831s = 47m:11s
-% dev/kube/unsupported/sequence sequence.txt > sequence.svg
+% dev/kube/ig-tools/sequence sequence.txt > sequence.svg
 ```
