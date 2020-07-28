@@ -13,9 +13,12 @@
       exec:
         command:
         # We should sleep about once every 5 seconds; check that the last entry was no more than 2 cycles ago
-        - sh
+        - /bin/sh
         - -c
-        - tac /var/vcap/sys/log/cc_deployment_updater/cc_deployment_updater.log | grep --max-count=1 Sleeping | jq -r '(now - .timestamp) < 10'
+        - >
+          tac /var/vcap/sys/log/cc_deployment_updater/cc_deployment_updater.log
+          | grep --max-count=1 Sleeping
+          | jq -e '.timestamp | gsub(".[0-9]+Z$"; "Z") | fromdate | now - . | . < 10'
     liveness:
       exec:
         command: ["pgrep", "--full", "deployment_updater:start"]
