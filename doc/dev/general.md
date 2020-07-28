@@ -139,9 +139,9 @@ helm install stable/nginx-ingress \
   --name ingress \
   --namespace ingress \
   --set "tcp.2222=kubecf/ssh-proxy-public:2222" \
-  --set "tcp.<services.tcp-router.port_range.start>=kubecf/kubecf-tcp-router:<services.tcp-router.port_range.start>" \
+  --set "tcp.<services.tcp-router.port_range.start>=kubecf/tcp-router:<services.tcp-router.port_range.start>" \
   ...
-  --set "tcp.<services.tcp-router.port_range.end>=kubecf/kubecf-tcp-router:<services.tcp-router.port_range.end>"
+  --set "tcp.<services.tcp-router.port_range.end>=kubecf/tcp-router:<services.tcp-router.port_range.end>"
 ```
 
 The `tcp.<port>` option uses the NGINX TCP pass-through (docs: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services/).
