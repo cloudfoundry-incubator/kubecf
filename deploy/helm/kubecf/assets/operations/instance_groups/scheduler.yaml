@@ -51,6 +51,14 @@
             httpGet:
               port: 2223
 
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=service-discovery-controller/properties/quarks?/run/healthcheck/service-discovery-controller
+  value:
+    readiness:
+      # Proper connection requires a TLS client cert; that's not worth it right now.
+      tcpSocket:
+        port: 8054
+
 # Add necessary labels to the scheduler instance group so that the service can select it to create
 # the endpoint.
 - type: replace
