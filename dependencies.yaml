@@ -134,10 +134,8 @@ bazel_libs:
 
       files = [
           "cf-deployment.yml",
-          "operations/bits-service/use-bits-service.yml",
           "operations/use-external-blobstore.yml",
           "operations/use-s3-blobstore.yml",
-          "operations/bits-service/configure-bits-service-s3.yml",
       ]
 
       filegroup(
