@@ -136,6 +136,7 @@ jobs:
         mkdir -p "${TOOLS_DIR}"
         wget -O "${TOOLS_DIR}/gomplate" \
           https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
+        chmod a+x "${TOOLS_DIR}/gomplate"
 
     - name: Start SSH agent
       run: |
