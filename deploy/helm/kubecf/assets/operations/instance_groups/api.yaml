@@ -26,12 +26,16 @@
     name: sle15
     description: "SUSE Linux Enterprise-based filesystem"
 
+# See also instance group scheduler, job cc_deployment_updater
 - type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego/lifecycle_bundles?
-  value:
-    buildpack/sle15: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
-    buildpack/cflinuxfs3: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
-    docker: docker_app_lifecycle/docker_app_lifecycle.tgz
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego/lifecycle_bundles?/buildpack~1sle15
+  value: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego/lifecycle_bundles?/buildpack~1cflinuxfs3
+  value: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego/lifecycle_bundles?/docker
+  value: docker_app_lifecycle/docker_app_lifecycle.tgz
 {{- end }}
 
 {{- if .Values.testing.brain_tests.enabled}}

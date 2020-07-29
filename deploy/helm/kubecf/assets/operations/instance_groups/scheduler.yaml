@@ -23,6 +23,19 @@
       exec:
         command: ["pgrep", "--full", "deployment_updater:start"]
 
+{{- if .Values.features.suse_buildpacks.enabled }}
+# See also instance group api, job cloud_controller_ng
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/lifecycle_bundles/buildpack~1sle15
+  value: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/lifecycle_bundles/buildpack~1cflinuxfs3
+  value: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/lifecycle_bundles/docker
+  value: docker_app_lifecycle/docker_app_lifecycle.tgz
+{{- end }}
+
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
   value: ["/bin/sh", "-c", "ss -nlu src localhost:8125 | grep :8125"]
