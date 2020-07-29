@@ -70,7 +70,7 @@ ssh:
   replicaCount: 1
   image:
     repository: splatform
-    tag: v0.0.0-0.g04a3871
+    tag: v0.0.0-0.ge2ed1ab
     pullPolicy: IfNotPresent
   resources: {}
   nodeSelector: {}
@@ -94,7 +94,6 @@ ssh-proxy:
   nodeSelector: {}
   affinity: {}
   tolerations: []
-  externalIPs: []
 
   secrets:
     host-keys: var-diego-ssh-proxy-host-key
