@@ -33,8 +33,7 @@ For downstream projects, assuming they don't release as often as KubeCF, the fol
 
 ## Consequences
 
-- because we only allow patch releases for old major releases
+- we only allow patch releases for old major releases
 - more scenarios must be tested in our pipelines to ensure the upgrade paths work.
 - accurately using semver for KubeCF is important
 - should enforce [this ADR](https://github.com/cloudfoundry-incubator/kubecf/blob/master/doc/architecture/decisions/0002-git-commit-messages.md)
-
