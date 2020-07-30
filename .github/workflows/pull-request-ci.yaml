@@ -252,6 +252,7 @@ jobs:
     - run: make brain-tests
     - run: make sync-integration-tests
     - run: make acceptance-tests
+      timeout-minutes: 180
 
     - name: Get Resource Info
       if: always()
