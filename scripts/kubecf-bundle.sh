@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source scripts/include/setup.sh
 
-require_tools curl sha256sum
+require_tools cf_operator_url cf_operator_sha256 curl sha256sum
 
 # Set default target file
 if [ -z "${TARGET_FILE:-}" ]; then
@@ -16,11 +16,12 @@ mkdir "${BUNDLE_DIR}"
 
 # Download cf-operator chart
 CF_OPERATOR_FILE="${BUNDLE_DIR}/cf-operator.tgz"
-DOWNLOAD_URL="${CF_OPERATOR_URL//\{version\}/${CF_OPERATOR_VERSION}}"
-curl -s -L "${DOWNLOAD_URL}" -o "${CF_OPERATOR_FILE}"
+CF_OPERATOR_URL="$(cf_operator_url)"
+curl -s -L "${CF_OPERATOR_URL}" -o "${CF_OPERATOR_FILE}"
 
+CF_OPERATOR_SHA256="$(cf_operator_sha256)"
 if ! echo "${CF_OPERATOR_SHA256} ${CF_OPERATOR_FILE}" | sha256sum --check --status; then
-    die "sha256 for ${DOWNLOAD_URL} does not match ${CF_OPERATOR_SHA256}"
+    die "sha256 for ${CF_OPERATOR_URL} does not match ${CF_OPERATOR_SHA256}"
 fi
 
 # Build kubecf chart
