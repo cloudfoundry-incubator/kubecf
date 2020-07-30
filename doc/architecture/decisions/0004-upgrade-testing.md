@@ -17,17 +17,17 @@ That means any user operating a KubeCF deployment should:
 
 ## Decision
 
-- not allowed to have minor releases for version X.y.z if X+1 has been released (only patch releases)
-- for a version X.y.z, the upgrade path must be tested for:
-  - the previous X.*.* release
-  - version max(X-1.*.*)
+- not allowed to have minor releases for version `X.y.z` if `X+1` has been released (only patch releases)
+- for a version `X.y.z`, the upgrade path must be tested for:
+  - the previous `X.*.*` release
+  - version max(`X-1.*.*`)
 
 For downstream projects, assuming they don't release as often as KubeCF, the following rules should be in place:
 
 - there should be a release for each major KubeCF release
-- for a version X.y.z, the upgrade path must be tested for:
-  - the previous X.*.* release
-- if a version X.y.z cannot be upgraded from X.y-1.t, a new version X.y-1.t+1 must be created from a known upgradeable path in KubeCF.
+- for a version `X.y.z`, the upgrade path must be tested for:
+  - the previous `X.*.*` release
+- if a version `X.y.z` cannot be upgraded from `X.y-1.t`, a new version `X.y-1.t+1` must be created from a known upgradeable path in KubeCF.
 
 ![diagram](https://docs.google.com/drawings/d/e/2PACX-1vSK_9XqNiLbpzrQGnJ9BISSQq8DKTeE3yDjszyJfC7BdPuABO0QbAMMZruEoMnTFwhhtzCEGeXowqmh/pub?w=1037&h=918)
 
