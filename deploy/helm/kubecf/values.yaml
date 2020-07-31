@@ -108,11 +108,11 @@ releases:
     file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.32.1.1-57b38dd8.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.8.21.1"
+    version: "1.8.22.1"
     stemcell:
       os: SLE_15_SP1
       version: 27.1-7.0.0_374.gb8e8e6af
-    file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.21.1-1.1-eb7b3b65.zip
+    file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.22.1-1.1-1f05c374.zip
   suse-dotnet-core-buildpack:
     url: registry.suse.com/cap-staging
     version: "2.3.9.1"
