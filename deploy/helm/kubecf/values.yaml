@@ -266,10 +266,6 @@ features:
   eirini:
     # When eirini is enabled, both suse_default_stack and suse_buildpacks must be enabled as well.
     enabled: false
-    registry:
-      service:
-        # This setting is not currently configurable and must be HIDDEN
-        nodePort: 31666
   # To support multi-clusters, deploy diego-cell separately please set control_plane is false  and cell_segment is true
   multiple_cluster_mode:
     control_plane:
