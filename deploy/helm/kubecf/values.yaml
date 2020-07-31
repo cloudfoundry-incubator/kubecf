@@ -54,7 +54,7 @@ releases:
   brain-tests:
     version: v0.0.13
   cf-acceptance-tests:
-    version: 0.0.15
+    version: 0.0.16
   cflinuxfs3:
     version: 0.199.0
   credhub:
