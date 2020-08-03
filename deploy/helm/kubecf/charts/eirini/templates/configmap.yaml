@@ -18,7 +18,8 @@ data:
       registry_address: "registry.{{ index .Values.kube.external_ips 0 }}.nip.io:6666"
       {{- end }}
       registry_secret_name: {{ .Values.opi.registry_secret_name }}
-      eirini_address: "https://eirini-opi.{{ .Release.Namespace }}.svc.cluster.local:8085"
+      {{- $default_eirini_address := printf "https://eirini-opi.%s.svc:8085" .Release.Namespace }}
+      eirini_address: {{ default $default_eirini_address .Values.opi.eirini_address }}
 
       {{- if .Values.opi.staging.downloader_image }}
       downloader_image: "{{ .Values.opi.staging.downloader_image }}:{{ .Values.opi.staging.downloader_image_tag }}"
@@ -68,17 +69,29 @@ data:
       allow_run_image_as_root: false
   routing.yml: |
     app_namespace: {{ .Values.opi.namespace }}
-    nats_ip: "{{ .Values.opi.routing.nats.serviceName }}.{{ .Release.Namespace }}.svc.cluster.local"
+    {{- $serviceName := .Values.opi.routing.nats.serviceName }}
+    {{- if contains "." $serviceName | not }}
+    {{- $serviceName = printf "%s.%s.svc" $serviceName .Release.Namespace }}
+    {{- end }}
+    nats_ip: {{ $serviceName }}
     nats_port: 4222
   metrics.yml: |
     app_namespace: {{ .Values.opi.namespace }}
-    loggregator_address: "{{ .Values.opi.logs.serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:8082"
+    {{- $serviceName := .Values.opi.logs.serviceName }}
+    {{- if contains "." $serviceName | not }}
+    {{- $serviceName = printf "%s.%s.svc" $serviceName .Release.Namespace }}
+    {{- end }}
+    loggregator_address: "{{ $serviceName }}:8082"
     loggergator_cert_path: "/etc/eirini/secrets/doppler.crt"
     loggregator_key_path: "/etc/eirini/secrets/doppler.key"
     loggregator_ca_path: "/etc/eirini/secrets/doppler.ca"
   events.yml: |
     app_namespace: {{ .Values.opi.namespace }}
-    cc_internal_api: "https://{{ .Values.opi.cc_api.serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:9023"
+    {{- $serviceName := .Values.opi.cc_api.serviceName }}
+    {{- if contains "." $serviceName | not }}
+    {{- $serviceName = printf "%s.%s.svc" $serviceName .Release.Namespace }}
+    {{- end }}
+    cc_internal_api: "https://{{ $serviceName }}:9023"
     cc_cert_path: "/etc/eirini/secrets/cc.crt"
     cc_key_path: "/etc/eirini/secrets/cc.key"
     cc_ca_path: "/etc/eirini/secrets/cc.ca"

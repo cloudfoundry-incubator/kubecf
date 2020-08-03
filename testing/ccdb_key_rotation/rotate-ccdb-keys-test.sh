@@ -4,7 +4,6 @@ set -o errexit -o nounset #-o xtrace
 
 export KUBECF_NAMESPACE="${KUBECF_NAMESPACE:-kubecf}"
 export KUBECF_INSTALL_NAME="${KUBECF_INSTALL_NAME:-kubecf}"
-KUBECF_CHART_TARGET="${KUBECF_CHART_TARGET:-//deploy/helm/kubecf}"
 VALUES_FILE="${PWD}/ccdb-new-key-label.yaml"
 
 # - -- --- ----- -------- ------------- ---------------------
@@ -29,23 +28,6 @@ echo    "KubeCF deployment                ... $(blue "${KUBECF_INSTALL_NAME}")"
 echo
 
 # - -- --- ----- -------- ------------- ---------------------
-
-# Given a bazel target, output the file name it generates ending with
-# the given extension.
-get_output_file() {
-    local package="${1}"
-    local extension="${2}"
-    awk "
-    BEGIN { wanted_action = false }
-    wanted_action && match(\$0, /^  Outputs: \\[(.*)\\]/, output) {
-      print output[1];
-    }
-    /^[^ ]/ { wanted_action = 0 }
-    /^action.*\\.${extension}'\$/ {
-      wanted_action = 1
-    }
-  " <(bazel aquery "${package}:all" 2>/dev/null)
-}
 
 rotate_job_name() {
     kubectl get jobs --namespace "${KUBECF_NAMESPACE}" --output name 2> /dev/null | \
@@ -194,8 +176,9 @@ ccdb:
 EOF
 
 # Get the deployed chart (tarball)
-bazel build "${KUBECF_CHART_TARGET}"
-chart_file="${PWD}/$(get_output_file "${KUBECF_CHART_TARGET%:*}" "tgz")"
+make kubecf-build
+chart_file="$(find output -name 'kubecf-*.tgz' -type f -printf "%T+ %p\n" \
+                   | sort | tail -1 | tr -s ' ' | cut -d ' ' -f 2)"
 
 echo
 echo "Chart file ... $(blue "${chart_file}")"
