@@ -213,10 +213,6 @@
   value: ""
 
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/containerd_mode
-  value: false
-
-- type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/cleanup_process_dirs_on_wait
   value: false
 
