@@ -55,7 +55,7 @@ At the time of this writing these were:
 |kind          | 0.6.0             |                                    |
 |kubectl       | 1.15.6            |                                    |
 |Helm          | 3.0.3             |                                    |
-|CF Operator   | 5.0.0+0.gd7ac12bc |                                    |
+|CF Operator   | 5.2.0+0.g22cafc90 |                                    |
 |cf-deployment | 13.9.0           |                                    |
 
 __Note however__: As `kubecf` is updated these versions may change
