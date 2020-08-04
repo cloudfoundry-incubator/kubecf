@@ -22,7 +22,7 @@ That means any user operating a KubeCF deployment should:
   - the previous `X.*.*` release
   - the latest `X-1.*.*` release
 
-For downstream projects, assuming they don't release as often as KubeCF, the following rules should be in place:
+Therefore, for downstream projects, assuming they don't release as often as KubeCF, we recommend that the following rules should be in place:
 
 - there should be a release for each major KubeCF release
 - for a version `X.y.z`, the upgrade path must be tested for:
