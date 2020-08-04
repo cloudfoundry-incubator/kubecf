@@ -11,7 +11,7 @@ Accepted
 One of the goals of the KubeCF project is to offer a smooth experience when it comes to upgrading Cloud Foundry deployments.
 That means any user operating a KubeCF deployment should:
 
-- be able to easily identify which versions he can upgrade to
+- be able to easily identify which versions they can upgrade to
 - upgrade using documented procedures
 - have confidence that the exact version upgrade they are performing has been tested by the KubeCF team 
 
