@@ -24,18 +24,9 @@
 
 {{- end }}
 
-
-# Selectively remove jobs temporarily.
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=garden-cni
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=netmon
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=vxlan-policy-agent
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=silk-daemon
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=silk-cni
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=vxlan-policy-agent/properties/disable?
+  value: true
 
 # Enable BPM on garden.
 - type: replace
@@ -95,11 +86,16 @@
       job_name: "sle15-rootfs-setup"
       process_name: "sle15-rootfs-setup"
 
-# Temporarily remove garden network_plugin.
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin?
+  value: /var/vcap/data/runc-cni/bin/garden-external-networker
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden-cni/properties/cni_plugin_dir?
+  value: /var/vcap/data/silk-cni/bin
+
 - type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin
-- type: remove
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin_extra_args
+  path: /instance_groups/name=diego-cell/jobs/name=silk-cni/properties/dns_servers?
 
 # Add quarks properties for garden.
 - type: replace
@@ -194,6 +190,14 @@
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/quarks?/bpm/processes
+  value: []
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden-cni/properties/quarks?/bpm/processes
+  value: []
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=silk-cni/properties/quarks?/bpm/processes
   value: []
 
 - type: replace
