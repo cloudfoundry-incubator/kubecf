@@ -20,7 +20,7 @@ That means any user operating a KubeCF deployment should:
 - not allowed to have minor releases for version `X.y.z` if `X+1` has been released (only patch releases)
 - for a version `X.y.z`, the upgrade path must be tested for:
   - the previous `X.*.*` release
-  - version max(`X-1.*.*`)
+  - the latest `X-1.*.*` release
 
 For downstream projects, assuming they don't release as often as KubeCF, the following rules should be in place:
 
