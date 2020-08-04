@@ -13,7 +13,7 @@ That means any user operating a KubeCF deployment should:
 
 - be able to easily identify which versions he can upgrade to
 - upgrade using documented procedures
-- have confidence that the exact version upgrade he's doing has been tested by the KubeCF team 
+- have confidence that the exact version upgrade they are performing has been tested by the KubeCF team 
 
 ## Decision
 
