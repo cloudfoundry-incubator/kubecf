@@ -112,7 +112,7 @@ releases:
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.8.21.1"
-    file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.21.1-1.1-eb7b3b65.zip
+    file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.22.1-1.1-1f05c374.zip
   suse-dotnet-core-buildpack:
     url: registry.suse.com/cap-staging
     version: "2.3.9.1"
