@@ -1,7 +1,6 @@
 {{- $instance_groups := list }}
 
 {{- /* Core instance groups that always exist */}}
-{{- $instance_groups = append $instance_groups "adapter" }}
 {{- $instance_groups = append $instance_groups "api" }}
 {{- $instance_groups = append $instance_groups "cc-worker" }}
 {{- $instance_groups = append $instance_groups "diego-api" }}

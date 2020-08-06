@@ -1,11 +1,3 @@
-# Add quarks properties for the scheduler job.
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/quarks?/run/healthcheck/scheduler
-  value:
-    readiness:
-      exec:
-        command: ["curl", "--fail", "--head", "--silent", "http://127.0.0.1:8080/health"]
-
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/quarks?/run/healthcheck/cloud_controller_clock
   value:
@@ -21,12 +13,28 @@
       exec:
         command:
         # We should sleep about once every 5 seconds; check that the last entry was no more than 2 cycles ago
-        - sh
+        - /bin/sh
         - -c
-        - tac /var/vcap/sys/log/cc_deployment_updater/cc_deployment_updater.log | grep --max-count=1 Sleeping | jq -r '(now - .timestamp) < 10'
+        - >
+          tac /var/vcap/sys/log/cc_deployment_updater/cc_deployment_updater.log
+          | grep --max-count=1 Sleeping
+          | jq -e '.timestamp | gsub(".[0-9]+Z$"; "Z") | fromdate | now - . | . < 10'
     liveness:
       exec:
         command: ["pgrep", "--full", "deployment_updater:start"]
+
+{{- if .Values.features.suse_buildpacks.enabled }}
+# See also instance group api, job cloud_controller_ng
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/lifecycle_bundles/buildpack~1sle15
+  value: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/lifecycle_bundles/buildpack~1cflinuxfs3
+  value: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/diego?/lifecycle_bundles/docker
+  value: docker_app_lifecycle/docker_app_lifecycle.tgz
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
@@ -55,6 +63,14 @@
           readiness:
             httpGet:
               port: 2223
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=service-discovery-controller/properties/quarks?/run/healthcheck/service-discovery-controller
+  value:
+    readiness:
+      # Proper connection requires a TLS client cert; that's not worth it right now.
+      tcpSocket:
+        port: 8054
 
 # Add necessary labels to the scheduler instance group so that the service can select it to create
 # the endpoint.
