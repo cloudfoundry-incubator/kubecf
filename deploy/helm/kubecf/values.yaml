@@ -70,6 +70,9 @@ releases:
       tag: 0.9.4
   postgres:
     version: "39"
+  silk:
+    stemcell:
+      version: 27.2-7.0.0_374.gb8e8e6af
   sle15:
     version: "10.93"
   sync-integration-tests:
