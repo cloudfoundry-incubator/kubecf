@@ -21,6 +21,12 @@
     - name: nats-routes
       protocol: TCP
       internal: 4223
+    - name: nats-tls
+      protocol: TCP
+      internal: 4224
+    - name: nats-tls-routes
+      protocol: TCP
+      internal: 4225
     run:
       healthcheck:
         nats:

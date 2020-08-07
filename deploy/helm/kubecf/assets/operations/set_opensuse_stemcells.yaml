@@ -7,10 +7,19 @@
     os: {{ .Values.releases.defaults.stemcell.os | quote }}
     version: {{ .Values.releases.defaults.stemcell.version | quote }}
 
-- type: replace
-  path: /addons/name=loggregator_agent/include/stemcell/os=ubuntu-xenial/os
-  value: {{ .Values.releases.defaults.stemcell.os | quote }}
+{{- $addons := list }}
+{{- $addons = append $addons "forwarder_agent" }}
+{{- $addons = append $addons "loggr-syslog-agent" }}
+{{- $addons = append $addons "loggregator_agent" }}
+{{- /*
+These are disabled as we don't use use them yet, and don't have images
+{{- $addons = append $addons "metrics-agent" }}
+{{- $addons = append $addons "metrics-discovery-registrar" }}
+*/}}
+{{- $addons = append $addons "prom_scraper" }}
 
+{{- range $addon := $addons }}
 - type: replace
-  path: /addons/name=forwarder_agent/include/stemcell/os=ubuntu-xenial/os
-  value: {{ .Values.releases.defaults.stemcell.os | quote }}
+  path: /addons/name={{ $addon }}/include/stemcell/os=ubuntu-xenial/os
+  value: {{ $.Values.releases.defaults.stemcell.os | quote }}
+{{- end }}

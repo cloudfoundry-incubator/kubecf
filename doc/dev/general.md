@@ -138,17 +138,21 @@ This has to happen before deploying kubecf.
 helm install stable/nginx-ingress \
   --name ingress \
   --namespace ingress \
-  --set "tcp.2222=kubecf/kubecf-scheduler:2222" \
-  --set "tcp.<services.tcp-router.port_range.start>=kubecf/kubecf-tcp-router:<services.tcp-router.port_range.start>" \
+  --set "tcp.2222=kubecf/ssh-proxy-public:2222" \
+  --set "tcp.<services.tcp-router.port_range.start>=kubecf/tcp-router:<services.tcp-router.port_range.start>" \
   ...
-  --set "tcp.<services.tcp-router.port_range.end>=kubecf/kubecf-tcp-router:<services.tcp-router.port_range.end>"
+  --set "tcp.<services.tcp-router.port_range.end>=kubecf/tcp-router:<services.tcp-router.port_range.end>"
 ```
 
-The `tcp.<port>` option uses the NGINX TCP pass-through.
+The `tcp.<port>` option uses the NGINX TCP pass-through (docs: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services/).
 
 In the case of the `tcp-router` ports, one `--set` for each port is required, starting with
 `services.tcp-router.port_range.start` and ending with `services.tcp-router.port_range.end`. Those
 values are defined on the `values.yaml` file with default values.
+
+If you are deploying with Eirini your ssh-proxy service will be named differently (`eirinix-ssh-proxy`), make sure you use the correct value
+for `tcp.2222` (the ssh-proxy service). The above command assumes you deployed kubecf in a namespace called `kubecf`.
+If you used a different name, make sure you adapt the command.
 
 ##### Configure kubecf
 

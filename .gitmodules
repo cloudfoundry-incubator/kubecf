@@ -1,3 +1,6 @@
 [submodule "src/cf-deployment"]
 	path = src/cf-deployment
 	url = https://github.com/cloudfoundry/cf-deployment
+[submodule "src/kubecf-tools"]
+	path = src/kubecf-tools
+	url = https://github.com/cloudfoundry-incubator/kubecf-tools

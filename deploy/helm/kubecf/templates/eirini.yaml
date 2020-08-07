@@ -50,20 +50,4 @@ metadata:
   name: var-cc-bridge-cc-uploader
   namespace: {{ .Values.eirini.opi.namespace | quote }}
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: eirini-registry
-  namespace: {{ .Release.Namespace | quote }}
-spec:
-  type: NodePort
-  selector:
-    name: "bits"
-  ports:
-    - protocol: TCP
-      port: 6666
-      targetPort: 6666
-      nodePort: {{ .Values.features.eirini.registry.service.nodePort }}
-
 {{- end }}

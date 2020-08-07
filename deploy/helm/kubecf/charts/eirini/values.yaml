@@ -12,6 +12,7 @@ opi:
   version: 0.0.0
 
   cc_api:
+    # The service that the CC API listens on; may be a FQDN instead.
     serviceName: "api"
 
   tls:
@@ -44,6 +45,7 @@ opi:
 
   logs:
     enable: true
+    # The service that doppler is listening on; may be a FQDN instead.
     serviceName: "doppler-doppler"
     tls:
       client:
@@ -74,6 +76,7 @@ opi:
     nats:
       secretName: "secrets-2.16.4-2"
       passwordPath: "nats-password"
+      # The service that NATS listens on; may be a FQDN instead.
       serviceName: "nats-nats"
 
   secretSmuggler:

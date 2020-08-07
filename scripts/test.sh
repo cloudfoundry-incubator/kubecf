@@ -5,26 +5,21 @@ require_tools kubectl
 
 : "${TEST:=smoke}"
 
-# Trigger the test.
-kubectl patch qjob "${TEST}-tests" \
-  --namespace "${KUBECF_NS}" \
-  --type merge \
-  --patch '{ "spec": { "trigger": { "strategy": "now" } } }'
-
 pod_name() {
   kubectl get pods \
     --namespace "${KUBECF_NS}" \
     --selector "quarks.cloudfoundry.org/qjob-name=${TEST}-tests" \
     --output name \
     | sed 's|^pod\/||' \
-    | grep "${TEST}-tests"
+    | grep "${TEST}-tests" \
+    | sort
 }
 
 container_name() {
-  kubectl get pods \
+  local pod_name="${1}"
+  kubectl get "pods/${pod_name}" \
     --namespace "${KUBECF_NS}" \
-    --selector "quarks.cloudfoundry.org/qjob-name=${TEST}-tests" \
-    --output jsonpath='{ .items[].spec.containers[0].name }'
+    --output jsonpath='{ .spec.containers[0].name }'
 }
 
 is_container_running() {
@@ -41,13 +36,18 @@ is_container_running() {
 # Wait for test pod to start.
 wait_for_test_running() {
   local timeout="300"
-  until pod_name 1> /dev/null || [[ "$timeout" == "0" ]]; do
+  local new_pod_names pod_name
+  while [[ "${timeout}" -gt 0 ]]; do
+    new_pod_names="$(pod_name)"
+    pod_name="$(comm -13 <(echo "${existing_pods}") <(echo "${new_pod_names}"))"
+    if [[ -n "${pod_name}" ]]; then
+      break
+    fi
     sleep 1
     timeout=$((timeout - 1))
   done
   if [[ "${timeout}" == 0 ]]; then return 1; fi
-  pod_name="$(pod_name)"
-  container_name="$(container_name)"
+  container_name="$(container_name "${pod_name}")"
   until is_container_running "${pod_name}" "${container_name}" || [[ "$timeout" == "0" ]]; do
     sleep 1
     timeout=$((timeout - 1))
@@ -56,6 +56,14 @@ wait_for_test_running() {
   return 0
 }
 
+# Trigger the test.
+kubectl patch qjob "${TEST}-tests" \
+  --namespace "${KUBECF_NS}" \
+  --type merge \
+  --patch '{ "spec": { "trigger": { "strategy": "now" } } }'
+
+existing_pods="$(pod_name || echo)"
+
 echo "Waiting for the ${TEST}-tests pod to start..."
 wait_for_test_running || {
   >&2 echo "Timed out waiting for the ${TEST}-tests pod"
@@ -63,8 +71,9 @@ wait_for_test_running || {
 }
 
 # Tail the test logs.
-pod_name="$(pod_name)"
-container_name="$(container_name)"
+new_pods="$(pod_name)"
+pod_name="$(comm -13 <(echo "${existing_pods}") <(echo "${new_pods}"))"
+container_name="$(container_name "${pod_name}")"
 kubectl logs "${pod_name}" \
   --follow \
   --namespace "${KUBECF_NS}" \

@@ -60,8 +60,8 @@ At the time of this writing these were:
 | ruby          |                 2.4 |       |
 | shellcheck    |               0.7.0 |       |
 | yamllint      |                1.23 |       |
-| CF Operator   | 5.0.0-2B0.gd7ac12bc |       |
-| cf-deployment |             12.18.0 |       |
+| CF Operator   |   5.2.0+0.g22cafc90 |       |
+| cf-deployment |              13.9.0 |       |
 
 __Note however__: As `kubecf` is updated these versions may change
 from commit to commit.  The table above is therefore

@@ -3,10 +3,10 @@
 ## Bump release versions
 
 - Update the target `cf-deployement` version and sha256 in
-  https://github.com/SUSE/kubecf/blob/master/def.bzl.
+  https://github.com/SUSE/kubecf/blob/master/dependencies.yaml.
 
-- Update the `buildpack` file paths in
-  https://github.com/SUSE/kubecf/blob/master/deploy/helm/kubecf/assets/operations/instance_groups/api.yaml
+- Update the `buildpack` version numbers / file paths in
+  https://github.com/SUSE/kubecf/blob/master/deploy/helm/kubecf/values.yaml
   to reflect corresponding versions in `cf-deployment`.
 
 ## Inspecting changes
