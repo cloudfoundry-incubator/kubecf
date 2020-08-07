@@ -8,13 +8,13 @@ projection() {
 }
 
 # Extract timestamps of first and last event entry
-start=$(head -1 $1 | projection 2)
-done=$(tail -1 $1 | projection 2)
+start=$(head -1 "${1}" | projection 2)
+done=$(tail -1 "${1}" | projection 2)
 
 # Compute difference in seconds, then convert to minutes and seconds.
-delta=$(expr $done - $start)
-min=$(expr $delta / 60)
-sec=$(expr $delta - 60 '*' $min)
+delta=$(( done - start ))
+min=$(( delta / 60 ))
+sec=$(( delta - 60 * min ))
 
 # Show range in both forms.
-echo ${delta}s = ${min}m:${sec}s
+echo "${delta}s = ${min}m:${sec}s"

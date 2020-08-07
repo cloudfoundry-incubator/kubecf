@@ -16,7 +16,7 @@ The tools require a working ruby in the `PATH`. It has to support the
 
 ### Watching startup
 
-The main tool is `upwatch`.
+The main tool is `upwatch.rb`.
 
 Invoke it with the name of the namespace to watch, and redirect its
 `stderr` to a file to capture the events it emits. The tool uses
@@ -30,7 +30,7 @@ Stop watching by aborting the command with Ctrl-C.
 ```
 % pwd
 /home/work/SUSE/dev/kubecf-1
-% dev/kube/ig-tools/upwatch kubecf 2> sequence.txt
+% dev/kube/ig-tools/upwatch.rb kubecf 2> sequence.txt
 ... (continuous display of kubecf state)
 ^C
 %
@@ -38,7 +38,7 @@ Stop watching by aborting the command with Ctrl-C.
 
 ### Postprocessing
 
-The tools `extent` and `sequence` can post-process a sequence/event
+The tools `extent.sh` and `sequence.rb` can post-process a sequence/event
 file. Invoked with the path to the sequence/event file they
 respectively return (on `stdout`)
 
@@ -57,7 +57,7 @@ from it.
 ```
 % pwd
 /home/work/SUSE/dev/kubecf-1
-% dev/kube/ig-tools/extent sequence.txt
+% dev/kube/ig-tools/extent.sh sequence.txt
 2831s = 47m:11s
-% dev/kube/ig-tools/sequence sequence.txt > sequence.svg
+% dev/kube/ig-tools/sequence.rb sequence.txt > sequence.svg
 ```
