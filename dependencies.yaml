@@ -134,10 +134,8 @@ bazel_libs:
 
       files = [
           "cf-deployment.yml",
-          "operations/bits-service/use-bits-service.yml",
           "operations/use-external-blobstore.yml",
           "operations/use-s3-blobstore.yml",
-          "operations/bits-service/configure-bits-service-s3.yml",
       ]
 
       filegroup(
@@ -147,10 +145,10 @@ bazel_libs:
 
       exports_files(files)
 
-    sha256: 7207c4e2bb2a5e1751d6393cff5621f2c84260f9a4646c91984f53c9890ca3d2
+    sha256: 8c807a1443b415e6c67bcba67d0ec55127a59cc133ef5a40ee097185990b4b95
     strip_prefix: cf-deployment-{version}
     url: https://github.com/cloudfoundry/cf-deployment/archive/v{version}.tar.gz
-    version: 12.36.0
+    version: 13.9.0
   com_github_kubernetes_incubator_metrics_server:
     build_file_content: |
       package(default_visibility = ["//visibility:public"])

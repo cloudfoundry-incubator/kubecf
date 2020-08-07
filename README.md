@@ -42,28 +42,33 @@ These are:
 |[cf-operator]  | Processes BOSH deployments. Maps them to kube objects. |
 |[cf-deployment]| The CF release at the core of `kubecf`.                |
 
-As most of the developers use the `Bazel` build system coming with the
+As most of the developers use the `Make & Bash` build system coming with the
 `kubecf` repository, they implicitly use the versions for the tools
-set down in `Bazel`'s main project configuration file, `def.bzl`.
+set down in __scripts/tools/*__. At the time of writing, these are:
 
 At the time of this writing these were:
 
-| Tool         | Version           | Notes                              |
-|---           |---                |---                                 |
-|Kubernetes    | 1.15.6            |                                    |
-|minikube      | 1.6.2             |                                    |
-|kind          | 0.6.0             |                                    |
-|kubectl       | 1.15.6            |                                    |
-|Helm          | 3.0.3             |                                    |
-|CF Operator   | 2.0.0-0.g0142d1e9 |                                    |
-|cf-deployment | 12.18.0           |                                    |
+| Tool          |             Version | Notes |
+|---------------|---------------------|-------|
+| Kubernetes    |              1.17.5 |       |
+| minikube      |               1.9.2 |       |
+| kind          |               0.6.0 |       |
+| kubectl       |              1.17.0 |       |
+| Helm          |               3.0.3 |       |
+| jq            |                 1.6 |       |
+| python3       |                 3.3 |       |
+| ruby          |                 2.4 |       |
+| shellcheck    |               0.7.0 |       |
+| yamllint      |                1.23 |       |
+| CF Operator   |   5.2.0+0.g22cafc90 |       |
+| cf-deployment |              13.9.0 |       |
 
 __Note however__: As `kubecf` is updated these versions may change
 from commit to commit.  The table above is therefore
 __not authoritative__.
 
-__Always__ check the contents of `def.bzl` for the authoritative
-answer.
+__Always__ check the contents of __dependencies.yaml__ and
+__scripts/tools/*__ for the authoritative answer.
 
 __Note further__: Just because the build system provides targets to
 conveniently bring up a local k8s cluster using minikube or kind, this

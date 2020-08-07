@@ -48,119 +48,105 @@ releases:
     url: docker.io/cfcontainerization
     stemcell:
       os: SLE_15_SP1
-      version: 25.2-7.0.0_374.gb8e8e6af
+      version: 27.1-7.0.0_374.gb8e8e6af
   app-autoscaler:
     version: 3.0.1
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.3-7.0.0_374.gb8e8e6af
-  bits-service:
-    version: 2.28.0
   brain-tests:
     version: v0.0.13
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
   cf-acceptance-tests:
-    version: 0.0.13
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
-  cf-smoke-tests:
-    version: 40.0.128
-    stemcell:
-      os: SLE_15_SP1
-      version: 25.2-7.0.0_374.gb8e8e6af
+    version: 0.0.16
   cflinuxfs3:
     version: 0.202.0
     stemcell:
       os: SLE_15_SP1
       version: 27.2-7.0.0_374.gb8e8e6af
+    version: 0.199.0
+  credhub:
+    version: 2.7.1
+  eirini:
+    version: 0.0.27
+  loggregator-agent:
+    version: 6.1.0
   # pxc is not a BOSH release.
   pxc:
     image:
       repository: docker.io/cfcontainerization/pxc
       tag: 0.9.4
-  eirini:
-    version: 0.0.27
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
   postgres:
     version: "39"
+  silk:
+    stemcell:
+      version: 27.2-7.0.0_374.gb8e8e6af
   sle15:
     version: "10.93"
   sync-integration-tests:
     version: v0.0.3
+
+  # The buildpack versions need to be explict so we can get the right files to install.
+  # See assets/operations/instance_groups/api.yaml - search for "install_buildpacks"
+  binary-buildpack:
+    version: 1.0.36
+  dotnet-core-buildpack:
+    version: 2.3.12
+  go-buildpack:
+    version: 1.9.14
+  java-buildpack:
+    # Of course java-buildpack is weird - dash vs underscore on the file name
+    file: java-buildpack-cflinuxfs3-v4.32.zip
+  nginx-buildpack:
+    version: 1.1.1
+  nodejs-buildpack:
+    version: 1.7.24
+  php-buildpack:
+    version: 4.4.18
+  python-buildpack:
+    version: 1.7.16
+  r-buildpack:
+    version: 1.1.0
+  ruby-buildpack:
+    version: 1.8.21
+  staticfile-buildpack:
+    version: 1.5.9
+
   suse-staticfile-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.5.9.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 27.2-7.0.0_374.gb8e8e6af
     file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.9.1-1.1-a0f266f5.zip
   suse-java-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.32.1.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 27.2-7.0.0_374.gb8e8e6af
     file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.32.1.1-57b38dd8.zip
   suse-ruby-buildpack:
     url: registry.suse.com/cap-staging
-    version: "1.8.22.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 27.2-7.0.0_374.gb8e8e6af
+    version: "1.8.21.1"
     file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.22.1-1.1-1f05c374.zip
   suse-dotnet-core-buildpack:
     url: registry.suse.com/cap-staging
     version: "2.3.9.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 27.2-7.0.0_374.gb8e8e6af
     file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.9.1-1.1-e74bd89e.zip
   suse-nodejs-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.24.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 27.2-7.0.0_374.gb8e8e6af
     file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.24.1-1.1-3642228f.zip
   suse-go-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.9.15.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 27.2-7.0.0_374.gb8e8e6af
     file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.15.1-1.1-aa618926.zip
   suse-python-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.7.16.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 27.2-7.0.0_374.gb8e8e6af
     file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.16.1-1.1-ae2e4da3.zip
   suse-php-buildpack:
     url: registry.suse.com/cap-staging
     version: "4.4.18.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 27.2-7.0.0_374.gb8e8e6af
     file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.18.1-1.1-c83670cc.zip
   suse-nginx-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.1.7.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 27.2-7.0.0_374.gb8e8e6af
     file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.7.1-1.1-fbf90d1f.zip
   suse-binary-buildpack:
     url: registry.suse.com/cap-staging
     version: "1.0.36.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 27.2-7.0.0_374.gb8e8e6af
     file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
 
 # Set to true to enable support for multiple availability zones.

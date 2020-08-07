@@ -18,8 +18,6 @@ find "${HELM_DIR}" \( -name "*.bazel" -o -name "*.bzl" -o -name ".*" \) -delete
 cp src/cf-deployment/cf-deployment.yml "${HELM_DIR}/assets"
 cp src/cf-deployment/operations/use-external-blobstore.yml "${HELM_DIR}/assets"
 cp src/cf-deployment/operations/use-s3-blobstore.yml "${HELM_DIR}/assets"
-cp src/cf-deployment/operations/bits-service/use-bits-service.yml "${HELM_DIR}/assets"
-cp src/cf-deployment/operations/bits-service/configure-bits-service-s3.yml "${HELM_DIR}/assets"
 
 mkdir -p "${HELM_DIR}/assets/jobs"
 

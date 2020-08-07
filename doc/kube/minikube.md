@@ -11,16 +11,16 @@ the intended deployment.
 
 ## Deployment and teardown
 
-For developing with Minikube, start a local cluster by running the `start` target:
+For developing with Minikube, start a local cluster by running the following target:
 
 ```sh
-bazel run //dev/minikube:start
+make minikube-start
 ```
 
 And tear it down again via:
 
 ```sh
-bazel run //dev/minikube:delete
+make minikube-delete
 ```
 
 ## Managing system resources

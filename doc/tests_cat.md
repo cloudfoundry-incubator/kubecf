@@ -1,7 +1,6 @@
 # Acceptance tests
 
-The bazel target __//testing:acceptance_tests__ starts a run of the
-[Cloud Foundry Acceptance Tests].
+The `make cats` target starts a run of the [Cloud Foundry Acceptance Tests].
 
 [Cloud Foundry Acceptance Tests]: https://github.com/SUSE/cf-acceptance-tests-release
 

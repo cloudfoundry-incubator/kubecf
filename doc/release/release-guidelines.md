@@ -27,30 +27,9 @@ Check [here](https://github.com/cloudfoundry-incubator/kubecf/branches) if the r
 ![](https://i.imgur.com/n8DHyeF.png)
 
 
-## Files to Change
+## Version
 
-Add the version to the KubeCF helm chart target in _deploy/helm/kubecf/BUILD.bazel_:
-> ```version = "2.0.0"```
-
-As an example:
-```
-helm_package(
-    name = "kubecf",
-    srcs = [
-        ":chart_files_static",
-    ],
-    generated = [
-        ":metadata",
-    ],
-    tars = [
-        "//bosh/releases:pre_render_scripts",
-        ":cf_deployment",
-        ":extracted_jobs",
-    ],
-    version = "v2.0.0",
-)
-```
-
+Version string is obtained from the last git tag present in parents.
 
 ## Concourse
 
@@ -70,9 +49,9 @@ branches:
 pr_base_branch: release-X.Y
 ```
 
-Commit the config into the release branch:
+Open a PR with a commit of the config into the release branch:
 ```
-> git add .concourse/kubecf-release-X.Y.yaml; git commit -m "Add release-X.Y config"; git push
+> git add .concourse/kubecf-release-X.Y.yaml; git commit -m "Add kubecf-release-X.Y pipeline config"; git push
 ```
 
 Login to the Concourse server:
