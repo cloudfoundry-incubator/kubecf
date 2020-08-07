@@ -30,10 +30,9 @@ during runtime of the job container for a specific instance_group.
 ## Machinery
 
 The parent and sibling directories (__bosh/releases__ and
-__bosh/releases/generators__) contain supporting code (bazel
-machinery) which will automatically convert the script files into the
-proper ops files for use by the CF operator, as part of the overall
-generation of the kubecf helm chart.
+__bosh/releases/generators__) will be used in __scripts/kubecf-build.sh__ to
+convert the script files into the proper ops files for use by the CF operator,
+as part of the overall generation of the kubecf helm chart.
 
 It is this machinery which depends on the
 `<instance_group>/<job>/<type>/<script>` structure noted above.
