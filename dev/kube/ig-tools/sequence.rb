@@ -10,17 +10,19 @@
 # Usage:
 # sequence /path/to/event/file > /path/to/svg/result
 
+ROW_HEIGHT = 20
+
 def main
-  emit *(process ingest cmdline)
+  emit(*(process ingest cmdline))
 end
 
 def cmdline
-  usage if ARGV.length != 1
+  usage unless ARGV.length == 1
   ARGV.first
 end
 
 def usage
-  STDERR.puts 'Usage: sequence /path/to/event/file'
+  warn 'Usage: sequence /path/to/event/file'
   exit 1
 end
 
@@ -28,120 +30,144 @@ def ingest(path)
   File.read(path).split("\n")
 end
 
-def process(lines)
-  base   = lines.first.split[1].to_i
-  xmax   = 0
-  height = 20
+# A singluar event, as read from the input file.
+Event = Struct.new(
+  :pod,    # The name of the pod
+  :state,  # The state of the event
+  :stamp,  # Timestamp of the event, in seconds since epoch
+  :offset, # Timestamp of the event, in seconds since start of run
+  keyword_init: true
+)
 
-  note = {}
-  s    = {}
+# Parse the input file, returning a list of events.
+def read_events(lines)
+  # Each line has 4 fields:
+  # - The word "change"
+  # - A timestamp, as seconds from epoch
+  # - The state of a pod (e.g. "Pending", "Init:0/1", "Run:1/2", ...)
+  # - The name of the pod.
+  # For example: "change 1596841778 Ready uaa-0"
 
-  # I. Separate events per igroup, and zero timestamps to the base.
-  #    Keep the largest timestamp (= youngest/last event) per igroup.
-  lines.each do |line|
-    (_unused_, stamp, state, ig) = line.split
-    x = stamp.to_i - base
-    note[ig] = x
-    xmax = x
-    s[ig] ||= []
-    s[ig] << [state, x, height]
+  entries = lines.map do |line|
+    (_, stamp, state, pod) = line.split
+    Event.new(stamp: stamp.to_i, state: state, pod: pod)
   end
-
-  # s    : ig -> list (tuple(state x h))
-  # note : ig -> (max-x)
-
-  # II. Collect igroup and last timestamp, for sorting.
-  gs = []
-  s.each { |key, _value| gs << [note[key], key] }
-
-  # Generate final sequencing per igroup for diagram emission
-  dia = {}
-  y = 0
-  gs.sort.each do |el|
-    ig = el[1]
-    y += height
-
-    # Get actions, add a fake for closure of true last event.
-    actions = s[ig]
-    actions << ['', note[ig] + 5, 0]
-
-    note[ig] = y
-
-    # Compute location and dimensions of the events. The width is
-    # computed against the following event. Height is fixed. Vertical
-    # location increments from igroup to igroup. Each round actually
-    # operates on the previous element, using the current for the
-    # widrh calculation.
-
-    dia[ig] = []
-    prev = actions.first
-    actions[1, actions.length - 1].each do |now|
-      (state, x, h) = prev
-      w = now[1] - x
-      dia[ig] << [state, x, y, w, h]
-      prev = now
-    end
-  end
-
-  # dia  : ig -> list (tuple(state x y w h))
-  # note : ig -> y
-
-  [dia, note, xmax, y, height]
+  base = entries.map(&:stamp).min
+  entries.each { |entry| entry.offset = entry.stamp - base }
 end
 
-def emit(dia, note, xmax, ymax, height)
+# Group events by the pod name, and sort them by ending time (using the pod name
+# as a tie-breaker).
+def sort_events(all_events)
+  all_events.group_by(&:pod).sort_by { |name, ev| [ev.last.stamp, name] }
+end
+
+# An Action desribes one rectangle to be drawn in the graph
+Action = Struct.new(
+  :state,          # The state this action represents, e.g. "Completed"
+  :start,          # A Time that this action started at
+  :x, :y,          # Top left corner of this action
+  :width, :height, # Size of the rectangle
+  keyword_init: true
+)
+
+def process(lines)
+  all_events = sort_events(read_events(lines))
+
+  # Generate the diagram data, a map of pod name -> list(action)
+  diagram = all_events.each_with_index.map do |(pod_name, events), index|
+    # Add a fake event for closure of true last event.
+    events << Event.new(
+      stamp: events.last.stamp + 5,
+      offset: events.last.offset + 5
+    )
+    [pod_name, make_actions(events, index, ROW_HEIGHT)]
+  end.to_h
+
+  # xmax is the _right_ edge of the last event
+  # (or rather, left edge of the fake event)
+  xmax = all_events.flat_map(&:last).map(&:offset).max
+
+  [diagram, xmax, all_events.length * ROW_HEIGHT, ROW_HEIGHT]
+end
+
+# Compute location and dimensions of the events. The width is
+# computed against the following event. Height is fixed. Vertical
+# location increments from igroup to igroup.
+def make_actions(events, index, height)
+  events.each_cons(2).map do |event, next_event|
+    Action.new(
+      state: event.state,
+      start: Time.at(event.stamp),
+      x: event.offset,
+      y: (index + 1) * height,
+      width: next_event.stamp - event.stamp,
+      height: height
+    )
+  end
+end
+
+# Emit the SVG graph, given the graph data, dimensions of the graph, and row
+# height.
+def emit(dia, xmax, ymax, height)
   ehead xmax, ymax, height
 
-  dia.keys.sort.each do |ig|
-    e = nil
-    dia[ig].each do |el|
-      (_, x, _, w,) = el
-      ebox *el
-      e = x + w
+  dia.each_pair do |pod_name, actions|
+    actions.each do |el|
+      title = "#{pod_name}: #{el.state} started @#{el.start} for #{el.width}s"
+      ebox text: el.state, x_pos: el.x, y_pos: el.y,
+           width: el.width, height: el.height, title: title
     end
-    etext ig, e + 2, height / 2 + note[ig]
+    etext pod_name, actions.last.x + actions.last.width + 2, actions.last.y + 2
   end
   etail
 end
 
+# Emit the SVG file header
 def ehead(xmax, ymax, height)
   xmax += 100        # give space to the (last) text for ig's, to the right
   ymax += 2 * height # give space to the last row, down
-  puts "<svg width='#{xmax}' height='#{ymax}' xmlns='http://www.w3.org/2000/svg'>"
-  ebox '<BG>', 0, 0, xmax, ymax
+  puts %(
+    <svg width='#{xmax}' height='#{ymax}' xmlns='http://www.w3.org/2000/svg'>
+  )
+  ebox text: '<BG>', x_pos: 0, y_pos: 0, width: xmax, height: ymax
 end
 
-def etext(text, x, y)
-  puts "<text x='#{x}' y='#{y}'>#{text}</text>"
+# Emit some text at the given position (given as the top-left corner).
+def etext(text, x_pos, y_pos)
+  puts %(
+    <text
+      x='#{x_pos}' y='#{y_pos}'
+      style='dominant-baseline: text-before-edge;'
+    >#{text}</text>
+  )
 end
 
+# Emit the SVG file trailer
 def etail
   puts '</svg>'
 end
 
-def ebox(text, x, y, w, h)
-  c = color text
-  puts "<rect x='#{x}' y='#{y}' width='#{w}' height='#{h}' style='fill:#{c};stroke:black'/>"
-  # etext text, x, y if text
+# ebox emits a box at (x, y)+(width, height) with color based on the text
+def ebox(text:, x_pos:, y_pos:, width:, height:, title: '')
+  puts %(
+    <rect
+      x="#{x_pos}" y="#{y_pos}" width="#{width}" height="#{height}"
+      style="fill: #{color text}; stroke: black;">
+        <title>#{title}</title>
+    </rect>
+  )
 end
 
 def color(text)
-  return 'lightblue' if text =~ /Init:.*/
-  return 'yellow'    if text =~ /Run:.*/
-
-  {
-    '<BG>' => 'white',
-    'Pending'               => 'yellow',
-    'PodInitializing'       => 'yellow',
-    'ContainerCreating'     => 'yellow',
-    'Error'                 => 'red',
-    'CrashLoopBackOff'      => 'orange',
-    'Init:CrashLoopBackOff' => 'orange',
-    'Ready'                 => 'green',
-    'Completed'             => 'green',
-    'Terminating'           => 'orange'
-  }[text]
+  case text
+  when '<BG>'                                            then 'white'
+  when 'Error'                                           then 'red'
+  when /(?:Init:)?CrashLoopBackOff|Terminating/          then 'orange'
+  when /^Init:/                                          then 'lightblue'
+  when /Pending|PodInitializing|ContainerCreating|^Run:/ then 'yellow'
+  when 'Ready', 'Completed'                              then 'green'
+  end
 end
 
 main
-exit

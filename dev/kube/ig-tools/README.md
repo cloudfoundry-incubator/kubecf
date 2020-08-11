@@ -9,8 +9,7 @@ The tooling in this directory is meant to rectify that, somewhat.
 
 ## Requirements
 
-The tools require a working ruby in the `PATH`. It has to support the
-`open3` package.
+The tools must be run with `ruby`.
 
 ## Usage
 
@@ -23,7 +22,9 @@ Invoke it with the name of the namespace to watch, and redirect its
 `kubectl` internally to watch the namespace. The environment variable
 `KUBECONFIG` can be used to point it at the correct cluster.
 
-Stop watching by aborting the command with Ctrl-C.
+Stop watching by aborting the command with Ctrl-C.  It will also automatically
+stop watching after all pods in the pod are ready (with a minimum of three pods
+to filter out partially completed deployments).
 
 #### Example
 
@@ -42,7 +43,7 @@ The tools `extent.sh` and `sequence.rb` can post-process a sequence/event
 file. Invoked with the path to the sequence/event file they
 respectively return (on `stdout`)
 
-  - The size of the time interval covered by the events. IOW the time
+  - The size of the time interval covered by the events. In other words the time
     required by kubecf to fully start.
 
   - An SVG-formatted diagram visualizing the sequence of events.

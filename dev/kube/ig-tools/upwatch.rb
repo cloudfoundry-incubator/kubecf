@@ -17,10 +17,9 @@
 # is unchanging.
 ##
 # Note: The tool aborts if `kubectl` fails with an error (except for
-# `No resources`, that just means that the namespace is empty.
+# `No resources`, that just means that the namespace is empty).
 ##
-# Note: The user has to stop the tool explicitly, via Ctrl-C. It does
-# not stop on its own, except for the error handling above.
+# Note: The tool will stop on error, or if all pods are ready.
 
 require 'open3'
 
@@ -34,111 +33,81 @@ def thenamespace
 end
 
 def usage
-  STDERR.puts 'Usage: upwatch namespace'
+  STDERR.puts 'Usage: upwatch <namespace>'
   exit 1
 end
 
-def track(ns)
-  # per igroup state (last state seen). events are emitted when
-  # current state is different from last state.
-  $igstate = {}
+def track(namespace)
+  puts "Tracking namespace #{namespace}"
+  # Last seen state per pod. Events are emitted when current state is different
+  # from last seen state.
+  known_pod_state = Hash.new { |h, k| h[k] = 'Unknown' }
 
   # Main loop. Retrieve and display state, detect changes and emit
   # events.
-  $waiting = true
-  while $waiting
-    next unless getstate ns
+  loop do
+    timestamp = Time.now.to_i
+    state = getstate namespace
+    next unless state
 
-    # $state contains new state
-    current = Time.now
-
-    # Clear terminal to ensure that display begins at the top/home
-    # position.
-    puts "\033\[H\033\[J"
-
-    # Iterate over current state/pods.
-    $state.split("\n").each do |line|
-      # Hide empty lines.
-      next if line.empty?
-
-      # Extract pod state elements
-      (igroup, counts, istate, restarts, age) = line.split
-      # Hide header line
-      next if istate == 'STATUS'
-
-      istate = canonical istate, counts
-      init        current, igroup, istate
-      statechange current, igroup, istate
-      puts "#{prefix istate}#{line}#{reset}"
-    end
-    STDOUT.flush
+    # Clear terminal to ensure that display begins at the top/home position.
+    puts "\e\[2J\e\[HTracking namespace #{namespace}"
+    break unless update state, timestamp, known_pod_state
   end
 end
+
+# Parse the output from kubectl, updating the state; returns true if we are
+# expecting more changes, false otherwise.
+def update(state, timestamp, known_pod_state)
+  # Skip empty lines
+  completed = state.lines.map(&:chomp).reject(&:empty?).map do |line|
+    # Extract pod state elements
+    (pod_name, counts, pod_state,) = line.split
+    next if pod_state == 'STATUS' # Drop the header line
+
+    pod_state = canonicalize_state pod_state, counts
+    detect_state_change timestamp, pod_name, pod_state, known_pod_state
+
+    puts "#{prefix pod_state}#{line}#{reset}"
+    complete? pod_state
+  end
+  # If we only have 3 items, wait for more (to filter out database + seeder)
+  completed.length < 3 || !completed.all?
+end
+
+$ani = [
+  '.    ', ' .   ', '  .  ', '   . ', '    .',
+  '   ..', '  .. ', ' ..  ', '..   ',
+  '...  ', ' ... ', '  ...',
+  ' ....', '.... ', '... .', '.. ..', '. ...', ' ....',
+  '  ...', '.  ..', '..  .', '...  ',
+  '..   ', '.   .', '   ..',
+  '    .', '   . ', '  .  ', ' .   '
+].cycle
 
 # Animation. Generates feedback that the tool is still properly
 # operating, and not stuck.
 def ani
-  $count ||= 0
-  labels = [
-    '.    ',
-    ' .   ',
-    '  .  ',
-    '   . ',
-    '    .',
-    '   ..',
-    '  .. ',
-    ' ..  ',
-    '..   ',
-    '...  ',
-    ' ... ',
-    '  ...',
-    ' ....',
-    '.... ',
-    '... .',
-    '.. ..',
-    '. ...',
-    ' ....',
-    '  ...',
-    '.  ..',
-    '..  .',
-    '...  ',
-    '..   ',
-    '.   .',
-    '   ..',
-    '    .',
-    '   . ',
-    '  .  ',
-    ' .   '
-  ]
-  $count += 1
-  $count = 0 if $count >= labels.length
-  labels[$count]
+  $ani.next
 end
 
-# Query current state
-def getstate(ns)
+# Query current state; returns the state output on success.  Aborts the program
+# on any error.
+def getstate(namespace)
   sleep 0.1 # 1/10 second = 100 millis
-  $waiting = false
-  cmd = "kubectl get pods --namespace #{ns}"
-  Open3.popen3(cmd) do |_, stdout, stderr, wait_thr|
-    if wait_thr.value.success?
-      $state = stdout.read
-      true
-    else
-      msg = stderr.read
-      print "\r\033\[K\033\[31m#{ani}\033\[0m: #{msg}"
-      STDOUT.flush
-      exit 1 if msg !~ /No resources found.*/
-      $waiting = true
-      false
-    end
-  end
+  cmd = "kubectl get pods --namespace #{namespace}"
+  stdout, stderr, status = Open3.capture3(cmd)
+  return stdout if status.success?
+
+  puts "\r\e[K\e[31m#{ani}\e[0m: #{stderr}"
+  STDOUT.flush
+  exit 1
 end
 
-# Convert base kube state for a pod into a canonical form enablign the
+# Convert base kube state for a pod into a canonical form enabling the
 # tracking of partial readiness.
-def canonical(state, counts)
-  return state if state != 'Running'
+def canonicalize_state(state, counts)
+  return state unless state == 'Running'
 
   (ready, requested) = counts.split('/')
   return 'Ready' if ready.to_i == requested.to_i
@@ -154,35 +123,21 @@ def red
   "\033\[31m"
 end
 
-# Initialize internal state
-def init(current, igroup, istate)
-  return if $igstate[igroup]
-
-  achange current, igroup, istate
-end
-
 # Detect state changes, and emit events
-def statechange(current, igroup, istate)
-  return if $igstate[igroup] == istate
+def detect_state_change(timestamp, pod_name, pod_state, known_pod_state)
+  return if known_pod_state[pod_name] == pod_state
 
-  achange current, igroup, istate
+  known_pod_state[pod_name] = pod_state
+  STDERR.puts "change #{timestamp} #{pod_state} #{pod_name}"
 end
 
-# Emit a state difference as event
-def achange(current, igroup, istate)
-  $igstate[igroup] = istate
-  STDERR.puts "change #{current.to_i} #{istate} #{igroup}"
-  STDERR.flush
+def complete?(istate)
+  %w[Ready Completed].include? istate
 end
 
 # Helper for pod/state display
 def prefix(istate)
-  return '      ' if istate == 'Ready'
-  return '      ' if istate == 'Completed'
-
-  $waiting = true
-  "#{ani} #{red}"
+  complete?(istate) ? '      ' : "#{ani} #{red}"
 end
 
 main
-exit
