@@ -1,7 +1,5 @@
 *~
 \#*
-_work/
-target/
 password
 *.pem
 .vagrant
@@ -11,6 +9,5 @@ password
 personal-setup
 .concourse/config.yaml
 
-/bazel-*
 /output
 /tmp
