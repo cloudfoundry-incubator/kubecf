@@ -1,0 +1,14 @@
+'$base_config': true
+
+features:
+  eirini:
+    # Currently the stack rootfs for Eirini is pre-installed in the
+    # bits-service image, so the eirini feature can only be enabled
+    # when "install_stacks" is set to a list that only includes the
+    # stack specified by "features.eirini.stack".
+    stack: sle15
+
+    registry:
+      service:
+        # This setting is not currently configurable
+        nodePort: 31666

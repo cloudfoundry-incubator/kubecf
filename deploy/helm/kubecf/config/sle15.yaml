@@ -1,0 +1,37 @@
+'$base_config': true
+
+deprecations:
+  ? "features.suse_buildpacks, features.suse_default_stack"
+  : 'Use "install_stacks=[sle15]" to select the SUSE stack and buildpacks.'
+
+stacks:
+  sle15:
+    description: "SUSE Linux Enterprise-based filesystem (SLE 15 SP1)"
+    install_buildpacks: [staticfile, java, ruby, dotnet-core, nodejs, go, python, php, nginx, binary]
+    release_prefix: suse
+    releases:
+      '$defaults':
+        url: registry.suse.com/cap-staging
+      sle15:
+        version: "10.93"
+        url: docker.io/cfcontainerization
+      suse-staticfile-buildpack:
+        version: "1.5.9.1"
+      suse-java-buildpack:
+        version: "4.32.1.1"
+      suse-ruby-buildpack:
+        version: "1.8.21.1"
+      suse-dotnet-core-buildpack:
+        version: "2.3.9.1"
+      suse-nodejs-buildpack:
+        version: "1.7.24.1"
+      suse-go-buildpack:
+        version: "1.9.15.1"
+      suse-python-buildpack:
+        version: "1.7.16.1"
+      suse-php-buildpack:
+        version: "4.4.18.1"
+      suse-nginx-buildpack:
+        version: "1.1.7.1"
+      suse-binary-buildpack:
+        version: "1.0.36.1"

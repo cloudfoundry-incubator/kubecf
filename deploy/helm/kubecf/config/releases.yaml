@@ -1,0 +1,61 @@
+'$base_config': true
+
+deprecations:
+  ? releases.defaults
+  : >
+    The "release.defaults" setting is now "releases.$defaults", but most
+    likely the presence of release defaults in your config is an error
+    based on using the whole "values.yaml" files from an earlier release
+    as your local config file.
+
+# Any cf-deployment based releases listed here to specify a stemcell override,
+# or to add a condition, must also specify a version to satisfy the schema
+# validation. The only exception are disabled releases (condition: false).
+# The version can be just nil; it will be replaced from the manifest at
+# deployment time.
+
+releases:
+  # The defaults for all releases, where we do not otherwise override them.
+  '$defaults':
+    url: docker.io/cfcontainerization
+    stemcell:
+      os: SLE_15_SP1
+      version: 27.1-7.0.0_374.gb8e8e6af
+  app-autoscaler:
+    condition: features.autoscaler.enabled
+    version: 3.0.1
+  brain-tests:
+    condition: testing.brain_tests.enabled
+    version: v0.0.13
+  bosh-dns-aliases:
+    condition: false
+  bpm:
+    condition: false
+  cf-acceptance-tests:
+    condition: testing.cf_acceptance_tests.enabled
+    version: 0.0.16
+  credhub:
+    condition: features.credhub.enabled
+    # XXX cf-deployment-13.9 uses credhub-2.8.0
+    version: 2.7.1
+  database:
+    # database (previously known as pxc) is not a BOSH release.
+    image:
+      repository: docker.io/cfcontainerization/pxc
+      tag: 0.9.4
+  loggregator-agent:
+    # XXX cf-deployment-13.9 uses loggregator-agent-6.1.1
+    version: 6.1.0
+  pxc:
+    condition: false
+  postgres:
+    condition: features.autoscaler.enabled
+    version: "39"
+  silk:
+     stemcell:
+       version: 27.2-7.0.0_374.gb8e8e6af
+     version: ~
+  sync-integration-tests:
+    # XXX SITS only makes sense when using Diego; add error check somewhere?
+    condition: testing.sync_integration_tests.enabled
+    version: v0.0.3
