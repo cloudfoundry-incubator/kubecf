@@ -36,25 +36,27 @@ releases:
     version: 0.0.16
   credhub:
     condition: features.credhub.enabled
-    # XXX cf-deployment-13.9 uses credhub-2.8.0
-    version: 2.7.1
+    stemcell:
+      version: 27.2-7.0.0_374.gb8e8e6af
+    version: ~
   database:
     # database (previously known as pxc) is not a BOSH release.
     image:
       repository: docker.io/cfcontainerization/pxc
       tag: 0.9.4
   loggregator-agent:
-    # XXX cf-deployment-13.9 uses loggregator-agent-6.1.1
-    version: 6.1.0
+    stemcell:
+      version: 27.2-7.0.0_374.gb8e8e6af
+    version: ~
   pxc:
     condition: false
   postgres:
     condition: features.autoscaler.enabled
     version: "39"
   silk:
-     stemcell:
-       version: 27.2-7.0.0_374.gb8e8e6af
-     version: ~
+    stemcell:
+      version: 27.2-7.0.0_374.gb8e8e6af
+    version: ~
   sync-integration-tests:
     # XXX SITS only makes sense when using Diego; add error check somewhere?
     condition: testing.sync_integration_tests.enabled
