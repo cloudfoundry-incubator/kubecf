@@ -10,4 +10,5 @@ fi
 helm install cf-operator \
      "$(cf_operator_url)" \
      --namespace "${CF_OPERATOR_NS}" \
-     --set "global.singleNamespace.name=${KUBECF_NS}"
+     --set "global.singleNamespace.name=${KUBECF_NS}" \
+     ${VALUES:+--values "${VALUES}"}
