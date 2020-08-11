@@ -58,10 +58,10 @@ done
 
 echo "operatorChartUrl: \"$(cf_operator_url)\"" > "${HELM_DIR}/Metadata.yaml"
 
-ruby rules/kubecf/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
-MODE=check ruby rules/kubecf/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
+ruby scripts/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
+MODE=check ruby scripts//create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
 
-ruby rules/kubecf/image_list.rb "${HELM_DIR}" | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
+ruby scripts/image_list.rb "${HELM_DIR}" | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
 
 VERSION="$(./scripts/version.sh)"
 helm package "${HELM_DIR}" --version "${VERSION}" --app-version "${VERSION}" --destination output/
