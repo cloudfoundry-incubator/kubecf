@@ -64,7 +64,7 @@
 {{- range $stack_name := $.Values.install_stacks }}
   {{- $_ := set $lifecycle_bundles (printf "buildpack/%s" $stack_name) "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz" }}
 {{- end }}
-{{- include "_capi.setProperty" (list "diego/lifecycle_bundles" $lifecycle_bundles) }}
+{{- include "_capi.setProperty" (list "diego.lifecycle_bundles" $lifecycle_bundles) }}
 
 {{- if not $.Values.features.eirini.enabled }}
 # set list of pre-loaded rootfses

@@ -7,8 +7,8 @@
 | set a property in all of the jobs, so there is a single location to keep track
 | of instance groups these jobs run in.
 |
-| $property can be a JSON-patch path fragment, e.g. "diego/foo" to set the
-| "cc.diego.foo" property.
+| $property can use dotted path notation to specify nested properties,
+| e.g. "diego.foo" to set the "cc.diego.foo" property.
 ==========================================================================================
 */}}
 {{- define "_capi.setProperty" }}
@@ -25,7 +25,7 @@
 
   {{- range $job := keys $ig }}
 - type: replace
-  path: /instance_groups/name={{ get $ig $job }}/jobs/name={{ $job }}?/properties/cc/{{ $property }}
+  path: /instance_groups/name={{ get $ig $job }}/jobs/name={{ $job }}?/properties/cc/{{ $property | replace "." "/" }}
   value: {{ $value | toJson }}
   {{- end }}
 {{- end }}
