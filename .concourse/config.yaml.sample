@@ -1,8 +1,0 @@
-# All null (~) values have defaults in the pipeline
-s3_bucket: your_bucket_name
-s3_bucket_region: your_bucket_region
-s3_final_bucket: your_bucket_name_for_final_artifacts
-s3_final_bucket_region: the_region_of_the_above_bucket
-kubecf_repository: your_fork_on_github # e.g. jimmykarily/kubecf
-
-auto_triggers: false # Disable automated triggers when you are developing
