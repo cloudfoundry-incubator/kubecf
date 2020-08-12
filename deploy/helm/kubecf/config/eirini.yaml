@@ -7,8 +7,3 @@ features:
     # when "install_stacks" is set to a list that only includes the
     # stack specified by "features.eirini.stack".
     stack: sle15
-
-    registry:
-      service:
-        # This setting is not currently configurable
-        nodePort: 31666
