@@ -27,7 +27,7 @@
   {{- /* | Setup the cflinux stack from the configuration in the deployment manifest | */}}
   {{- /* +---------------------------------------------------------------------------+ */}}
 
-  {{- $_ := include "_config.lookupManifest" (list $ "instance_groups.api.jobs.cloud_controller_ng.properties.cc.stacks") }}
+  {{- $_ := include "_config.lookupManifest" (list $ "instance_groups/name=api/jobs/name=cloud_controller_ng/properties.cc.stacks") }}
   {{- $cc_stacks := $.kubecf.retval }}
 
   {{- if ne (len $cc_stacks) 1 }}
@@ -56,7 +56,7 @@
   {{- /* *** Create "$stack.install_buildpacks" and "$stack.releases" from the "api" buildpack jobs *** */}}
   {{- $_ := set $stack "install_buildpacks" list }}
 
-  {{- $_ := include "_config.lookupManifest" (list $ "instance_groups.api.jobs") }}
+  {{- $_ := include "_config.lookupManifest" (list $ "instance_groups/name=api/jobs") }}
   {{- range $job := $.kubecf.retval }}
     {{- if hasSuffix "-buildpack" $job.release }}
       {{- $buildpack_shortname := trimSuffix "-buildpack" $job.release }}

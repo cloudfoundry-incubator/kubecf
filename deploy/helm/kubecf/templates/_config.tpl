@@ -81,7 +81,8 @@
 | Look up a config setting in $.kubecf.config at $path.
 |
 | $path can be a '.' separated string of property names 'features.eirini.enabled', a
-| list of names ("stacks" $stacks "releases"), or a combination of both.
+| list of names ("stacks" $stacks "releases"), or a combination of both. The '/' may
+| also be used in place of the '.' for a more JSON-patch look.
 |
 | See comments on the _config._lookup implementation function for more details.
 |
@@ -91,7 +92,7 @@
 {{- define "_config.lookup" }}
   {{- $_ := include "_config.load" (first .) }}
   {{- $kubecf := get (first .) "kubecf" }}
-  {{- $_ := set $kubecf "query" (join "." (rest .)) }}
+  {{- $_ := set $kubecf "query" (join "." (rest .) | replace "/" ".") }}
   {{- include "_config._lookup" (concat (list $kubecf $kubecf.config) (splitList "." $kubecf.query)) }}
   {{- $_ := set $kubecf "required" false }}
 {{- end }}
@@ -125,7 +126,7 @@
 {{- define "_config.lookupManifest" }}
   {{- $_ := include "_config.load" (first .) }}
   {{- $kubecf := get (first .) "kubecf" }}
-  {{- $_ := set $kubecf "query" (join "." (rest .)) }}
+  {{- $_ := set $kubecf "query" (join "." (rest .) | replace "/" ".") }}
   {{- include "_config._lookup" (concat (list $kubecf $kubecf.manifest) (splitList "." $kubecf.query)) }}
   {{- $_ := set $kubecf "required" false }}
 {{- end }}
@@ -157,6 +158,9 @@
 | Example: Looking for "instance_groups.api.jobs.cloud_controller_ng" in $.kubecf.manifest
 | is equivalent to the "/instance_groups/name=api/jobs/name=cloud_controller_ng" path in
 | JSON-patch.
+|
+| If the first element of $path for a list lookup contains a '=', the left side of specifies
+| the property to look for, in case it is not "name", e.g. "foo/os=linux/description".
 +-----------------------------------------------------------------------------------------
 | Not implemented:
 |
@@ -164,10 +168,6 @@
 | _lookup should throw an error instead of returning an empty string. It could use
 | $.kubecf.query to provide a helpful error message. With the introduction of a
 | validation schema, this may no longer be required.
-|
-| There is no mechanism to search array $context for any other properties but "name".
-| It can easily be done on the caller side as well, but otherwise should be easy to
-| add here as well. So far we don't need it.
 ==========================================================================================
 */}}
 {{- define "_config._lookup" }}
@@ -175,16 +175,24 @@
   {{- $context := index . 1 }}
   {{- $path := slice . 2 }}
   {{- $key := (first $path) }}
+
   {{- if kindIs "slice" $context }}
+    {{- $name := "name" }}
+    {{- if contains "=" $key }}
+      {{- $keyList := splitList "=" $key }}
+      {{- $name = first $keyList }}
+      {{- $key = index $keyList 1 }}
+    {{- end }}
     {{- $_ := set $kubecf "retval" nil }}
     {{- range $context }}
-      {{- if eq (index . "name") $key }}
+      {{- if eq (index . $name) $key }}
         {{- $_ := set $kubecf "retval" . }}
       {{- end }}
     {{- end }}
   {{- else }}
     {{- $_ := set $kubecf "retval" (index $context $key) }}
   {{- end }}
+
   {{- if $kubecf.retval }}
     {{- if gt (len $path) 1 }}
       {{- include "_config._lookup" (concat (list $kubecf $kubecf.retval) (rest $path)) }}
