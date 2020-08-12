@@ -9,6 +9,6 @@ dependencies:
   condition: features.eirini.enabled
 - name: eirini-extensions
   alias: eirinix
-  repository: https://opensource.suse.com/eirinix-helm-release/
+  repository: https://cloudfoundry-incubator.github.io/eirinix-helm-release/
   version: "0.0.0-9+g6b37279"
   condition: features.eirini.enabled

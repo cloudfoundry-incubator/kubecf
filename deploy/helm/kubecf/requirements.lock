@@ -6,7 +6,7 @@ dependencies:
   repository: http://opensource.suse.com/bits-service-release/
   version: 1.0.14
 - name: eirini-extensions
-  repository: https://opensource.suse.com/eirinix-helm-release/
+  repository: https://cloudfoundry-incubator.github.io/eirinix-helm-release/
   version: 0.0.0-9+g6b37279
-digest: sha256:397ee81a25da29278da3b1d6e0bec6b94fdcf82b7be194433b85d7addca9933b
-generated: "2020-05-06T22:54:52.11703327+03:00"
+digest: sha256:4e4bff556d3fd0850246efed284b49a6d822ca3606e4c5f2d62c61e978832546
+generated: "2020-08-12T10:00:05.418828295-07:00"
