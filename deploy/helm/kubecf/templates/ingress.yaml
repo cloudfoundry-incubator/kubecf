@@ -82,16 +82,8 @@ spec:
   - secretName: {{ .Release.Name }}-ingress-tls
     hosts:
     - "*.{{ .Values.system_domain }}"
-    - "{{ .Values.system_domain }}"
   rules:
     - host: "*.{{ .Values.system_domain }}"
-      http:
-        paths:
-          - path: "/"
-            backend:
-              serviceName: router
-              servicePort: 443
-    - host: "{{ .Values.system_domain }}"
       http:
         paths:
           - path: "/"
