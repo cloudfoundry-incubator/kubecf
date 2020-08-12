@@ -5,7 +5,7 @@
 {{- $_ := include "_config.lookup" (list $ "releases") }}
 {{- range $release_name, $release := $.kubecf.retval }}
   {{- /* only add bosh releases (releases with a version) */}}
-  {{- if and $release.version (include "_config.condition" (list $ (index $release "condition"))) }}
+  {{- if and $release.version (eq "true" (include "_config.condition" (list $ (index $release "condition")))) }}
 - type: replace
   path: /releases?/name={{ $release_name }}/url
   value: {{ $release.url }}

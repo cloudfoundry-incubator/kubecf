@@ -67,7 +67,7 @@
     {{- $_ := include "_releases.update" . }}
 
     {{- range $condition, $message := $.kubecf.config.deprecations }}
-      {{- if include "_config.condition" (list $ $condition) }}
+      {{- if eq "true" (include "_config.condition" (list $ $condition)) }}
         {{- fail $message }}
       {{- end }}
     {{- end }}
@@ -199,7 +199,8 @@
 ==========================================================================================
 | _config.condition (list $ $condition)
 +-----------------------------------------------------------------------------------------
-| Evaluates $condition and returns either the string "true" or the empty string.
+| Evaluates $condition and returns either the string "true" or the string "false"
+| (without the quotes, of course).
 |
 | - A nil (missing) condition is always true.
 |
@@ -207,26 +208,22 @@
 |
 | - Otherwise $condition must be a string. All spaces will be removed first.
 |
-| - The string can be a list of "," separated OR terms. The condition is true
+| - The string can be a list of "||" separated OR terms. The condition is true
 |   if any of the terms are true.
 |
-| - An OR term can be a list of "&" separated AND terms. The OR term is true
+| - An OR term can be a list of "&&" separated AND terms. The OR term is true
 |   if all of the AND terms are true.
 |
-| - An AND term is evaluated by looking up the value in the $.kubecf.config.
+| - An AND term is either the string "true" or "false", or it will be evaluated
+|   by looking up it's value in $.kubecf.config.
 |
 | - An AND term may be prefixed by "!" in which case its value is negated.
 |
+| - An AND term may also be a condition expression enclosed in parenthesis.
+|
 | - None of the terms can be an empty string.
 |
-| Example: "features.foo.enabled & !features.bar.enabled, features.baz.enabled"
-|
-| There is no support for grouping by parenthesis, so "not" has always higher
-| precedence than "and", and "and" has always higher precedence than "or".
-|
-| Sometimes De Morgan's law can help:
-|
-|     "!(foo & bar)" can be written as "!foo, !bar"
+| Example: "!features.foo.enabled && (features.bar.enabled || features.baz.enabled)"
 |
 | Usage examples: This function is used to evaluate the keys of the
 | "deprecation" hash earlier in this file, and the "release.condition" values
@@ -236,28 +233,49 @@
 {{- define "_config.condition" }}
   {{- $root := index . 0 }}
   {{- $condition := index . 1 }}
+
   {{- if kindIs "invalid" $condition }}
     {{- /* The absence of a condition (nil) is unconditionally true */}}
     {{- $condition = true }}
   {{- end }}
+
   {{- if kindIs "bool" $condition }}
-    {{- ternary "true" "" $condition }}
+    {{- ternary "true" "false" $condition }}
+
   {{- else }}
+    {{- /* Count the number of left parenthesis to determine the number of groups */}}
+    {{- range $_ := until (sub (len (splitList "(" $condition)) 1 | int) }}
+      {{- /* Find left inner-most group, evaluate it, and replace the expression with the value */}}
+      {{- $group := regexFind "\\([^\\)]+\\)" $condition }}
+      {{- $value := include "_config.condition" (list $root ($group | trimPrefix "(" | trimSuffix ")")) }}
+      {{- $condition = replace $group $value $condition }}
+    {{- end }}
+
+    {{- /* Evaluate the remaining expression based on operator precedence: NOT (highest), AND, OR (lowest) */}}
     {{- $or_value := false }}
-    {{- $or_terms := splitList "," (nospace $condition) }}
-      {{- range $or_term := $or_terms }}
-        {{- $and_value := true }}
-        {{- $and_terms := splitList "&" $or_term }}
-        {{- range $and_term := $and_terms }}
-          {{- $value := include "_config.lookup" (list $root (trimPrefix "!" $and_term)) }}
-          {{- if hasPrefix "!" $and_term }}
-            {{- $value = not $value }}
+    {{- $or_terms := splitList "||" (nospace $condition) }}
+    {{- range $or_term := $or_terms }}
+      {{- $and_value := true }}
+      {{- $and_terms := splitList "&&" $or_term }}
+      {{- range $and_term := $and_terms }}
+        {{- $term := trimPrefix "!" $and_term }}
+        {{- /* The term is either literally "true" or "false", or must be looked up */}}
+        {{- $value := true }}
+        {{- if ne $term "true" }}
+          {{- if eq $term "false" }}
+            {{- $value = false }}
+          {{- else }}
+            {{- $value = include "_config.lookup" (list $root $term) }}
           {{- end }}
-          {{- $and_value = and $and_value $value }}
         {{- end }}
-        {{- $or_value = or $or_value $and_value }}
+        {{- if hasPrefix "!" $and_term }}
+          {{- $value = not $value }}
+        {{- end }}
+        {{- $and_value = and $and_value $value }}
       {{- end }}
-      {{- /* "ternary" requires a real bool for the third argument */}}
-      {{- ternary "" "true" (not $or_value) }}
+      {{- $or_value = or $or_value $and_value }}
+    {{- end }}
+    {{- /* "ternary" requires a real bool for the third argument */}}
+    {{- ternary "false" "true" (not $or_value) }}
   {{- end }}
 {{- end }}

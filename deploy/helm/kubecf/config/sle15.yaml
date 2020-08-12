@@ -1,7 +1,7 @@
 '$base_config': true
 
 deprecations:
-  ? "features.suse_buildpacks, features.suse_default_stack"
+  ? "features.suse_buildpacks || features.suse_default_stack"
   : 'Use "install_stacks=[sle15]" to select the SUSE stack and buildpacks.'
 
 stacks:
