@@ -1965,7 +1965,7 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     passed:
-    - smoke-tests-post-rotate-diego-{{ $branch }}
+    - cf-acceptance-tests-diego-{{ $branch }}
     trigger: {{ $config.trigger_publish }}
   - get: s3.kubecf-ci-bundle
     {{- if $config.workertags }}
@@ -1973,7 +1973,7 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     passed:
-    - smoke-tests-post-rotate-diego-{{ $branch }}
+    - cf-acceptance-tests-diego-{{ $branch }}
     trigger: {{ $config.trigger_publish }}
   - task: rename-artifacts
     {{- if $config.workertags }}
