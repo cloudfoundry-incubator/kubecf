@@ -255,8 +255,12 @@
     {{- range $_ := until (sub (len (splitList "(" $condition)) 1 | int) }}
       {{- /* Find left inner-most group, evaluate it, and replace the expression with the value */}}
       {{- $group := regexFind "\\([^\\)]+\\)" $condition }}
-      {{- $value := include "_config.condition" (list $root ($group | trimPrefix "(" | trimSuffix ")")) }}
-      {{- $condition = replace $group $value $condition }}
+      {{- /* There may be fewer groups than left parens if some groups turn out to be identical */}}
+      {{- /* E.g. "((to.be) || !(to.be))" will collapse to "(true || !true)" after the 1st iteration */}}
+      {{- if $group }}
+        {{- $value := include "_config.condition" (list $root ($group | trimPrefix "(" | trimSuffix ")")) }}
+        {{- $condition = replace $group $value $condition }}
+      {{- end }}
     {{- end }}
 
     {{- /* Evaluate the remaining expression based on operator precedence: NOT (highest), AND, OR (lowest) */}}
