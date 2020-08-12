@@ -202,7 +202,6 @@
   {{- end }}
 {{- end }}
 
-
 {{- /*
 ==========================================================================================
 | _config.condition (list $ $condition)
@@ -265,11 +264,9 @@
 
     {{- /* Evaluate the remaining expression based on operator precedence: NOT (highest), AND, OR (lowest) */}}
     {{- $or_value := false }}
-    {{- $or_terms := splitList "||" (nospace $condition) }}
-    {{- range $or_term := $or_terms }}
+    {{- range $or_term := splitList "||" (nospace $condition) }}
       {{- $and_value := true }}
-      {{- $and_terms := splitList "&&" $or_term }}
-      {{- range $and_term := $and_terms }}
+      {{- range $and_term := splitList "&&" $or_term }}
         {{- $term := trimPrefix "!" $and_term }}
         {{- /* The term is either literally "true" or "false", or must be looked up */}}
         {{- $value := true }}
