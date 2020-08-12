@@ -357,7 +357,6 @@ jobs:
           ./dev/linters/yamllint.sh
           ./dev/linters/helmlint.sh
           bazel test //rules/kubecf:create_sample_values_test
-          bazel test //deploy/helm/kubecf:values_doc_test
 
 {{- if has $config.stable_jobs "lint" }}
     {{- if $config.github_status }}
