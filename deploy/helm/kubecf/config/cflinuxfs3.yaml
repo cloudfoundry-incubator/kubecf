@@ -18,8 +18,10 @@ stacks:
         version: 0.202.0
       # buildpack versions will be set from cf-deployment
       nginx-buildpack:
-        # XXX The manifest lists 1.1.11, kubecf-2.3 used 1.1.5
-        version: 1.1.1
+        stemcell:
+          version: 27.2-7.0.0_374.gb8e8e6af
+        version: ~
       r-buildpack:
-        # XXX cf-manifest lists 1.1.7, kubecf-2.3 used 1.1.1
-        version: 1.1.0
+        stemcell:
+          version: 27.2-7.0.0_374.gb8e8e6af
+        version: ~
