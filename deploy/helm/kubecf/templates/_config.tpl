@@ -35,9 +35,7 @@
 | * .config
 | * .defaults
 | * .manifest
-| * .query
 | * .retval
-| * .required
 ==========================================================================================
 */}}
 {{- define "_config.load" }}
@@ -58,7 +56,6 @@
       {{- end }}
     {{- end }}
     {{- $_ := set $.kubecf "config" (mergeOverwrite $base_config $additional_config $.Values) }}
-    {{- $_ := set $.kubecf "required" false }}
 
     {{- $_ := set $.kubecf.config "defaults" (index $.kubecf.config.releases "$defaults") }}
 
@@ -91,28 +88,8 @@
 {{- define "_config.lookup" }}
   {{- $_ := include "_config.load" (first .) }}
   {{- $kubecf := get (first .) "kubecf" }}
-  {{- $_ := set $kubecf "query" (join "." (rest .) | replace "/" ".") }}
-  {{- include "_config._lookup" (concat (list $kubecf $kubecf.config) (splitList "." $kubecf.query)) }}
-  {{- $_ := set $kubecf "required" false }}
-{{- end }}
-
-{{- /*
-==========================================================================================
-| _config.lookupRequired (list $.kubecf $path)
-+-----------------------------------------------------------------------------------------
-| This function is currently unused and works identical to _config.lookup.
-+-----------------------------------------------------------------------------------------
-| Not yet implemented:
-|
-| This function was supposed to be identical to _config.lookup, except it would fail
-| with a sensible error message if the $path did not exist. It may no longer be needed
-| now that we have JSON schema validation.
-==========================================================================================
-*/}}
-{{- define "kubecf.configRequired" }}
-  {{- $kubecf := get (first .) "kubecf" }}
-  {{- $_ := set $kubecf "required" true }}
-  {{- include "_config.lookup" . }}
+  {{- $query := (join "." (rest .) | replace "/" ".") }}
+  {{- include "_config._lookup" (concat (list $kubecf $kubecf.config) (splitList "." $query)) }}
 {{- end }}
 
 {{- /*
@@ -125,9 +102,8 @@
 {{- define "_config.lookupManifest" }}
   {{- $_ := include "_config.load" (first .) }}
   {{- $kubecf := get (first .) "kubecf" }}
-  {{- $_ := set $kubecf "query" (join "." (rest .) | replace "/" ".") }}
-  {{- include "_config._lookup" (concat (list $kubecf $kubecf.manifest) (splitList "." $kubecf.query)) }}
-  {{- $_ := set $kubecf "required" false }}
+  {{- $query := (join "." (rest .) | replace "/" ".") }}
+  {{- include "_config._lookup" (concat (list $kubecf $kubecf.manifest) (splitList "." $query)) }}
 {{- end }}
 
 {{- /*
@@ -160,13 +136,6 @@
 |
 | If the first element of $path for a list lookup contains a '=', the left side of specifies
 | the property to look for, in case it is not "name", e.g. "foo/os=linux/description".
-+-----------------------------------------------------------------------------------------
-| Not implemented:
-|
-| When the full $path cannot be found, and the $.kubecf.required variable is true, then
-| _lookup should throw an error instead of returning an empty string. It could use
-| $.kubecf.query to provide a helpful error message. With the introduction of a
-| validation schema, this may no longer be required.
 ==========================================================================================
 */}}
 {{- define "_config._lookup" }}
