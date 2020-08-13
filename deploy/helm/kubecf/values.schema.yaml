@@ -163,7 +163,7 @@ properties:
     type: object
     additionalProperties: {"$ref": "#/definitions/tree_of_strings"}
 
-  deprecations:
+  unsupported:
     type: object
     additionalProperties: {type: string}
 

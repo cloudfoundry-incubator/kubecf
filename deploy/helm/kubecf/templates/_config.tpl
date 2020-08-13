@@ -25,9 +25,8 @@
 | called to finalize the .config.stacks and .config.releases sub-trees. See their
 | comments for more details.
 |
-| Finally all keys in the .deprecations object are evaluated with the _config.condition
-| function, and if true, this function will fail with the corresponding deprecation
-| message.
+| Finally all keys in the .unsupported object are evaluated with the _config.condition
+| function, and if true, this function will fail with the corresponding error message.
 |
 | The .config and .manifest objects can be searched by _config.lookup and
 | _config.lookupManifest.
@@ -66,7 +65,7 @@
     {{- $_ := include "_stacks.update" . }}
     {{- $_ := include "_releases.update" . }}
 
-    {{- range $condition, $message := $.kubecf.config.deprecations }}
+    {{- range $condition, $message := $.kubecf.config.unsupported }}
       {{- if eq "true" (include "_config.condition" (list $ $condition)) }}
         {{- fail $message }}
       {{- end }}
@@ -233,7 +232,7 @@
 | Example: "!features.foo.enabled && (features.bar.enabled || features.baz.enabled)"
 |
 | Usage examples: This function is used to evaluate the keys of the
-| "deprecation" hash earlier in this file, and the "release.condition" values
+| "unsupported" hash earlier in this file, and the "release.condition" values
 | in assets/operations/releases.yaml.
 ==========================================================================================
 */}}

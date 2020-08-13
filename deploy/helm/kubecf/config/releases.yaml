@@ -1,6 +1,6 @@
 '$base_config': true
 
-deprecations:
+unsupported:
   ? releases.defaults
   : >
     The "release.defaults" setting is now "releases.$defaults", but most
