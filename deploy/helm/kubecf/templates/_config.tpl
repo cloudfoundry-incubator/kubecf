@@ -45,8 +45,12 @@
 
     {{- $base_config := dict }}
     {{- $additional_config := dict }}
-    {{- range $_, $bytes := $.Files.Glob "config/*" }}
-      {{- $config := fromYaml (toString $bytes) }}
+    {{- $configs := dict }}
+    {{- range $name, $bytes := $.Files.Glob "config/*" }}
+      {{- $_ := set $configs $name ($bytes | toString | fromYaml) }}
+    {{- end }}
+    {{- range $name := (keys $configs | sortAlpha) }}
+      {{- $config := (get $configs $name) }}
       {{- if index $config "$base_config" }}
         {{- $base_config = mergeOverwrite $base_config $config }}
       {{- else }}
