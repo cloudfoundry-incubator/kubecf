@@ -105,7 +105,7 @@ definitions:
       annotations:
         anyOf:
         - type: object
-          additionalProperties: {type string}
+          additionalProperties: {type: string}
         - type: 'null'
       type:
         type: string
@@ -140,7 +140,7 @@ definitions:
 properties:
 
   # internal use by config system
-  '$base_config': {type string}
+  '$base_config': {type: boolean}
 
   ccdb:
     type: object
@@ -153,7 +153,7 @@ properties:
             properties:
               key_labels:
                 type: array
-                items: {type string}
+                items: {type: string}
               current_key_label: {type: string}
             additionalProperties: false
         additionalProperties: false
@@ -165,7 +165,7 @@ properties:
 
   deprecations:
     type: object
-    additionalProperties: {type string}
+    additionalProperties: {type: string}
 
   features:
     type: object
@@ -213,7 +213,7 @@ properties:
         items: {"$ref": "#/definitions/operation"}
     additionalProperties: true
 
-  properties: {type object}
+  properties: {type: object}
 
   releases:
     type: object
@@ -333,7 +333,7 @@ properties:
       type: string
 
   # subchart configs
-  bits: {type object}
-  eirini: {type object}
-  eirinix: {type object}
+  bits: {type: object}
+  eirini: {type: object}
+  eirinix: {type: object}
   eirini-extensions: {type: object}
