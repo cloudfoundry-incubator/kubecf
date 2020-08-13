@@ -143,8 +143,32 @@ releases:
 multi_az: false
 high_availability: false
 
-# Sizing takes precedence over the high_availability property. I.e. setting the instance count
-# for an instance group greater than 1 will make it highly available.
+# Instance sizing takes precedence over the high_availability property. I.e. setting the
+# instance count for an instance group greater than 1 will make it highly available.
+#
+# It is also possible to specify custom affinity rules for each instance group. If no rule
+# is provided, then each group as anti-affinity to itself, to try to spread the pods between
+# different nodes. In addition diego-cell and router also have anti-affinity to each other.
+#
+# The default rules look like this:
+#
+# sizing:
+#   sample_group:
+#     affinity:
+#       podAntiAffinity:
+#         preferredDuringSchedulingIgnoredDuringExecution:
+#         - weight: 100
+#           podAffinityTerm:
+#             labelSelector:
+#               matchExpressions:
+#               - key: quarks.cloudfoundry.org/quarks-statefulset-name
+#                 operator: In
+#                 values:
+#                 - sample_group
+#             topologyKey: kubernetes.io/hostname
+#
+# Any affinity rules specified here will *overwrite* the default rule and not merge with it.
+
 sizing:
   adapter:
     instances: ~

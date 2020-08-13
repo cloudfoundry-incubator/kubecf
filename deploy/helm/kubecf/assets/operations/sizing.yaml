@@ -38,13 +38,63 @@
 {{- end }}{{/* if eirini */}}
 
 {{- range $instance_group := $instance_groups }}
-{{- if index (snakecase $instance_group | index $.Values.sizing) "instances" | kindIs "invalid" | not }}
+  {{- if index (snakecase $instance_group | index $.Values.sizing) "instances" | kindIs "invalid" | not }}
 - type: replace
   path: /instance_groups/name={{ $instance_group }}/instances
   value: {{ index (snakecase $instance_group | index $.Values.sizing) "instances" }}
-{{- else if not $.Values.high_availability }}
+  {{- else if not $.Values.high_availability }}
 - type: replace
   path: /instance_groups/name={{ $instance_group }}/instances
   value: 1
-{{- end }}{{/* if */}}
+  {{- end }}{{/* if */}}
+
+  {{- $affinity := index (snakecase $instance_group | index $.Values.sizing) "affinity" }}
+  {{- if $affinity }}
+- type: replace
+  path: /instance_groups/name={{ $instance_group }}/env?/bosh/agent/settings/affinity
+  value: {{ toJson $affinity }}
+  {{- else }}
+- type: replace
+  path: /instance_groups/name={{ $instance_group }}/env?/bosh/agent/settings/affinity
+  value:
+    {{- /* Each instance group has anti-affinity to itself */}}
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: quarks.cloudfoundry.org/quarks-statefulset-name
+              operator: In
+              values:
+              - {{ $instance_group }}
+          topologyKey: kubernetes.io/hostname
+
+    {{- /* diego-cell has also anti-affinity to router */}}
+    {{- if eq $instance_group "diego-cell" }}
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: quarks.cloudfoundry.org/quarks-statefulset-name
+              operator: In
+              values:
+              - router
+          topologyKey: kubernetes.io/hostname
+    {{- end }}
+
+    {{- /* router has also anti-affinity to diego-cell */}}
+    {{- if eq $instance_group "router" }}
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: quarks.cloudfoundry.org/quarks-statefulset-name
+              operator: In
+              values:
+              - diego-cell
+          topologyKey: kubernetes.io/hostname
+    {{- end }}
+  {{- end }}
+
 {{- end }}{{/* range $instance_group */}}
