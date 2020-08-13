@@ -163,10 +163,6 @@ properties:
     type: object
     additionalProperties: {"$ref": "#/definitions/tree_of_strings"}
 
-  unsupported:
-    type: object
-    additionalProperties: {type: string}
-
   features:
     type: object
     properties:
@@ -327,6 +323,10 @@ properties:
       additionalProperties: false
 
   system_domain: {type: string}
+
+  unsupported:
+    type: object
+    additionalProperties: {type: string}
 
   variables:
     type: object
