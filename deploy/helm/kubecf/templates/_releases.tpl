@@ -30,8 +30,8 @@
 | _releases.applyDefaults $releases
 +-----------------------------------------------------------------------------------------
 | Go through each entry in $releases and fill in missing values from $releases.$defaults
-| (it that exists). The $defaults meta-release will be deleted before this function returns,
-| to avoid it from overriding the $.Values.releases.$defaults.
+| (if that exists). The $defaults meta-release will be deleted before this function returns,
+| to avoid it from overriding $.Values.releases.$defaults.
 ==========================================================================================
 */}}
 {{- define "_releases.applyDefaults" }}
