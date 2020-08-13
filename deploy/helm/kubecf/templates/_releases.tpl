@@ -40,25 +40,8 @@
   {{- $_ := unset $releases "$defaults" }}
 
   {{- if $defaults }}
-    {{- $default_stemcell := index $defaults "stemcell" }}
-    {{- $default_url := index $defaults "url" }}
     {{- range $name, $release := $releases }}
-      {{- if and $default_url (not (hasKey $release "url")) }}
-        {{- $_ := set $release "url" $default_url }}
-      {{- end }}
-      {{- if $default_stemcell }}
-        {{ if hasKey $release "stemcell" }}
-          {{ if and (hasKey $default_stemcell "os") (not (hasKey $release.stemcell "os")) }}
-            {{- $_ := set $release.stemcell "os" $default_stemcell.os }}
-          {{- end }}
-          {{ if and (hasKey $default_stemcell "version") (not (hasKey $release.stemcell "version")) }}
-            {{- $_ := set $release.stemcell "version" $default_stemcell.version }}
-          {{- end }}
-        {{- else }}
-          {{- $_ := set $release "stemcell" $default_stemcell }}
-        {{- end }}
-      {{- end }}
+      {{- $_ := set $releases $name (merge $release $defaults) }}
     {{- end }}
   {{- end }}
 {{- end }}
-
