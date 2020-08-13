@@ -220,6 +220,22 @@ spec:
             app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
             helm.sh/chart: {{ include "kubecf.chart" . }}
         spec:
+          {{- if $.Values.sizing.database.affinity }}
+          affinity: {{ $.Values.sizing.database.affinity | toJson }}
+          {{- else }}
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: quarks.cloudfoundry.org/quarks-statefulset-name
+                      operator: In
+                      values:
+                      - database
+                  topologyKey: kubernetes.io/hostname
+          {{- end }}
           initContainers:
           - name: remove-lost-found
             {{- with $image := .Values.releases.pxc.image }}
