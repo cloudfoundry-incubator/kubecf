@@ -2,47 +2,45 @@
 ==========================================================================================
 | _config.load $
 +-----------------------------------------------------------------------------------------
-| Initialize kubecf config object and load deployment manifest.
+| Merges all kubecf config files into $.Values and loads the deployment manifest.
 |
-| This function creates $.kubecf in the root context and uses it as a container for global
-| variables. Since templates can be rendered in arbitrary order, each template accessing
-| $.kubecf must call "_config.load" first. This is done implicitly by the "_config.lookup"
+| This function creates $.Values.kubecf and uses it as a container for global variables.
+| Since templates can be rendered in arbitrary order, each template accessing
+| $.Values must call "_config.load" first. This is done implicitly by the "_config.lookup"
 | functions.
 |
 | The "cf-deployment.yml" file is loaded into $.kubecf.manifest.
 |
-| All "config/*" files as well as "values.yaml" are merged into a single $kubecf.config
-| object in the following order: first all files that define a '$base_config' property,
-| then all the files that don't, and finally $.Values. This makes it possible that
-| add-on config files can overwrite settings defined in the base config.
+| All "config/*" files are merged into $.Values; first the files that don't define the
+| '$base_config' property, and then the ones designated as base config. Merging is done
+| without overwriting, so additional config files can override the base config, but not
+| the values.yaml file defaults.
 |
-| [The rest of this text pretends that $.kubecf is the current context]
+| The $.Values.release.$defaults are saved in $.kubecf.defaults because they are used
+| in templates to set the default and addon stemcells.
 |
-| The .release.$defaults are saved in .defaults because they are used in templates
-| to set the default and addon stemcells.
-|
-| After .config and .manifest have been setup, _stacks.update and _release.update are
-| called to finalize the .config.stacks and .config.releases sub-trees. See their
+| After $.Values and $.kubecf.manifest have been setup, _stacks.update and _release.update
+| are called to finalize the $.Values.stacks and $.Values.releases sub-trees. See their
 | comments for more details.
 |
-| Finally all keys in the .unsupported object are evaluated with the _config.condition
+| Finally all keys in the $.Values.unsupported object are evaluated with the _config.condition
 | function, and if true, this function will fail with the corresponding error message.
 |
-| The .config and .manifest objects can be searched by _config.lookup and
+| The $.Values and $.kubecf.manifest objects can be searched by _config.lookup and
 | _config.lookupManifest.
 +-----------------------------------------------------------------------------------------
 | For reference, these names are currently being used:
-| * .config
-| * .defaults
-| * .manifest
-| * .retval
+| * $.Values
+| * $.Values.defaults
+| * $.kubecf.manifest
+| * $.kubecf.retval
 ==========================================================================================
 */}}
 {{- define "_config.load" }}
   {{- if not $.kubecf }}
     {{- $_ := set $ "kubecf" dict }}
   {{- end }}
-  {{- if not $.kubecf.config }}
+  {{- if not $.kubecf.manifest }}
     {{- $_ := set $.kubecf "manifest" (fromYaml ($.Files.Get "assets/cf-deployment.yml")) }}
 
     {{- $base_config := dict }}
@@ -55,14 +53,14 @@
         {{- $additional_config = mergeOverwrite $additional_config $config }}
       {{- end }}
     {{- end }}
-    {{- $_ := set $.kubecf "config" (mergeOverwrite $base_config $additional_config $.Values) }}
+    {{- $_ := set $ "Values" (merge $.Values $additional_config $base_config) }}
 
-    {{- $_ := set $.kubecf.config "defaults" (index $.kubecf.config.releases "$defaults") }}
+    {{- $_ := set $.Values "defaults" (index $.Values.releases "$defaults") }}
 
     {{- $_ := include "_stacks.update" . }}
     {{- $_ := include "_releases.update" . }}
 
-    {{- range $condition, $message := $.kubecf.config.unsupported }}
+    {{- range $condition, $message := $.Values.unsupported }}
       {{- if eq "true" (include "_config.condition" (list $ $condition)) }}
         {{- fail $message }}
       {{- end }}
@@ -72,9 +70,9 @@
 
 {{- /*
 ==========================================================================================
-| _config.lookup (list $.kubecf $path)
+| _config.lookup (list $ $path)
 +-----------------------------------------------------------------------------------------
-| Look up a config setting in $.kubecf.config at $path.
+| Look up a config setting in $.Values at $path.
 |
 | $path can be a '.' separated string of property names 'features.eirini.enabled', a
 | list of names ("stacks" $stacks "releases"), or a combination of both. The '/' may
@@ -87,16 +85,16 @@
 */}}
 {{- define "_config.lookup" }}
   {{- $_ := include "_config.load" (first .) }}
-  {{- $kubecf := get (first .) "kubecf" }}
+  {{- $root := first . }}
   {{- $query := (join "." (rest .) | replace "/" ".") }}
-  {{- include "_config._lookup" (concat (list $kubecf $kubecf.config) (splitList "." $query)) }}
+  {{- include "_config._lookup" (concat (list $root.kubecf $root.Values) (splitList "." $query)) }}
 {{- end }}
 
 {{- /*
 ==========================================================================================
-| _config.lookupManifest (list $.kubecf $path)
+| _config.lookupManifest (list $ $path)
 +-----------------------------------------------------------------------------------------
-| The same function as _config.lookup, except it searches $kubecf.manifest instead.
+| The same function as _config.lookup, except it searches $.kubecf.manifest instead.
 ==========================================================================================
 */}}
 {{- define "_config.lookupManifest" }}
@@ -114,7 +112,7 @@
 |
 | Lookup $path under $context and return either the value found, or the empty string.
 |
-| $context is either is an object (or array). It normally starts out as $.kubecf.config
+| $context is either is an object (or array). It normally starts out as $.Values
 | or $.kubecf.manifest, but moves down the tree as _lookup calls itself recursively.
 |
 | $path is a list of properties to look up successively, e.g. ("stacks" $stack "releases").
@@ -190,7 +188,7 @@
 |   if all of the AND terms are true.
 |
 | - An AND term is either the string "true" or "false", or it will be evaluated
-|   by looking up it's value in $.kubecf.config.
+|   by looking up it's value in $.Values.
 |
 | - An AND term may be prefixed by "!" in which case its value is negated.
 |

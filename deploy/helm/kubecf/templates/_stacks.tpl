@@ -74,7 +74,7 @@
 
   {{- $_ := include "_config.lookup" (list $ "stacks") }}
   {{- range $stack_name, $stack := $.kubecf.retval }}
-    {{- $_ := set $stack "enabled" (has $stack_name $.kubecf.config.install_stacks) }}
+    {{- $_ := set $stack "enabled" (has $stack_name $.Values.install_stacks) }}
 
     {{- /* *** Update all releases with defaults from stack.releases.$defaults *** */}}
     {{- $_ := include "_releases.applyDefaults" $stack.releases }}
@@ -119,11 +119,11 @@
     {{- end }}
     {{- /* TODO make sure there are no more than 1 rootfs per stack? */}}
 
-    {{- $_ := set $.kubecf.config "releases" (mergeOverwrite $.kubecf.config.releases $stack.releases) }}
+    {{- $_ := set $.Values "releases" (mergeOverwrite $.Values.releases $stack.releases) }}
   {{- end }}
 
   {{- /* *** Make sure all requested stacks and their buildpacks are defined *** */}}
-  {{- range $stack_name := $.kubecf.config.install_stacks }}
+  {{- range $stack_name := $.Values.install_stacks }}
     {{- if not (include "_config.lookup" (list $ "stacks" $stack_name)) }}
       {{- fail (printf "Stack %s is not defined" $stack_name) }}
     {{- end }}

@@ -21,7 +21,7 @@
 {{- end }}
 
 {{- if not $.Values.features.eirini.enabled }}
-  {{- range $stack_name, $stack := $.kubecf.config.stacks }}
+  {{- range $stack_name, $stack := $.Values.stacks }}
     {{- if $stack.enabled }}
       {{- /* *** Create "diego-cell" job to setup rootfs for each stack *** */}}
 - type: replace
@@ -33,7 +33,7 @@
       {{ $stack_name }}-rootfs:
         trusted_certs:
         - ((diego_instance_identity_ca.ca))
-      {{- if $.kubecf.config.features.credhub.enabled }}
+      {{- if $.Values.features.credhub.enabled }}
         - ((credhub_tls.ca))
       {{- end }}
         - ((uaa_ssl.ca))
@@ -48,7 +48,7 @@
 {{- end }}
 
 # set default stack
-{{- include "_capi.setProperty" (list "default_stack" (first $.kubecf.config.install_stacks)) }}
+{{- include "_capi.setProperty" (list "default_stack" (first $.Values.install_stacks)) }}
 
 # set stack list
 {{- $stacks := list }}
