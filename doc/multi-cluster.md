@@ -1,9 +1,12 @@
 # Multi-cluster
 
-When building a multi-cluster kubecf, configuring a worker cluster requires many informations and credentials from the control plane cluster. It's not an easy work to collect all the requires values manually. The script `generate-minions-values.sh` will look at the control plane and generate a values yaml to help with configuring a worker cluster.
+When building a multi-cluster KubeCF, configuring a worker cluster requires settings and credentials from the control plane cluster. 
+It's not a trivial task to collect all the required values manually. 
+The script `generate-minions-values.sh` looks at the control plane and generates a `values.yaml` to help with configuring a worker cluster.
 
-The usage of generate-minions-values.sh:
-```
+Usage of `generate-minions-values.sh`:
+
+```shell
 usage() {
     echo
     echo "Usage: $scriptname [OPTIONS]"
