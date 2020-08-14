@@ -131,18 +131,6 @@ jobs:
         # The artifact upload/download creates an extra directory
         path: ${{ github.workspace }}/kubecf-bundle
 
-    # Download gomplate. TBD: use make target to download gomplate
-    - name: Download gomplate
-      run: |
-        if test -x "${TOOLS_DIR}/gomplate" ; then
-          echo "gomplate already exists; skipping."
-          exit 0
-        fi
-        mkdir -p "${TOOLS_DIR}"
-        wget -O "${TOOLS_DIR}/gomplate" \
-          https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
-        chmod a+x "${TOOLS_DIR}/gomplate"
-
     # Start SSH agent for catapult
     - name: Start SSH agent
       run: |
