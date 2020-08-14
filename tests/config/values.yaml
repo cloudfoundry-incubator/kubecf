@@ -1,0 +1,60 @@
+# For debugging/development you can render with "--set fail_on_error=false"
+# to print comprehensive test results and not fail on first error:
+fail_on_error: true
+
+nil: ~
+empty_string: ""
+empty_list: []
+empty_hash: {}
+
+zero: 0
+one: 1
+
+bool_false: false
+bool_true: true
+
+string_zero: "0"
+string_one: "1"
+string_false: "false"
+
+deeply:
+  nested:
+    bool_true: true
+    bool_false: false
+
+array:
+- key: foo
+  name: foo_name
+  bool_true: true
+- key: bar
+  name: bar_name
+  bool_false: false
+
+foo:
+  bar:
+    baz: xyzzy
+
+abc: [a, b, c]
+
+values:
+- [0, 0, 0]
+- [0, 0, 1]
+- [0, 1, 0]
+- [0, 1, 1]
+- [1, 0, 0]
+- [1, 0, 1]
+- [1, 1, 0]
+- [1, 1, 1]
+
+tests:
+- condition: "A && B || B && C"
+  results: [0, 0, 0, 1, 0, 0, 1, 1]
+- condition: "B && (A || C)"
+  results: [0, 0, 0, 1, 0, 0, 1, 1]
+
+- condition: "A || (B && C)"
+  results: [0, 0, 0, 1, 1, 1, 1, 1]
+- condition: "A || B && C"
+  results: [0, 0, 0, 1, 1, 1, 1, 1]
+- condition: "B && C || A"
+  results: [0, 0, 0, 1, 1, 1, 1, 1]

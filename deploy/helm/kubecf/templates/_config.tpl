@@ -88,8 +88,8 @@
 ==========================================================================================
 */}}
 {{- define "_config.lookup" }}
-  {{- $_ := include "_config.load" (first .) }}
   {{- $root := first . }}
+  {{- $_ := include "_config.load" $root }}
   {{- $query := (join "." (rest .) | replace "/" ".") }}
   {{- include "_config._lookup" (concat (list $root.kubecf $root.Values) (splitList "." $query)) }}
 {{- end }}
@@ -115,6 +115,7 @@
 | Internal implementation of "_config.lookup" and "_config.lookupManifest".
 |
 | Lookup $path under $context and return either the value found, or the empty string.
+| Maps and slices are returned in JSON format; nil is returned as the empty string.
 |
 | $context is either is an object (or array). It normally starts out as $.Values
 | or $.kubecf.manifest, but moves down the tree as _lookup calls itself recursively.
@@ -167,8 +168,16 @@
     {{- if gt (len $path) 1 }}
       {{- include "_config._lookup" (concat (list $kubecf $kubecf.retval) (rest $path)) }}
     {{- else }}
-      {{- $kubecf.retval }}
+      {{- if or (kindIs "map" $kubecf.retval) (kindIs "slice" $kubecf.retval) }}
+        {{- $kubecf.retval | toJson }}
+      {{- else }}
+        {{- $kubecf.retval }}
+      {{- end }}
     {{- end }}
+  {{- else }}
+    {{- /* Return YAML compatible string versions of "zero" values; empty string for all other kinds */}}
+    {{- $zero := dict "bool" "false" "int" 0 "int64" 0 "float64" 0 "map" "{}" "slice" "[]" }}
+    {{- get $zero (kindOf $kubecf.retval) }}
   {{- end }}
 {{- end }}
 
@@ -244,7 +253,8 @@
           {{- if eq $term "false" }}
             {{- $value = false }}
           {{- else }}
-            {{- $value = include "_config.lookup" (list $root $term) }}
+            {{- $_ := include "_config.lookup" (list $root $term) }}
+            {{- $value = $root.kubecf.retval }}
           {{- end }}
         {{- end }}
         {{- if hasPrefix "!" $and_term }}
