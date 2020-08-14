@@ -75,7 +75,7 @@ jobs:
         s3.stemcell-version: s3.fissile-stemcell-version
       params:
         STEMCELL_VERSIONED_FILE: {{ .stemcell_version_file }}
-        GITHUB_TOKEN: ((github-access-token-pr))
+        GITHUB_TOKEN: ((github-access-token))
         GITHUB_PRIVATE_KEY: ((github-private-key))
         GIT_MAIL: {{ .git_mail }}
         GIT_USER: {{ .git_user }}
