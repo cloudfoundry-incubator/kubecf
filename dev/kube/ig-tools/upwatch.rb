@@ -63,7 +63,7 @@ def update(state, timestamp, known_pod_state)
   completed = state.lines.map(&:chomp).reject(&:empty?).map do |line|
     # Extract pod state elements
     (pod_name, counts, pod_state,) = line.split
-    next if pod_state == 'STATUS' # Drop the header line
+    next true if pod_state == 'STATUS' # Drop the header line
 
     pod_state = canonicalize_state pod_state, counts
     detect_state_change timestamp, pod_name, pod_state, known_pod_state
@@ -140,4 +140,8 @@ def prefix(istate)
   complete?(istate) ? '      ' : "#{ani} #{red}"
 end
 
-main
+begin
+  main
+rescue Interrupt
+  nil
+end

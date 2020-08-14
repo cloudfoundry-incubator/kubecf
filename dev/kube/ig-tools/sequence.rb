@@ -49,8 +49,8 @@ def read_events(lines)
   # For example: "change 1596841778 Ready uaa-0"
 
   entries = lines.map do |line|
-    (_, stamp, state, pod) = line.split
-    Event.new(stamp: stamp.to_i, state: state, pod: pod)
+    (marker, stamp, state, pod) = line.split
+    Event.new(stamp: stamp.to_i, state: state, pod: pod) if marker == 'change'
   end
   base = entries.map(&:stamp).min
   entries.each { |entry| entry.offset = entry.stamp - base }
