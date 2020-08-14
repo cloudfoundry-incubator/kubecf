@@ -26,11 +26,7 @@ jobs:
         path: ${{ github.workspace }}/tools
         key: ${{ runner.os }}-tools
     - run: make tools-install
-
-    # Run the linters; split them out so it's easier to identify which one failed
-    - run: make shellcheck
-    - run: make yamllint
-    - run: make helmlint
+    - run: make lint
 
   build:
     name: build
@@ -96,22 +92,29 @@ jobs:
         - backend: diego
           experimental: false
         - backend: eirini
-          experimental: true
+          experimental: false
 
     steps:
+    # Checkout kubecf
     - name: Checkout KubeCF
       uses: actions/checkout@v2
       with:
         path: kubecf
         submodules: recursive
+
+    # We need catapult to create Kubernetes clusters
     - name: Checkout catapult
       uses: actions/checkout@v2
       with:
         repository: SUSE/catapult
         path: catapult
+
+    # Python setup
     - uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+
+    # Caching tools like helm, jq, git, y2j, yamllint etc
     - name: cache.tools
       uses: actions/cache@v2
       with:
@@ -119,6 +122,7 @@ jobs:
         key: ${{ runner.os }}-tools
     - run: make tools-install
 
+    # Download chart bundle
     - id: download-bundle
       name: Download chart bundle
       uses: actions/download-artifact@v2
@@ -127,6 +131,7 @@ jobs:
         # The artifact upload/download creates an extra directory
         path: ${{ github.workspace }}/kubecf-bundle
 
+    # Download gomplate. TBD: use make target to download gomplate
     - name: Download gomplate
       run: |
         if test -x "${TOOLS_DIR}/gomplate" ; then
@@ -138,6 +143,7 @@ jobs:
           https://github.com/hairyhenderson/gomplate/releases/latest/download/gomplate_linux-amd64
         chmod a+x "${TOOLS_DIR}/gomplate"
 
+    # Start SSH agent for catapult
     - name: Start SSH agent
       run: |
         set -o errexit -o pipefail -o nounset
@@ -149,6 +155,7 @@ jobs:
         echo "::set-env name=SSH_AUTH_SOCK::${SSH_AUTH_SOCK}"
         echo "::set-env name=SSH_AGENT_PID::${SSH_AGENT_PID}"
 
+    # set GKE secret. TBD: use vault instead
     - name: set GKE_CRED_JSON
       run: |
         json_file="$(mktemp)"
@@ -157,12 +164,14 @@ jobs:
       env:
         GKE_CRED_JSON: ${{ secrets.GKE_CREDS_JSON }}
 
+    # Cache catapult's common tools
     - name: cache.catapult-common-tools
       uses: actions/cache@v2
       with:
         path: ${{ github.workspace }}/catapult/modules/common/bin
         key: ${{ runner.os }}-catapult-common-tools
 
+    # Deploy k8s cluster
     - run: make k8s
       working-directory: catapult
       env:
@@ -170,8 +179,10 @@ jobs:
         OWNER: ${{ github.repository_owner }}
         DEBUG_MODE: false
         GKE_NODE_COUNT: 1
+        GKE_PREEMPTIBLE: true
         GKE_INSTANCE_TYPE: n1-highcpu-16
 
+    # Providing kubeconfig for debugging
     - name: export KUBECONFIG
       run: |
         set -o errexit -o nounset -o pipefail
@@ -187,6 +198,7 @@ jobs:
       run: |
         echo "::add-path::${TOOLS_DIR}"
 
+    # TBD: Don't generate values.yaml
     - name: Generate KubeCF Configuration
       run: |
         set -o errexit -o nounset -o pipefail
