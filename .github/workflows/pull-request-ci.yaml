@@ -10,22 +10,32 @@ jobs:
     defaults:
       run:
         working-directory: kubecf
+
     steps:
+    # Checkout kubecf
     - name: Checkout KubeCF
       uses: actions/checkout@v2
       with:
         path: kubecf
         fetch-depth: 0
         submodules: recursive
+
+    # Python setup
     - uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+
+    # Caching tools like helm, jq, git, y2j, yamllint etc
     - name: cache.tools
       uses: actions/cache@v2
       with:
         path: ${{ github.workspace }}/tools
         key: ${{ runner.os }}-tools
+
+    # Install tools
     - run: make tools-install
+
+    # Check lint
     - run: make lint
 
   build:
@@ -38,29 +48,43 @@ jobs:
     defaults:
       run:
         working-directory: kubecf
+
     steps:
+    # Checkout kubecf
     - name: Checkout KubeCF
       uses: actions/checkout@v2
       with:
         path: kubecf
         fetch-depth: 0
         submodules: recursive
+
+    # Python setup
     - uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+
+    # Caching tools like helm, jq, git, y2j, yamllint etc
     - name: cache.tools
       uses: actions/cache@v2
       with:
         path: ${{ github.workspace }}/tools
         key: ${{ runner.os }}-tools
+
+    # Install tools
     - run: make tools-install
+
+    # Generate kubecf bundle
     - run: make kubecf-bundle
       env:
         TARGET_FILE: ${{ github.workspace }}/kubecf-bundle.tgz
+
+    # Create tgz of kubecf bundle
     - run: |
         mkdir bundle
         tar xf kubecf-bundle.tgz -C bundle
       working-directory: ${{ github.workspace }}
+
+    # Upload generated tgz bundle
     - name: Upload bundle
       uses: actions/upload-artifact@v2
       with:
@@ -81,11 +105,11 @@ jobs:
       # Note that credentials-related parts are in the individual steps
       BACKEND: gke
       DOWNLOAD_CATAPULT_DEPS: "false"
-
     defaults:
       run:
         working-directory: kubecf
 
+    # Matrix to test diego and eirini
     strategy:
       matrix:
         include:
@@ -120,7 +144,15 @@ jobs:
       with:
         path: ${{ github.workspace }}/tools
         key: ${{ runner.os }}-tools
+
+    # Install tools
     - run: make tools-install
+
+    # Add Gomplate to path
+    - name: Add Gomplate to path
+      run: |
+        gomplate_path="${{ github.workspace }}/kubecf/output/bin"
+        echo "::add-path::${gomplate_path}"
 
     # Download chart bundle
     - id: download-bundle
@@ -182,10 +214,6 @@ jobs:
         cat "${KUBECONFIG}" | gzip | base64 --wrap=0
       working-directory: catapult
 
-    - name: Add tools to path
-      run: |
-        echo "::add-path::${TOOLS_DIR}"
-
     # TBD: Don't generate values.yaml
     - name: Generate KubeCF Configuration
       run: |
@@ -232,24 +260,38 @@ jobs:
         BACKEND: gke
         AUTOSCALER: "true"
 
+    # Helm install cf-operator
     - run: make cf-operator-apply
       env:
         CF_OPERATOR_URL: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
+
+    # Wait for cf-operator pods to be ready
     - run: make cf-operator-wait
 
+    # Helm install kubecf
     - run: make kubecf-apply
       env:
         CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
         FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
         VALUES: dev/kubecf/kubecf-values.yaml
+
+    # Wait for kubecf pods to be ready
     - run: make kubecf-wait
 
+    # Run smoke tests
     - run: make smoke-tests
+
+    # Run brain tests
     - run: make brain-tests
+
+    # Run sits tests
     - run: make sync-integration-tests
+
+    # Run CATs
     - run: make acceptance-tests
       timeout-minutes: 180
 
+    # Get resource info for debugging
     - name: Get Resource Info
       if: always()
       run: |
@@ -273,6 +315,7 @@ jobs:
           done
         done
 
+    # Upload kubecf's values.yaml for debugging
     - name: Upload config
       if: always()
       uses: actions/upload-artifact@v2
@@ -280,6 +323,7 @@ jobs:
         name: ${{ matrix.backend }}-values.yaml
         path: ${{ github.workspace }}/kubecf/dev/kubecf/kubecf-values.yaml
 
+    # Fetch logs for debugging
     - name: Fetch logs
       if: always()
       run: |
@@ -287,6 +331,8 @@ jobs:
         # Running klog.sh twice will grab logs from both namespaces
         dev/kube/klog.sh -f -r cf-operator
         dev/kube/klog.sh -f -r
+
+    # Upload logs for debugging
     - name: Upload logs
       if: always()
       uses: actions/upload-artifact@v2
@@ -294,6 +340,7 @@ jobs:
         name: ${{ matrix.backend }}-klog.tgz
         path: ${{ github.workspace }}/kubecf/klog.tar.gz
 
+    # Teardown created k8s cluster
     - name: kubernetes:teardown
       if: always()
       run: |
