@@ -231,13 +231,14 @@
 
   {{- else }}
     {{- /* Count the number of left parenthesis to determine the number of groups */}}
-    {{- range $_ := until (sub (len (splitList "(" $condition)) 1 | int) }}
+    {{- range $_ := splitList "(" $condition | len | add -1 | int | until }}
       {{- /* Find left inner-most group, evaluate it, and replace the expression with the value */}}
       {{- $group := regexFind "\\([^\\)]+\\)" $condition }}
       {{- /* There may be fewer groups than left parens if some groups turn out to be identical */}}
       {{- /* E.g. "((to.be) || !(to.be))" will collapse to "(true || !true)" after the 1st iteration */}}
       {{- if $group }}
-        {{- $value := include "_config.condition" (list $root ($group | trimPrefix "(" | trimSuffix ")")) }}
+        {{- $inner_expr := $group | trimPrefix "(" | trimSuffix ")" }}
+        {{- $value := include "_config.condition" (list $root $inner_expr) }}
         {{- $condition = replace $group $value $condition }}
       {{- end }}
     {{- end }}
@@ -250,13 +251,13 @@
         {{- $term := trimPrefix "!" $and_term }}
         {{- /* The term is either literally "true" or "false", or must be looked up */}}
         {{- $value := true }}
-        {{- if ne $term "true" }}
-          {{- if eq $term "false" }}
-            {{- $value = false }}
-          {{- else }}
-            {{- $_ := include "_config.lookup" (list $root $term) }}
-            {{- $value = $root.kubecf.retval }}
-          {{- end }}
+        {{- if eq $term "true" }}
+          {{- /* $value is already true */}}
+        {{- else if eq $term "false" }}
+          {{- $value = false }}
+        {{- else }}
+          {{- $_ := include "_config.lookup" (list $root $term) }}
+          {{- $value = $root.kubecf.retval }}
         {{- end }}
         {{- if hasPrefix "!" $and_term }}
           {{- $value = not $value }}
