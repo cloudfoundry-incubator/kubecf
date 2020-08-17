@@ -1,5 +1,5 @@
 # REQUIRED: the domain that the deployment will be visible to the user.
-system_domain: ~
+# system_domain: example.com
 
 install_stacks: [sle15, cflinuxfs3]
 
