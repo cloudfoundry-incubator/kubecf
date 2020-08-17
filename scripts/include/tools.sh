@@ -45,6 +45,9 @@ function require_tools {
     local tool
 
     for tool in "$@"; do
+        if [[ -z "${tool}" ]]; then
+            continue
+        fi
         case "${TOOL_STATUS["${tool}"]:-}" in
             "")
                 TOOL_STATUS["${tool}"]="installing"
