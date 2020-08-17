@@ -91,7 +91,9 @@ Note: the `bits.global.images` mechanism to change Eirini settings will change i
 The simplest way to distribute a stack is via its YAML config file. It can then simply be used like this:
 
 ```
-helm install kubecf --values=bclinux.yaml --set install_stacks={bclinux}
+helm install kubecf "${KUBECF_CHART}" \
+     --values bclinux.yaml --set install_stacks={bclinux} \
+     --values local-config.yaml
 ```
 
 If BigCorp has many users installing kubecf with their stack, they may want to distribute a modified helm chart including the stack. All that is required is dropping `bclinux.yaml` into the `config/` directory and editing `values.yaml` to modify the `install_stacks` setting.
@@ -106,14 +108,14 @@ There are a list of naming convention being used:
 
 * There must be a release for that stack with the same name as the stack. This is the rootfs. Every other release must define a buildpack, either via the implicit name rules with prefix/suffix removal, or via a `buildpack` property.
 
-* The rootfs must have a job called `$STACK-rootfs-setup` similar to [cflinuxfs3-release/pre-start at main · cloudfoundry/cflinuxfs3-release](https://github.com/cloudfoundry/cflinuxfs3-release/blob/main/jobs/cflinuxfs3-rootfs-setup/templates/pre-start).
+* The rootfs must have a job called `$STACK-rootfs-setup` similar to [cflinuxfs3-release's cflinuxfs3-rootfs-setup](https://github.com/cloudfoundry/cflinuxfs3-release/blob/b47ca31/jobs/cflinuxfs3-rootfs-setup/templates/pre-start).
 
     In particular it need to include these lines, which kubecf needs to modify to work correctly:
-  
+
     ```
     ROOTFS_DIR=$ROOTFS_PACKAGE/rootfs
     ROOTFS_TAR=$ROOTFS_PACKAGE/rootfs.tar
     ```
 
-* Each buildpack release must store the buildpack as the only ZIP file inside a directory with the name `$SHORTNAME-buildpack-$STACKNAME`, e.g. `ruby-buildpack-cflinuxfs3`.
+* Each buildpack release must store the buildpack as the only ZIP file inside a directory with the name `$SHORTNAME-buildpack-$STACK`, e.g. `/var/vcap/packages/ruby-buildpack-cflinuxfs3/something.zip`.
 
