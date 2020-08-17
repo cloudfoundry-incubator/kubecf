@@ -79,8 +79,8 @@
 | Look up a config setting in $.Values at $path.
 |
 | $path can be a '.' separated string of property names 'features.eirini.enabled', a
-| list of names ("stacks" $stacks "releases"), or a combination of both. The '/' may
-| also be used in place of the '.' for a more JSON-patch look.
+| list of names ("stacks" $stacks "releases"), or a combination of both. The separator
+| '/' may also be used in place of the '.' for a more JSON-patch look.
 |
 | See comments on the _config._lookup implementation function for more details.
 |
@@ -117,7 +117,7 @@
 | Lookup $path under $context and return either the value found, or the empty string.
 | Maps and slices are returned in JSON format; nil is returned as the empty string.
 |
-| $context is either is an object (or array). It normally starts out as $.Values
+| $context is either an object (or an array). It normally starts out as $.Values
 | or $.kubecf.manifest, but moves down the tree as _lookup calls itself recursively.
 |
 | $path is a list of properties to look up successively, e.g. ("stacks" $stack "releases").
@@ -131,7 +131,8 @@
 | string (which can mean: not found).
 |
 | When $context is an array, then _lookup will look for an array element that has a "name"
-| property matching the first element of $path.
+| property matching the first element of $path. If there are multiple matching array
+| elements, _lookup will pick the last one it finds.
 |
 | Example: Looking for "instance_groups.api.jobs.cloud_controller_ng" in $.kubecf.manifest
 | is equivalent to the "/instance_groups/name=api/jobs/name=cloud_controller_ng" path in
@@ -201,7 +202,7 @@
 |   if all of the AND terms are true.
 |
 | - An AND term is either the string "true" or "false", or it will be evaluated
-|   by looking up it's value in $.Values.
+|   by looking up its value in $.Values.
 |
 | - An AND term may be prefixed by "!" in which case its value is negated.
 |
