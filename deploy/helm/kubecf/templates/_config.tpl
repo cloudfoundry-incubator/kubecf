@@ -151,9 +151,9 @@
   {{- if kindIs "slice" $context }}
     {{- $name := "name" }}
     {{- if contains "=" $key }}
-      {{- $keyList := splitList "=" $key }}
-      {{- $name = first $keyList }}
-      {{- $key = index $keyList 1 }}
+      {{- $keyList := splitn "=" 2 $key }}
+      {{- $name = $keyList._0 }}
+      {{- $key = $keyList._1 }}
     {{- end }}
     {{- $_ := set $kubecf "retval" nil }}
     {{- range $context }}
