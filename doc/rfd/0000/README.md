@@ -52,7 +52,7 @@ Check for the next RFD number by going through the RFDs table.
 Create a RFD branch using the name after the last (i.e. 0009) known RFD number:
 
 ``` shell
-# git checkout -b 0010
+# git checkout -b rfd-0010
 ```
 
 and create the placeholder:
@@ -70,7 +70,7 @@ Push the changes to your RFD branch.
 
 ``` shell
 # git add docs/rfd/0010/README.md
-# git commit -m "rfd: adding placeholder for RFD..."
+# git commit -m "rfd-0010: adding placeholder for RFD..."
 # git push origin 0010
 ```
 
@@ -86,8 +86,8 @@ When ready to share with the team, then change the state from ```draft``` to ```
 and push it remotely.
 
 ```shell
-# git commit -m "rfd: change RFD state to discussion"
-# git push origin 0010
+# git commit -m "rfd-0010: change RFD state to discussion"
+# git push origin rfd-0010
 ```
 
 Do not forget to open a pull request (maybe later we will have a bot for this) with the title
