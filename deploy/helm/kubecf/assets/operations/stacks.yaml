@@ -124,7 +124,7 @@
     fi
 
     # Use the ephemeral data directory for the rootfs
-    perl -p -i -e "s#\\\$ROOTFS_PACKAGE/rootfs#/var/vcap/data/rep/{{ $stack_name }}/rootfs#" "${target}"
+    perl -p -i -e 's#\$ROOTFS_PACKAGE/rootfs#/var/vcap/data/rep/{{ $stack_name }}/rootfs#' "${target}"
 
     sha256sum "${target}" > "${sentinel}"
   {{- end }}
