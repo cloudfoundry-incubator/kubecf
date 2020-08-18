@@ -6,7 +6,7 @@ on:
 jobs:
   lint:
     # Only run if base is master
-    if: github.base_ref == 'master'
+    if: github.event.pull_request.base.ref == 'master'
     name: lint
     runs-on: ubuntu-latest
     env:
@@ -45,7 +45,7 @@ jobs:
 
   build:
     # Only run if base is master
-    if: github.base_ref == 'master'
+    if: github.event.pull_request.base.ref == 'master'
     name: build
     runs-on: ubuntu-latest
     needs: lint
@@ -100,7 +100,7 @@ jobs:
 
   tests:
     # Only run if base is master
-    if: github.base_ref == 'master'
+    if: github.event.pull_request.base.ref == 'master'
     name: tests
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
