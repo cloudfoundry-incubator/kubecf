@@ -1,12 +1,12 @@
 name: CI
 on:
-  # Trigger the workflow on pull request,
-  # but only for the master branch
-  pull_request:
-    branches:
-      - master
+  # Trigger the workflow on pull request approval
+  pull_request_review:
+    types: [submitted]
 jobs:
   lint:
+    # Only run if base is master
+    if: github.base_ref == 'master'
     name: lint
     runs-on: ubuntu-latest
     env:
@@ -44,6 +44,8 @@ jobs:
       - run: make lint
 
   build:
+    # Only run if base is master
+    if: github.base_ref == 'master'
     name: build
     runs-on: ubuntu-latest
     needs: lint
@@ -97,6 +99,8 @@ jobs:
           path: ${{ github.workspace }}/bundle
 
   tests:
+    # Only run if base is master
+    if: github.base_ref == 'master'
     name: tests
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
