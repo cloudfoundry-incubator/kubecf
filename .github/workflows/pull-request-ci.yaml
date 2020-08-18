@@ -1,14 +1,24 @@
 name: CI
 on:
-  # Trigger the workflow on pull request approval
-  pull_request_review:
-    types: [submitted]
+  # Trigger the workflow on pull requests
+  pull_request_target:
+    branches: master
+    types: [labeled]
 jobs:
+  dequeue:
+    name: dequeue
+    if: contains(github.event.pull_request.labels.*.name, 'pr-test-queue')
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          labels: pr-test-queue
+
   lint:
-    # Only run if base is master
-    if: github.event.pull_request.base.ref == 'master'
     name: lint
-    runs-on: ubuntu-latest
+    needs: [dequeue]
+    runs-on: ubuntu-20.04
     env:
       PINNED_TOOLS: true
       TOOLS_DIR: ${{ github.workspace }}/tools
@@ -44,10 +54,8 @@ jobs:
       - run: make lint
 
   build:
-    # Only run if base is master
-    if: github.event.pull_request.base.ref == 'master'
     name: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: lint
     env:
       PINNED_TOOLS: true
@@ -99,10 +107,8 @@ jobs:
           path: ${{ github.workspace }}/bundle
 
   tests:
-    # Only run if base is master
-    if: github.event.pull_request.base.ref == 'master'
     name: tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     continue-on-error: ${{ matrix.experimental }}
     needs: build
     env:
@@ -362,3 +368,5 @@ jobs:
         working-directory: catapult
         env:
           GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
+
+    
