@@ -2,7 +2,7 @@ name: CI
 on:
   # Trigger the workflow on pull requests
   pull_request_target:
-    branches: master
+    branches: [master]
     types: [labeled]
 jobs:
   dequeue:
