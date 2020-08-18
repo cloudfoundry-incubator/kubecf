@@ -107,7 +107,6 @@
         {{- $_ := set $release "buildpack" $shortname }}
       {{- end }}
 
-      {{- $_ := set $release "stack" $stack_name }}
       {{- if $release.buildpack }}
         {{- if has $release.buildpack $install_buildpacks }}
           {{- /* Map the buildpack shortname to the release name */}}
