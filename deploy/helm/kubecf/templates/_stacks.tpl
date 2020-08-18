@@ -96,12 +96,12 @@
     {{- $_ := set $stack "buildpacks" dict }}
 
     {{- $release_prefix := printf "%s-" (default "" $stack.release_prefix) }}
-    {{- $release_suffix := printf "-%s" (default "" $stack.release_suffix) }}
+    {{- $release_suffix := printf "-%s" (default "buildpack" $stack.release_suffix) }}
     {{- range $release_name, $release := $stack.releases }}
       {{- $_ := set $release "condition" $stack.enabled }}
 
-      {{- /* *** Set buildpack shortname from release name (unless already set) *** */}}
-      {{- if and (hasSuffix "-buildpack" $release_name) (not $release.buildpack) }}
+      {{- /* *** Set buildpack shortname from release name (unless already set, or rootfs) *** */}}
+      {{- if and (ne $release_name $stack_name) (not $release.buildpack) }}
         {{- $shortname := ($release_name | trimSuffix "-buildpack") }}
         {{- $shortname = ($shortname | trimSuffix $release_suffix | trimPrefix $release_prefix) }}
         {{- $_ := set $release "buildpack" $shortname }}
@@ -117,7 +117,6 @@
         {{- end }}
       {{- end }}
     {{- end }}
-    {{- /* TODO make sure there are no more than 1 rootfs per stack? */}}
 
     {{- $_ := set $.Values "releases" (mergeOverwrite $.Values.releases $stack.releases) }}
   {{- end }}
@@ -128,8 +127,11 @@
       {{- fail (printf "Stack %s is not defined" $stack_name) }}
     {{- end }}
     {{- $stack := $.kubecf.retval }}
+    {{- if not (include "_config.lookup" (list $ "releases" $stack_name)) }}
+      {{- fail (printf "No rootfs release found for stack %s" $stack_name) }}
+    {{- end }}
     {{- range $buildpack_name := $stack.install_buildpacks }}
-      {{- if not (include "_config.lookup" (concat (list $ "stacks" $stack_name "buildpacks" $buildpack_name))) }}
+      {{- if not (include "_config.lookup" (list $ "stacks" $stack_name "buildpacks" $buildpack_name)) }}
         {{- fail (printf "No release found for buildpack %s (used by stack %s)" $buildpack_name $stack_name) }}
       {{- end }}
     {{- end }}

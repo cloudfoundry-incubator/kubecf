@@ -22,7 +22,7 @@ stacks:
     install_buildpacks: [bclang, java]
 
     release_prefix: bigcorp
-    release_suffix: prod
+    release_suffix: prod-buildpack
 
     releases:
       '$defaults':
@@ -39,7 +39,7 @@ This describes the `bclinux` stack of BigCorp, supporting both their internal Bi
 
 The `install_buildpacks` list describes the order in which the buildpacks are added to Cloud Foundry. The names in here are the short forms of the buildpack names, e.g. `bclang` stands for `bclang_buildpack`.
 
-The kubecf helm chart attempts to map release names to buildpack names automatically by stripping the `-buildpack` suffix first, and then stripping the optional `release_prefix` and `release-suffix`. If the remaining string then does not match the buildpack short name, then the release needs to include an explicit `buildpack` key:
+The kubecf helm chart attempts to map release names to buildpack names automatically by stripping the optional `release_prefix` and `release-suffix`. The default `release-suffix` is "buildpack". If the remaining string then does not match the buildpack short name, then the release needs to include an explicit `buildpack` key:
 
 ```
     releases:
