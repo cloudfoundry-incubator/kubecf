@@ -105,5 +105,5 @@ master branch and change the state to ```published```.
 The timeline is up to the author(s), but as guideline it could go from a 3-5 days to 2 weeks.
 
 Before merging the pull request the state must also change to ```commited``` that indicates that the
-RFD has involve from an idea to a clear description of a system or process and it can be
+RFD has evolved from an idea to a clear description of a system or process and it can be
 implemented.
