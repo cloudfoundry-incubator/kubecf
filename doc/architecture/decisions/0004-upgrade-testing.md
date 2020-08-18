@@ -24,7 +24,7 @@ That means any user operating a KubeCF deployment should:
 
 Therefore, for downstream projects, assuming they don't release as often as KubeCF, we recommend that the following rules should be in place:
 
-- there should be a release for each major KubeCF release
+- there should be a release for each major KubeCF release (as upgrades skipping a major KubeCF release are not supported)
 - for a version `X.y.z`, the upgrade path must be tested for:
   - the previous `X.*.*` release
 - if a version `X.y.z` cannot be upgraded from `X.y-1.t`, a new version `X.y-1.t+1` must be created from a known upgradeable path in KubeCF.
