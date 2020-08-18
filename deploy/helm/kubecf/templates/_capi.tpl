@@ -23,9 +23,9 @@
   {{- /* XXX cc_route_syncer is not in cf-deployment; see CF-K8s-Networking */}}
   {{- /* $_ := set $ig "cc_route_syncer" "???" */}}
 
-  {{- range $job := keys $ig }}
+  {{- range $job, $instance_group := $ig }}
 - type: replace
-  path: /instance_groups/name={{ get $ig $job }}/jobs/name={{ $job }}?/properties/cc/{{ $property | replace "." "/" }}
+  path: /instance_groups/name={{ $instance_group }}/jobs/name={{ $job }}?/properties/cc/{{ $property | replace "." "/" }}
   value: {{ $value | toJson }}
   {{- end }}
 {{- end }}
