@@ -1,5 +1,5 @@
-{{- $_ := include "_config.lookup" (list $ "defaults.stemcell") }}
-{{- $stemcell := $.kubecf.retval }}
+{{- $_ := include "_config.load" $ }}
+{{- $stemcell := $.Values.defaults.stemcell }}
 
 - type: replace
   path: /stemcells/alias=default

@@ -238,8 +238,7 @@ spec:
           {{- end }}
           initContainers:
           - name: remove-lost-found
-            {{- $_ := include "_config.lookup" (list $ "releases.database.image") }}
-            {{- with $image := $.kubecf.retval }}
+            {{- with $image := $.Values.releases.database.image }}
             image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
             imagePullPolicy: {{ $image.pullPolicy | quote }}
             {{- end }}
@@ -249,8 +248,7 @@ spec:
               mountPath: /var/lib/mysql
           containers:
           - name: database
-            {{- $_ := include "_config.lookup" (list $ "releases.database.image") }}
-            {{- with $image := $.kubecf.retval }}
+            {{- with $image := $.Values.releases.database.image }}
             image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
             imagePullPolicy: {{ $image.pullPolicy | quote }}
             {{- end }}
@@ -317,8 +315,7 @@ spec:
             - name: var-log
               mountPath: /var/log
           - name: "logs"
-            {{- $_ := include "_config.lookup" (list $ "releases.database.image") }}
-            {{- with $image := $.kubecf.retval }}
+            {{- with $image := $.Values.releases.database.image }}
             image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
             imagePullPolicy: {{ $image.pullPolicy | quote }}
             {{- end }}
@@ -393,8 +390,7 @@ spec:
         spec:
           containers:
           - name: seeder
-            {{- $_ := include "_config.lookup" (list $ "releases.database.image") }}
-            {{- with $image := $.kubecf.retval }}
+            {{- with $image := $.Values.releases.database.image }}
             image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
             imagePullPolicy: {{ $image.pullPolicy | quote }}
             {{- end }}
@@ -457,8 +453,7 @@ spec:
         spec:
           containers:
           - name: migrate-charset
-            {{- $_ := include "_config.lookup" (list $ "releases.database.image") }}
-            {{- with $image := $.kubecf.retval }}
+            {{- with $image := $.Values.releases.database.image }}
             image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
             imagePullPolicy: {{ $image.pullPolicy | quote }}
             {{- end }}

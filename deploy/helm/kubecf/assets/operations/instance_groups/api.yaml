@@ -1,3 +1,5 @@
+{{- $_ := include "_config.load" $ }}
+
 {{- if .Values.testing.brain_tests.enabled}}
 # For brain tests, allow CC access to the insecure registry they will create.
 - type: replace
@@ -48,9 +50,8 @@
 {{- end }}
 
 # Set cc/database_encryption property in all CAPI jobs
-{{- $_ := include "_config.lookup" (list $ "ccdb.encryption.rotation") }}
-{{- $db_enc := dict "current_key_label" $.kubecf.retval.current_key_label "keys" dict }}
-{{- range $keyLabel := $.kubecf.retval.key_labels }}
+{{- $db_enc := dict "current_key_label" $.Values.ccdb.encryption.rotation.current_key_label "keys" dict }}
+{{- range $keyLabel := $.Values.ccdb.encryption.rotation.key_labels }}
   {{- $_ := set $db_enc.keys $keyLabel (printf "((ccdb_key_label_%s))" ($keyLabel | trimPrefix "ccdb_key_label_" | lower)) }}
 {{- end }}
 {{- include "_capi.setProperty" (list "database_encryption" $db_enc) }}

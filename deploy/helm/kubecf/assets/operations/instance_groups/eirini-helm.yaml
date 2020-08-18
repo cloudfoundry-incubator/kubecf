@@ -1,11 +1,12 @@
+{{- $_ := include "_config.load" $ }}
 {{- if  .Values.features.eirini.enabled }}
 
   {{- /* *** Make sure the eirini stack has been selected *** */}}
-  {{- $stack := include "_config.lookup" (list $ "features.eirini.stack") }}
+  {{- $eirini_stack := $.Values.features.eirini.stack }}
   {{- $ok := len $.Values.install_stacks | eq 1 }}
-  {{- $ok = first $.Values.install_stacks | eq $stack | and $ok }}
+  {{- $ok = first $.Values.install_stacks | eq $eirini_stack | and $ok }}
   {{- if not $ok }}
-    {{ fail (printf "Eirini can only be enabled with \"install_stacks=[%s]\"" $stack) }}
+    {{ fail (printf "Eirini can only be enabled with \"install_stacks=[%s]\"" $eirini_stack) }}
   {{- end }}
 
 - type: replace

@@ -1,9 +1,9 @@
+{{- $_ := include "_config.load" $ }}
 # Remove all releases from cf-deployment; we'll only add back those we need
 - type: remove
   path: /releases
 
-{{- $_ := include "_config.lookup" (list $ "releases") }}
-{{- range $release_name, $release := $.kubecf.retval }}
+{{- range $release_name, $release := $.Values.releases }}
   {{- /* only add bosh releases (releases with a version) */}}
   {{- if $release.version }}
     {{- if eq "true" (include "_config.condition" (list $ (index $release "condition"))) }}
