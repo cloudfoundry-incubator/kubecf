@@ -106,7 +106,7 @@ There are a list of naming convention being used:
 
 * All buildpacks are installed as `name_buildpack`. This doesn't make much sense, but is the way cf-deployment defines all the built-in stacks, and kubecf assumes this convention is used everywhere.
 
-* There must be a release for that stack with the same name as the stack. This is the rootfs. Every other release must define a buildpack, either via the implicit name rules with prefix/suffix removal, or via a `buildpack` property.
+* There must be a release for that stack with exactly the same name as the stack (no prefix/suffix removal is applied here). This is the rootfs. Every other release must define a buildpack, either via the implicit name rules with prefix/suffix removal, or via a `buildpack` property.
 
 * The rootfs must have a job called `$STACK-rootfs-setup` similar to [cflinuxfs3-release's cflinuxfs3-rootfs-setup](https://github.com/cloudfoundry/cflinuxfs3-release/blob/b47ca31/jobs/cflinuxfs3-rootfs-setup/templates/pre-start).
 
