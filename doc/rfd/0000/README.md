@@ -25,7 +25,7 @@ document known by RFD.
 5. abandoned
 
 The ```draft``` state indicates that the work is not ready for discussion and that a placeholder
-was set. The RFD owner is puting his thoughs in place before promoting to ```discussion```.
+was set. The RFD owner is putting his thoughts in place before promoting to ```discussion```.
 
 Documents under active discussion within the team should be in ```discussion``` state. When reaching
 this state the scope of the RFD must be clear and well defined.
