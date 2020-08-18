@@ -1,9 +1,9 @@
 {{- $_ := include "_config.lookup" (list $ "releases") }}
 {{- range $release_name, $release := $.kubecf.retval }}
   {{- if $release.buildpack }}
-    {{- /* buildpack release conditions are either true or false, not complex expressions */}}
+    {{- /* buildpack release conditions are set in _stacks.update to either true or false */}}
     {{- if $release.condition }}
-    {{- /* *** Create/update "api" jobs for each buildpack (they already exist for default stack buildpacks) *** */}}
+      {{- /* *** Create/update "api" jobs for each buildpack (they already exist for default stack buildpacks) *** */}}
 - type: replace
   path: /instance_groups/name=api/jobs/name={{ $release_name }}?/name
   value: {{ $release_name | quote }}
@@ -37,9 +37,9 @@
         - ((credhub_tls.ca))
       {{- end }}
         - ((uaa_ssl.ca))
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name={{ $stack_name }}-rootfs-setup/properties/quarks?/bpm/processes
-  value: []
+      quarks:
+        bpm:
+          processes: []
     {{- else }}
 - type: remove
   path: /instance_groups/name=diego-cell/jobs/name={{ $stack_name }}-rootfs-setup?

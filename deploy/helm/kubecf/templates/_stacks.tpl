@@ -33,7 +33,7 @@
   {{- if ne (len $cc_stacks) 1 }}
     {{- fail "cf-deployment defines more than one stack (or none)" }}
   {{- end }}
-  {{ $cc_stack := index $cc_stacks 0 }}
+  {{- $cc_stack := index $cc_stacks 0 }}
 
   {{- /* *** Verify that "config.$cc_stack" exists (so the name hasn't changed in the manifest) *** */}}
   {{- $_ := include "_config.lookup" (list $ "stacks" $cc_stack.name) }}
