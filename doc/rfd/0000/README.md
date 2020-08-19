@@ -94,8 +94,8 @@ and push it remotely.
 Do not forget to open a pull request (maybe later we will have a bot for this) with the title
 _RDF:num_ .
 
-With the pull request open anyone register to the repository can read the RFD and give feedback
-through pull request comments.
+With the pull request open anyone subscribed to the repository will be notified about the new RFD
+and it can givethe feedback through pull request comments.
 
 It's up to the author(s) to incorporate any pull request comment into the RFD.
 
