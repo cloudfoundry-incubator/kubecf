@@ -102,8 +102,7 @@
 
       {{- /* *** Set buildpack shortname from release name (unless already set, or rootfs) *** */}}
       {{- if and (ne $release_name $stack_name) (not $release.buildpack) }}
-        {{- $shortname := ($release_name | trimSuffix "-buildpack") }}
-        {{- $shortname = ($shortname | trimSuffix $release_suffix | trimPrefix $release_prefix) }}
+        {{- $shortname := $release_name | trimSuffix $release_suffix | trimPrefix $release_prefix }}
         {{- $_ := set $release "buildpack" $shortname }}
       {{- end }}
 
