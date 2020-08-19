@@ -371,5 +371,3 @@ jobs:
         working-directory: catapult
         env:
           GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
-
-    
