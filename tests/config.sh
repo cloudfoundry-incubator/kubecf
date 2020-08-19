@@ -12,12 +12,12 @@ cp -a tests/config/* "${TEST_DIR}"
 cp deploy/helm/kubecf/templates/_*.tpl "${TEST_DIR}/templates"
 
 HELM_ARGS=(
-    --set helm_nil=null
-    --set helm_empty=""
-    --set helm_zero=0
-    --set helm_one=1
-    --set helm_true=true
-    --set helm_false=false
+    --set "helm_nil=null"
+    --set 'helm_empty='
+    --set "helm_zero=0"
+    --set "helm_one=1"
+    --set "helm_true=true"
+    --set "helm_false=false"
 )
 
 if [ -n "${NO_FAIL:-}" ]; then
