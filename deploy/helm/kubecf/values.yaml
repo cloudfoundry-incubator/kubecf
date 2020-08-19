@@ -1,6 +1,9 @@
 # REQUIRED: the domain that the deployment will be visible to the user.
 # system_domain: example.com
 
+# List of stacks to install; the first one will be used as the default.
+# A stack is a prebuilt root file system that supports a specific
+# operating system with a corresponding set of buildpacks.
 install_stacks: [sle15, cflinuxfs3]
 
 # Set or override job properties. The first level of the map is the instance group name. The second
