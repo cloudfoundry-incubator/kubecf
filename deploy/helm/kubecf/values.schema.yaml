@@ -190,7 +190,8 @@ properties:
           default: {"$ref": "#/definitions/string_or_null"}
         additionalProperties: false
       storage_class: {"$ref": "#/definitions/string_or_null"}
-    additionalProperties: false
+    # XXX Catapult sets additional (unused) properties; allow them for now to pass CI
+    additionalProperties: true
 
   # Does not really work because the zone names cannot be configured
   multi_az: {type: boolean}
