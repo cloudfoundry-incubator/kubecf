@@ -12,7 +12,7 @@
 ## Introduction
 
 KubeCF is a distribution of Cloud Foundry Application Runtime (CFAR) for Kubernetes. 
-It works with the [cf-operator] from [Project Quarks] to deploy and manage releases built from [cf-deployment].
+It works with the [quarks-operator] from [Project Quarks] to deploy and manage releases built from [cf-deployment].
 
 [cf-operator]:   https://github.com/cloudfoundry-incubator/cf-operator/
 [Project Quarks]:           https://www.cloudfoundry.org/project-quarks/
