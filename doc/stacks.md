@@ -96,7 +96,7 @@ helm install kubecf "${KUBECF_CHART}" \
      --values local-config.yaml
 ```
 
-If BigCorp has many users installing kubecf with their stack, they may want to distribute a modified helm chart including the stack. All that is required is dropping `bclinux.yaml` into the `config/` directory and editing `values.yaml` to modify the `install_stacks` setting.
+If BigCorp has many users installing kubecf with their stack, they may want to distribute a modified helm chart including the stack. All that is required is dropping `bclinux.yaml` into the `config/` directory as `BCLINUX.yaml` and editing `values.yaml` to modify the `install_stacks` setting. Using an uppercase config filename makes sure it takes precedence over the builtin `eirini.yaml`, so can overwrite the `features.eirini.stack` value.
 
 Unlike the `features.eirini.stack` setting, the `bits.global.images` can not be modified by a file dropped into `config/`. This should change once the Eirini config mechanism is updated.
 

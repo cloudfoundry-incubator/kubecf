@@ -1,5 +1,3 @@
-'$base_config': true
-
 # This skeleton config will be updated from cf-deployment.yml by _stacks.tpl:update
 
 stacks:

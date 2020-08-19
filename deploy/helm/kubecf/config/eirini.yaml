@@ -1,5 +1,3 @@
-'$base_config': true
-
 features:
   eirini:
     # Currently the stack rootfs for Eirini is pre-installed in the

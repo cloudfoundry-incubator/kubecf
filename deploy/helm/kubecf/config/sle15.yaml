@@ -1,5 +1,3 @@
-'$base_config': true
-
 unsupported:
   ? "features.suse_buildpacks || features.suse_default_stack"
   : 'Use "install_stacks=[sle15]" to select the SUSE stack and buildpacks.'

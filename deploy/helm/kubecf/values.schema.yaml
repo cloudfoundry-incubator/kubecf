@@ -139,9 +139,6 @@ definitions:
 
 properties:
 
-  # internal use by config system
-  '$base_config': {type: boolean}
-
   ccdb:
     type: object
     properties:

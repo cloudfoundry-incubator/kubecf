@@ -11,10 +11,11 @@
 |
 | The "cf-deployment.yml" file is loaded into $.kubecf.manifest.
 |
-| All "config/*" files are merged into $.Values; first the files that don't define the
-| '$base_config' property, and then the ones designated as base config. Merging is done
-| without overwriting, so additional config files can override the base config, but not
-| the values.yaml file defaults.
+| All "config/*" files are merged into $.Values in alphabetical sort sequence, without
+| overwriting values that already exist. The base config files all start with lowercase
+| letters, so any add-ons that want to overwrite a base config setting should use an
+| uppercase config filename, to be merged first. Obviously no config file can overwrite
+| an explict user choice from $.Values.
 |
 | The $.Values.release.$defaults are saved in $.kubecf.defaults because they are used
 | in templates to set the default and addon stemcells.
@@ -43,21 +44,13 @@
   {{- if not $.kubecf.manifest }}
     {{- $_ := set $.kubecf "manifest" (fromYaml ($.Files.Get "assets/cf-deployment.yml")) }}
 
-    {{- $base_config := dict }}
-    {{- $additional_config := dict }}
     {{- $configs := dict }}
     {{- range $name, $bytes := $.Files.Glob "config/*" }}
       {{- $_ := set $configs $name ($bytes | toString | fromYaml) }}
     {{- end }}
     {{- range $name := keys $configs | sortAlpha }}
-      {{- $config := get $configs $name }}
-      {{- if index $config "$base_config" }}
-        {{- $base_config = mergeOverwrite $base_config $config }}
-      {{- else }}
-        {{- $additional_config = mergeOverwrite $additional_config $config }}
-      {{- end }}
+      {{- $_ := merge $.Values (get $configs $name) }}
     {{- end }}
-    {{- $_ := set $ "Values" (merge $.Values $additional_config $base_config) }}
 
     {{- $_ := set $.Values "defaults" (index $.Values.releases "$defaults") }}
 

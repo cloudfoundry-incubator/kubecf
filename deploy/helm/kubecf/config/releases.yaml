@@ -1,5 +1,3 @@
-'$base_config': true
-
 # Any cf-deployment based releases listed here to specify a stemcell override,
 # or to add a condition, must also specify a version to satisfy the schema
 # validation. The only exception are disabled releases (condition: false).
