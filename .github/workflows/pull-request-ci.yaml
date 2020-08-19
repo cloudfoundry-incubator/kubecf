@@ -1,16 +1,19 @@
 name: CI
 on:
-  # Trigger the workflow on pull requests
+  # Trigger the workflow when PRs are labeled
   pull_request_target:
     branches: [master]
     types: [labeled]
 jobs:
+
+  # The first thing we do is to check that the PR has the pr-test-queue label
+  # If it doesn't have it, the flow stops. If it does, we remove it (approval is good for one run only).
   dequeue:
     name: dequeue
     if: contains(github.event.pull_request.labels.*.name, 'pr-test-queue')
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions-ecosystem/action-remove-labels@v1
+      - uses: actions-ecosystem/action-remove-labels@9141732
         with:
           github_token: ${{ secrets.github_token }}
           labels: pr-test-queue
