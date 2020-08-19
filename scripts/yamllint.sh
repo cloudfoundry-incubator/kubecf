@@ -20,6 +20,10 @@ find_args=(
        -or
        -not -path "./deploy/helm/kubecf/*"
     \)
+    \( -path "./tests/config/values.*"
+       -or
+       -not -path "./tests/config/*"
+    \)
 
     # Check both file extensions, although we should have only .yaml files.
     \( -name '*.yaml' -or -name '*.yml' \)
