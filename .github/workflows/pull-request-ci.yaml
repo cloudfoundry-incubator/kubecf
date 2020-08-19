@@ -13,7 +13,7 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'pr-test-queue')
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions-ecosystem/action-remove-labels@9141732
+      - uses: actions-ecosystem/action-remove-labels@556e306
         with:
           github_token: ${{ secrets.github_token }}
           labels: pr-test-queue
