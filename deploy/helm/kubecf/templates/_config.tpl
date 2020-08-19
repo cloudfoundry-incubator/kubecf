@@ -110,7 +110,7 @@
 | Lookup $path under $context and return either the value found, or the empty string.
 | Maps and slices are returned in JSON format; nil is returned as the empty string.
 |
-| $context is either an object (or an array). It normally starts out as $.Values
+| $context is either an object or an array. It normally starts out as $.Values
 | or $.kubecf.manifest, but moves down the tree as _lookup calls itself recursively.
 |
 | $path is a list of properties to look up successively, e.g. ("stacks" $stack "releases").
