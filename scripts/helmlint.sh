@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source scripts/include/setup.sh
 
-require_tools helm
+require_tools helm perl
 
 export TARGET_FILE="${TEMP_DIR}/kubecf.tgz"
 ./scripts/kubecf-build.sh

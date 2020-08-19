@@ -14,7 +14,7 @@
 |
 | * Sets stacks.$STACK.releases.$RELEASE.stack to $STACK
 | * Sets stacks.$STACK.releases.$RELEASE.enable to true unless the release has
-|   a "buildpack" property and it's value is not in the stack's install_buildpacks
+|   a "buildpack" property and its value is not in the stack's install_buildpacks
 |
 | Finally
 |

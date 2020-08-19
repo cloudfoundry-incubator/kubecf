@@ -1,13 +1,5 @@
 '$base_config': true
 
-unsupported:
-  ? releases.defaults
-  : >
-    The "release.defaults" setting is now "releases.$defaults", but most
-    likely the presence of release defaults in your config is an error
-    based on using the whole "values.yaml" files from an earlier release
-    as your local config file.
-
 # Any cf-deployment based releases listed here to specify a stemcell override,
 # or to add a condition, must also specify a version to satisfy the schema
 # validation. The only exception are disabled releases (condition: false).
@@ -65,3 +57,16 @@ releases:
     # XXX SITS only makes sense when using Diego; add error check somewhere?
     condition: testing.sync_integration_tests.enabled
     version: v0.0.3
+
+unsupported:
+  ? releases.defaults
+  : >
+    The "release.defaults" setting is now "releases.$defaults", but most
+    likely the presence of release defaults in your config is an error
+    based on using the whole "values.yaml" files from an earlier release
+    as your local config file.
+
+  ? releases.pxc.image
+  : >
+    The native 'pxc' release has been renamed to 'database' to avoid a
+    naming conflict with the bosh release of pxc.

@@ -27,7 +27,7 @@
 | function, and if true, this function will fail with the corresponding error message.
 |
 | The $.Values and $.kubecf.manifest objects can be searched by _config.lookup and
-| _config.lookupManifest.
+| _config.lookupManifest, respectively.
 +-----------------------------------------------------------------------------------------
 | For reference, these names are currently being used:
 | * $.Values
@@ -49,8 +49,8 @@
     {{- range $name, $bytes := $.Files.Glob "config/*" }}
       {{- $_ := set $configs $name ($bytes | toString | fromYaml) }}
     {{- end }}
-    {{- range $name := (keys $configs | sortAlpha) }}
-      {{- $config := (get $configs $name) }}
+    {{- range $name := keys $configs | sortAlpha }}
+      {{- $config := get $configs $name }}
       {{- if index $config "$base_config" }}
         {{- $base_config = mergeOverwrite $base_config $config }}
       {{- else }}
@@ -90,7 +90,7 @@
 {{- define "_config.lookup" }}
   {{- $root := first . }}
   {{- $_ := include "_config.load" $root }}
-  {{- $query := (join "." (rest .) | replace "/" ".") }}
+  {{- $query := join "." (rest .) | replace "/" "." }}
   {{- include "_config._lookup" (concat (list $root.kubecf $root.Values) (splitList "." $query)) }}
 {{- end }}
 
@@ -104,7 +104,7 @@
 {{- define "_config.lookupManifest" }}
   {{- $_ := include "_config.load" (first .) }}
   {{- $kubecf := get (first .) "kubecf" }}
-  {{- $query := (join "." (rest .) | replace "/" ".") }}
+  {{- $query := join "." (rest .) | replace "/" "." }}
   {{- include "_config._lookup" (concat (list $kubecf $kubecf.manifest) (splitList "." $query)) }}
 {{- end }}
 
@@ -146,7 +146,7 @@
   {{- $kubecf := index . 0 }}
   {{- $context := index . 1 }}
   {{- $path := slice . 2 }}
-  {{- $key := (first $path) }}
+  {{- $key := first $path }}
 
   {{- if kindIs "slice" $context }}
     {{- $name := "name" }}
@@ -266,7 +266,7 @@
       {{- end }}
       {{- $or_value = or $or_value $and_value }}
     {{- end }}
-    {{- /* "ternary" requires a real bool for the third argument */}}
-    {{- ternary "false" "true" (not $or_value) }}
+    {{- /* Double-negation turns $or_value into a true boolean, as required by "ternary" */}}
+    {{- ternary "true" "false" ($or_value | not | not) }}
   {{- end }}
 {{- end }}

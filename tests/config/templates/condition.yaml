@@ -2,10 +2,11 @@
   {{- $root := index . 0 }}
   {{- $condition := index . 1 }}
   {{- $expect := index . 2 }}
-  {{- if eq (include "_config.condition" (list $root $condition)) $expect }}
-    {{- printf "# Condition %q is %q" $condition $expect }}
+  {{- $actual := include "_config.condition" (list $root $condition) }}
+  {{- if eq $actual $expect }}
+    {{- printf "# Condition %q is %q" $condition $actual }}
   {{- else }}
-    {{- include "fail" (list $root (printf "Condition %q is NOT %q" $condition $expect)) }}
+    {{- include "fail" (list $root (printf "Condition %q is %q and NOT %q" $condition $actual $expect)) }}
   {{- end }}
 
   {{- if kindIs "string" $condition }}

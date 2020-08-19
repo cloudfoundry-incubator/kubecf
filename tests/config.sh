@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source scripts/include/setup.sh
 
-require_tools helm
+require_tools helm perl
 
 TEST_DIR="${TEMP_DIR}/test"
 
