@@ -438,3 +438,7 @@ eirinix:
     icon_image: Eirini broker
     secrets:
       auth-password: ~ # Password is randomly generated if not given
+  dns-aliases:
+    image: ghcr.io/cfcontainerizationbot/eirini-dns-aliases
+    image_tag: 0.0.0-18.gdf4c9f7b
+    pullPolicy: IfNotPresent

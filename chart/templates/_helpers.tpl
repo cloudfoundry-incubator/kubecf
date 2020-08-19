@@ -46,6 +46,45 @@ Get the metadata name for an ops file.
 {{- end }}
 
 {{- /*
+==========================================================================================
+| kubecf.component.selector (list $ $component)
++-----------------------------------------------------------------------------------------
+| Emit standard labels for use in selectors (for services and the like).
+|
+| $component should be the name of a component; ideally this will match the name of the
+| service / pod.
+==========================================================================================
+*/ -}}
+{{- define "kubecf.component.selector" }}
+{{- $root := first . }}
+{{- $component := index . 1 }}
+app.kubernetes.io/name: {{ include "kubecf.fullname" $root }}
+app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
+app.kubernetes.io/component: {{ $component | quote }}
+{{- end }}
+
+{{- /*
+==========================================================================================
+| kubecf.component.labels (list $ $component)
++-----------------------------------------------------------------------------------------
+| Emit standard labels for use in pod/etc. declarations.
+|
+| $component should be the name of a component; ideally this will match the name of the
+| service / pod.
+|
+| This will include any labels relevant for selectors.
+==========================================================================================
+*/ -}}
+{{- define "kubecf.component.labels" }}
+{{- $root := first . }}
+{{- $component := last . }}
+{{- include "kubecf.component.selector" . }}
+app.kubernetes.io/managed-by: {{ $root.Release.Service | quote }}
+app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
+helm.sh/chart: {{ include "kubecf.chart" $root }}
+{{- end }}
+
+{{- /*
   Template "kubecf.dig" takes a dict and a list; it indexes the dict with each
   successive element of the list.
 
