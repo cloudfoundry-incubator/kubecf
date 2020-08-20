@@ -12,7 +12,7 @@ document known by RFD.
 
 ## Metadata
 
-1. authors: owners of the RFD must be listed with their name and email address 
+1. authors: owners of the RFD must be listed with their name and email address
 (John Doe <john.doe@wonder.land>).
 2. state: one of the states discussed below.
 
@@ -21,8 +21,7 @@ document known by RFD.
 1. draft
 2. discussion
 3. published
-4. committed
-5. abandoned
+4. abandoned
 
 The ```draft``` state indicates that the work is not ready for discussion and that a placeholder
 was set. The RFD owner is putting his thoughts in place before promoting to ```discussion```.
@@ -33,8 +32,7 @@ this state the scope of the RFD must be clear and well defined.
 Once the discussion converges to clear understanding of what needs to be done, then the state should
 be set to ```published```.
 
-Once well defined and described in the RFD, the state should be in ```committed``` state.
-Any comment in the ```committed``` state should be raised as issues or if the comment brings
+Any comment in the ```published``` state should be raised as issues or if the comment brings
 fundamental changes to the original content of the RFD then a new RFD should be created.
 
 Finally, if an idea will never be implemented or it should be ignored then it can be moved to the
@@ -102,9 +100,5 @@ It's up to the author(s) to incorporate any pull request comment into the RFD.
 ### Merge the Pull Request
 
 After a while, and with team members feedback, the author(s) would merge the pull request into the
-master branch, but before that it must the state to ```published```.
-The timeline is up to the author(s), but as guideline it could go from a 3-5 days to 2 weeks.
-
-Before merging the pull request the state must also change to ```committed``` that indicates that the
-RFD has evolved from an idea to a clear description of a system or process and it can be
-implemented.
+master branch, but before that it must the state to ```published```. At this moment, the RFD must be
+ready for implementation.
