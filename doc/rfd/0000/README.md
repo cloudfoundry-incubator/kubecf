@@ -23,20 +23,23 @@ document known by RFD.
 3. published
 4. abandoned
 
-The ```draft``` state indicates that the work is not ready for discussion and that a placeholder
-was set. The RFD owner is putting his thoughts in place before promoting to ```discussion```.
+The ```draft``` state indicates that the work is not ready for discussion yet. It is a placeholder
+for the RFD author(s) to put their thoughts into.
+The RFD author(s) has to state the scope of the RFD as clearly and concise as possible before
+promoting it to ```discussion```.
 
-Documents under active discussion within the team should be in ```discussion``` state. When reaching
+Documents under active discussion within the team must be in ```discussion``` state. When reaching
 this state the scope of the RFD must be clear and well defined.
 
-Once the discussion converges to clear understanding of what needs to be done, then the state should
+Once the discussion converges to clear understanding of what needs to be done, then the state must
 be set to ```published```.
 
-Any comment in the ```published``` state should be raised as issues or if the comment brings
-fundamental changes to the original content of the RFD then a new RFD should be created.
+Any comment in the ```published``` state must be raised as issues or if the comment brings
+fundamental changes to the original content of the RFD then a new RFD must be created.
 
-Finally, if an idea will never be implemented or it should be ignored then it can be moved to the
-```abandoned``` state at any time.
+The ```abandoned``` state indicates that the RFD will not be implemented and it can be switched from
+any previous state. Depending of the current RFD state, it may be the author(s) making an individual
+decision (```draft```) or a collective decision (```discussion``` or ```published```).
 
 ## Workflow
 
@@ -102,3 +105,7 @@ It's up to the author(s) to incorporate any pull request comment into the RFD.
 After a while, and with team members feedback, the author(s) would merge the pull request into the
 master branch, but before that it must the state to ```published```. At this moment, the RFD must be
 ready for implementation.
+
+If an RFD state is switched to ```abandoned``` the pull request must be merged into the master
+branch. If the RFD is in a ```draft``` state then a pull request must be open and merged for future reference.
+
