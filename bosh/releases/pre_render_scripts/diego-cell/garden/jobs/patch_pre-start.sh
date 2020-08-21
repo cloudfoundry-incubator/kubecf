@@ -15,7 +15,7 @@ fi
 # Patch the pre-start script to setup /var/vcap/data
 patch --verbose "${target}" <<'EOT'
 2a3,4
-> find /var/vcap/data/grootfs/ -iname * -delete
+> find /var/vcap/data/grootfs/ -iname '*' -delete
 > 
 20a23,25
 > 
