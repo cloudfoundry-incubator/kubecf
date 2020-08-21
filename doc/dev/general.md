@@ -42,8 +42,8 @@ BOSH deployment like Kubecf for use.
 It has to be installed in the same Kubernetes cluster that Kubecf will
 be deployed to.
 
-Here we are not using development-specific dependencies like bazel,
-but only generic tools, i.e. `kubectl` and `helm`.
+Here we are not using development-specific dependencies, but only
+generic tools, i.e. `kubectl` and `helm`.
 
 [Installing and configuring Helm](helm.md) is the same regardless of
 the chosen foundation, and assuming that the cluster does not come
@@ -59,7 +59,7 @@ helm install --name cf-operator \
 ```
 
 In the example above, version 5.0.0 of the operator was used. Look
-into the `cf_operator` section of the top-level `def.bzl` file to find
+into the `external_files.cf_operator` section of __dependencies.yaml__ to find
 the version of the operator validated against the current kubecf
 master.
 
@@ -138,17 +138,21 @@ This has to happen before deploying kubecf.
 helm install stable/nginx-ingress \
   --name ingress \
   --namespace ingress \
-  --set "tcp.2222=kubecf/kubecf-scheduler:2222" \
-  --set "tcp.<services.tcp-router.port_range.start>=kubecf/kubecf-tcp-router:<services.tcp-router.port_range.start>" \
+  --set "tcp.2222=kubecf/ssh-proxy-public:2222" \
+  --set "tcp.<services.tcp-router.port_range.start>=kubecf/tcp-router:<services.tcp-router.port_range.start>" \
   ...
-  --set "tcp.<services.tcp-router.port_range.end>=kubecf/kubecf-tcp-router:<services.tcp-router.port_range.end>"
+  --set "tcp.<services.tcp-router.port_range.end>=kubecf/tcp-router:<services.tcp-router.port_range.end>"
 ```
 
-The `tcp.<port>` option uses the NGINX TCP pass-through.
+The `tcp.<port>` option uses the NGINX TCP pass-through (docs: https://kubernetes.github.io/ingress-nginx/user-guide/exposing-tcp-udp-services/).
 
 In the case of the `tcp-router` ports, one `--set` for each port is required, starting with
 `services.tcp-router.port_range.start` and ending with `services.tcp-router.port_range.end`. Those
 values are defined on the `values.yaml` file with default values.
+
+If you are deploying with Eirini your ssh-proxy service will be named differently (`eirinix-ssh-proxy`), make sure you use the correct value
+for `tcp.2222` (the ssh-proxy service). The above command assumes you deployed kubecf in a namespace called `kubecf`.
+If you used a different name, make sure you adapt the command.
 
 ##### Configure kubecf
 
@@ -165,10 +169,11 @@ details.
 [values.yaml]: ../../deploy/helm/kubecf/values.yaml
 
 For local development with an external database, the
-`bazel run //dev/external_database:deploy_mysql` command will bring a mysql database up and running
+`make deploy-external-mysql` command will bring a mysql database up and running
 ready to be consumed by kubecf.
 
-An example for the additional values to be provided to `//dev/kubecf:apply`:
+An example for the additional values to be provided when deploying kubecf with
+`make kubecf-apply`:
 
 ```yaml
 features:

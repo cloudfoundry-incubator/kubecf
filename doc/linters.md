@@ -1,6 +1,6 @@
 # Linters
 
-The directory __dev/linters__ contains tooling to statically check the
+The `make lint` targets runs tooling to statically check the
 sources of kubecf.
 
 The following linters are available:

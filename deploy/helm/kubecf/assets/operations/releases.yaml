@@ -1,96 +1,21 @@
-# Remove unused releases from cf-deployment.
+{{- $_ := include "_config.load" $ }}
+# Remove all releases from cf-deployment; we'll only add back those we need
 - type: remove
-  path: /releases/name=bosh-dns-aliases
-- type: remove
-  path: /releases/name=bpm
+  path: /releases
 
-# Create a list with the current cf-deployment releases for replacing their info.
-{{- $releases := list }}
-{{- $releases = append $releases "binary-buildpack" }}
-{{- $releases = append $releases "capi" }}
-{{- $releases = append $releases "cf-networking" }}
-{{- $releases = append $releases "cf-smoke-tests" }}
-{{- $releases = append $releases "cf-syslog-drain" }}
-{{- $releases = append $releases "cflinuxfs3" }}
-{{- if .Values.features.credhub.enabled }}
-  {{- $releases = append $releases "credhub" }}
-{{- end }}
-{{- $releases = append $releases "diego" }}
-{{- $releases = append $releases "dotnet-core-buildpack" }}
-{{- $releases = append $releases "garden-runc" }}
-{{- $releases = append $releases "go-buildpack" }}
-{{- $releases = append $releases "java-buildpack" }}
-{{- $releases = append $releases "loggregator" }}
-{{- $releases = append $releases "nats" }}
-{{- $releases = append $releases "nginx-buildpack" }}
-{{- $releases = append $releases "r-buildpack" }}
-{{- $releases = append $releases "nodejs-buildpack" }}
-{{- $releases = append $releases "php-buildpack" }}
-{{- $releases = append $releases "python-buildpack" }}
-{{- $releases = append $releases "routing" }}
-{{- $releases = append $releases "ruby-buildpack" }}
-{{- $releases = append $releases "silk" }}
-{{- $releases = append $releases "staticfile-buildpack" }}
-{{- $releases = append $releases "statsd-injector" }}
-{{- $releases = append $releases "uaa" }}
-{{- $releases = append $releases "loggregator-agent" }}
-{{- $releases = append $releases "log-cache" }}
-{{- $releases = append $releases "cf-cli" }}
-
-# Add the cf-acceptance-tests-release.
-{{- if .Values.testing.cf_acceptance_tests.enabled }}
-{{- $releases = append $releases "cf-acceptance-tests" }}
+{{- range $release_name, $release := $.Values.releases }}
+  {{- /* only add bosh releases (releases with a version) */}}
+  {{- if $release.version }}
+    {{- if eq "true" (include "_config.condition" (list $ (index $release "condition"))) }}
 - type: replace
-  path: /releases/-
-  value:
-    name: cf-acceptance-tests
-{{- end }}
-
-{{- if .Values.testing.brain_tests.enabled }}
-{{- $releases = append $releases "brain-tests" }}
-- path: /releases/-
-  type: replace
-  value:
-    name: brain-tests
-{{- end }}
-
-# SITS only makes sense when using Diego, for this reason, we only enable it if Eirini is not
-# enabled.
-{{- if and .Values.testing.sync_integration_tests.enabled (not .Values.features.eirini.enabled) }}
-{{- $releases = append $releases "sync-integration-tests" }}
-- path: /releases/-
-  type: replace
-  value:
-    name: sync-integration-tests
-{{- end }}
-
-# Add app-autoscaler related releases.
-{{- if .Values.features.autoscaler.enabled }}
-{{- $releases = append $releases "app-autoscaler" }}
+  path: /releases?/name={{ $release_name }}/url
+  value: {{ $release.url }}
 - type: replace
-  path: /releases/-
-  value:
-    name: app-autoscaler
-{{- $releases = append $releases "postgres" }}
+  path: /releases/name={{ $release_name }}/stemcell?
+  value: {{ $release.stemcell | toJson }}
 - type: replace
-  path: /releases/-
-  value:
-    name: postgres
-{{- end }}
-
-# Loop over the releases, replacing the url and stemcell, and the version when appropriate.
-{{- range $release := $releases }}
-- type: replace
-  path: /releases/name={{ $release }}/url?
-  value: {{ include "kubecf.releaseURLLookup" (list $.Values.releases $release) }}
-- type: replace
-  path: /releases/name={{ $release }}/stemcell?
-  value: {{ include "kubecf.stemcellLookup" (list $.Values.releases $release) }}
-{{- if (index $.Values.releases $release).version }}
-- type: replace
-  path: /releases/name={{ $release }}/version?
-  value: {{ (index $.Values.releases $release).version | quote }}
-{{- end }}
-- type: remove
-  path: /releases/name={{ $release }}/sha1?
+  path: /releases/name={{ $release_name }}/version?
+  value: {{ $release.version | quote }}
+    {{- end }}
+  {{- end }}
 {{- end }}

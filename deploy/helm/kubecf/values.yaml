@@ -1,5 +1,10 @@
 # REQUIRED: the domain that the deployment will be visible to the user.
-system_domain: ~
+# system_domain: example.com
+
+# List of stacks to install; the first one will be used as the default.
+# A stack is a prebuilt root file system that supports a specific
+# operating system with a corresponding set of buildpacks.
+install_stacks: [sle15, cflinuxfs3]
 
 # Set or override job properties. The first level of the map is the instance group name. The second
 # level of the map is the job name. E.g.:
@@ -40,129 +45,6 @@ kube:
   psp:
     default: ~
 
-# Overrides for individual releases.  This should not be needed in general use
-# and should be HIDDEN by default.
-releases:
-  # The defaults for all releases, where we do not otherwise override them.
-  defaults:
-    url: docker.io/cfcontainerization
-    stemcell:
-      os: SLE_15_SP1
-      version: 25.2-7.0.0_374.gb8e8e6af
-  app-autoscaler:
-    version: 3.0.1
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.3-7.0.0_374.gb8e8e6af
-  bits-service:
-    version: 2.28.0
-  brain-tests:
-    version: v0.0.13
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-  cf-acceptance-tests:
-    version: 0.0.13
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
-  cf-smoke-tests:
-    version: 40.0.128
-    stemcell:
-      os: SLE_15_SP1
-      version: 25.2-7.0.0_374.gb8e8e6af
-  cflinuxfs3:
-    version: 0.199.0
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-  # pxc is not a BOSH release.
-  pxc:
-    image:
-      repository: docker.io/cfcontainerization/pxc
-      tag: 0.9.4
-  eirini:
-    version: 0.0.27
-    stemcell:
-      os: SLE_15_SP1
-      version: 23.21-7.0.0_374.gb8e8e6af
-  postgres:
-    version: "39"
-  sle15:
-    version: "10.93"
-  sync-integration-tests:
-    version: v0.0.3
-  suse-staticfile-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.5.6.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-staticfile-buildpack/packages/staticfile-buildpack-sle15/staticfile-buildpack-sle15-v1.5.6.1-2.1-a74620df.zip
-  suse-java-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "4.32.0.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-java-buildpack/packages/java-buildpack-sle15/java-buildpack-sle15-v4.32.0.1-3d7579b2.zip
-  suse-ruby-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.8.19.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-ruby-buildpack/packages/ruby-buildpack-sle15/ruby-buildpack-sle15-v1.8.19.1-1.1-63c0bb58.zip
-  suse-dotnet-core-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "2.3.9.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-dotnet-core-buildpack/packages/dotnet-core-buildpack-sle15/dotnet-core-buildpack-sle15-v2.3.9.1-1.1-e74bd89e.zip
-  suse-nodejs-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.7.18.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-nodejs-buildpack/packages/nodejs-buildpack-sle15/nodejs-buildpack-sle15-v1.7.18.1-1.1-d2f6559e.zip
-  suse-go-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.9.13.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.13.1-1.1-826f794c.zip
-  suse-python-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.7.16.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-python-buildpack/packages/python-buildpack-sle15/python-buildpack-sle15-v1.7.16.1-1.1-ae2e4da3.zip
-  suse-php-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "4.4.16.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-php-buildpack/packages/php-buildpack-sle15/php-buildpack-sle15-v4.4.16.1-1.1-ddbeaa14.zip
-  suse-nginx-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.1.7.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-nginx-buildpack/packages/nginx-buildpack-sle15/nginx-buildpack-sle15-v1.1.7.1-1.1-fbf90d1f.zip
-  suse-binary-buildpack:
-    url: registry.suse.com/cap-staging
-    version: "1.0.36.1"
-    stemcell:
-      os: SLE_15_SP1
-      version: 26.7-7.0.0_374.gb8e8e6af
-    file: suse-binary-buildpack/packages/binary-buildpack-sle15/binary-buildpack-sle15-v1.0.36.1-1.1-37ec2cbf.zip
-
 # Set to true to enable support for multiple availability zones.
 multi_az: false
 
@@ -170,8 +52,32 @@ multi_az: false
 # order to prevent downtime when a node is temporarily unavailable.
 high_availability: false
 
-# Sizing takes precedence over the high_availability property. I.e. setting the instance count
-# for an instance group greater than 1 will make it highly available.
+# Instance sizing takes precedence over the high_availability property. I.e. setting the
+# instance count for an instance group greater than 1 will make it highly available.
+#
+# It is also possible to specify custom affinity rules for each instance group. If no rule
+# is provided, then each group as anti-affinity to itself, to try to spread the pods between
+# different nodes. In addition diego-cell and router also have anti-affinity to each other.
+#
+# The default rules look like this:
+#
+# sizing:
+#   sample_group:
+#     affinity:
+#       podAntiAffinity:
+#         preferredDuringSchedulingIgnoredDuringExecution:
+#         - weight: 100
+#           podAffinityTerm:
+#             labelSelector:
+#               matchExpressions:
+#               - key: quarks.cloudfoundry.org/quarks-statefulset-name
+#                 operator: In
+#                 values:
+#                 - sample_group
+#             topologyKey: kubernetes.io/hostname
+#
+# Any affinity rules specified here will *overwrite* the default rule and not merge with it.
+
 sizing:
   adapter:
     instances: ~
@@ -264,12 +170,109 @@ settings:
 
 features:
   eirini:
-    # When eirini is enabled, both suse_default_stack and suse_buildpacks must be enabled as well.
     enabled: false
-    registry:
-      service:
-        # This setting is not currently configurable and must be HIDDEN
-        nodePort: 31666
+  # To support multi-clusters, deploy diego-cell separately please set control_plane is false  and cell_segment is true
+  multiple_cluster_mode:
+    control_plane:
+      enabled: false
+    cell_segment:
+      enabled: false
+    # To support multi-clusters, services for diego-cell deployed separately
+    control_plane_workers:
+      uaa:
+        name: uaa
+        addresses:
+        - ip: ~
+      diego_api:
+        name: diego-api
+        addresses:
+        - ip: ~
+      api:
+        name: api
+        addresses:
+        - ip: ~
+      singleton_blobstore:
+        name: singleton-blobstore
+        addresses:
+        - ip: ~
+    # To support multi-clusters, provider link secrets for diego-cell deployed separately
+    provider_link_service:
+      nats:
+        secret_name: minion-link-nats
+        service_name: minion-service-nats
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of nats, for example:
+        # link: |
+        #   ---
+        #   nats.user: "nats"
+        #   nats.password: "xxxxxx"
+        #   nats.hostname: "nats"
+        #   nats.port: 4222
+        link: ~
+      nats_tls:
+        secret_name: minion-link-nats-tls
+        service_name: minion-service-nats-tls
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of nats_tls, for example:
+        # link: |
+        #   ---
+        #   nats.user: "nats"
+        #   nats.password: "xxxxxx"
+        #   nats.hostname: "nats"
+        #   nats.port: 4223
+        #   nats.external.tls.ca: ""
+        link: ~
+      routing_api:
+        secret_name: minion-link-routing-api
+        service_name: minion-service-routing-api
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of routing-api, for example:
+        # link: |
+        #   routing_api.clients: ~
+        #   routing_api.system_domain: "xxx.xxx.xxx"
+        #   routing_api.port: 3000
+        #   routing_api.mtls_port: 3001
+        #   routing_api.mtls_ca: |
+        #     -----BEGIN CERTIFICATE-----
+        #     xxxxxx
+        #     -----END CERTIFICATE-----
+        #   ......
+        link: ~
+      doppler:
+        secret_name: minion-link-doppler
+        service_name: minion-service-doppler
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of doppler, for example:
+        # link: |
+        #   doppler.grpc_port: 8082
+        link: ~
+      loggregator:
+        secret_name: minion-link-loggregator
+        service_name: minion-service-loggregator
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of loggregator, for example:
+        # link: |
+        #   loggregator.tls.ca_cert: |
+        #     -----BEGIN CERTIFICATE-----
+        #     xxxxxx
+        #     -----END CERTIFICATE-----
+        #   ......
+        link: ~
+      cloud_controller:
+        secret_name: minion-link-cloud-controller
+        service_name: minion-service-cloud-controller
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of cloud-controller, for example:
+        # link: |
+        #   system_domain: "{{ .Values.system_domain }}"
+        #   app_domains: []
+        link: ~
   ingress:
     enabled: false
     tls:
@@ -281,10 +284,6 @@ features:
       key: ~
     annotations: {}
     labels: {}
-  suse_default_stack:
-    enabled: false
-  suse_buildpacks:
-    enabled: true
   autoscaler:
     # Enable the application autoscaler.  The autoscaler service must be manually registered; see
     # https://github.com/cloudfoundry/app-autoscaler-release#register-service for details.
@@ -321,6 +320,7 @@ features:
 
   # Configuration for the external database; see also features.embedded_database.
   external_database:
+    enabled: false
     require_ssl: false
     ca_cert: ~
     # The external database type; it can be either 'mysql' or 'postgres'.
@@ -551,7 +551,7 @@ bits:
     labels: {}
     annotations: {}
     images:
-      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.17-15.1.6.2.251-24.20
+      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.20-15.1.6.2.264-24.33
   env:
     # This setting is not configurable and must be HIDDEN from the user.
     DOMAIN: 127.0.0.1.nip.io

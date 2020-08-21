@@ -1,0 +1,79 @@
+{{- define "lookup" }}
+  {{- $root := index . 0 }}
+  {{- $path := index . 1 }}
+  {{- $expect := index . 2 }}
+  {{- $kind := index . 3 }}
+
+  {{- $result := include "_config.lookup" (list $root $path) }}
+  {{- if kindIs "string" $expect }}
+    {{- if eq $result $expect }}
+      {{- printf "# Lookup %q returned %q" $path $result }}
+    {{- else }}
+      {{- include "fail" (list $root (printf "Lookup %q returned %q (kind: %q) instead of %q" $path $result (kindOf $root.kubecf.retval) $expect)) }}
+    {{- end }}
+  {{- end }}
+  {{- if $kind }}
+    {{- if kindIs $kind $root.kubecf.retval }}
+{{ printf "# KindOf %q is %q" $path (kindOf $root.kubecf.retval) }}
+    {{- else }}
+{{ include "fail" (list $root (printf "KindOf %q is %q instead of %q" $path (kindOf $root.kubecf.retval) $kind)) }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- /* Prevent _config.load from calling into _stacks.update and _releases.update */}}
+{{- $_ := set $ "kubecf" (dict "manifest" (dict "not" "empty")) }}
+
+{{ include "lookup" (list $ "nil" "" "invalid") }}
+{{ include "lookup" (list $ "helm_nil" "" "invalid") }}
+
+{{ include "lookup" (list $ "empty_string" "" "string") }}
+{{ include "lookup" (list $ "empty_list" "[]" "slice") }}
+{{ include "lookup" (list $ "empty_hash" "{}" "map") }}
+
+{{ include "lookup" (list $ "helm_empty" "" "string") }}
+
+# numbers parsed from YAML seem to always be "float64"
+{{ include "lookup" (list $ "zero" "0" "float64") }}
+{{ include "lookup" (list $ "one" "1" "float64") }}
+
+# numbers passed in from the helm commandline seem to always be "int64"
+{{ include "lookup" (list $ "helm_zero" "0" "int64") }}
+{{ include "lookup" (list $ "helm_one" "1" "int64") }}
+
+# integers defined in templates are of type "int"
+{{- $_ := set $.Values "int_zero" 0 }}
+{{- $_ := set $.Values "int_one" 1 }}
+{{ include "lookup" (list $ "int_zero" "0" "int") }}
+{{ include "lookup" (list $ "int_one" "1" "int") }}
+
+# boolean values stringify both "true" *and* "false"
+{{ include "lookup" (list $ "bool_false" "false" "bool") }}
+{{ include "lookup" (list $ "bool_true" "true" "bool") }}
+
+{{ include "lookup" (list $ "helm_false" "false" "bool") }}
+{{ include "lookup" (list $ "helm_true" "true" "bool") }}
+
+# strings will be strings
+{{ include "lookup" (list $ "string_zero" "0" "string") }}
+{{ include "lookup" (list $ "string_one" "1" "string") }}
+{{ include "lookup" (list $ "string_false" "false" "string") }}
+
+# look up nested properties
+{{ include "lookup" (list $ "deeply.nested" nil "map") }}
+{{ include "lookup" (list $ "deeply.nested.bool_true" "true" "bool") }}
+{{ include "lookup" (list $ "deeply.nested.not_exist" "" "invalid") }}
+
+# maps and slices stringify as JSON
+{{ include "lookup" (list $ "foo" "{\"bar\":{\"baz\":\"xyzzy\"}}" "map") }}
+{{ include "lookup" (list $ "abc" "[\"a\",\"b\",\"c\"]" "slice") }}
+
+# look up array elements by key
+{{ include "lookup" (list $ "array" nil "slice") }}
+# array has 2 elements, with keys "foo" and "bar", but not "baz"
+{{ include "lookup" (list $ "array.key=foo.key" "foo" "string") }}
+{{ include "lookup" (list $ "array.key=bar.key" "bar" "string") }}
+{{ include "lookup" (list $ "array.key=baz.key" "" "invalid") }}
+
+# use slashes instead of dots
+{{ include "lookup" (list $ "array/key=foo/key" "foo" "string") }}

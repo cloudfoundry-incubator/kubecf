@@ -24,6 +24,9 @@ shellcheck:
 yamllint:
 	@./scripts/yamllint.sh
 
+test:
+	./tests/config.sh
+
 ########################################################################
 # Build
 
@@ -51,18 +54,30 @@ minikube-delete:
 ########################################################################
 # Run
 
+all:
+	./scripts/cf-operator-apply.sh
+	./scripts/cf-operator-wait.sh
+	./scripts/kubecf-apply.sh
+	./scripts/kubecf-wait.sh
+	./scripts/cf-login.sh
+
 cf-login:
 	@./scripts/cf-login.sh
 
 cf-operator-apply:
 	@./scripts/cf-operator-apply.sh
 
+cf-operator-wait:
+	@./scripts/cf-operator-wait.sh
+
 kubecf-apply:
-	@./scripts/kubecf-build.sh
 	@./scripts/kubecf-apply.sh
 
 kubecf-delete:
 	@./scripts/kubecf-delete.sh
+
+kubecf-wait:
+	@./scripts/kubecf-wait.sh
 
 ########################################################################
 # Test

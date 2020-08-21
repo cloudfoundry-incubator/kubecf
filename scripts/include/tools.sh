@@ -32,6 +32,11 @@ done
 # shellcheck disable=SC2207
 TOOLS=($(printf '%s\n' "${TOOLS[@]}" | sort | uniq))
 
+# Have a cache of tool status, so that require_tools will not repeatedly try to
+# determine if the same tool has been installed.  This also lets us catch when
+# a tool (possibly through others) end up requiring itself.
+declare -A TOOL_STATUS
+
 # require_tools makes sure all required tools are available. If the current version
 # is too old (or doesn't match the required version exactly when PINNED_TOOLS is set),
 # then the tool is downloaded and installed into $TOOLS_DIR.
@@ -40,19 +45,35 @@ function require_tools {
     local tool
 
     for tool in "$@"; do
-        # Make sure additional prerequisites for the tool are also available.
-        # They must be installed first because they might be needed to install the tool itself.
-        # In this case we *want* word-splitting.
-        # shellcheck disable=SC2046
-        require_tools $(var_lookup "${tool}_requires")
-        if ! status=$(tool_status "${tool}"); then
-            tool_install "${tool}"
-
-            if ! status="$(tool_status "${tool}")"; then
-                red "Could not install ${tool}"
-                die "${status}"
-            fi
+        if [[ -z "${tool}" ]]; then
+            continue
         fi
+        case "${TOOL_STATUS["${tool}"]:-}" in
+            "")
+                TOOL_STATUS["${tool}"]="installing"
+                # Make sure additional prerequisites for the tool are also
+                # available.  They must be installed first because they might be
+                # needed to install the tool itself.  In this case we *want*
+                # word-splitting.
+                # shellcheck disable=SC2046
+                require_tools $(var_lookup "${tool}_requires")
+                if ! status=$(tool_status "${tool}"); then
+                    tool_install "${tool}"
+
+                    if ! status="$(tool_status "${tool}")"; then
+                        red "Could not install ${tool}"
+                        die "${status}"
+                    fi
+                fi
+                TOOL_STATUS["${tool}"]="installed"
+                ;;
+            installed)
+                # Do nothing
+                ;;
+            installing)
+                die "Recursion when installing ${tool}"
+                ;;
+        esac
     done
 }
 

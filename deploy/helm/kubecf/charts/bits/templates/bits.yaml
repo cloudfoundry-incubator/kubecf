@@ -113,19 +113,22 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: registry.{{ .Values.env.DOMAIN }}
 {{- end }}
 spec:
-{{- if and (not .Values.ingress.use) (not .Values.services.loadbalanced) }}
+{{- if and (not .Values.ingress.use) (not .Values.services.nodePort) }}
   externalIPs: {{ .Values.kube.external_ips | toJson }}
 {{- end }}
   ports:
     - port: {{ if .Values.ingress.use }}8888{{ else }}6666{{ end }}
       protocol: TCP
       targetPort: {{ if .Values.ingress.use }}8888{{ else }}6666{{ end }}
+      {{- with .Values.services.nodePort }}
+      nodePort: {{ . }}
+      {{- end }}
       name: bits
   selector:
     name: "bits"
 
-  {{- if .Values.services.loadbalanced }}
-  type: "LoadBalancer"
+  {{- if .Values.services.nodePort }}
+  type: "NodePort"
   {{- end }}
 
 # Ingress

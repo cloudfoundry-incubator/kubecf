@@ -1,38 +1,34 @@
+{{- $_ := include "_config.load" $ }}
 {{- if  .Values.features.eirini.enabled }}
+
+  {{- /* *** Make sure the eirini stack has been selected *** */}}
+  {{- $eirini_stack := $.Values.features.eirini.stack }}
+  {{- $ok := len $.Values.install_stacks | eq 1 }}
+  {{- $ok = first $.Values.install_stacks | eq $eirini_stack | and $ok }}
+  {{- if not $ok }}
+    {{ fail (printf "Eirini can only be enabled with \"install_stacks=[%s]\"" $eirini_stack) }}
+  {{- end }}
+
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/enabled?
   value: true
 
-# TODO(jandubois) This check is disabled until v2.3.0 for backwards compatibility reasons.
-# {{- /*
-# {{- if not .Values.features.suse_default_stack.enabled }}
-# {{- fail "feature.suse_default_stack.enabled must be true to use Eirini" }}
-# {{- end }}
-# */ -}}
-
-# TODO(jandubois) This check becomes redundant once the previous check is enabled because
-# TODO(jandubois) the api.yaml file already checks that suse_buildpacks are enabled when
-# TODO(jandubois) suse_default_stack is set.
-{{- if not .Values.features.suse_buildpacks.enabled }}
-{{- fail "feature.suse_buildpacks.enabled must be true to use Eirini" }}
-{{- end }}
-
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/url?
-  value: "https://eirini-opi.{{ .Release.Namespace }}.svc.cluster.local:8085"
+  value: "https://eirini-opi.{{ .Release.Namespace }}.svc:8085"
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/webdav_config?/private_endpoint?
-  value: "https://singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local:4443"
+  value: "https://singleton-blobstore.{{ .Release.Namespace }}.svc:4443"
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config?/private_endpoint?
-  value: "https://singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local:4443"
+  value: "https://singleton-blobstore.{{ .Release.Namespace }}.svc:4443"
 - type: replace
   path: /variables/name=blobstore_tls/options/alternative_names?/-
-  value: "singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "singleton-blobstore.{{ .Release.Namespace }}.svc"
 - type: replace
   path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?/-
-  value: "api.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "api.{{ .Release.Namespace }}.svc"
 - type: replace
   path: /variables/name=cc_bridge_cc_uploader/options/copies?/-
   value:
@@ -40,16 +36,16 @@
     name: var-cc-bridge-cc-uploader
 - type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
-  value: "api.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "api.{{ .Release.Namespace }}.svc"
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
-  value: "api.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "api.{{ .Release.Namespace }}.svc"
 - type: replace
   path: /variables/name=cc_public_tls/options/alternative_names?/-
-  value: "api.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "api.{{ .Release.Namespace }}.svc"
 - type: replace
   path: /variables/name=cc_tls/options/alternative_names?/-
-  value: "api.{{ .Release.Namespace }}.svc.cluster.local"
+  value: "api.{{ .Release.Namespace }}.svc"
 
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/opi_staging?
@@ -69,7 +65,7 @@
   value: true
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/url?
-  value: "https://eirini-opi.{{ .Release.Namespace }}.svc.cluster.local:8085" 
+  value: "https://eirini-opi.{{ .Release.Namespace }}.svc:8085"
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/opi_staging?
   value: true
@@ -88,7 +84,7 @@
   value: true
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/url?
-  value: "https://eirini-opi.{{ .Release.Namespace }}.svc.cluster.local:8085"
+  value: "https://eirini-opi.{{ .Release.Namespace }}.svc:8085"
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/opi_staging?
   value: true
@@ -120,7 +116,7 @@
       ca: service_cf_internal_ca
       common_name: "eirini-opi"
       alternative_names:
-      - "eirini-opi.{{ .Release.Namespace }}.svc.cluster.local"
+      - "eirini-opi.{{ .Release.Namespace }}.svc"
       extended_key_usage:
       - server_auth
 

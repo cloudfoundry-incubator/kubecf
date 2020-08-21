@@ -8,17 +8,18 @@ stringData:
   bits-config-key: |
     logging:
       level: debug
-    private_endpoint: "https://bits.{{ .Release.Namespace }}.svc.cluster.local"
+    private_endpoint: "https://bits.{{ .Release.Namespace }}.svc"
     {{- if .Values.ingress.use }}
     public_endpoint: "https://registry.{{ .Values.ingress.endpoint }}:443"
-    {{- else if .Values.services.loadbalanced }}
-    public_endpoint: "https://registry.{{ .Values.env.DOMAIN }}:6666"
+    {{- else if .Values.services.nodePort }}
+    public_endpoint: "https://registry.{{ .Values.env.DOMAIN }}:{{ .Values.services.nodePort }}"
     {{- else }}
     public_endpoint: "https://bits.{{ index .Values.kube.external_ips 0 }}.nip.io"
     {{- end }}
     {{- if .Values.ingress.use }}
     registry_endpoint: "https://registry.{{ .Values.ingress.endpoint }}"
-    {{- else if .Values.services.loadbalanced }}
+    {{- else if .Values.services.nodePort }}
+    # The registry endpoint must not include the port
     registry_endpoint: "https://registry.{{ .Values.env.DOMAIN }}"
     {{- else }}
     registry_endpoint: "https://registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
@@ -47,11 +48,15 @@ stringData:
       blobstore_type: webdav
       webdav_config: &webdav_config
         directory_key: cc-buildpacks
-        private_endpoint: https://{{ .Values.blobstore.serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:4443
+        {{- $blobstore_service := .Values.blobstore.serviceName }}
+        {{- if contains "." $blobstore_service | not }}
+        {{- $blobstore_service = printf "%s.%s.svc" $blobstore_service .Release.Namespace }}
+        {{- end }}
+        private_endpoint: https://{{ $blobstore_service }}:4443
         {{- if .Values.ingress.use }}
         public_endpoint: https://blobstore.{{ .Values.ingress.endpoint }}
-        {{- else if .Values.services.loadbalanced }}
-        public_endpoint: https://blobstore.{{ .Values.env.DOMAIN }}
+        {{- else if .Values.services.nodePort }}
+        public_endpoint: "https://blobstore.{{ .Values.env.DOMAIN }}:{{ .Values.services.nodePort }}"
         {{- else }}
         public_endpoint: https://blobstore.{{ index .Values.kube.external_ips 0 }}.nip.io
         {{- end }}

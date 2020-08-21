@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source scripts/include/setup.sh
 
-require_tools bosh git helm jq j2y ruby y2j
+require_tools bosh cf_operator_url git helm jq j2y ruby y2j
 
 if [[ ! "$(git submodule status -- src/cf-deployment)" =~ ^[[:space:]] ]]; then
     die "git submodule for cf-deployment is uninitialized or not up-to-date"
@@ -15,11 +15,12 @@ mkdir "${HELM_DIR}"
 cp -a deploy/helm/kubecf/* "${HELM_DIR}"
 find "${HELM_DIR}" \( -name "*.bazel" -o -name "*.bzl" -o -name ".*" \) -delete
 
+y2j < "${HELM_DIR}/values.schema.yaml" > "${HELM_DIR}/values.schema.json"
+rm "${HELM_DIR}/values.schema.yaml"
+
 cp src/cf-deployment/cf-deployment.yml "${HELM_DIR}/assets"
 cp src/cf-deployment/operations/use-external-blobstore.yml "${HELM_DIR}/assets"
 cp src/cf-deployment/operations/use-s3-blobstore.yml "${HELM_DIR}/assets"
-cp src/cf-deployment/operations/bits-service/use-bits-service.yml "${HELM_DIR}/assets"
-cp src/cf-deployment/operations/bits-service/configure-bits-service-s3.yml "${HELM_DIR}/assets"
 
 mkdir -p "${HELM_DIR}/assets/jobs"
 
@@ -58,17 +59,18 @@ EOT
     sed 's/^/    /' < "${PRE_RENDER_SCRIPT}" >> "${OUTPUT}"
 done
 
-echo "operatorChartUrl: \"${CF_OPERATOR_URL//\{version\}/${CF_OPERATOR_VERSION}}\"" > "${HELM_DIR}/Metadata.yaml"
+echo "operatorChartUrl: \"$(cf_operator_url)\"" > "${HELM_DIR}/Metadata.yaml"
 
-ruby rules/kubecf/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
-ruby rules/kubecf/image_list.rb "${HELM_DIR}" | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
+ruby scripts/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
+MODE=check ruby scripts//create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
+
+ruby scripts/image_list.rb "${HELM_DIR}" | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
 
 VERSION="$(./scripts/version.sh)"
 helm package "${HELM_DIR}" --version "${VERSION}" --app-version "${VERSION}" --destination output/
 
-rm -rf "${HELM_DIR}"
-
-if [ -n "${TARGET_FILE:-}" ]; then
+HELM_CHART="output/kubecf-${VERSION}.tgz"
+if [[ -n "${TARGET_FILE:-}" && "${TARGET_FILE}" != "${HELM_CHART}" ]]; then
     mkdir -p "$(dirname "${TARGET_FILE}")"
-    cp "output/kubecf-${VERSION}.tgz" "${TARGET_FILE}"
+    cp "${HELM_CHART}" "${TARGET_FILE}"
 fi

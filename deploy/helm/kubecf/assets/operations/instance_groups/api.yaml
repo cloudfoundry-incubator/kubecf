@@ -1,38 +1,4 @@
-# TODO(jandubois) Starting with v2.3.0 enabling eirini will no longer automatically switch to the suse stack.
-{{- if or .Values.features.suse_default_stack.enabled .Values.features.eirini.enabled }}
-
-{{- if not .Values.features.suse_buildpacks.enabled }}
-{{- fail "feature.suse_buildpacks.enabled must be true when features.suse_default_stack.enabled is true" }}
-{{- end }}
-
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_stack?
-  value: sle15
-- type: replace
-  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/default_stack?
-  value: sle15
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/default_stack?
-  value: sle15
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/default_stack?
-  value: sle15
-{{- end }}
-
-{{- if .Values.features.suse_buildpacks.enabled }}
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/stacks/-
-  value:
-    name: sle15
-    description: "SUSE Linux Enterprise-based filesystem"
-
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego/lifecycle_bundles?
-  value:
-    buildpack/sle15: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
-    buildpack/cflinuxfs3: buildpack_app_lifecycle/buildpack_app_lifecycle.tgz
-    docker: docker_app_lifecycle/docker_app_lifecycle.tgz
-{{- end }}
+{{- $_ := include "_config.load" $ }}
 
 {{- if .Values.testing.brain_tests.enabled}}
 # For brain tests, allow CC access to the insecure registry they will create.
@@ -40,56 +6,6 @@
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/diego/insecure_docker_registry_list?/-
   value: "tcp.((system_domain)):20005"
 {{- end}}
-
-{{- $path := "/var/vcap/data/shared-packages/" }}
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/install_buildpacks
-  value:
-  ## Order is important here
-  - name: staticfile_buildpack
-    file: {{ $path }}staticfile-buildpack/packages/staticfile-buildpack-cflinuxfs3/staticfile_buildpack-cflinuxfs3-v1.5.4.zip
-  - name: java_buildpack
-    file: {{ $path }}java-buildpack/packages/java-buildpack-cflinuxfs3/java-buildpack-cflinuxfs3-v4.26.zip
-  - name: ruby_buildpack
-    file: {{ $path }}ruby-buildpack/packages/ruby-buildpack-cflinuxfs3/ruby_buildpack-cflinuxfs3-v1.8.11.zip
-  - name: dotnet-core_buildpack
-    file: {{ $path }}dotnet-core-buildpack/packages/dotnet-core-buildpack-cflinuxfs3/dotnet-core_buildpack-cflinuxfs3-v2.3.6.zip
-  - name: nodejs_buildpack
-    file: {{ $path }}nodejs-buildpack/packages/nodejs-buildpack-cflinuxfs3/nodejs_buildpack-cflinuxfs3-v1.7.13.zip
-  - name: go_buildpack
-    file: {{ $path }}go-buildpack/packages/go-buildpack-cflinuxfs3/go_buildpack-cflinuxfs3-v1.9.7.zip
-  - name: python_buildpack
-    file: {{ $path }}python-buildpack/packages/python-buildpack-cflinuxfs3/python_buildpack-cflinuxfs3-v1.7.8.zip
-  - name: php_buildpack
-    file: {{ $path }}php-buildpack/packages/php-buildpack-cflinuxfs3/php_buildpack-cflinuxfs3-v4.4.8.zip
-  - name: nginx_buildpack
-    file: {{ $path }}nginx-buildpack/packages/nginx-buildpack-cflinuxfs3/nginx_buildpack-cflinuxfs3-v1.1.5.zip
-  - name: r_buildpack
-    file: {{ $path }}r-buildpack/packages/r-buildpack-cflinuxfs3/r_buildpack-cflinuxfs3-v1.1.1.zip
-  - name: binary_buildpack
-    file: {{ $path }}binary-buildpack/packages/binary-buildpack-cflinuxfs3/binary_buildpack-cflinuxfs3-v1.0.36.zip
-{{- if .Values.features.suse_buildpacks.enabled }}
-  - name: staticfile_buildpack
-    file: {{ $path }}{{ (index .Values.releases "suse-staticfile-buildpack").file }}
-  - name: java_buildpack
-    file: {{ $path }}{{ (index .Values.releases "suse-java-buildpack").file }}
-  - name: ruby_buildpack
-    file: {{ $path }}{{ (index .Values.releases "suse-ruby-buildpack").file }}
-  - name: dotnet-core_buildpack
-    file: {{ $path }}{{ (index .Values.releases "suse-dotnet-core-buildpack").file }}
-  - name: nodejs_buildpack
-    file: {{ $path }}{{ (index .Values.releases "suse-nodejs-buildpack").file }}
-  - name: go_buildpack
-    file: {{ $path }}{{ (index .Values.releases "suse-go-buildpack").file }}
-  - name: python_buildpack
-    file: {{ $path }}{{ (index .Values.releases "suse-python-buildpack").file }}
-  - name: php_buildpack
-    file: {{ $path }}{{ (index .Values.releases "suse-php-buildpack").file }}
-  - name: nginx_buildpack
-    file: {{ $path }}{{ (index .Values.releases "suse-nginx-buildpack").file }}
-  - name: binary_buildpack
-    file: {{ $path }}{{ (index .Values.releases "suse-binary-buildpack").file }}
-{{- end }}
 
 {{- if .Values.features.credhub.enabled }}
 - type: replace
@@ -132,32 +48,16 @@
     name: ccdb_key_label_{{ $keyLabel | trimPrefix "ccdb_key_label_" | lower }}
     type: password
 {{- end }}
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/database_encryption?
-  value: &encryption_info
-    keys:
-      {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
-      "{{ $keyLabel }}": "((ccdb_key_label_{{ $keyLabel | trimPrefix "ccdb_key_label_" | lower }}))"
-      {{- end }}
-    current_key_label: "{{ .Values.ccdb.encryption.rotation.current_key_label }}"
-- type: replace
-  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/database_encryption?
-  value: *encryption_info
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/database_encryption?
-  value: *encryption_info
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/cc/database_encryption?
-  value: *encryption_info
-# XXX encryption_info is also used by cc_route_syncer (see CF-K8s-Networking)
-#- type: replace
-#  path: /instance_groups/name=?????/jobs/name=cc_route_syncer/properties/cc/database_encryption?
-#  value: *encryption_info
+
+# Set cc/database_encryption property in all CAPI jobs
+{{- $db_enc := dict "current_key_label" $.Values.ccdb.encryption.rotation.current_key_label "keys" dict }}
+{{- range $keyLabel := $.Values.ccdb.encryption.rotation.key_labels }}
+  {{- $_ := set $db_enc.keys $keyLabel (printf "((ccdb_key_label_%s))" ($keyLabel | trimPrefix "ccdb_key_label_" | lower)) }}
+{{- end }}
+{{- include "_capi.setProperty" (list "database_encryption" $db_enc) }}
 
 # core_file_pattern should be disabled as CC is not running on a VM.
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/core_file_pattern?
-  value: false
+{{- include "_capi.setProperty" (list "core_file_pattern" false) }}
 
 # Disable tuning /proc/sys kernel parameters as file_server is running on a container.
 - type: replace
@@ -170,44 +70,7 @@
   value: "/var/vcap/packages/"
 
 # Enable volume services
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/volume_services_enabled?
-  value: true
-
-# Add empty BPM processes to buildpacks.
-- type: replace
-  path: /instance_groups/name=api/jobs/name=binary-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=dotnet-core-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=go-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=java-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=nodejs-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=nginx-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=r-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=php-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=python-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=ruby-buildpack/properties?/quarks/bpm/processes
-  value: []
-- type: replace
-  path: /instance_groups/name=api/jobs/name=staticfile-buildpack/properties?/quarks/bpm/processes
-  value: []
+{{- include "_capi.setProperty" (list "volume_services_enabled" true) }}
 
 # Add quarks properties for cloud_controller_ng.
 - type: replace
@@ -368,14 +231,6 @@
   path: /instance_groups/name=api/jobs/name=loggr-udp-forwarder/properties/quarks?/run/healthcheck/loggr-udp-forwarder/readiness/exec/command
   value: ["sh", "-c", "ss -nlu sport = 3457 | grep :3457"]
 
-{{- if .Values.features.suse_buildpacks.enabled }}
-{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/api_*" }}
-{{ $bytes | toString }}
-{{- end }}
-{{- else }}
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/api_*" }}
-{{- if not (regexMatch "api_suse-.*?-buildpack" $path) }}
 {{ $bytes | toString }}
-{{- end }}
-{{- end }}
 {{- end }}

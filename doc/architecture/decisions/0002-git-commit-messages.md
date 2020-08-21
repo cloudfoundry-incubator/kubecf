@@ -10,16 +10,16 @@ Draft
 
 We need to improve the quality of the git commit
 messages so developers can easily understand the
-context of the proposed changes, throughout a concise and consistent message in order to avoid 
+context of the proposed changes, throughout a concise and consistent message in order to avoid
 lengthy code reviews and project long term maintainability.
 
-Also, a good and structured message will support the automation of the releases notes or at least 
+Also, a good and structured message will support the automation of the releases notes or at least
 reduce the effort to have it.
 
 ## Decision
 
-The first interation will rely on generic rules described 
-[here](https://chris.beams.io/posts/git-commit/), along with some specificities (e.g. GitHub issue 
+The first interation will rely on generic rules described
+[here](https://chris.beams.io/posts/git-commit/), along with some specificities (e.g. GitHub issue
 if associated with one).
 
 Most wanted rules:
@@ -32,20 +32,12 @@ Most wanted rules:
 
 Other rules are also important!
 
-In order to automate the release notes/changelog process, we also need to define basic semantics:
-
-| Commit message                                           | Release type                     |
-|----------------------------------------------------------|----------------------------------|
-| fix: Stop the O2 leak dock comportment (DC)              | Patch release                    |
-| feat: Implements dog space travel module (BARK)          | Feature release                  |
-| break: Removes the compase from the control room (DOOM)  | Breaking change release          |
-| docs: Peter and the wolf: Cloud version                  | Documentation only changes       |
-| style: Replace tabs with spaces                          | Changes that not affect the code |
-| test: Add unit test at last                              | Add or correct existing tests    |
+In order to automate the release notes/changelog process, we will enforce the
+[conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) rules usage. 
 
 ## Consequences
 
-With the automation of the release process, each git commit to the release branch (i.e. master) or 
+With the automation of the release process, each git commit to the release branch (i.e. master) or
 by merging a pull request, a CI build is triggered and a:
 
 1. git commit message check is performed during squash & merge option selected, and

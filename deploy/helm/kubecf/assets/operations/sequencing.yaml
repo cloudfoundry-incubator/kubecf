@@ -1,0 +1,102 @@
+# We specify the new dependencies (I) and remove the old serialization
+# hints (II).
+#
+# I. Custom pod dependencies for startup sequencing
+#
+
+{{- /*
+     * wait-for (list <group> <dependency...>)
+     * Mark the first instance group given as depending on the rest of the groups.
+     */}}
+{{- define "wait-for" }}
+- type: replace
+  path: /instance_groups/name={{ first . }}/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  # ATTENTION: Annotations are strings. While the cf-operator's
+  # controller will unmarshall the value as a json array later on,
+  # specification must be done as a string using json syntax inside.
+  value: {{ rest . | toJson | quote }}
+{{- end }}
+
+# Dependency graph (the first to run is at the left):
+#
+# api        --> cc-worker
+#            --> scheduler
+# nats       --> log-api
+#            --> singleton-blobstore       (feature: singleton-blobstore)
+# uaa        --> log-cache
+#            --> routing-api --> router    (feature: routing-api)
+#            --> tcp-router                (feature: routing-api)
+#            --> credhub                   (feature: credhub)
+#            --> diego-cell                (feature: not eirini)
+# deigo-api  --> auctioneer                (feature: not eirini)
+# asdatabase --> asactors                  (feature: autoscaler)
+#            --> asapi                     (feature: autoscaler)
+#            --> asmetrics   --> asnozzle  (feature: autoscaler)
+
+{{- template "wait-for" list "cc-worker" "api" }}
+{{- template "wait-for" list "scheduler" "api" }}
+{{- template "wait-for" list "log-api"   "nats" }}
+{{- template "wait-for" list "log-cache" "uaa" }}
+
+{{- if .Values.features.routing_api.enabled }}
+  {{- template "wait-for" list "router"      "routing-api" }}
+  {{- template "wait-for" list "routing-api" "uaa" }}
+  {{- template "wait-for" list "tcp-router"  "uaa" }}
+{{- end }}
+
+{{- if .Values.features.credhub.enabled }}
+  {{- template "wait-for" list "credhub" "uaa" }}
+{{- end }}
+
+{{- if not .Values.features.eirini.enabled }}
+  {{- template "wait-for" list "auctioneer" "diego-api" }}
+  {{- template "wait-for" list "diego-cell" "uaa" }}
+{{- end }}
+
+{{- if eq .Values.features.blobstore.provider "singleton" }}
+  {{- template "wait-for" list "singleton-blobstore" "nats" }}
+{{- end }}
+
+{{- if .Values.features.autoscaler.enabled }}
+  {{- template "wait-for" list "asactors" "asdatabase" }}
+  {{- template "wait-for" list "asapi" "asdatabase" }}
+  {{- template "wait-for" list "asmetrics" "asdatabase" }}
+  {{- template "wait-for" list "asnozzle" "asdatabase" "asmetrics" }}
+{{- end }}
+
+#
+# II. Disable upstream pod startup serialization hints.
+#
+# Note: The serialization hints on the various test tasks are
+# irrelevant, and therefore ignored, and not changed.
+#
+
+{{- /*
+     * remove-serialization <group>
+     * Remove the upstream pod startup serialization hint for the given group.
+     */}}
+{{- define "remove-serialization" }}
+- type: remove
+  path: /instance_groups/name={{ . }}/update/serial
+{{- end }}
+
+{{- template "remove-serialization" "router" }}
+
+{{- if .Values.features.routing_api.enabled }}
+  {{- template "remove-serialization" "routing-api" }}
+{{- end }}
+
+{{- if not .Values.features.eirini.enabled }}
+  {{- template "remove-serialization" "auctioneer" }}
+{{- end }}
+
+{{- if eq .Values.features.blobstore.provider "singleton" }}
+  {{- template "remove-serialization" "singleton-blobstore" }}
+{{- end }}
+
+{{- if .Values.features.autoscaler.enabled }}
+  {{- template "remove-serialization" "asactors" }}
+  {{- template "remove-serialization" "asapi" }}
+  {{- template "remove-serialization" "asmetrics" }}
+  {{- template "remove-serialization" "asnozzle" }}
+{{- end }}

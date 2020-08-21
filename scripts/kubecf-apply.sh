@@ -36,7 +36,10 @@ if [ -n "${FEATURE_AUTOSCALER:-}" ]; then
 fi
 
 if [ -n "${FEATURE_EIRINI:-}" ]; then
-    HELM_ARGS+=(--set "features.eirini.enabled=true")
+    HELM_ARGS+=(
+        --set "features.eirini.enabled=true"
+        --set "install_stacks={sle15}"
+    )
 fi
 
 if [ -n "${FEATURE_INGRESS:-}" ]; then
@@ -49,6 +52,9 @@ fi
 
 if [ -z "${CHART:-}" ]; then
     CHART="output/kubecf-$(./scripts/version.sh).tgz"
+    export TARGET_FILE="${CHART}"
+    ./scripts/kubecf-build.sh
+
 fi
 
 helm upgrade kubecf "${CHART}" \

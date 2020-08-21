@@ -24,11 +24,13 @@ resource_types:
 # Use manually built and pushed image until upstream provides a solution:
 # https://github.com/cloudfoundry-incubator/kubecf/issues/903
 # https://github.com/SUSE/github-pr-resource/commit/3ee0816d801a7038d6125796725aa3718c688b53
+# Also fetch tags for our new versioning system
+# https://github.com/SUSE/github-pr-resource/commit/e92ede5dc3dfb34d715b5d6b38152952399512fb
 - name: pull-request
   type: docker-image
   source:
     repository: splatform/github-pr-resource
-    tag: 3ee0816
+    tag: e92ede5
 
 {{- if $config.github_status }}
 - name: github-status
@@ -118,7 +120,7 @@ resources:
   source:
     uri: https://github.com/SUSE/catapult
   version:
-    ref: 782c1af643fa6d03337a26434ddcd7613441774a
+    ref: 53d070314a3351aff3fcd74c5ea6bf844f3ccbb4
 
 - name: s3.kubecf-ci
   type: s3
@@ -127,7 +129,9 @@ resources:
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
     region_name: {{ $config.s3_bucket_region }}
-    regexp: kubecf-v(.*).tgz
+    # adapted from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+    # with 1 capturing group for the whole semver, as the s3 resource expects
+    regexp: kubecf-([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?).tgz
 
 - name: s3.kubecf-ci-bundle
   type: s3
@@ -136,7 +140,9 @@ resources:
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
     region_name: {{ $config.s3_bucket_region }}
-    regexp: kubecf-bundle-v(.*).tgz
+    # adapted from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+    # with 1 capturing group for the whole semver, as the s3 resource expects
+    regexp: kubecf-bundle-([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?).tgz
 
 - name: s3.kubecf
   type: s3
@@ -145,7 +151,7 @@ resources:
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
     region_name: {{ $config.s3_final_bucket_region }}
-    regexp: kubecf-v(.*).tgz
+    regexp: kubecf-([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?).tgz
 
 - name: s3.kubecf-bundle
   type: s3
@@ -154,7 +160,7 @@ resources:
     access_key_id: ((aws-access-key))
     secret_access_key: ((aws-secret-key))
     region_name: {{ $config.s3_final_bucket_region }}
-    regexp: kubecf-bundle-v(.*).tgz
+    regexp: kubecf-bundle-([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+)?).tgz
 
 deploy_args: &deploy_args
 - -ce
@@ -317,6 +323,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     trigger: true
     version: "every"
 {{- if has $config.stable_jobs "lint" }}
@@ -340,24 +350,19 @@ jobs:
     {{- end }}
     config:
       platform: linux
-      image_resource:
+      image_resource: &catapult-image
         type: registry-image
         source:
-          repository: thulioassis/bazel-docker-image
-          tag: 2.0.0
+          repository: splatform/catapult
+          tag: beffe83a8db9cf81340f8e291d9031baed388fc4
       inputs:
       - name: kubecf-{{ $branch }}
       run:
-        path: "/bin/bash"
+        path: "/usr/bin/make"
         args:
-        - -ce
-        - |
-          cd kubecf-{{ $branch }}
-          ./dev/linters/shellcheck.sh
-          ./dev/linters/yamllint.sh
-          ./dev/linters/helmlint.sh
-          bazel test //rules/kubecf:create_sample_values_test
-          bazel test //deploy/helm/kubecf:values_doc_test
+        - -C
+        - kubecf-{{ $branch }}
+        - lint
 
 {{- if has $config.stable_jobs "lint" }}
     {{- if $config.github_status }}
@@ -390,6 +395,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     trigger: true
     passed:
     - lint-{{ $branch }}
@@ -415,10 +424,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: thulioassis/bazel-docker-image
-          tag: 2.0.0
+        <<: *catapult-image
       inputs:
       - name: kubecf-{{ $branch }}
       outputs:
@@ -429,11 +435,9 @@ jobs:
         - -ce
         - |
           cd kubecf-{{ $branch }}
-          ./dev/build.sh ../output
-          timestamp=$(date +%s%3N)
-          for file in ../output/*.tgz; do
-              mv "$file" "${file%.tgz}-${timestamp}.tgz"
-          done
+          VERSION="$(./scripts/version.sh)"
+          TARGET_FILE=../output/kubecf-${VERSION}-$(date +%s%3N).tgz make kubecf-build
+          TARGET_FILE=../output/kubecf-bundle-${VERSION}-$(date +%s%3N).tgz make kubecf-bundle
 
 {{- if has $config.stable_jobs "build" }}
     {{- if $config.github_status }}
@@ -463,7 +467,7 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      file: output/kubecf-v*.tgz
+      file: output/kubecf-[0-9]*.tgz
       acl: public-read
   - put: s3.kubecf-ci-bundle
     {{- if $config.workertags }}
@@ -471,7 +475,7 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      file: output/kubecf-bundle-v*.tgz
+      file: output/kubecf-bundle-*.tgz
       acl: public-read
 
 {{- range $_, $cfScheduler := $config.availableCfSchedulers }}
@@ -486,6 +490,10 @@ jobs:
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
+    {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
     {{- end }}
     trigger: true
     passed:
@@ -541,9 +549,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: kubecf
       - name: catapult
@@ -602,9 +608,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: registry-image
-            source:
-              repository: splatform/catapult
+            <<: *catapult-image
           inputs:
           - name: semver.gke-cluster
           run:
@@ -719,6 +723,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     trigger: true
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
@@ -775,9 +783,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -895,6 +901,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -951,9 +961,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1061,6 +1069,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -1117,9 +1129,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1230,6 +1240,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -1286,9 +1300,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1397,6 +1409,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -1453,9 +1469,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1562,6 +1576,10 @@ jobs:
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
+    {{- end }}
     passed:
     - {{ $previousTest | quote }}
     trigger: true
@@ -1618,9 +1636,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       inputs:
       - name: catapult
       - name: kubecf
@@ -1740,9 +1756,7 @@ jobs:
 #     config:
 #       platform: linux
 #       image_resource:
-#         type: registry-image
-#         source:
-#           repository: splatform/catapult
+#          <<: *catapult-image
 #       inputs:
 #       - name: catapult
 #       - name: commit-to-test
@@ -1790,6 +1804,10 @@ jobs:
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
+    {{- end }}
+    {{- if ( eq $branch "pr" )}}
+    params:
+      submodules: true
     {{- end }}
     passed:
     - {{ $previousTest | quote }}
@@ -1972,10 +1990,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: thulioassis/bazel-docker-image
-          tag: 2.0.0
+        <<: *catapult-image
       inputs:
       - name: s3.kubecf-ci
       - name: s3.kubecf-ci-bundle
@@ -1999,9 +2014,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: registry-image
-        source:
-          repository: splatform/catapult
+        <<: *catapult-image
       params:
         S3_BUCKET: {{ $config.s3_final_bucket }}
         AWS_ACCESS_KEY_ID: ((aws-access-key))
@@ -2024,13 +2037,13 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      file: output/kubecf-v*.tgz
+      file: output/kubecf-[0-9]*.tgz
   - put: s3.kubecf-bundle
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
     - {{ . -}}{{ end }}
     {{- end }}
     params:
-      file: output/kubecf-bundle-v*.tgz
+      file: output/kubecf-bundle-*.tgz
 {{ end }} # of publish
 {{ end }} # of branch

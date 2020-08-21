@@ -14,16 +14,17 @@ Here we explain how to deploy Kubecf locally using:
 Minikube is one of several projects enabling the deployment,
 management and tear-down of a local Kubernetes cluster.
 
-The Kubecf Bazel workspace contains targets to deploy and/or tear-down
+The Kubecf Makefile contains targets to deploy and/or tear-down
 a Minikube-based cluster. Using these has the advantage of using a
 specific version of Minikube. On the other side, the reduced
 variability of the development environment is a disadvantage as well,
 possibly allowing portability issues to slide through.
 
-|Operation  |Command                            |
-|---        |---                                |
-|Deployment | `bazel run //dev/minikube:start`  |
-|Tear-down  | `bazel run //dev/minikube:delete` |
+| Operation  | Command                |
+|------------|------------------------|
+| Deployment | `make minikube-start`  |
+| Tear-down  | `make minikube-delete` |
+|            |                        |
 
 ### Attention, Dangers
 
@@ -52,13 +53,13 @@ It has to be installed in the same kube cluster Kubecf will be deployed to.
 
 ### Deployment and Tear-down
 
-The Kubecf Bazel workspace contains targets to deploy and/or tear-down
+The Kubecf Makefile contains targets to deploy and/or tear-down
 cf-operator:
 
-|Operation  |Command                               |
-|---        |---                                   |
-|Deployment | `bazel run //dev/cf_operator:apply`  |
-|Tear-down  | `bazel run //dev/cf_operator:delete` |
+| Operation  | Command                  |
+|------------|--------------------------|
+| Deployment | `make cf-operator-apply` |
+| Wait       | `make cf-operator-wait`  |
 
 ## Kubecf
 
@@ -67,23 +68,18 @@ possible to build and deploy kubecf itself.
 
 ### System domain
 
-The main configuration to set for kubecf is its system domain.
-For the Minikube foundation we have to specify it as:
-
-```sh
-echo "system_domain: $(minikube ip).xip.io" \
-  > "$(bazel info workspace)/dev/kubecf/system_domain_values.yaml"
-```
+The system domain gets set up as part of `make kubecf-apply`.
 
 ### Deployment and Tear-down
 
 The Kubecf Bazel workspace contains targets to deploy and/or tear-down
 kubecf from the sources:
 
-|Operation  |Command                          |
-|---        |---                              |
-|Deployment | `bazel run //dev/kubecf:apply`  |
-|Tear-down  | `bazel run //dev/kubecf:delete` |
+| Operation  | Command              |
+|------------|----------------------|
+| Deployment | `make kubecf-apply`  |
+| Tear-down  | `make kubecf-delete` |
+|            |                      |
 
 In this default deployment kubecf is launched without Ingress, and
 uses the Diego scheduler.

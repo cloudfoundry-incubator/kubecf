@@ -34,10 +34,6 @@ spec:
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}
-{{- if .Values.features.suse_buildpacks.enabled }}
-  - name: {{ include "kubecf.ops-name" (dict "Path" "assets/operations/buildpacks/set_suse_buildpacks.yaml") }}
-    type: configmap
-{{- end }}
 {{- if eq .Values.features.blobstore.provider "s3" }}
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/use-external-blobstore.yml") }}
     type: configmap
@@ -71,6 +67,13 @@ spec:
 {{- if gt (len .Values.operations.inline) 0 }}
   - name: user-provided-inline-operations
     type: configmap
+{{- end }}
+# To support multi-clusters and deploy a cell
+{{- if not .Values.features.multiple_cluster_mode.control_plane.enabled  }}
+{{- if .Values.features.multiple_cluster_mode.cell_segment.enabled }}
+  - name: user-provided-inline-operations
+    type: configmap
+{{- end }}
 {{- end }}
   - name: user-provided-properties
     type: configmap

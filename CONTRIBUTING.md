@@ -85,7 +85,7 @@ questions to the issue.
 
 ### How do we estimate
 
-We use t-shirt sizes (XS, S, M, L, XL, XXL)  to determine the Github issue complexity and not the implementation effort, so we can determine if the issue needs to be split in multiple ones and/or if it requires a more extended brainstorm to determine the feasibility of the new feature.
+We use Fibonnaci number sizes (1,2,3,5,8,13,21) to determine the Github issue complexity and not the implementation effort, so we can determine if the issue needs to be split in multiple ones and/or if it requires a more extended brainstorm to determine the feasibility of the new feature.
 
 ### The flow
 

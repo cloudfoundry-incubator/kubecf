@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source scripts/include/setup.sh
 
-require_tools helm
+require_tools helm perl
 
 export TARGET_FILE="${TEMP_DIR}/kubecf.tgz"
 ./scripts/kubecf-build.sh
@@ -12,4 +12,14 @@ TARGET_DIR="${TEMP_DIR}/kubecf"
 mkdir "${TARGET_DIR}"
 
 tar xfz "${TARGET_FILE}" -C "${TEMP_DIR}"
-helm lint "${TARGET_DIR}"
+helm lint "${TARGET_DIR}" --set system_domain=example.com
+
+# Running json schema validator a second time to also check the embedded config files.
+# Done in a separate run because the config files are merged here on top of values.yaml,
+# which will cause replacement of any arrays.
+
+# shellcheck disable=SC2046
+# We want word splitting with find.
+helm template "${TARGET_DIR}" --set system_domain=example.com \
+     --values "$(perl -e 'print join ",", @ARGV' -- $(find "${TARGET_DIR}/config" -type f))" \
+     > /dev/null

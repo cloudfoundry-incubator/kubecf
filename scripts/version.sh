@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 source scripts/include/setup.sh
 
-require_tools git
+require_tools git ruby
 
-echo "v${KUBECF_VERSION}-$(git rev-parse --short HEAD)"
+ruby src/kubecf-tools/versioning/versioning.rb

@@ -37,7 +37,7 @@ kube:
   external_ips: []
 
 services:
-  loadbalanced: false
+  nodePort: 31666
 
 secrets:
   BITS_SERVICE_SECRET: secret

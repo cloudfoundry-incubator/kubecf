@@ -220,9 +220,25 @@ spec:
             app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
             helm.sh/chart: {{ include "kubecf.chart" . }}
         spec:
+          {{- if $.Values.sizing.database.affinity }}
+          affinity: {{ $.Values.sizing.database.affinity | toJson }}
+          {{- else }}
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: quarks.cloudfoundry.org/quarks-statefulset-name
+                      operator: In
+                      values:
+                      - database
+                  topologyKey: kubernetes.io/hostname
+          {{- end }}
           initContainers:
           - name: remove-lost-found
-            {{- with $image := .Values.releases.pxc.image }}
+            {{- with $image := $.Values.releases.database.image }}
             image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
             imagePullPolicy: {{ $image.pullPolicy | quote }}
             {{- end }}
@@ -232,7 +248,7 @@ spec:
               mountPath: /var/lib/mysql
           containers:
           - name: database
-            {{- with $image := .Values.releases.pxc.image }}
+            {{- with $image := $.Values.releases.database.image }}
             image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
             imagePullPolicy: {{ $image.pullPolicy | quote }}
             {{- end }}
@@ -299,7 +315,7 @@ spec:
             - name: var-log
               mountPath: /var/log
           - name: "logs"
-            {{- with $image := .Values.releases.pxc.image }}
+            {{- with $image := $.Values.releases.database.image }}
             image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
             imagePullPolicy: {{ $image.pullPolicy | quote }}
             {{- end }}
@@ -374,7 +390,7 @@ spec:
         spec:
           containers:
           - name: seeder
-            {{- with $image := .Values.releases.pxc.image }}
+            {{- with $image := $.Values.releases.database.image }}
             image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
             imagePullPolicy: {{ $image.pullPolicy | quote }}
             {{- end }}
@@ -437,7 +453,7 @@ spec:
         spec:
           containers:
           - name: migrate-charset
-            {{- with $image := .Values.releases.pxc.image }}
+            {{- with $image := $.Values.releases.database.image }}
             image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
             imagePullPolicy: {{ $image.pullPolicy | quote }}
             {{- end }}
