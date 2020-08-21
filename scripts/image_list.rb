@@ -35,6 +35,7 @@ values = Open3.popen3(values_cmd) do |_, stdout, stderr, wait_thr|
 
   values
 end
+values['releases'] ||= {}
 
 # Enable all tests.
 values['testing'].keys.each do |key|
@@ -79,6 +80,10 @@ class HelmRenderer
     @values = values
     @documents = []
 
+    # Provide required value to avoid schema validation failure
+    values['system_domain'] = 'example.com'
+    # Eirini will throw an error unless a compatible stack is selected
+    values['install_stacks'] = ['sle15']
     Tempfile.open(['values-', '.yaml']) do |values_file|
       values_file.write values.to_yaml
       values_file.close
@@ -158,7 +163,7 @@ class BOSHDeployment < Resource
       end
 
       # Interpolate the manifest using the ops-file.
-      Tempfile.open(['manifest-' '.yaml']) do |manifest_file|
+      Tempfile.open(['manifest-', '.yaml']) do |manifest_file|
         manifest_file.puts manifest.data.manifest
         manifest_file.close
         interpolate_cmd = <<~CMD

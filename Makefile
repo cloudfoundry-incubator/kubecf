@@ -24,6 +24,9 @@ shellcheck:
 yamllint:
 	@./scripts/yamllint.sh
 
+test:
+	./tests/config.sh
+
 ########################################################################
 # Build
 

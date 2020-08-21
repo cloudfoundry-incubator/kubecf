@@ -7,30 +7,6 @@
 
 {{- if not .Values.features.eirini.enabled }}
 
-{{- if .Values.features.suse_buildpacks.enabled }}
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/-
-  value:
-    name: sle15-rootfs-setup
-    release: sle15
-    properties:
-      sle15-rootfs:
-        trusted_certs:
-        - ((diego_instance_identity_ca.ca))
-        - ((uaa_ssl.ca))
-
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=sle15-rootfs-setup/properties/quarks?/bpm/processes
-  value: []
-
-{{- if .Values.features.credhub.enabled }}
-- path: /instance_groups/name=diego-cell/jobs/name=sle15-rootfs-setup/properties/sle15-rootfs/trusted_certs/-
-  type: replace
-  value: ((credhub_tls.ca))
-{{- end }}
-
-{{- end }}
-
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=vxlan-policy-agent/properties/disable?
   value: true
@@ -63,7 +39,7 @@
 # Rep data should not be a PVC - since that could end up as a PVC
 # and if it's NFS, garden won't work
 - type: replace
-  path: /instance_groups/name=diego-cell/env?/bosh?/agent?/settings?/disks?
+  path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/disks
   value:
   - volume:
       name: rep-data
@@ -80,18 +56,7 @@
     filters:
       job_name: "garden"
       process_name: "garden"
-  - volumeMount:
-      name: rep-data
-      mountPath: /var/vcap/data/rep
-    filters:
-      job_name: "cflinuxfs3-rootfs-setup"
-      process_name: "cflinuxfs3-rootfs-setup"
-  - volumeMount:
-      name: rep-data
-      mountPath: /var/vcap/data/rep
-    filters:
-      job_name: "sle15-rootfs-setup"
-      process_name: "sle15-rootfs-setup"
+  # An additional entry will be added for each stack-rootfs-setup job
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin?
@@ -192,10 +157,6 @@
   value: unconfined
 
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties/quarks?/bpm/processes
-  value: []
-
-- type: replace
   path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []
 
@@ -206,14 +167,6 @@
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=silk-cni/properties/quarks?/bpm/processes
   value: []
-
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/preloaded_rootfses
-  value:
-  - cflinuxfs3:/var/vcap/data/rep/cflinuxfs3/rootfs.tar
-  {{- if .Values.features.suse_buildpacks.enabled }}
-  - sle15:/var/vcap/data/rep/sle15/rootfs.tar
-  {{- end }}
 
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_pool?
@@ -255,18 +208,8 @@
 {{- end }}
 {{- end }}
 
-{{- if .Values.features.suse_buildpacks.enabled }}
-# For SUSE buildpacks take all patches
 {{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
 {{ $bytes | toString }}
-{{- end }}
-{{- else }}
-# Without SUSE buildpacks, exclude the SLE15 patch and rootfs
-{{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
-{{- if not (regexMatch "diego-cell_sle15-rootfs-setup" $path) }}
-{{ $bytes | toString }}
-{{- end }}
-{{- end }}
 {{- end }}
 
 {{- end }}

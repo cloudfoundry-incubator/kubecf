@@ -111,10 +111,14 @@
   type: remove
 - path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/credhub_api?
   type: remove
-- path: /instance_groups/name=diego-cell/jobs/name=cflinuxfs3-rootfs-setup/properties/cflinuxfs3-rootfs/trusted_certs/1
-  type: remove
+{{- /* Don't remove credhub CA from cflinuxfs3-rootfs-set job; it is already handled by operations/stacks.yaml */}}
+
+# XXX Is there a safer way to do edit the rep job property than to delete an array element by position?
+# XXX At least verify that trusted_ca_certificates[1] == "((credhub_tls.ca))" and fail if it doesn't?
+# XXX The current op could break silently during any cf-deployment upgrade that rearranges certs.
 - path: /instance_groups/name=diego-cell/jobs/name=rep/properties/containers/trusted_ca_certificates/1
   type: remove
+
 - path: /instance_groups/name=credhub?
   type: remove
 - path: /variables/name=credhub_encryption_password?

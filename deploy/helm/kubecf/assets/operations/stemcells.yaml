@@ -1,0 +1,26 @@
+{{- $_ := include "_config.load" $ }}
+{{- $stemcell := $.Values.defaults.stemcell }}
+
+- type: replace
+  path: /stemcells/alias=default
+  value:
+    alias: default
+    os: {{ $stemcell.os | quote }}
+    version: {{ $stemcell.version | quote }}
+
+{{- $addons := list }}
+{{- $addons = append $addons "forwarder_agent" }}
+{{- $addons = append $addons "loggr-syslog-agent" }}
+{{- $addons = append $addons "loggregator_agent" }}
+{{- /*
+These are disabled as we don't use use them yet, and don't have images
+{{- $addons = append $addons "metrics-agent" }}
+{{- $addons = append $addons "metrics-discovery-registrar" }}
+*/}}
+{{- $addons = append $addons "prom_scraper" }}
+
+{{- range $addon := $addons }}
+- type: replace
+  path: /addons/name={{ $addon }}/include/stemcell/os=ubuntu-xenial/os
+  value: {{ $stemcell.os | quote }}
+{{- end }}
