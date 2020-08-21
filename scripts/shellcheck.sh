@@ -4,7 +4,7 @@ source scripts/include/setup.sh
 require_tools shellcheck
 
 find_args=(
-    -not \( -path "./deploy/helm/kubecf/charts" -prune \)
+    -not \( -path "./chart/charts" -prune \)
     -not \( -path "./output" -prune \)
     -not \( -path "./src" -prune \)
     -name '*.sh'

@@ -6,7 +6,7 @@
   https://github.com/SUSE/kubecf/blob/master/dependencies.yaml.
 
 - Update the `buildpack` version numbers / file paths in
-  https://github.com/SUSE/kubecf/blob/master/deploy/helm/kubecf/values.yaml
+  https://github.com/SUSE/kubecf/blob/master/chart/values.yaml
   to reflect corresponding versions in `cf-deployment`.
 
 ## Inspecting changes
@@ -22,7 +22,7 @@
   are updated accordingly.
 
 - If an instance group is added, removed or modified, then make sure that the
-  [instance_groups](https://github.com/SUSE/kubecf/tree/master/deploy/helm/kubecf/assets/operations/instance_groups)
+  [instance_groups](https://github.com/SUSE/kubecf/tree/master/chart/assets/operations/instance_groups)
   ops-file is updated accordingly.
 
 _Note that the above steps will vary depending upon the changes in the target version._
@@ -44,4 +44,4 @@ _Note that the above steps will vary depending upon the changes in the target ve
   cf-acceptance-tests-release in
   https://github.com/SUSE/cf-ci/tree/develop/kubecf-build-pipelines/external-releases.
 - Bump the latest version of cf-acceptance-tests-release in
-  https://github.com/SUSE/kubecf/blob/master/deploy/helm/kubecf/values.yaml.
+  https://github.com/SUSE/kubecf/blob/master/chart/values.yaml.
