@@ -35,7 +35,7 @@ data:
       value: https://eirini-opi.{{ .Release.Namespace }}.svc.cluster.local:8085 
 
       # --- Set endpoints and alternative names for eirini staging. See: 
-      # https://github.com/cloudfoundry-incubator/kubecf/blob/master/deploy/helm/kubecf/assets/operations/instance_groups/eirini.yaml#L177-L201
+      # https://github.com/cloudfoundry-incubator/kubecf/blob/master/chart/assets/operations/instance_groups/eirini.yaml#L177-L201
     - type: replace
       path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/webdav_config?/private_endpoint?
       value: https://kubecf-singleton-blobstore.{{ .Release.Namespace }}.svc.cluster.local:4443

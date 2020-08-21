@@ -90,7 +90,7 @@ associated documentation, if we have any.
 |                                                                       |inspect the deployed Kubecf                            |
 |[__top__/dev/kube](inspection.md)                                      |Tools to inspect kube clusters and kubecf deployments. |
 |[__top__/dev/kubecf](../dev/kubecf/README.md)                          |Kubecf chart configuration                             |
-|__top__/deploy/helm/kubecf                                             |Templates and assets wrapping a CF deployment          |
+|__top__/chart                                                          |Templates and assets wrapping a CF deployment          |
 |                                                                       |manifest into a helm chart.                            |
 |__top__/rules                                                          |Supporting scripts.                                    |
 |[__top__/testing](tests.md)                                            |Scripts with specific testing                          |
@@ -102,7 +102,7 @@ associated documentation, if we have any.
 ## Updating subcharts
 
 The kubecf helm chart includes a number of subcharts. They are declared in
-[requirements.yaml](../deploy/helm/kubecf/requirements.yaml). For the
+[requirements.yaml](../chart/requirements.yaml). For the
 convenience of development they are included in unpacked form directly in
 this repo, so version changes can be inspected with regular `git` tools,
 and the subcharts can be searched with `grep` etc.
@@ -110,7 +110,7 @@ and the subcharts can be searched with `grep` etc.
 The procedure to update the version of a subchart is:
 
 ```
-vi deploy/helm/kubecf/requirements.yaml
+vi chart/requirements.yaml
 ./dev/helm/update_subcharts.sh
 git commit
 ```

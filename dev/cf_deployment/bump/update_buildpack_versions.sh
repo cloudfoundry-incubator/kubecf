@@ -2,8 +2,8 @@
 
 set -o errexit -o nounset
 
-cf_deployment_yaml="deploy/helm/kubecf/assets/cf-deployment.yml"
-dest="deploy/helm/kubecf/assets/operations/instance_groups/api.yaml"
+cf_deployment_yaml="chart/assets/cf-deployment.yml"
+dest="chart/assets/operations/instance_groups/api.yaml"
 
 buildpacks=$(yq -r '.instance_groups[].jobs[] | select(.name=="cloud_controller_ng") |.properties.cc.install_buildpacks[].name' "${cf_deployment_yaml}")
 

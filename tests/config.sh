@@ -9,7 +9,7 @@ TEST_DIR="${TEMP_DIR}/test"
 mkdir -p "${TEST_DIR}"
 
 cp -a tests/config/* "${TEST_DIR}"
-cp deploy/helm/kubecf/templates/_*.tpl "${TEST_DIR}/templates"
+cp chart/templates/_*.tpl "${TEST_DIR}/templates"
 
 HELM_ARGS=(
     --set "helm_nil=null"
