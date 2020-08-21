@@ -391,7 +391,6 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     trigger: true
-    version: "every"
     passed:
     - lint-{{ $branch }}
 {{- if has $config.stable_jobs "build" }}
@@ -489,7 +488,6 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     trigger: true
-    version: "every"
     passed:
     - build-{{ $branch }}
   - get: s3.kubecf-ci
@@ -722,7 +720,6 @@ jobs:
     - {{ . -}}{{ end }}
     {{- end }}
     trigger: true
-    version: "every"
     passed:
     - deploy-{{ $cfScheduler }}-{{ $branch }}
   - get: s3.kubecf-ci
@@ -901,7 +898,6 @@ jobs:
     passed:
     - {{ $previousTest | quote }}
     trigger: true
-    version: "every"
   - get: s3.kubecf-ci
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
@@ -1068,7 +1064,6 @@ jobs:
     passed:
     - {{ $previousTest | quote }}
     trigger: true
-    version: "every"
   - get: s3.kubecf-ci
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
@@ -1238,7 +1233,6 @@ jobs:
     passed:
     - {{ $previousTest | quote }}
     trigger: true
-    version: "every"
   - get: s3.kubecf-ci
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
@@ -1406,7 +1400,6 @@ jobs:
     passed:
     - {{ $previousTest | quote }}
     trigger: true
-    version: "every"
   - get: s3.kubecf-ci
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
@@ -1572,7 +1565,6 @@ jobs:
     passed:
     - {{ $previousTest | quote }}
     trigger: true
-    version: "every"
   - get: s3.kubecf-ci
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
@@ -1736,7 +1728,6 @@ jobs:
 #     passed:
 #     - sync-integration-tests-{{ $cfScheduler }}
 #     trigger: true
-#     version: "every"
 #   - get: s3.kubecf-ci
 #     passed:
 #     - sync-integration-tests-{{ $cfScheduler }}
@@ -1803,7 +1794,6 @@ jobs:
     passed:
     - {{ $previousTest | quote }}
     trigger: true
-    version: "every"
   - get: semver.gke-cluster-{{ $config.resource_prefix | strings.Trunc 12 }}-{{ $branch | strings.Trunc 12 }}-{{ $cfScheduler }}
     {{- if $config.workertags }}
     tags: {{ range $config.workertags }}
@@ -1839,7 +1829,6 @@ jobs:
       - {{ . -}}{{ end }}
       {{- end }}
       trigger: true
-      version: "every"
       passed:
       - build-{{ $branch }}
     - get: s3.kubecf-ci
