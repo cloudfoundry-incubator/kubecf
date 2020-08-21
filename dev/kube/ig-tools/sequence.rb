@@ -128,7 +128,7 @@ def ehead(xmax, ymax, height)
   xmax += 100        # give space to the (last) text for ig's, to the right
   ymax += 2 * height # give space to the last row, down
   puts %(
-    <svg width='#{xmax}' height='#{ymax}' xmlns='http://www.w3.org/2000/svg'>
+    <svg width='#{xmax}' height='#{ymax}' xmlns='https://www.w3.org/2000/svg'>
   )
   ebox text: '<BG>', x_pos: 0, y_pos: 0, width: xmax, height: ymax
 end
