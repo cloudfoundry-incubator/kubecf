@@ -1,9 +1,9 @@
 dependencies:
 - name: eirini
-  repository: http://opensource.suse.com/eirini-release/
+  repository: https://opensource.suse.com/eirini-release/
   version: 1.0.6
 - name: bits
-  repository: http://opensource.suse.com/bits-service-release/
+  repository: https://opensource.suse.com/bits-service-release/
   version: 1.0.21
 - name: eirini-extensions
   repository: https://cloudfoundry-incubator.github.io/eirinix-helm-release/
