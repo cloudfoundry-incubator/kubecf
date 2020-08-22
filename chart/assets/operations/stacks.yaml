@@ -1,0 +1,178 @@
+{{- $_ := include "_config.load" $ }}
+{{- range $release_name, $release := $.Values.releases }}
+  {{- if $release.buildpack }}
+    {{- /* buildpack release conditions are set in _stacks.update to either true or false */}}
+    {{- if $release.condition }}
+      {{- /* *** Create/update "api" jobs for each buildpack (they already exist for default stack buildpacks) *** */}}
+- type: replace
+  path: /instance_groups/name=api/jobs/name={{ $release_name }}?/name
+  value: {{ $release_name | quote }}
+- type: replace
+  path: /instance_groups/name=api/jobs/name={{ $release_name }}/release?
+  value: {{ $release_name | quote }}
+- type: replace
+  path: /instance_groups/name=api/jobs/name={{ $release_name }}/properties?/quarks/bpm/processes
+  value: []
+    {{- else }}
+- type: remove
+  path: /instance_groups/name=api/jobs/name={{ $release_name }}?
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- if not $.Values.features.eirini.enabled }}
+  {{- range $stack_name, $stack := $.Values.stacks }}
+    {{- if $stack.enabled }}
+      {{- /* *** Create "diego-cell" job to setup rootfs for each stack *** */}}
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name={{ $stack_name }}-rootfs-setup?
+  value:
+    name: {{ $stack_name }}-rootfs-setup
+    release: {{ $stack_name }}
+    properties:
+      {{ $stack_name }}-rootfs:
+        trusted_certs:
+        - ((diego_instance_identity_ca.ca))
+      {{- if $.Values.features.credhub.enabled }}
+        - ((credhub_tls.ca))
+      {{- end }}
+        - ((uaa_ssl.ca))
+      quarks:
+        bpm:
+          processes: []
+    {{- else }}
+- type: remove
+  path: /instance_groups/name=diego-cell/jobs/name={{ $stack_name }}-rootfs-setup?
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+# set default stack
+{{- include "_capi.setProperty" (list "default_stack" (first $.Values.install_stacks)) }}
+
+# set stack list
+{{- $stacks := list }}
+{{- range $stack_name := $.Values.install_stacks }}
+  {{- $description := include "_config.lookup" (list $ "stacks" $stack_name "description") }}
+  {{- $stacks = append $stacks (dict "name" $stack_name "description" $description) }}
+{{- end }}
+{{- include "_capi.setProperty" (list "stacks" $stacks) }}
+
+# set lifecycle bundles
+{{- $lifecycle_bundles := dict }}
+{{- $_ := set $lifecycle_bundles "docker" "docker_app_lifecycle/docker_app_lifecycle.tgz" }}
+{{- range $stack_name := $.Values.install_stacks }}
+  {{- $_ := set $lifecycle_bundles (printf "buildpack/%s" $stack_name) "buildpack_app_lifecycle/buildpack_app_lifecycle.tgz" }}
+{{- end }}
+{{- include "_capi.setProperty" (list "diego.lifecycle_bundles" $lifecycle_bundles) }}
+
+{{- if not $.Values.features.eirini.enabled }}
+# set list of pre-loaded rootfses
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/preloaded_rootfses
+  value:
+  {{- range $stack_name := $.Values.install_stacks }}
+  - {{ $stack_name }}:/var/vcap/data/rep/{{ $stack_name }}/rootfs.tar
+  {{- end }}
+
+  {{- range $stack_name := $.Values.install_stacks }}
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/disks/-
+  value:
+    volumeMount:
+      name: rep-data
+      mountPath: /var/vcap/data/rep
+    filters:
+      job_name: "{{ $stack_name }}-rootfs-setup"
+      process_name: "{{ $stack_name }}-rootfs-setup"
+  {{- end }}
+{{- end }}
+
+# set list of all buildpacks in install order
+{{- /* XXX Should this also use _capi.setProperty? */}}
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/install_buildpacks
+  value:
+{{- range $stack_name := $.Values.install_stacks }}
+  {{- $_ := include "_config.lookup" (list $ "stacks" $stack_name "install_buildpacks") }}
+  {{- range $buildpack_shortname := $.kubecf.retval }}
+    {{- $release_name := include "_config.lookup" (list $ "stacks" $stack_name "buildpacks" $buildpack_shortname) }}
+    {{- $version := include "_config.lookup" (list $ "releases" $release_name "version") }}
+    {{- $filename := printf "%s-buildpack-%s-v%s.zip" $buildpack_shortname $stack_name $version }}
+  - name: "{{ include "_config.lookup" (list $ "releases" $release_name "buildpack") }}_buildpack"
+    file: "/var/vcap/data/shared-packages/{{ $release_name }}/{{ $filename }}"
+  {{- end }}
+{{- end }}
+
+# create pre-rendering scripts
+{{- range $stack_name := $.Values.install_stacks }}
+  {{- if not $.Values.features.eirini.enabled }}
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name={{ $stack_name }}-rootfs-setup/properties/quarks?/pre_render_scripts/jobs/-
+  value: |
+    #!/usr/bin/env bash
+    set -o errexit -o nounset
+
+    target="/var/vcap/all-releases/jobs-src/{{ $stack_name }}/{{ $stack_name }}-rootfs-setup/templates/pre-start"
+    sentinel="${target}.patch_sentinel"
+    if [[ -f "${sentinel}" ]]; then
+      if sha256sum --check "${sentinel}" ; then
+        echo "Patch already applied. Skipping"
+        exit 0
+      fi
+      echo "Sentinel mismatch, re-patching"
+    fi
+
+    # Use the ephemeral data directory for the rootfs
+    perl -p -i -e 's#\$ROOTFS_PACKAGE/rootfs#/var/vcap/data/rep/{{ $stack_name }}/rootfs#' "${target}"
+
+    sha256sum "${target}" > "${sentinel}"
+  {{- end }}
+
+  {{- $_ := include "_config.lookup" (list $ "stacks" $stack_name) }}
+  {{- $stack := $.kubecf.retval }}
+  {{- range $buildpack_shortname := $stack.install_buildpacks }}
+    {{- $release_name := index $stack.buildpacks $buildpack_shortname }}
+    {{- $version := include "_config.lookup" (list $ "releases" $release_name "version") }}
+- type: replace
+  path: /instance_groups/name=api/jobs/name={{ $release_name }}/properties?/quarks/pre_render_scripts/jobs/-
+  value: |
+    #!/usr/bin/env bash
+    set -o errexit -o nounset
+
+    # Create the pre-start script that copies the buildpack package to /var/vcap/data/shared-packages/.
+
+    release={{ $release_name | quote }}
+    buildpack={{ $release_name | quote }}
+    package={{ printf "%s-buildpack-%s" $buildpack_shortname $stack_name | quote }}
+    version={{ $version | quote }}
+
+    pre_start="/var/vcap/all-releases/jobs-src/${release}/${buildpack}/templates/bin/pre-start"
+    copy_dst="/var/vcap/data/shared-packages/${buildpack}"
+    mkdir -p "$(dirname "${pre_start}")"
+    cat <<EOT > "${pre_start}"
+    #!/usr/bin/env bash
+    set -o errexit
+    mkdir -p "${copy_dst}"
+    cp /var/vcap/packages/${package}/*.zip "${copy_dst}/${package}-v${version}.zip"
+    EOT
+- type: replace
+  path: /instance_groups/name=api/jobs/name={{ $release_name }}/properties?/quarks/pre_render_scripts/ig_resolver/-
+  value: |
+    #!/usr/bin/env bash
+    set -o errexit -o nounset
+
+    # Add bin/pre-start to the buildpack job templates.
+
+    release={{ $release_name | quote }}
+    job={{ $release_name | quote }}
+
+    job_mf="/var/vcap/all-releases/jobs-src/${release}/${job}/job.MF"
+
+    sed -i 's|templates: {}||' "${job_mf}"
+    cat <<EOT > "${job_mf}"
+    templates:
+      bin/pre-start: bin/pre-start
+    EOT
+  {{- end }}
+{{- end }}

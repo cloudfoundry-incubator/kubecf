@@ -1,0 +1,18 @@
+name: enqueue-pr-test
+on:
+  # When a PR is approved, add the queue label
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  enqueue:
+    if: github.event.pull_request.base.ref == 'master' && github.event.review.state == 'approved'
+    name: enqueue
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions-ecosystem/action-add-labels@9141732
+        with:
+          # We need a bot token because the regular GH Actions token is not allowed to trigger
+          # secondary GH Actions events.
+          github_token: ${{ secrets.GH_BOT_TOKEN }}
+          labels: pr-test-queue

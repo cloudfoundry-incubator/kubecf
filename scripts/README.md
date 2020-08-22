@@ -74,10 +74,10 @@ CI. The version will be `0.0.0` on the master branch and `x.y.z` on a
 
 #### ./dev/helm/update_subcharts.sh
 
-Subcharts of `kubecf` are declared in `deploy/helm/kubecf/requirements.yaml`.
+Subcharts of `kubecf` are declared in `chart/requirements.yaml`.
 Running `update_subcharts.sh` after updating the `requirements.yaml` will
 fetch updated subcharts from their helm repos and unpacks them under the
-`deploy/helm/kubecf/charts` directory, so the diff to the previous version
+`chart/charts` directory, so the diff to the previous version
 becomes a part of the git commit.
 
 #### ./scripts/helmlint.sh

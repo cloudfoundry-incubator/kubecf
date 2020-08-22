@@ -1,0 +1,165 @@
+{{- $_ := include "_config.load" $ }}
+{{- if  .Values.features.eirini.enabled }}
+
+  {{- /* *** Make sure the eirini stack has been selected *** */}}
+  {{- $eirini_stack := $.Values.features.eirini.stack }}
+  {{- $ok := len $.Values.install_stacks | eq 1 }}
+  {{- $ok = first $.Values.install_stacks | eq $eirini_stack | and $ok }}
+  {{- if not $ok }}
+    {{ fail (printf "Eirini can only be enabled with \"install_stacks=[%s]\"" $eirini_stack) }}
+  {{- end }}
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/enabled?
+  value: true
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/url?
+  value: "https://eirini-opi.{{ .Release.Namespace }}.svc:8085"
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/webdav_config?/private_endpoint?
+  value: "https://singleton-blobstore.{{ .Release.Namespace }}.svc:4443"
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config?/private_endpoint?
+  value: "https://singleton-blobstore.{{ .Release.Namespace }}.svc:4443"
+- type: replace
+  path: /variables/name=blobstore_tls/options/alternative_names?/-
+  value: "singleton-blobstore.{{ .Release.Namespace }}.svc"
+- type: replace
+  path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?/-
+  value: "api.{{ .Release.Namespace }}.svc"
+- type: replace
+  path: /variables/name=cc_bridge_cc_uploader/options/copies?/-
+  value:
+    namespace: {{ .Values.eirini.opi.namespace }}
+    name: var-cc-bridge-cc-uploader
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
+  value: "api.{{ .Release.Namespace }}.svc"
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/internal_service_hostname?
+  value: "api.{{ .Release.Namespace }}.svc"
+- type: replace
+  path: /variables/name=cc_public_tls/options/alternative_names?/-
+  value: "api.{{ .Release.Namespace }}.svc"
+- type: replace
+  path: /variables/name=cc_tls/options/alternative_names?/-
+  value: "api.{{ .Release.Namespace }}.svc"
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/opi_staging?
+  value: true
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/client_cert?
+  value: ((eirini_tls_client_cert.certificate))
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/client_key?
+  value: ((eirini_tls_client_cert.private_key))
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/ca_cert?
+  value: ((eirini_tls_server_cert.ca))
+
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/enabled?
+  value: true
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/url?
+  value: "https://eirini-opi.{{ .Release.Namespace }}.svc:8085"
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/opi_staging?
+  value: true
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/client_cert?
+  value: ((eirini_tls_client_cert.certificate))
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/client_key?
+  value: ((eirini_tls_client_cert.private_key))
+- type: replace
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/cc/opi?/ca_cert?
+  value: ((eirini_tls_server_cert.ca))
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/enabled?
+  value: true
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/url?
+  value: "https://eirini-opi.{{ .Release.Namespace }}.svc:8085"
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/opi_staging?
+  value: true
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/client_cert?
+  value: ((eirini_tls_client_cert.certificate))
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/client_key?
+  value: ((eirini_tls_client_cert.private_key))
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/cc/opi?/ca_cert?
+  value: ((eirini_tls_server_cert.ca))
+
+- type: replace
+  path: /variables/name=loggregator_tls_agent/options/alternative_names?
+  value:
+    - localhost
+    - metron
+- type: replace
+  path: /variables/name=loggregator_tls_doppler/options/alternative_names?/-
+  value: metron
+
+- type: replace
+  path: /variables/name=eirini_tls_server_cert?
+  value:
+    name: eirini_tls_server_cert
+    type: certificate
+    options:
+      ca: service_cf_internal_ca
+      common_name: "eirini-opi"
+      alternative_names:
+      - "eirini-opi.{{ .Release.Namespace }}.svc"
+      extended_key_usage:
+      - server_auth
+
+- type: replace
+  path: /variables/name=eirini_tls_client_cert?
+  value:
+    name: eirini_tls_client_cert
+    type: certificate
+    options:
+      ca: service_cf_internal_ca
+      common_name: cloud_controller
+      extended_key_usage:
+      - client_auth
+      copies:
+      - namespace: {{ .Values.eirini.opi.namespace }}
+        name: var-eirini-tls-client-cert
+
+# Remove the whole diego-cell instance group.
+- type: remove
+  path: /instance_groups/name=diego-cell
+
+# Remove bbs from diego-api.
+# TODO: remove bbs in the future - when the clock and worker no longer need it.
+# - type: remove
+#   path: /instance_groups/name=diego-api/jobs/name=bbs
+
+# Remove auctioneer, tps and ssh_proxy from scheduler.
+- type: remove
+  path: /instance_groups/name=auctioneer
+- type: remove
+  path: /instance_groups/name=scheduler/jobs/name=tps
+- type: remove
+  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy
+
+# For eirini-extensions: Add hostname-only names to the CC/UAA certificates
+- type: replace
+  path: /variables/name=cc_public_tls/options/alternative_names/-
+  value: api
+- type: replace
+  path: /variables/name=uaa_ssl/options/alternative_names/-
+  value: uaa
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/zones/internal/hostnames/-
+  value: uaa
+
+{{- end }}

@@ -10,7 +10,7 @@
 # environment variable via an ops file [1], which wouldn't make any
 # sense in the BOSH VM world.
 #
-# [1] deploy/helm/kubecf/assets/operations/instance_groups/routing-api.yaml
+# [1] chart/assets/operations/instance_groups/routing-api.yaml
 #
 # Result: The patch is extremely specific to kubecf, and cannot be
 # upstreamed.

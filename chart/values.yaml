@@ -1,0 +1,603 @@
+# REQUIRED: the domain that the deployment will be visible to the user.
+# system_domain: example.com
+
+# List of stacks to install; the first one will be used as the default.
+# A stack is a prebuilt root file system that supports a specific
+# operating system with a corresponding set of buildpacks.
+install_stacks: [sle15, cflinuxfs3]
+
+# Set or override job properties. The first level of the map is the instance group name. The second
+# level of the map is the job name. E.g.:
+#  properties:
+#    adapter:
+#      adapter:
+#        scalablesyslog:
+#          adapter:
+#            logs:
+#              addr: kubecf-log-api:8082
+#
+properties: {}
+
+# Override credentials to not be auto-generated.  The credentials can either be
+# specified as a nested mapping, or with a dot-separated key.  For example:
+#  credentials:
+#    cf_admin_password: changeme
+#    credhub_tls.ca: credhub-real-ca
+#    credhub_tls:
+#      certificate: the-cert
+credentials: {}
+
+# Override variable values to not be auto-generated.  The variables are a simple
+# mapping with keys/values.  Note that the `system_domain` domain is handled
+# differently and must be set via the top-level key (which is required).
+# For example:
+#  variables:
+#    key: value
+variables: {}
+
+kube:
+  # The storage class to be used for the instance groups that need it (e.g. bits, database and
+  # singleton-blobstore). If it's not set, the default storage class will be used.
+  storage_class: ~
+  # The psp key contains the configuration related to Pod Security Policies. By default, a PSP will
+  # be generated with the necessary permissions for running KubeCF. To pass an existing PSP and
+  # prevent KubeCF from creating a new one, set the kube.psp.default with the PSP name.
+  psp:
+    default: ~
+
+# Set to true to enable support for multiple availability zones.
+multi_az: false
+
+# Set to true to enable high availability mode, where pods are replicated in
+# order to prevent downtime when a node is temporarily unavailable.
+high_availability: false
+
+# Instance sizing takes precedence over the high_availability property. I.e. setting the
+# instance count for an instance group greater than 1 will make it highly available.
+#
+# It is also possible to specify custom affinity rules for each instance group. If no rule
+# is provided, then each group as anti-affinity to itself, to try to spread the pods between
+# different nodes. In addition diego-cell and router also have anti-affinity to each other.
+#
+# The default rules look like this:
+#
+# sizing:
+#   sample_group:
+#     affinity:
+#       podAntiAffinity:
+#         preferredDuringSchedulingIgnoredDuringExecution:
+#         - weight: 100
+#           podAffinityTerm:
+#             labelSelector:
+#               matchExpressions:
+#               - key: quarks.cloudfoundry.org/quarks-statefulset-name
+#                 operator: In
+#                 values:
+#                 - sample_group
+#             topologyKey: kubernetes.io/hostname
+#
+# Any affinity rules specified here will *overwrite* the default rule and not merge with it.
+
+sizing:
+  adapter:
+    instances: ~
+  api:
+    instances: ~
+  asactors:
+    instances: ~
+  asapi:
+    instances: ~
+  asmetrics:
+    instances: ~
+  asnozzle:
+    instances: ~
+  auctioneer:
+    instances: ~
+  bits:
+    instances: ~
+  cc_worker:
+    instances: ~
+  credhub:
+    instances: ~
+  database:
+    instances: ~
+    persistence:
+      size: 20Gi
+  diego_api:
+    instances: ~
+  diego_cell:
+    ephemeral_disk:
+      # Size of the ephemeral disk used to store applications in MB
+      size: 40960
+      # The name of the storage class used for the ephemeral disk PVC.
+      storage_class: ~
+    instances: ~
+  doppler:
+    instances: ~
+  eirini:
+    instances: ~
+  log_api:
+    instances: ~
+  nats:
+    instances: ~
+  router:
+    instances: ~
+  routing_api:
+    instances: ~
+  scheduler:
+    instances: ~
+  uaa:
+    instances: ~
+  tcp_router:
+    instances: ~
+
+#  External endpoints are created for the instance groups only if features.ingress.enabled is false.
+services:
+  router:
+    annotations: ~
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~
+  ssh-proxy:
+    annotations: ~
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~
+  tcp-router:
+    annotations: ~
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~
+    port_range:
+      start: 20000
+      end: 20008
+
+settings:
+  router:
+    # tls sets up the public TLS for the router. The tls keys:
+    #   crt: the certificate in the PEM format. Required.
+    #   key: the private key in the PEM format. Required.
+    tls: {}
+    # crt: |
+    #   -----BEGIN CERTIFICATE-----
+    #   ...
+    #   -----END CERTIFICATE-----
+    # key: |
+    #   -----BEGIN PRIVATE KEY-----
+    #   ...
+    #   -----END PRIVATE KEY-----
+
+
+features:
+  eirini:
+    enabled: false
+  # To support multi-clusters, deploy diego-cell separately please set control_plane is false  and cell_segment is true
+  multiple_cluster_mode:
+    control_plane:
+      enabled: false
+    cell_segment:
+      enabled: false
+    # To support multi-clusters, services for diego-cell deployed separately
+    control_plane_workers:
+      uaa:
+        name: uaa
+        addresses:
+        - ip: ~
+      diego_api:
+        name: diego-api
+        addresses:
+        - ip: ~
+      api:
+        name: api
+        addresses:
+        - ip: ~
+      singleton_blobstore:
+        name: singleton-blobstore
+        addresses:
+        - ip: ~
+    # To support multi-clusters, provider link secrets for diego-cell deployed separately
+    provider_link_service:
+      nats:
+        secret_name: minion-link-nats
+        service_name: minion-service-nats
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of nats, for example:
+        # link: |
+        #   ---
+        #   nats.user: "nats"
+        #   nats.password: "xxxxxx"
+        #   nats.hostname: "nats"
+        #   nats.port: 4222
+        link: ~
+      nats_tls:
+        secret_name: minion-link-nats-tls
+        service_name: minion-service-nats-tls
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of nats_tls, for example:
+        # link: |
+        #   ---
+        #   nats.user: "nats"
+        #   nats.password: "xxxxxx"
+        #   nats.hostname: "nats"
+        #   nats.port: 4223
+        #   nats.external.tls.ca: ""
+        link: ~
+      routing_api:
+        secret_name: minion-link-routing-api
+        service_name: minion-service-routing-api
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of routing-api, for example:
+        # link: |
+        #   routing_api.clients: ~
+        #   routing_api.system_domain: "xxx.xxx.xxx"
+        #   routing_api.port: 3000
+        #   routing_api.mtls_port: 3001
+        #   routing_api.mtls_ca: |
+        #     -----BEGIN CERTIFICATE-----
+        #     xxxxxx
+        #     -----END CERTIFICATE-----
+        #   ......
+        link: ~
+      doppler:
+        secret_name: minion-link-doppler
+        service_name: minion-service-doppler
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of doppler, for example:
+        # link: |
+        #   doppler.grpc_port: 8082
+        link: ~
+      loggregator:
+        secret_name: minion-link-loggregator
+        service_name: minion-service-loggregator
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of loggregator, for example:
+        # link: |
+        #   loggregator.tls.ca_cert: |
+        #     -----BEGIN CERTIFICATE-----
+        #     xxxxxx
+        #     -----END CERTIFICATE-----
+        #   ......
+        link: ~
+      cloud_controller:
+        secret_name: minion-link-cloud-controller
+        service_name: minion-service-cloud-controller
+        addresses:
+        - ip: ~
+        # To support multi-clusters, fill the provider link secrets context of cloud-controller, for example:
+        # link: |
+        #   system_domain: "{{ .Values.system_domain }}"
+        #   app_domains: []
+        link: ~
+  ingress:
+    enabled: false
+    tls:
+      # TLS certificate for the ingress controller.  This should be a wildcard certificate for the
+      # system domain (*.example.com, where api.example.com is the API endpoint).  It should also
+      # include the full certificate chain (that is, include the intermediate certificates).
+      crt: ~
+      # TLS certificate private key for the ingress controller, matching features.ingress.tls.crt.
+      key: ~
+    annotations: {}
+    labels: {}
+  autoscaler:
+    # Enable the application autoscaler.  The autoscaler service must be manually registered; see
+    # https://github.com/cloudfoundry/app-autoscaler-release#register-service for details.
+    enabled: false
+    mysql:
+      enabled: false
+  credhub:
+    # Enable credhub; this is only used as a service broker for applications, and is not used for
+    # authentication with the Cloud Foundry deployment.
+    enabled: true
+  routing_api:
+    # Enable the routing API.  Disabling this will also disable TCP routing, which is used for TCP
+    # port forwarding.
+    enabled: true
+  embedded_database:
+    # Enable the embedded database (the PXC helm sub-chart).  Disabled it allows using an external,
+    # already seeded, database.  Please refer to
+    # https://kubecf.suse.dev/docs/getting-started/kubernetes-deploy/#external-database for details.
+    # See also features.external_database.
+    enabled: true
+  blobstore:
+    # Possible values for provider: singleton and s3.
+    provider: singleton
+    s3:
+      aws_region: ~
+      blobstore_access_key_id: ~
+      blobstore_secret_access_key: ~
+      blobstore_admin_users_password: ~
+      # The following values are used as S3 bucket names.
+      app_package_directory_key: ~
+      buildpack_directory_key: ~
+      droplet_directory_key: ~
+      resource_directory_key: ~
+
+  # Configuration for the external database; see also features.embedded_database.
+  external_database:
+    enabled: false
+    require_ssl: false
+    ca_cert: ~
+    # The external database type; it can be either 'mysql' or 'postgres'.
+    type: ~
+    host: ~
+    port: ~
+    databases:
+      uaa:
+        name: uaa
+        password: ~
+        username: ~
+      cc:
+        name: cloud_controller
+        password: ~
+        username: ~
+      bbs:
+        name: diego
+        password: ~
+        username: ~
+      routing_api:
+        name: routing-api
+        password: ~
+        username: ~
+      policy_server:
+        name: network_policy
+        password: ~
+        username: ~
+      silk_controller:
+        name: network_connectivity
+        password: ~
+        username: ~
+      locket:
+        name: locket
+        password: ~
+        username: ~
+      credhub:
+        name: credhub
+        password: ~
+        username: ~
+
+# Enable or disable instance groups for the different test suites.
+# Only smoke tests should be run in production environments.
+testing:
+  # __ATTENTION__: The brain tests do things with the cluster which
+  # required them to have `cluster-admin` permissions (i.e. root).
+  # Enabling them is thus potentially insecure. They should only be
+  # activated for isolated testing.
+  brain_tests:
+    enabled: false
+    # Delete the testing pod after completion (default: false)
+    delete_pod: false
+  cf_acceptance_tests:
+    enabled: false
+    # Delete the testing pod after completion (default: false)
+    delete_pod: false
+  smoke_tests:
+    enabled: true
+    # Delete the testing pod after completion (default: false)
+    delete_pod: false
+  sync_integration_tests:
+    enabled: false
+    # Delete the testing pod after completion (default: false)
+    delete_pod: false
+
+ccdb:
+  encryption:
+    # Configure CCDB key rotation.  Please see
+    # https://kubecf.suse.dev/docs/tasks/secrets/#rotating-the-ccdb-encryption-keys for details.
+    rotation:
+      # Key labels must be <= 240 characters long.
+      key_labels:
+      - encryption_key_0
+      current_key_label: encryption_key_0
+
+operations:
+  # A list of configmap names that should be applied to the BOSH manifest.
+  custom: []
+  # Inlined operations that get into generated ConfigMaps. E.g. adding a password variable:
+  # operations:
+  #   inline:
+  #   - type: replace
+  #     path: /variables/-
+  #     value:
+  #       name: my_password
+  #       type: password
+  inline: []
+
+# Configuration for the eirini sub-chart; please refer to
+# https://github.com/cloudfoundry-incubator/eirini-release/blob/master/docs/installation.md
+# for details.
+eirini:
+  global:
+    labels: {}
+    annotations: {}
+
+  env:
+    # This setting is not configurable and must be HIDDEN from the user.
+    # It's a workaround to replace the port eirini uses for the registry
+    DOMAIN: '127.0.0.1.nip.io:31666" #'
+  services:
+    loadbalanced: true
+  opi:
+    image_tag: "1.5.0"
+    image: registry.suse.com/cap-staging/opi
+    metrics_collector_image: registry.suse.com/cap-staging/metrics-collector
+    bits_waiter_image: registry.suse.com/cap-staging/bits-waiter
+    route_collector_image: registry.suse.com/cap-staging/route-collector
+    route_pod_informer_image: registry.suse.com/cap-staging/route-pod-informer
+    route_statefulset_informer_image: registry.suse.com/cap-staging/route-statefulset-informer
+    event_reporter_image: registry.suse.com/cap-staging/event-reporter
+    event_reporter_image_tag: "1.5.0"
+    staging_reporter_image: registry.suse.com/cap-staging/staging-reporter
+    staging_reporter_image_tag: "1.5.0"
+    registry_secret_name: eirini-registry-credentials
+    namespace: eirini
+    kubecf:
+      enable: false
+    use_registry_ingress: false
+    ingress_endpoint: ~
+    kube:
+      external_ips: []
+    deny_app_ingress: false
+    cc_api:
+      serviceName: "api"
+
+    staging:
+      downloader_image: registry.suse.com/cap-staging/recipe-downloader
+      downloader_image_tag: "1.5.0-24.1"
+      executor_image: registry.suse.com/cap-staging/recipe-executor
+      executor_image_tag: "1.5.0-24.1"
+      uploader_image: registry.suse.com/cap-staging/recipe-uploader
+      uploader_image_tag: "1.5.0-24.1"
+      enable: true
+      # The TLS secrets are generated by quarks-operator and should be HIDDEN from the user.
+      tls:
+        client:
+          secretName: "var-eirini-tls-client-cert"
+          certPath: "certificate"
+          keyPath: "private_key"
+        cc_uploader:
+          secretName: "var-cc-bridge-cc-uploader"
+          certPath: "certificate"
+          keyPath: "private_key"
+        ca:
+          secretName: "var-eirini-tls-client-cert"
+          path: "ca"
+        stagingReporter:
+          secretName: "var-eirini-tls-client-cert"
+          certPath: "certificate"
+          keyPath: "private_key"
+          caPath: "ca"
+
+    # The TLS secrets are generated by quarks-operator and should be HIDDEN from the user.
+    tls:
+      opiCapiClient:
+        secretName: "var-eirini-tls-client-cert"
+        keyPath: "private_key"
+        certPath: "certificate"
+      opiServer:
+        secretName: "var-eirini-tls-server-cert"
+        certPath: "certificate"
+        keyPath: "private_key"
+      capi:
+        secretName: "var-eirini-tls-server-cert"
+        caPath: "ca"
+      eirini:
+        secretName: "var-eirini-tls-server-cert"
+        caPath: "ca"
+
+    events:
+      # Events should always be enabled and HIDDEN from the user.
+      enable: true
+      # All configs in this section should be HIDDEN from the user; they are
+      # here to adapt the Eirini helm chart for KubeCF use.
+      tls:
+        capiClient:
+          secretName: "var-cc-tls"
+          keyPath: "private_key"
+          certPath: "certificate"
+        capi:
+          secretName: "var-cc-tls"
+          caPath: "ca"
+
+    logs:
+      # disable fluentd, use eirinix-loggregator-bridge (HIDDEN from the user).
+      enable: false
+      # HIDDEN from the user as changing this breaks logging.
+      serviceName: doppler
+
+    # All configs in this section should be HIDDEN from the user; they are here
+    # to adapt the Eirini helm chart for KubeCF use.
+    metrics:
+      enable: true
+      tls:
+        client:
+          secretName: "var-loggregator-tls-doppler"
+          keyPath: "private_key"
+          certPath: "certificate"
+        server:
+          secretName: "var-loggregator-tls-doppler"
+          caPath: "ca"
+
+    rootfsPatcher:
+      enable: false
+      timeout: 2m
+
+    # All configs in this section should be HIDDEN from the user; they are here
+    # to adapt the Eirini helm chart for KubeCF use.
+    routing:
+      enable: true
+      nats:
+        secretName: "var-nats-password"
+        passwordPath: "password"
+        serviceName: "nats"
+
+    secretSmuggler:
+      # We never want to enable the secret-smuggler (it's for SCF), so this option should be HIDDEN.
+      enable: false
+
+# Configuration for the BITS sub-chart; please refer to
+# https://github.com/SUSE/bits-service-release for details.
+bits:
+  download_eirinifs: false
+  resources:
+    cpu: ~
+    memory: ~
+  global:
+    labels: {}
+    annotations: {}
+    images:
+      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.20-15.1.6.2.264-24.33
+  env:
+    # This setting is not configurable and must be HIDDEN from the user.
+    DOMAIN: 127.0.0.1.nip.io
+  ingress:
+    endpoint: ~
+    use: false
+  kube:
+    external_ips: []
+  services:
+    loadbalanced: true
+
+  # The blobstore configuration is part of kubecf and should be HIDDEN.
+  blobstore:
+    serviceName: "singleton-blobstore"
+    userName: "blobstore-user"
+    secret:
+      name: "var-blobstore-admin-users-password"
+      passwordPath: "password"
+
+  secrets:
+    BITS_SERVICE_SECRET: "secret"
+    BITS_SERVICE_SIGNING_USER_PASSWORD: "notpassword123"
+
+  # We always create the secret for bits and this should be HIDDEN
+  useExistingSecret: true
+  # The TLS secret is created via quarks-operator and should be HIDDEN
+  tls_secret_name: bits-service-ssl
+  # The TLS secret is created via quarks-operator and should be HIDDEN
+  tls_cert_name: certificate
+  # The TLS secret is created via quarks-operator and should be HIDDEN
+  tls_key_name: private_key
+  # The TLS secret is created via quarks-operator and should be HIDDEN
+  tls_ca_name: ca
+
+# Configuration options for eirini extensions; please refer to
+# https://github.com/SUSE/eirinix-helm-release for details.
+eirinix:
+  persi-broker:
+    service-plans:
+    - id: default
+      name: "default"
+      description: "Existing default storage class"
+      kube_storage_class: "default"
+      free: true
+      default_size: "1Gi"
+  ssh-proxy:
+    type: LoadBalancer
+    externalIPs: []
+    clusterIP: ~

@@ -1,0 +1,21 @@
+{{- $_ := include "_config.load" $ }}
+# Remove all releases from cf-deployment; we'll only add back those we need
+- type: remove
+  path: /releases
+
+{{- range $release_name, $release := $.Values.releases }}
+  {{- /* only add bosh releases (releases with a version) */}}
+  {{- if $release.version }}
+    {{- if eq "true" (include "_config.condition" (list $ (index $release "condition"))) }}
+- type: replace
+  path: /releases?/name={{ $release_name }}/url
+  value: {{ $release.url }}
+- type: replace
+  path: /releases/name={{ $release_name }}/stemcell?
+  value: {{ $release.stemcell | toJson }}
+- type: replace
+  path: /releases/name={{ $release_name }}/version?
+  value: {{ $release.version | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}

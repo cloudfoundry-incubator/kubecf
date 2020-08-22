@@ -1,0 +1,52 @@
+{{- define "kubecf.imagePullSecret" }}
+  {{- printf "{\"auths\": {\"registry.127.0.0.1.nip.io:31666\": {\"auth\": \"%s\"}}}" (printf "admin:%s" .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD | b64enc) | b64enc }}
+{{- end }}
+
+{{- if .Values.features.eirini.enabled }}
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksSecret
+metadata:
+  name: bits-service-ssl
+spec:
+  request:
+    certificate:
+      alternativeNames:
+      - registry.127.0.0.1.nip.io
+      commonName: bits
+      isCA: false
+      signerType: cluster
+  secretName: bits-service-ssl
+  type: certificate
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: eirini-registry-credentials
+  namespace: {{ .Values.eirini.opi.namespace }}
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: {{ template "kubecf.imagePullSecret" . }}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    quarks.cloudfoundry.org/secret-kind: generated
+  annotations:
+    quarks.cloudfoundry.org/secret-copy-of: {{ .Release.Namespace }}/var-eirini-tls-client-cert
+  name: var-eirini-tls-client-cert
+  namespace: {{ .Values.eirini.opi.namespace | quote }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    quarks.cloudfoundry.org/secret-kind: generated
+  annotations:
+    quarks.cloudfoundry.org/secret-copy-of: {{ .Release.Namespace }}/var-cc-bridge-cc-uploader
+  name: var-cc-bridge-cc-uploader
+  namespace: {{ .Values.eirini.opi.namespace | quote }}
+
+{{- end }}

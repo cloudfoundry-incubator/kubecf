@@ -1,0 +1,25 @@
+# This skeleton config will be updated from cf-deployment.yml by _stacks.tpl:update
+
+stacks:
+  cflinuxfs3:
+    # Some dummy settings are included here, even though they will be overridden
+    # at install time with values from cf-deployment.yml.  This makes it possible
+    # to validate this config file with the values.schema.json validator.
+    description: "will be set from cf-deployment"
+    install_buildpacks: [will-be-set-from-cf-deployment]
+
+    releases:
+      # '$defaults' will be applied from config/releases.yaml
+      cflinuxfs3:
+        stemcell:
+          version: 27.2-7.0.0_374.gb8e8e6af
+        version: 0.203.0
+      # buildpack versions will be set from cf-deployment
+      nginx-buildpack:
+        stemcell:
+          version: 27.2-7.0.0_374.gb8e8e6af
+        version: ~
+      r-buildpack:
+        stemcell:
+          version: 27.2-7.0.0_374.gb8e8e6af
+        version: ~

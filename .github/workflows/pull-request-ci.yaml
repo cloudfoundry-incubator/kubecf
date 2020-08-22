@@ -1,0 +1,373 @@
+name: CI
+on:
+  # Trigger the workflow when PRs are labeled
+  pull_request_target:
+    branches: [master]
+    types: [labeled]
+jobs:
+
+  # The first thing we do is to check that the PR has the pr-test-queue label
+  # If it doesn't have it, the flow stops. If it does, we remove it (approval is good for one run only).
+  dequeue:
+    name: dequeue
+    if: contains(github.event.pull_request.labels.*.name, 'pr-test-queue')
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions-ecosystem/action-remove-labels@556e306
+        with:
+          github_token: ${{ secrets.github_token }}
+          labels: pr-test-queue
+
+  lint:
+    name: lint
+    needs: [dequeue]
+    runs-on: ubuntu-20.04
+    env:
+      PINNED_TOOLS: true
+      TOOLS_DIR: ${{ github.workspace }}/tools
+    defaults:
+      run:
+        working-directory: kubecf
+
+    steps:
+      # Checkout kubecf
+      - name: Checkout KubeCF
+        uses: actions/checkout@v2
+        with:
+          path: kubecf
+          fetch-depth: 0
+          submodules: recursive
+
+      # Python setup
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      # Caching tools like helm, jq, git, y2j, yamllint etc
+      - name: cache.tools
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/tools
+          key: ${{ runner.os }}-tools
+
+      # Install tools
+      - run: make tools-install
+
+      # Check lint
+      - run: make lint
+
+  build:
+    name: build
+    runs-on: ubuntu-20.04
+    needs: lint
+    env:
+      PINNED_TOOLS: true
+      TOOLS_DIR: ${{ github.workspace }}/tools
+    defaults:
+      run:
+        working-directory: kubecf
+
+    steps:
+      # Checkout kubecf
+      - name: Checkout KubeCF
+        uses: actions/checkout@v2
+        with:
+          path: kubecf
+          fetch-depth: 0
+          submodules: recursive
+
+      # Python setup
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      # Caching tools like helm, jq, git, y2j, yamllint etc
+      - name: cache.tools
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/tools
+          key: ${{ runner.os }}-tools
+
+      # Install tools
+      - run: make tools-install
+
+      # Generate kubecf bundle
+      - run: make kubecf-bundle
+        env:
+          TARGET_FILE: ${{ github.workspace }}/kubecf-bundle.tgz
+
+      # Create tgz of kubecf bundle
+      - run: |
+          mkdir bundle
+          tar xf kubecf-bundle.tgz -C bundle
+        working-directory: ${{ github.workspace }}
+
+      # Upload generated tgz bundle
+      - name: Upload bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: kubecf-bundle.tgz
+          path: ${{ github.workspace }}/bundle
+
+  tests:
+    name: tests
+    runs-on: ubuntu-20.04
+    continue-on-error: ${{ matrix.experimental }}
+    needs: build
+    env:
+      # For KubeCF
+      PINNED_TOOLS: true
+      TOOLS_DIR: ${{ github.workspace }}/tools
+      FEATURE_AUTOSCALER: "true"
+      # For catapult
+      # Note that credentials-related parts are in the individual steps
+      BACKEND: gke
+      DOWNLOAD_CATAPULT_DEPS: "false"
+    defaults:
+      run:
+        working-directory: kubecf
+
+    # Matrix to test diego and eirini
+    strategy:
+      matrix:
+        include:
+          - backend: diego
+            experimental: false
+          - backend: eirini
+            experimental: false
+
+    steps:
+      # Checkout kubecf
+      - name: Checkout KubeCF
+        uses: actions/checkout@v2
+        with:
+          path: kubecf
+          submodules: recursive
+
+      # We need catapult to create Kubernetes clusters
+      - name: Checkout catapult
+        uses: actions/checkout@v2
+        with:
+          repository: SUSE/catapult
+          path: catapult
+
+      # Python setup
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      # Caching tools like helm, jq, git, y2j, yamllint etc
+      - name: cache.tools
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/tools
+          key: ${{ runner.os }}-tools
+
+      # Install tools
+      - run: make tools-install
+
+      # Add Gomplate to path
+      - name: Add Gomplate to path
+        run: |
+          gomplate_path="${{ github.workspace }}/kubecf/output/bin"
+          echo "::add-path::${gomplate_path}"
+
+      # Download chart bundle
+      - id: download-bundle
+        name: Download chart bundle
+        uses: actions/download-artifact@v2
+        with:
+          name: kubecf-bundle.tgz
+          # The artifact upload/download creates an extra directory
+          path: ${{ github.workspace }}/kubecf-bundle
+
+      # Start SSH agent for catapult
+      - name: Start SSH agent
+        run: |
+          set -o errexit -o pipefail -o nounset
+          eval "$(ssh-agent -s)"
+          ssh-keygen -t rsa -b 4096 -N '' -C "KubeCF CI #${{ github.run_id }}" -f ssh-key
+          ssh-add ssh-key
+          echo "::add-mask::$(cat ssh-key.pub)"
+          rm -f ssh-key ssh-key.pub
+          echo "::set-env name=SSH_AUTH_SOCK::${SSH_AUTH_SOCK}"
+          echo "::set-env name=SSH_AGENT_PID::${SSH_AGENT_PID}"
+
+      # set GKE secret. TBD: use vault instead
+      - name: set GKE_CRED_JSON
+        run: |
+          json_file="$(mktemp)"
+          echo "$GKE_CRED_JSON" > "${json_file}"
+          echo "::set-env name=GKE_CRED_JSON::${json_file}"
+        env:
+          GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
+
+      # Cache catapult's common tools
+      - name: cache.catapult-common-tools
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/catapult/modules/common/bin
+          key: ${{ runner.os }}-catapult-common-tools
+
+      # Deploy k8s cluster
+      - run: make k8s
+        working-directory: catapult
+        env:
+          GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
+          OWNER: ${{ github.repository_owner }}
+          DEBUG_MODE: true
+          GKE_NODE_COUNT: 1
+          GKE_PREEMPTIBLE: true
+          GKE_INSTANCE_TYPE: n1-highcpu-16
+
+      # Providing kubeconfig for debugging
+      - name: export KUBECONFIG
+        run: |
+          set -o errexit -o nounset -o pipefail
+          cd "build${BACKEND}"
+          source .envrc
+          echo "::set-env name=KUBECONFIG::${KUBECONFIG}"
+          # Debugging aid; should be safe as the cluster will be torn down
+          # at the end of the run.
+          cat "${KUBECONFIG}" | gzip | base64 --wrap=0
+        working-directory: catapult
+
+      # TBD: Don't generate values.yaml
+      - name: Generate KubeCF Configuration
+        run: |
+          set -o errexit -o nounset -o pipefail
+
+          make -C ${{ github.workspace }}/catapult kubecf-gen-config
+
+          cd ${{ github.workspace }}/catapult/build${BACKEND}
+
+          gomplate --context .=scf-config-values.yaml <<"EOF" \
+            > ${{ github.workspace }}/kubecf/dev/kubecf/kubecf-values.yaml
+          {{- /* Disable brain minibroker tests */}}
+          {{- define "minibroker-tests" }}
+          properties:
+            brain-tests:
+              acceptance-tests-brain:
+                tests:
+                  minibroker:
+                    {{- range slice "mariadb" "mongodb" "postgres" "redis" }}
+                    {{ . }}:
+                      enabled: false
+                    {{- end }}
+          {{- end }}
+          {{- $ = tmpl.Exec "minibroker-tests" | yaml | merge $ }}
+
+          {{- /* Disable registry overrides */}}
+          {{- $ = coll.Omit "kube" $ }}
+
+          {{- /* Set DNS annotations */}}
+          {{- define "svc_annotation" }}
+          services:
+            {{ index . 0 }}:
+              annotations:
+                "external-dns.alpha.kubernetes.io/hostname": {{ index . 1 }}
+          {{- end }}
+          {{- $d := .system_domain }}
+          {{- $ = printf "%s, *.%s" $d $d | slice "router" | tmpl.Exec "svc_annotation" | yaml | merge $ }}
+          {{- $ = printf "ssh.%s" $d | slice "ssh-proxy" | tmpl.Exec "svc_annotation" | yaml | merge $ }}
+          {{- $ = printf "tcp.%s, *.tcp.%s" $d $d | slice "tcp-router" | tmpl.Exec "svc_annotation" | yaml | merge $ }}
+
+          {{- $ | toYAML }}
+          EOF
+        env:
+          BACKEND: gke
+          AUTOSCALER: "true"
+
+      # Helm install cf-operator
+      - run: make cf-operator-apply
+        env:
+          CF_OPERATOR_URL: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
+
+      # Wait for cf-operator pods to be ready
+      - run: make cf-operator-wait
+
+      # Helm install kubecf
+      - run: make kubecf-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
+          FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
+          VALUES: dev/kubecf/kubecf-values.yaml
+
+      # Wait for kubecf pods to be ready
+      - run: make kubecf-wait
+
+      # Run smoke tests
+      - run: make smoke-tests
+
+      # Run brain tests
+      - run: make brain-tests
+
+      # Run sits tests
+      - run: make sync-integration-tests
+
+      # Run CATs
+      - run: make acceptance-tests
+        timeout-minutes: 180
+
+      # Get resource info for debugging
+      - name: Get Resource Info
+        if: always()
+        run: |
+          set +o errexit
+          gcloud auth activate-service-account --key-file=${GKE_CRED_JSON}
+          resources=(
+            BOSHDeployment
+            QuarksJob
+            QuarksStatefulSet
+            Job
+            StatefulSet
+            Endpoints
+            pods
+          )
+
+          echo "Getting namespaces..."
+          kubectl get namespaces --output=wide
+          for namespace in cf-operator kubecf ; do
+            for resource in "${resources[@]}" ; do
+              printf "%bGetting %s:%s...%b\n" "\e[0;1;33m" "${namespace}" "${resource}" "\e[0m"
+              kubectl get "${resource}" --namespace="${namespace}" --output=wide
+            done
+          done
+
+      # Upload kubecf's values.yaml for debugging
+      - name: Upload config
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.backend }}-values.yaml
+          path: ${{ github.workspace }}/kubecf/dev/kubecf/kubecf-values.yaml
+
+      # Fetch logs for debugging
+      - name: Fetch logs
+        if: always()
+        run: |
+          gcloud auth activate-service-account --key-file=${GKE_CRED_JSON}
+          # Running klog.sh twice will grab logs from both namespaces
+          dev/kube/klog.sh -f -r cf-operator
+          dev/kube/klog.sh -f -r
+
+      # Upload logs for debugging
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.backend }}-klog.tgz
+          path: ${{ github.workspace }}/kubecf/klog.tar.gz
+
+      # Teardown created k8s cluster
+      - name: kubernetes:teardown
+        if: always()
+        run: |
+          set +o errexit
+          # Remove any terraform locks, because we don't care if the previous run
+          # has finished successfully (e.g. on cancel).
+          find "build${BACKEND}" -name '.terraform.*.lock*' -delete
+          make clean
+        working-directory: catapult
+        env:
+          GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}

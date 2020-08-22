@@ -1,0 +1,85 @@
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/quarks?/run/healthcheck/cloud_controller_clock
+  value:
+    readiness:
+      # There is no good readiness check for the scheduled tasks
+      exec:
+        command: ["pgrep", "--full", "clock:start"]
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/quarks?/run/healthcheck/cc_deployment_updater
+  value:
+    readiness:
+      exec:
+        command:
+        # We should sleep about once every 5 seconds; check that the last entry was no more than 2 cycles ago
+        - /bin/sh
+        - -c
+        - >
+          tac /var/vcap/sys/log/cc_deployment_updater/cc_deployment_updater.log
+          | grep --max-count=1 Sleeping
+          | jq -e '.timestamp | gsub(".[0-9]+Z$"; "Z") | fromdate | now - . | . < 10'
+    liveness:
+      exec:
+        command: ["pgrep", "--full", "deployment_updater:start"]
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
+  value: ["/bin/sh", "-c", "ss -nlu src localhost:8125 | grep :8125"]
+
+{{- if not .Values.features.eirini.enabled }}
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=tps/properties/quarks?/run/healthcheck/watcher/readiness/exec/command
+  value: ["curl", "--fail", "--silent", "http://127.0.0.1:17015/debug/pprof/cmdline"]
+
+# Add quarks properties for the ssh_proxy job.
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/diego/ssh_proxy/disable_healthcheck_server
+  value: false
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/properties/quarks?
+  value:
+    ports:
+    - name: ssh-proxy
+      protocol: TCP
+      internal: 2222
+    run:
+      healthcheck:
+        ssh_proxy:
+          readiness:
+            httpGet:
+              port: 2223
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=service-discovery-controller/properties/quarks?/run/healthcheck/service-discovery-controller
+  value:
+    readiness:
+      # Proper connection requires a TLS client cert; that's not worth it right now.
+      tcpSocket:
+        port: 8054
+
+# Add necessary labels to the scheduler instance group so that the service can select it to create
+# the endpoint.
+- type: replace
+  path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1component
+  value: "ssh-proxy"
+- type: replace
+  path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1instance
+  value: {{ .Release.Name | quote }}
+- type: replace
+  path: /instance_groups/name=scheduler/env?/bosh/agent/settings/labels/app.kubernetes.io~1version
+  value: {{ default .Chart.Version .Chart.AppVersion | quote }}
+{{- end }}
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/quarks?/bpm/processes
+  value: []
+
+{{- if not .Values.features.eirini.enabled }}
+
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/scheduler_*" }}
+{{ $bytes | toString }}
+{{- end }}
+
+{{- end }}{{/* scheduler scripts, only if not eirini */}}

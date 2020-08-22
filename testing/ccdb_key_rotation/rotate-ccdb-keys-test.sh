@@ -163,7 +163,7 @@ wait_for_ig_job() {
 
 # Setting up a new key label. It assumes that the deployed
 # `ccdb.encryption.rotation` settings are the defaults found in file
-# `deploy/helm/kubecf/values.yaml`.
+# `chart/values.yaml`.
 
 cat > "${VALUES_FILE}" <<EOF
 ccdb:

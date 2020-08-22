@@ -12,8 +12,11 @@ HELM_DIR="${TEMP_DIR}/helm"
 [ -d "${HELM_DIR}" ] && rm -rf "${HELM_DIR}"
 mkdir "${HELM_DIR}"
 
-cp -a deploy/helm/kubecf/* "${HELM_DIR}"
+cp -a chart/* "${HELM_DIR}"
 find "${HELM_DIR}" \( -name "*.bazel" -o -name "*.bzl" -o -name ".*" \) -delete
+
+y2j < "${HELM_DIR}/values.schema.yaml" > "${HELM_DIR}/values.schema.json"
+rm "${HELM_DIR}/values.schema.yaml"
 
 cp src/cf-deployment/cf-deployment.yml "${HELM_DIR}/assets"
 cp src/cf-deployment/operations/use-external-blobstore.yml "${HELM_DIR}/assets"
@@ -65,8 +68,6 @@ ruby scripts/image_list.rb "${HELM_DIR}" | jq -r .images[] > "${HELM_DIR}/imagel
 
 VERSION="$(./scripts/version.sh)"
 helm package "${HELM_DIR}" --version "${VERSION}" --app-version "${VERSION}" --destination output/
-
-rm -rf "${HELM_DIR}"
 
 HELM_CHART="output/kubecf-${VERSION}.tgz"
 if [[ -n "${TARGET_FILE:-}" && "${TARGET_FILE}" != "${HELM_CHART}" ]]; then

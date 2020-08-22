@@ -1,0 +1,338 @@
+"$schema": http://json-schema.org/draft-07/schema
+"$id": https://raw.githubusercontent.com/cloudfoundry-incubator/kubecf/master/chart/values.schema.yaml
+
+additionalProperties: false
+
+required:
+- system_domain
+
+definitions:
+
+  operation:
+    type: object
+    oneOf:
+    - properties:
+        type: {enum: [replace]}
+        path: {type: string}
+        value: {}
+      required: [type, path, value]
+      additionalProperties: false
+    - properties:
+        type: {enum: [remove]}
+        path: {type: string}
+      required: [type, path]
+      additionalProperties: false
+    - properties:
+        # qcopy and qmove are quarks extensions to bosh operations
+        type: {enum: [qcopy, qmove]}
+        path: {type: string}
+        from: {type: string}
+      required: [type, path, from]
+      additionalProperties: false
+
+  port:
+    type: integer
+    # should minimum be 1?
+    minimum: 1024
+    maximum: 65535
+
+  release:
+    type: object
+    properties:
+      buildpack: {type: string}
+      condition:
+        anyOf:
+        - type: boolean
+        - type: string
+      image:
+        type: object
+        properties:
+          repository: {type: string}
+          tag: {type: string}
+        required: [repository]
+        additionalProperties: false
+      stemcell:
+        type: object
+        properties:
+          os: {type: string}
+          version: {type: string}
+        additionalProperties: false
+      url: {type: string}
+      # XXX only allowed to be null for cflinux release with just a condition
+      version: {"$ref": "#/definitions/string_or_null"}
+    additionalProperties: false
+
+  release_any:
+    anyOf:
+    - "$ref": "#/definitions/release_bosh"
+    - "$ref": "#/definitions/release_native"
+
+  release_bosh:
+    # A bosh release must have a version property, or be disabled
+    allOf:
+    - "$ref": "#/definitions/release"
+    - anyOf:
+      - required: [version]
+      - required: [condition]
+        properties:
+          condition: {enum: [false]}
+
+  release_defaults:
+    # Only valid defaults are "stemcell" and "url", at least one of them being required
+    allOf:
+    - "$ref": "#/definitions/release"
+    - properties:
+        stemcell: {}
+        url: {}
+      additionalProperties: false
+      anyOf:
+      - required: [stemcell]
+      - required: [url]
+
+  release_native:
+    # A native release must have an image property, or be disabled
+    allOf:
+    - "$ref": "#/definitions/release"
+    - anyOf:
+      - required: [image]
+      - required: [condition]
+        properties:
+          condition: {enum: [false]}
+
+  service:
+    type: object
+    properties:
+      annotations:
+        anyOf:
+        - type: object
+          additionalProperties: {type: string}
+        - type: 'null'
+      type:
+        type: string
+        enum: [ClusterIP, NodePort, LoadBalancer]
+      externalIPs:
+        type: array
+        items: {type: string}
+      clusterIP: {"$ref": "#/definitions/string_or_null"}
+      # loadBalancerIP is not mentioned in values.yaml but referenced in ingress.yaml
+      loadBalancerIP: {"$ref": "#/definitions/string_or_null"}
+      port_range:
+        type: object
+        properties:
+          start: {"$ref": "#/definitions/port"}
+          end: {"$ref": "#/definitions/port"}
+        required: [start, end]
+        additionalProperties: false
+    additionalProperties: false
+
+  string_or_null:
+    anyOf:
+    - type: string
+    - type: 'null'
+
+  tree_of_strings:
+    # multi-level object where all final properties are strings
+    oneOf:
+    - {type: string}
+    - type: object
+      additionalProperties: {"$ref": "#/definitions/tree_of_strings"}
+
+properties:
+
+  ccdb:
+    type: object
+    properties:
+      encryption:
+        type: object
+        properties:
+          rotation:
+            type: object
+            properties:
+              key_labels:
+                type: array
+                items: {type: string}
+              current_key_label: {type: string}
+            additionalProperties: false
+        additionalProperties: false
+    additionalProperties: false
+
+  credentials:
+    type: object
+    additionalProperties: {"$ref": "#/definitions/tree_of_strings"}
+
+  features:
+    type: object
+    properties:
+      # "blobstore" and "multiple_cluster_mode" don't have an "enabled" property
+      blobstore: {}
+      multiple_cluster_mode: {}
+    additionalProperties:
+      type: object
+      properties:
+        enabled: {type: boolean}
+      required: [enabled]
+      additionalProperties: true
+
+  high_availability: {type: boolean}
+
+  install_stacks:
+    type: array
+    items: {type: string}
+    minItems: 1
+    uniqueItems: true
+
+  kube:
+    type: object
+    properties:
+      psp:
+        type: object
+        properties:
+          default: {"$ref": "#/definitions/string_or_null"}
+        additionalProperties: false
+      storage_class: {"$ref": "#/definitions/string_or_null"}
+    # XXX Catapult sets additional (unused) properties; allow them for now to pass CI
+    additionalProperties: true
+
+  # Does not really work because the zone names cannot be configured
+  multi_az: {type: boolean}
+
+  operations:
+    type: object
+    properties:
+      custom:
+        type: array
+        items: {type: string}
+      inline:
+        type: array
+        items: {"$ref": "#/definitions/operation"}
+    additionalProperties: true
+
+  properties: {type: object}
+
+  releases:
+    type: object
+    # "$defaults.stemcell.os/version" are also used to configure cf-deployment
+    # default and addon stemcells, so they are always required.
+    # XXX Can't make it required though because it is not defined in plain values.yaml.
+    # required: ['$defaults']
+    properties:
+      '$defaults':
+        allOf:
+        - "$ref": "#/definitions/release_defaults"
+        - required: [stemcell]
+          properties:
+            stemcell:
+              required: [os, version]
+    additionalProperties:
+      allOf:
+      - "$ref": "#/definitions/release_any"
+      # stack.*.releases can have additional fields (like "buildpack" and "release-prefix")
+      # that are not allowed in the root "releases".
+      - properties:
+          condition: {}
+          image: {}
+          stemcell: {}
+          url: {}
+          version: {}
+        additionalProperties: false
+
+  services:
+    type: object
+    # The "port_range" property is only used (and required) by the "tcp-router" service
+    properties:
+      tcp-router:
+        "$ref": "#/definitions/service"
+        required: [port_range]
+    additionalProperties:
+      allOf:
+      - "$ref": "#/definitions/service"
+      - properties:
+          annotations: {}
+          type: {}
+          externalIPs: {}
+          clusterIP: {}
+          loadBalancerIP: {}
+        additionalProperties: false
+
+  # only used for router settings?
+  settings: {type: object}
+
+  sizing:
+    type: object
+    additionalProperties:
+      type: object
+      properties:
+        affinity: {type: object}
+        ephemeral_disk:
+          type: object
+          properties:
+            # size in megabytes
+            size: {type: integer}
+            storage_class: {"$ref": "#/definitions/string_or_null"}
+          additionalProperties: false
+        instances:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+        persistence:
+          type: object
+          properties:
+            size: {type: string}
+          additionalProperties: false
+      additionalProperties: false
+
+  stacks:
+    type: object
+    additionalProperties:
+      type: object
+      properties:
+        description: {type: string}
+        install_buildpacks:
+          type: array
+          items: {type: string}
+          minItems: 1
+          uniqueItems: true
+        install_buildpacks_prepend:
+          type: array
+          items: {type: string}
+          uniqueItems: true
+        install_buildpacks_append:
+          type: array
+          items: {type: string}
+          uniqueItems: true
+        releases:
+          type: object
+          properties:
+            '$defaults': {"$ref": "#/definitions/release_defaults"}
+          additionalProperties: {"$ref": "#/definitions/release_any"}
+        release_prefix: {type: string}
+        release_suffix: {type: string}
+      required: [description, install_buildpacks]
+      additionalProperties: false
+
+  testing:
+    type: object
+    additionalProperties:
+      type: object
+      properties:
+        delete_pod: {type: boolean}
+        enabled: {type: boolean}
+      additionalProperties: false
+
+  system_domain: {type: string}
+
+  unsupported:
+    type: object
+    additionalProperties: {type: string}
+
+  variables:
+    type: object
+    additionalProperties:
+      type: string
+
+  # subchart configs
+  bits: {type: object}
+  eirini: {type: object}
+  eirinix: {type: object}
+  eirini-extensions: {type: object}

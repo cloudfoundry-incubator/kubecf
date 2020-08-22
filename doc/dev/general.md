@@ -166,7 +166,7 @@ cf-mysql-release. Kubecf also exposes a way to use an external database via the
 Helm property `features.external_database`. Check the [values.yaml] for more
 details.
 
-[values.yaml]: ../../deploy/helm/kubecf/values.yaml
+[values.yaml]: ../../chart/values.yaml
 
 For local development with an external database, the
 `make deploy-external-mysql` command will bring a mysql database up and running

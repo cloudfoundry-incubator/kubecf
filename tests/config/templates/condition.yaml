@@ -1,0 +1,87 @@
+{{- define "condition" }}
+  {{- $root := index . 0 }}
+  {{- $condition := index . 1 }}
+  {{- $expect := index . 2 }}
+  {{- $actual := include "_config.condition" (list $root $condition) }}
+  {{- if eq $actual $expect }}
+    {{- printf "# Condition %q is %q" $condition $actual }}
+  {{- else }}
+    {{- include "fail" (list $root (printf "Condition %q is %q and NOT %q" $condition $actual $expect)) }}
+  {{- end }}
+
+  {{- if kindIs "string" $condition }}
+    {{- if not (regexMatch "[!(&|]" $condition) }}
+      {{- /* Condition inside parenthesis should return the same value */}}
+{{ include "condition" (list $root (printf "(%s)" $condition) $expect) }}
+
+      {{- /* Negated condition should return the negated value */}}
+{{ include "condition" (list $root (printf "!%s" $condition) (ternary "false" "true" (eq $expect "true"))) }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- /* Prevent _config.load from calling into _stacks.update and _releases.update */}}
+{{- $_ := set $ "kubecf" (dict "manifest" (dict "not" "empty")) }}
+
+# condition can be called with nil, or a boolean type
+{{ include "condition" (list $ nil "true") }}
+{{ include "condition" (list $ true "true") }}
+{{ include "condition" (list $ false "false") }}
+
+# otherwise the argument must be a string.
+# "true" and "false" are hardcoded special cases
+{{ include "condition" (list $ "false" "false") }}
+{{ include "condition" (list $ "true" "true") }}
+
+# all other literal strings will be used as an index into $.Values
+# so they will be false unless a property of that name exists
+{{ include "condition" (list $ "" "false") }}
+{{ include "condition" (list $ "0" "false") }}
+{{ include "condition" (list $ "1" "false") }}
+{{ include "condition" (list $ "not_exists" "false") }}
+
+# a property is true if it is not a zero value of its type
+{{ include "condition" (list $ "nil" "false") }}
+{{ include "condition" (list $ "empty_string" "false") }}
+{{ include "condition" (list $ "empty_list" "false") }}
+{{ include "condition" (list $ "empty_hash" "false") }}
+{{ include "condition" (list $ "bool_false" "false") }}
+{{ include "condition" (list $ "bool_true" "true") }}
+{{ include "condition" (list $ "zero" "false") }}
+{{ include "condition" (list $ "one" "true") }}
+# all non-empty strings are true
+{{ include "condition" (list $ "string_zero" "true") }}
+{{ include "condition" (list $ "string_one" "true") }}
+{{ include "condition" (list $ "string_false" "true") }}
+
+{{ include "condition" (list $ "deeply.nested" "true") }}
+{{ include "condition" (list $ "deeply.nested.bool_true" "true") }}
+{{ include "condition" (list $ "deeply.nested.bool_false" "false") }}
+{{ include "condition" (list $ "deeply.nested.not_exist" "false") }}
+
+# array has 2 elements, with keys "foo" and "bar", but not "baz"
+{{ include "condition" (list $ "array.key=foo" "true") }}
+{{ include "condition" (list $ "array.key=bar" "true") }}
+{{ include "condition" (list $ "array.key=baz" "false") }}
+
+# lookup nested properties under array
+{{ include "condition" (list $ "array.foo_name.bool_true" "true") }}
+{{ include "condition" (list $ "array.foo_name.bool_false" "false") }}
+{{ include "condition" (list $ "array.bar_name.bool_false" "false") }}
+{{ include "condition" (list $ "array.baz_name.bool_false" "false") }}
+
+# use slashes instead of dots
+{{ include "condition" (list $ "array/key=foo/bool_true" "true") }}
+{{ include "condition" (list $ "array/key=bar/bool_false" "false") }}
+
+# evaluate conditions
+{{- range $test := $.Values.tests }}
+  {{- range $index, $values := $.Values.values }}
+    {{- $_ := set $.Values "A" (index $values 0) }}
+    {{- $_ := set $.Values "B" (index $values 1) }}
+    {{- $_ := set $.Values "C" (index $values 2) }}
+    {{- $expect := ternary "true" "false" (index $test.results $index | int | eq 1) }}
+# A={{ $.Values.A }} B={{ $.Values.B }} C={{ $.Values.C }}
+{{ include "condition" (list $ $test.condition $expect) }}
+  {{- end }}
+{{- end }}

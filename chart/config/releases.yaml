@@ -1,0 +1,70 @@
+# Any cf-deployment based releases listed here to specify a stemcell override,
+# or to add a condition, must also specify a version to satisfy the schema
+# validation. The only exception are disabled releases (condition: false).
+# The version can be just nil; it will be replaced from the manifest at
+# deployment time.
+
+releases:
+  # The defaults for all releases, where we do not otherwise override them.
+  '$defaults':
+    url: docker.io/cfcontainerization
+    stemcell:
+      os: SLE_15_SP1
+      version: 27.1-7.0.0_374.gb8e8e6af
+  app-autoscaler:
+    condition: features.autoscaler.enabled
+    version: 3.0.1
+  brain-tests:
+    condition: testing.brain_tests.enabled
+    version: v0.0.13
+  bosh-dns-aliases:
+    # not needed for kubecf; functionality provided by quarks-operator
+    condition: false
+  bpm:
+    # not needed for kubecf; functionality provided by quarks-operator
+    condition: false
+  cf-acceptance-tests:
+    condition: testing.cf_acceptance_tests.enabled
+    version: 0.0.16
+  credhub:
+    condition: features.credhub.enabled
+    stemcell:
+      version: 27.2-7.0.0_374.gb8e8e6af
+    version: ~
+  database:
+    # database (previously known as pxc) is not a BOSH release.
+    image:
+      repository: docker.io/cfcontainerization/pxc
+      tag: 0.9.11
+  loggregator-agent:
+    stemcell:
+      version: 27.2-7.0.0_374.gb8e8e6af
+    version: ~
+  pxc:
+    # not needed for kubecf; functionality provided by a native kube role
+    # called "database" (still pxc based so far)
+    condition: false
+  postgres:
+    condition: features.autoscaler.enabled
+    version: "39"
+  silk:
+    stemcell:
+      version: 27.2-7.0.0_374.gb8e8e6af
+    version: ~
+  sync-integration-tests:
+    # XXX SITS only makes sense when using Diego; add error check somewhere?
+    condition: testing.sync_integration_tests.enabled
+    version: v0.0.3
+
+unsupported:
+  ? releases.defaults
+  : >
+    The "release.defaults" setting is now "releases.$defaults", but most
+    likely the presence of release defaults in your config is an error
+    based on using the whole "values.yaml" files from an earlier release
+    as your local config file.
+
+  ? releases.pxc.image
+  : >
+    The native 'pxc' release has been renamed to 'database' to avoid a
+    naming conflict with the bosh release of pxc.

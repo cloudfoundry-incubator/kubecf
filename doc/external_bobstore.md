@@ -10,7 +10,7 @@ kubecf relies on [ops files](https://github.com/cloudfoundry/cf-deployment/blob/
 
 ## Configuring AWS S3 blobstore
 
-Currently AWS S3 is supported to be configured as an external blobstore. In order to configure aws s3 blobstore following configuration must be provided in your [values.yaml](https://github.com/cloudfoundry-incubator/kubecf/blob/master/deploy/helm/kubecf/values.yaml#L260-L272).
+Currently AWS S3 is supported to be configured as an external blobstore. In order to configure aws s3 blobstore following configuration must be provided in your [values.yaml](https://github.com/cloudfoundry-incubator/kubecf/blob/master/chart/values.yaml#L260-L272).
 
 ```
 features:

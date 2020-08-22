@@ -1,0 +1,216 @@
+{{- if .Values.features.multiple_cluster_mode.control_plane.enabled }}
+# To deploy the control plane
+- type: remove
+  path: /instance_groups/name=diego-cell
+
+{{- else }}
+
+{{- if not .Values.features.eirini.enabled }}
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=vxlan-policy-agent/properties/disable?
+  value: true
+
+# Enable BPM on garden.
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/bpm?/enabled
+  value: true
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/set_kernel_parameters?
+  value: false
+
+# Use a PVC for garden data
+# https://github.com/cloudfoundry-incubator/kubecf/issues/441
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh?/agent?/settings?/ephemeralAsPVC?
+  value: true
+- type: replace
+  path: /instance_groups/name=diego-cell/vm_resources?/ephemeral_disk_size?
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk.size }}
+- type: remove
+  path: /instance_groups/name=diego-cell/persistent_disk_type?
+{{- if .Values.sizing.diego_cell.ephemeral_disk.storage_class }}
+- type: replace
+  path: /instance_groups/name=diego-cell/persistent_disk_type?
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk.storage_class | quote }}
+{{- end }}
+
+# Rep data should not be a PVC - since that could end up as a PVC
+# and if it's NFS, garden won't work
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/disks
+  value:
+  - volume:
+      name: rep-data
+      emptyDir: {}
+    volumeMount:
+      name: rep-data
+      mountPath: /var/vcap/data/rep
+    filters:
+      job_name: "rep"
+      process_name: "rep"
+  - volumeMount:
+      name: rep-data
+      mountPath: /var/vcap/data/rep
+    filters:
+      job_name: "garden"
+      process_name: "garden"
+  # An additional entry will be added for each stack-rootfs-setup job
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_plugin?
+  value: /var/vcap/data/runc-cni/bin/garden-external-networker
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden-cni/properties/cni_plugin_dir?
+  value: /var/vcap/data/silk-cni/bin
+
+- type: remove
+  path: /instance_groups/name=diego-cell/jobs/name=silk-cni/properties/dns_servers?
+
+# Add quarks properties for garden.
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        garden:
+          readiness:
+            exec:
+              command: ["curl", "--head", "--fail", "--silent", "http://127.0.0.1:17019/debug/vars"]
+    post_start:
+      condition:
+        exec:
+          command: [sh, -c, 'ss -nlt sport = 17019 | grep "LISTEN.*:17019"']
+
+{{- if .Values.testing.brain_tests.enabled}}
+# For brain tests, allow garden access to the insecure registry they will create.
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/insecure_docker_registry_list?/-
+  value: "tcp.((system_domain)):20005"
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/grootfs?/insecure_docker_registry_list/-
+  value: "tcp.((system_domain)):20005"
+{{- end}}
+
+# Add quarks properties for route_emitter.
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        route_emitter:
+          readiness: &route_emitter_readiness
+            exec:
+              command: ["curl", "--fail", "--silent", "http://127.0.0.1:17011/ping"]
+    post_start:
+      condition: *route_emitter_readiness
+
+# Add quarks properties for rep.
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/quarks?
+  value:
+    # Disable the ephemeral rep disk
+    bpm:
+      processes:
+      - name: rep
+        ephemeral_disk: false
+    ports:
+    - name: rep-tls
+      protocol: TCP
+      internal: 1801
+    run:
+      security_context:
+        capabilities:
+          add:
+          - SYS_ADMIN
+      healthcheck:
+        rep:
+          readiness:
+            exec:
+              command:
+              - curl
+              - --head
+              - --fail
+              - --insecure
+              - --cert
+              - /var/vcap/jobs/rep/config/certs/tls.crt
+              - --key
+              - /var/vcap/jobs/rep/config/certs/tls.key
+              - https://127.0.0.1:1800/ping
+    post_start:
+      condition:
+        exec:
+          command: [sh, -c, 'ss -nlt sport = 1800 | grep "LISTEN.*:1800"']
+
+# Set the unconfined AppArmor profile for bpm-pre-start-rep in order to perform mounts.
+# This works in combination with CAP_SYS_ADMIN Linux capability.
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/annotations/container.apparmor.security.beta.kubernetes.io~1bpm-pre-start-rep
+  value: unconfined
+
+# Set the unconfined AppArmor profile for rep-rep in order to perform mounts.
+# This works in combination with CAP_SYS_ADMIN Linux capability.
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/annotations/container.apparmor.security.beta.kubernetes.io~1rep-rep
+  value: unconfined
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/quarks?/bpm/processes
+  value: []
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden-cni/properties/quarks?/bpm/processes
+  value: []
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=silk-cni/properties/quarks?/bpm/processes
+  value: []
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_pool?
+  value: 10.38.0.0/16
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/apparmor_profile?
+  value: ""
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/cleanup_process_dirs_on_wait
+  value: false
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/disable_swap_limit?
+  value: true
+
+# To support multi-clusters and deploy a cell
+{{- if not .Values.features.multiple_cluster_mode.control_plane.enabled  }}
+{{- if .Values.features.multiple_cluster_mode.cell_segment.enabled }}
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/consumes?
+  value:
+    nats: {from: nats}
+    nats-tls: {from: nats-tls}
+    routing_api: {from: routing_api}
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=loggr-udp-forwarder/consumes?
+  value:
+    cloud_controller: {from: cloud_controller}
+- type: replace
+  path: /addons/name=prom_scraper/jobs/name=prom_scraper/consumes?
+  value:
+    loggregator: {from: loggregator}
+- type: replace
+  path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/consumes?
+  value:
+    doppler: {from: doppler}
+{{- end }}
+{{- end }}
+
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
+{{ $bytes | toString }}
+{{- end }}
+
+{{- end }}
+{{- end }}
