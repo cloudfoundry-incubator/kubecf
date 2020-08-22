@@ -13,7 +13,7 @@ stacks:
       cflinuxfs3:
         stemcell:
           version: 27.2-7.0.0_374.gb8e8e6af
-        version: 0.202.0
+        version: 0.203.0
       # buildpack versions will be set from cf-deployment
       nginx-buildpack:
         stemcell:
