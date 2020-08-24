@@ -62,7 +62,7 @@ Here is a diagram to illustrate the different RFD states:
 
 ## Workflow
 
-Some of these steps may have some script support in the future to make everyones life easier.
+Some of these steps may have some script support in the future to make everyone's life easier.
 
 ### Find Next RFD Number
 
@@ -127,4 +127,3 @@ ready for implementation.
 
 If an RFD state is switched to ```abandoned``` the pull request must be merged into the master
 branch. If the RFD is in a ```draft``` state then a pull request must be open and merged for future reference.
-
