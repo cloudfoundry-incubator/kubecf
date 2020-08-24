@@ -41,6 +41,25 @@ The ```abandoned``` state indicates that the RFD will not be implemented and it 
 any previous state. Depending of the current RFD state, it may be the author(s) making an individual
 decision (```draft```) or a collective decision (```discussion``` or ```published```).
 
+Here is a diagram to illustrate the different RFD states:
+
+```
++---------+           +--------------+            +---------------+
+|         |           |              |            |               |
+|  draft  +---------->+  discussion  +----------->+   published   |
+|         |   PR      |              |    Merge   |               |
++---+-----+           +-----+--------+            +---------------+
+    |                       |
+    |                       | Merge
+    |                       |
+    |                       v
+    |              +--------+-------+
+    |              |                |
+    +------------->+   abandoned    |
+                   |                |
+      PR + Merge   +----------------+
+```
+
 ## Workflow
 
 Some of these steps may have some script support in the future to make everyones life easier.
