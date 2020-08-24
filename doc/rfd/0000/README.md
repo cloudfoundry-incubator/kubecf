@@ -31,14 +31,14 @@ promoting it to ```discussion```.
 Documents under active discussion within the team must be in ```discussion``` state. When reaching
 this state the scope of the RFD must be clear and well defined.
 
-Once the discussion converges to clear understanding of what needs to be done, then the state must
+Once the discussion converges to a clear understanding of what needs to be done, then the state must
 be set to ```published```.
 
 Any comment in the ```published``` state must be raised as issues or if the comment brings
 fundamental changes to the original content of the RFD then a new RFD must be created.
 
 The ```abandoned``` state indicates that the RFD will not be implemented and it can be switched from
-any previous state. Depending of the current RFD state, it may be the author(s) making an individual
+any previous state. Depending on the current RFD state, it may be the author(s) making an individual
 decision (```draft```) or a collective decision (```discussion``` or ```published```).
 
 Here is a diagram to illustrate the different RFD states:
@@ -62,7 +62,7 @@ Here is a diagram to illustrate the different RFD states:
 
 ## Workflow
 
-Some of these steps may have some script support in the future to make everyones life easier.
+Some of these steps may have some script support in the future to make everyone's life easier.
 
 ### Find Next RFD Number
 
@@ -70,7 +70,7 @@ Check for the next RFD number by going through the RFDs table.
 
 ### Create a Branch & Placeholder
 
-Create a RFD branch using the name after the last (i.e. 0009) known RFD number:
+Create an RFD branch using the name after the last (i.e. 0009) known RFD number:
 
 ``` shell
 # git checkout -b rfd-0010
@@ -95,11 +95,11 @@ Push the changes to your RFD branch.
 # git push origin 0010
 ```
 
-In the future, after the branch pushed, the table in the README will be automatically updated to
+In the future, after the branch was pushed, the table in the README will be automatically updated to
 reflect the new RFD or the change of state as well.
 
 Now is time for you to fill the RFD with your thoughts to the point where you think it's good to
-start sharing with others, to get their feedback and have a productive discussions.
+start sharing with others, to get their feedback and have a productive discussion.
 
 ### Open a Pull Request for Discussion
 
@@ -115,7 +115,7 @@ Do not forget to open a pull request (maybe later we will have a bot for this) w
 _RDF:num_ .
 
 With the pull request open anyone subscribed to the repository will be notified about the new RFD
-and it can givethe feedback through pull request comments.
+and it can gather feedback through pull request comments.
 
 It's up to the author(s) to incorporate any pull request comment into the RFD.
 
@@ -126,5 +126,4 @@ master branch, but before that it must the state to ```published```. At this mom
 ready for implementation.
 
 If an RFD state is switched to ```abandoned``` the pull request must be merged into the master
-branch. If the RFD is in a ```draft``` state then a pull request must be open and merged for future reference.
-
+branch. If the RFD is in a ```draft``` state then a pull request must be opened and merged for future reference.
