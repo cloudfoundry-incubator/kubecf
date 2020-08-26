@@ -1,3 +1,5 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
 {{- if .Values.opi.kubecf.enable -}}
 apiVersion: v1
 kind: ConfigMap
@@ -148,4 +150,5 @@ data:
           common_name: cloud_controller
           extended_key_usage:
           - client_auth
+{{- end }}
 {{- end }}

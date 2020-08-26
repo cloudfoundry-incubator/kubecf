@@ -1,3 +1,5 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
 {{- if .Values.opi.staging.enable }}
 ---
 apiVersion: apps/v1
@@ -74,4 +76,5 @@ spec:
                 items:
                 - key: "{{ .Values.opi.events.tls.capi.caPath }}"
                   path: cc.ca
+{{- end }}
 {{- end }}

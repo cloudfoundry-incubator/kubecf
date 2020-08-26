@@ -1,3 +1,5 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
 {{- if .Values.opi.logs.enable }}
 ---
 apiVersion: apps/v1
@@ -117,4 +119,5 @@ spec:
               items:
               - key: "{{ .Values.opi.logs.tls.server.caPath }}"
                 path: ca.crt
+{{- end }}
 {{- end }}

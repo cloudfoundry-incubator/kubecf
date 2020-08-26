@@ -48,5 +48,4 @@ metadata:
     quarks.cloudfoundry.org/secret-copy-of: {{ .Release.Namespace }}/var-cc-bridge-cc-uploader
   name: var-cc-bridge-cc-uploader
   namespace: {{ .Values.eirini.opi.namespace | quote }}
-
 {{- end }}

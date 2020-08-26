@@ -1,3 +1,5 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
 {{- if .Values.opi.rootfsPatcher.enable }}
 apiVersion: batch/v1
 kind: Job
@@ -35,4 +37,5 @@ spec:
         imagePullPolicy: IfNotPresent
       restartPolicy: OnFailure
       serviceAccountName: eirini-rootfs-patcher
+{{- end }}
 {{- end }}

@@ -1,3 +1,5 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
 {{- if .Values.opi.events.enable }}
 apiVersion: apps/v1
 kind: Deployment
@@ -71,4 +73,5 @@ spec:
           requests:
             cpu: 15m
             memory: 15Mi
+{{- end }}
 {{- end }}

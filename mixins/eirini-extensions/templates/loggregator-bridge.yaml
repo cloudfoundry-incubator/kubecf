@@ -1,3 +1,5 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
 {{ $component := "loggregator-bridge" }}
 apiVersion: apps/v1
 kind: Deployment
@@ -76,3 +78,4 @@ spec:
       tolerations:
         {{- toYaml .tolerations | nindent 8 }}
     {{- end }}
+{{- end }}
