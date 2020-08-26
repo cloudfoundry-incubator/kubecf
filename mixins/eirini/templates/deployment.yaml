@@ -72,7 +72,7 @@ spec:
         {{- if .Values.opi.image }}
         image: {{ .Values.opi.image }}:{{ .Values.opi.image_tag }}
         {{- else }}
-        image: eirini/opi@{{ .Files.Get "versions/opi" }}
+        image: eirini/opi@{{ .Files.Get "assets/versions/opi" }}
         {{- end }}
         imagePullPolicy: Always
         volumeMounts:

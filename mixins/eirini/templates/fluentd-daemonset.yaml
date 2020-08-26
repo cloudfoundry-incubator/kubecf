@@ -34,7 +34,7 @@ spec:
         {{- if .Values.opi.loggregator_fluentd_image }}
         image: {{ .Values.opi.loggregator_fluentd_image }}:{{ .Values.opi.image_tag }}
         {{- else }}
-        image: eirini/loggregator-fluentd@{{ .Files.Get "versions/fluentd" }}
+        image: eirini/loggregator-fluentd@{{ .Files.Get "assets/versions/fluentd" }}
         {{- end }}
         imagePullPolicy: Always
         env:

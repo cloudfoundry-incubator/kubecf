@@ -26,7 +26,7 @@ data:
       {{- else if .Values.opi.staging.downloader_image_tag }}
       downloader_image: "eirini/recipe-downloader:{{ .Values.opi.staging.downloader_image_tag }}"
       {{- else }}
-      downloader_image: eirini/recipe-downloader@{{ .Files.Get "versions/staging-downloader" }}
+      downloader_image: eirini/recipe-downloader@{{ .Files.Get "assets/versions/staging-downloader" }}
       {{- end }}
 
       {{- if .Values.opi.staging.executor_image }}
@@ -34,7 +34,7 @@ data:
       {{- else if .Values.opi.staging.executor_image_tag }}
       executor_image: "eirini/recipe-executor:{{ .Values.opi.staging.executor_image_tag }}"
       {{- else }}
-      executor_image: eirini/recipe-executor@{{ .Files.Get "versions/staging-executor" }}
+      executor_image: eirini/recipe-executor@{{ .Files.Get "assets/versions/staging-executor" }}
       {{- end }}
 
       {{- if .Values.opi.staging.uploader_image }}
@@ -42,7 +42,7 @@ data:
       {{- else if .Values.opi.staging.uploader_image_tag }}
       uploader_image: "eirini/recipe-uploader:{{ .Values.opi.staging.uploader_image_tag }}"
       {{- else }}
-      uploader_image: eirini/recipe-uploader@{{ .Files.Get "versions/staging-uploader" }}
+      uploader_image: eirini/recipe-uploader@{{ .Files.Get "assets/versions/staging-uploader" }}
       {{- end }}
 
       cc_uploader_secret_name: {{ .Values.opi.staging.tls.cc_uploader.secretName }}

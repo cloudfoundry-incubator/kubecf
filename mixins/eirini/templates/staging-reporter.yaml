@@ -38,7 +38,7 @@ spec:
         {{- if .Values.opi.staging_reporter_image }}
         image: {{ .Values.opi.staging_reporter_image }}:{{ .Values.opi.staging_reporter_image_tag }}
         {{- else }}
-        image: eirini/staging-reporter@{{ .Files.Get "versions/staging-reporter" }}
+        image: eirini/staging-reporter@{{ .Files.Get "assets/versions/staging-reporter" }}
         {{- end }}
         imagePullPolicy: Always
         resources:

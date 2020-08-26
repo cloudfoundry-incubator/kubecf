@@ -59,7 +59,7 @@ spec:
         {{- if .Values.opi.metrics_collector_image }}
         image: {{ .Values.opi.metrics_collector_image }}:{{ .Values.opi.image_tag }}
         {{- else }}
-        image: eirini/metrics-collector@{{ .Files.Get "versions/metrics-collector" }}
+        image: eirini/metrics-collector@{{ .Files.Get "assets/versions/metrics-collector" }}
         {{- end }}
         imagePullPolicy: Always
         volumeMounts:

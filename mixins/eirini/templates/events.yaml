@@ -59,7 +59,7 @@ spec:
         {{- if .Values.opi.event_reporter_image }}
         image: {{ .Values.opi.event_reporter_image }}:{{ .Values.opi.event_reporter_image_tag }}
         {{- else }}
-        image: eirini/event-reporter@{{ .Files.Get "versions/event-reporter" }}
+        image: eirini/event-reporter@{{ .Files.Get "assets/versions/event-reporter" }}
         {{- end }}
         imagePullPolicy: Always
         volumeMounts:
