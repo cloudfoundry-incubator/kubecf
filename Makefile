@@ -80,6 +80,9 @@ cf-operator-wait:
 kubecf-apply:
 	@./scripts/kubecf-apply.sh
 
+kubecf-render-local:
+	@./scripts/kubecf-render-local.sh
+
 kubecf-delete:
 	@./scripts/kubecf-delete.sh
 

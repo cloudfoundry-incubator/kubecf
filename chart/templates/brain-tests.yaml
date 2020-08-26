@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- if .Values.testing.brain_tests.enabled }}
 
 # Service account, roles, and cluster role for the brain tests.

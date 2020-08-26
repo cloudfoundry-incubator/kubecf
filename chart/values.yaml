@@ -178,6 +178,9 @@ settings:
 
 
 features:
+  # Set to false to deploy without the default memory limits
+  memory_limits:
+    enabled: true
   eirini:
     enabled: false
   # To support multi-clusters, deploy diego-cell separately please set control_plane is false  and cell_segment is true

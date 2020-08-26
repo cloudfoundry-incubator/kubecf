@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 # Remove all releases from cf-deployment; we'll only add back those we need
 - type: remove
   path: /releases

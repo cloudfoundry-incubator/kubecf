@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- if not .Values.kube.psp.default }}
 ---
 apiVersion: policy/v1beta1

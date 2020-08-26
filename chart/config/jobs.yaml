@@ -1,0 +1,72 @@
+# This configuration tree associates feature flag conditions with jobs
+# in instance groups.
+#
+# Syntax: See `chart/values.schema.yaml`
+#
+# NOTE: Missing instance groups and/or jobs are filled using data from
+#  	the cf-deployment manifest.
+#
+#	Missing instance groups are added with `'$default': true`.
+#	Instance groups without '$default' are extended with `'$default': true`.
+#	Missing jobs are added with nil condition -> This invokes the '$default'
+#
+#	This is all handled by `_jobs.update` in `chart/templates/_jobs.tpl`.
+#
+# NOTE 2: The `as*` groups are for autoscaler. As they do not exist
+# 	  in cf-deployment the auto-fill will not work for them. Thus
+# 	  them being listed in full.
+#
+# The information from here is used by the helm templating creating
+# ops instructions from the memory configuration for jobs to determine
+# which jobs to ignore in the current deployment, in a generic
+# manner. I.e not mixed into the templating code itself.
+#
+# All relevant supporting and using files are
+#
+# - chart/config/jobs.yaml			Self
+# - chart/config/memory.yaml			Memory configuration
+# - chart/operations/memory-limits.yaml		Transform memory config to ops
+# - chart/templates/_jobs.tpl			Take self and complete/resolve
+# - chart/templates/_memory.tpl			Take memory and complete
+# - chart/templates/bosh_deployment.yaml	Reference the new config map
+# - chart/templates/ops.yaml			Wrap `memory-limits.yaml` into config map
+# - chart/values.schema.yaml			Job, memory config structure spec
+
+# # ## ### ###### ######## ############# #####################
+
+jobs:
+  asactors:
+    '$default': 'features.autoscaler.enabled'
+    operator: ~
+    scalingengine: ~
+    scheduler: ~
+  asapi:
+    '$default': 'features.autoscaler.enabled'
+    golangapiserver: ~
+    metricsforwarder: ~
+    route_registrar: ~
+  asdatabase:
+    postgres: 'features.autoscaler.enabled && !features.autoscaler.mysql.enabled'
+  asmetrics:
+    '$default': 'features.autoscaler.enabled'
+    eventgenerator: ~
+    metricsserver: ~
+  asnozzle:
+    metricsgateway: 'features.autoscaler.enabled'
+
+  api:
+    '$default': true
+    routing-api: 'features.routing_api.enabled'
+  credhub:
+    '$default': 'features.credhub.enabled'
+  diego-cell:
+    '$default': '!features.eirini.enabled && !features.multiple_cluster_mode.control_plane.enabled'
+  scheduler:
+    '$default': true
+    auctioneer: '!features.eirini.enabled'
+    ssh_proxy: '!features.eirini.enabled'
+    tps: '!features.eirini.enabled'
+  singleton-blobstore:
+    '$default': '!features.external_blobstore.enabled'
+  tcp-router:
+    '$default': 'features.routing_api.enabled'

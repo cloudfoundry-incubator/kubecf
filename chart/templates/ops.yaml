@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 # This template creates a ConfigMap for each ops file under assets/operations.
 {{- define "kubecf.ops" }}
 ---
@@ -21,6 +21,10 @@ data:
 
 {{- $root := . }}
 
+{{- range $path, $_ := .Files.Glob "assets/operations/sizing/*" }}
+{{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
+{{- end }}
+
 {{- range $path, $_ := .Files.Glob "assets/operations/job_moving/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
@@ -34,6 +38,14 @@ data:
 {{- end }}
 
 {{- range $path, $_ := .Files.Glob "assets/operations/instance_groups/*" }}
+{{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
+{{- end }}
+
+{{- range $path, $_ := .Files.Glob "assets/operations/sizing-post/*" }}
+{{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
+{{- end }}
+
+{{- range $path, $_ := .Files.Glob "assets/operations/temporary/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
 

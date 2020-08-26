@@ -54,8 +54,10 @@
 
     {{- $_ := set $.Values "defaults" (index $.Values.releases "$defaults") }}
 
-    {{- $_ := include "_stacks.update" . }}
-    {{- $_ := include "_releases.update" . }}
+    {{- include "_stacks.update" . }}
+    {{- include "_releases.update" . }}
+    {{- include "_jobs.update" . }}
+    {{- include "_memory.update" . }}
 
     {{- range $condition, $message := $.Values.unsupported }}
       {{- if eq "true" (include "_config.condition" (list $ $condition)) }}
@@ -94,7 +96,7 @@
 */}}
 {{- define "_config.lookup" }}
   {{- $root := first . }}
-  {{- $_ := include "_config.load" $root }}
+  {{- include "_config.load" $root }}
   {{- $query := join "." (rest .) | replace "/" "." }}
   {{- include "_config._lookup" (concat (list $root.kubecf $root.Values) (splitList "." $query)) }}
 {{- end }}
@@ -107,7 +109,7 @@
 ==========================================================================================
 */}}
 {{- define "_config.lookupManifest" }}
-  {{- $_ := include "_config.load" (first .) }}
+  {{- include "_config.load" (first .) }}
   {{- $kubecf := get (first .) "kubecf" }}
   {{- $query := join "." (rest .) | replace "/" "." }}
   {{- include "_config._lookup" (concat (list $kubecf $kubecf.manifest) (splitList "." $query)) }}

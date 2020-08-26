@@ -337,6 +337,37 @@ properties:
 
   system_domain: {type: string}
 
+  jobs:
+    type: object
+    additionalProperties:
+      type: object
+      properties:
+        '$default':
+          oneOf:
+          - { type: boolean }
+          - { type: string }
+      additionalProperties:
+        oneOf:
+        - { type: boolean }
+        - { type: string }
+        - { type: "null" }
+
+  limits:
+    type: object
+    additionalProperties: false
+    properties:
+      memory:
+        type: object
+        additionalProperties:
+          type: object
+          properties:
+            '$default': { type: string }
+          additionalProperties:
+            oneOf:
+            - { type: string }
+            - { type: "null" }
+            additionalProperties: false
+
   unsupported:
     type: object
     additionalProperties: {type: string}

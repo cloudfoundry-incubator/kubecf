@@ -1,0 +1,74 @@
+{{- include "_config.load" $ }}
+{{/* Translate memory limits into ops instructions, if present.
+   *
+   * ___ ATTENTION ATTENTION ___
+   *
+   *     This file handles the autoscaler instance groups
+   *     and a number of special groups whose information is
+   *     wiped out after application by `/sizing/`. These
+   *     are the groups for the moved jobs, plus `doppler`,
+   *     and `credhub`. It is invoked after all instance
+   *     groups are present and settled, ensuring that this
+   *     fix up is not wiped out again.
+   *
+   * ___ ATTENTION ATTENTION ___
+   *
+   * Note: The `_memory.upload` function ensured that all active groups and
+   *       jobs are present, and have a proper value. Inactive groups are not
+   *       present, nor are defaults. This makes the conversion here trivial.
+   */}}
+{{- if .Values.features.memory_limits.enabled }}
+  {{- range $igname, $ig := $.Values.limits.memory }}
+    {{- if hasPrefix "as" $igname }}
+      {{- range $jobname, $limit := $ig }}
+    - type: replace
+      path: /instance_groups/name={{ $igname }}/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $jobname }}/limits/memory
+      value: {{ $limit }}
+      {{- end }}{{/* -- range jobname/limit <- ig */}}
+
+    {{- else if eq "scheduler" $igname }}
+      {{- if hasKey $.Values.limits.memory.scheduler "auctioneer" }}
+
+    - type: replace
+      path: /instance_groups/name=auctioneer/jobs/name=auctioneer/properties?/quarks/bpm/processes/name=auctioneer/limits/memory
+      value: {{ $.Values.limits.memory.scheduler.auctioneer }}
+
+      {{- end }}
+
+    {{- else if eq "api" $igname }}
+      {{- if hasKey $.Values.limits.memory.api "routing-api" }}
+
+    - type: replace
+      path: /instance_groups/name=routing-api/jobs/name=routing-api/properties?/quarks/bpm/processes/name=routing-api/limits/memory
+      value: {{ index $.Values.limits.memory.api "routing-api" }}
+
+      {{- end }}
+
+    {{- else if eq "credhub" $igname }}
+      {{- if hasKey $.Values.limits.memory.credhub "credhub" }}
+
+    - type: replace
+      path: /instance_groups/name=credhub/jobs/name=credhub/properties?/quarks/bpm/processes/name=credhub/limits/memory
+      value: {{ $.Values.limits.memory.credhub.credhub }}
+
+      {{- end }}
+
+    {{- else if eq "doppler" $igname }}
+      {{- range $jobname, $limit := $ig }}
+        {{- if or (eq "log-cache" $jobname) (eq "log-cache-gateway" $jobname) (eq "log-cache-nozzle" $jobname) (eq "log-cache-cf-auth-proxy" $jobname) (eq "route_registrar" $jobname) }}
+
+    - type: replace
+      path: /instance_groups/name=log-cache/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $jobname }}/limits/memory
+      value: {{ $limit }}
+
+        {{- else }}
+
+    - type: replace
+      path: /instance_groups/name={{ $igname }}/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $jobname }}/limits/memory
+      value: {{ $limit }}
+
+        {{- end }}{{/* -- if log cach jobs */}}
+      {{- end }}{{/* -- range jobname/limit <- ig */}}
+    {{- end }}{{/* -- if prefix */}}
+  {{- end }}{{/* -- range igname/ig <- .jobs */}}
+{{- end }}{{/* -- if features.memory_limits.enabled */}}

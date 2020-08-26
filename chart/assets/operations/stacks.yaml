@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- range $release_name, $release := $.Values.releases }}
   {{- if $release.buildpack }}
     {{- /* buildpack release conditions are set in _stacks.update to either true or false */}}

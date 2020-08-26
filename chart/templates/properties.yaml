@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 # This ConfigMap creates an ops-file containing the user provided properties.
 ---
 apiVersion: v1

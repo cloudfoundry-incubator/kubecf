@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- if  .Values.features.eirini.enabled }}
 
   {{- /* *** Make sure the eirini stack has been selected *** */}}
