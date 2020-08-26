@@ -1,4 +1,0 @@
-apiVersion: v1
-description: Eirini Extensions for KubeCF
-name: eirini-extensions
-version: 0.0.0-10+g3df5bb4
