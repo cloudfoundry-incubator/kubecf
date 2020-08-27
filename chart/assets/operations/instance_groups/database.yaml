@@ -259,8 +259,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa?/ca_certs/0
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa?/ca_certs
@@ -290,8 +289,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ca_cert?
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ca_cert?
@@ -321,8 +319,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/ca_cert?
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/ca_cert?
@@ -352,8 +349,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ca_cert?
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ca_cert?
@@ -383,8 +379,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
@@ -414,8 +409,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/ca_cert?
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/sql/ca_cert?
@@ -446,8 +440,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else}}
 - type: remove
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/routing_api/sqldb/ca_cert?
@@ -478,8 +471,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/ca_cert?
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/ca_cert?
@@ -509,8 +501,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/ca_cert?
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
   path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/ca_cert?
@@ -540,8 +531,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/ca_cert?
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
   path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/ca_cert?
@@ -572,8 +562,7 @@
 {{ if .Values.features.external_database.ca_cert -}}
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
-  value: |
-    {{- toYaml .Values.features.external_database.ca_cert | nindent 4 }}
+  value: {{ toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/tls_ca?
