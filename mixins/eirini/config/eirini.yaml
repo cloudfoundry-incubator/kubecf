@@ -130,9 +130,6 @@ opi:
         keyPath: "private_key"
         caPath: "ca"
 
-  kubecf:
-    enable: false
-
 # used to construct bits service URL if it is not load balanced and does not behind ingress
 kube:
   external_ips: []
