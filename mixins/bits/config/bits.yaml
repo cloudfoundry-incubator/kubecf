@@ -16,8 +16,6 @@ global:
   images:
     bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.20-15.1.6.2.264-24.33
     rootfs_downloader: eirini/rootfs-downloader:2.32.0@sha256:6ae511688a27a453dcf31bf5a3bd7287ba99233e1586c7aeb78c87a18c68dbe4
-  labels: {}
-  annotations: {}
 
 # resources:
 #   cpu: 800m
