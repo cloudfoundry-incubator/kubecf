@@ -26,33 +26,33 @@ spec:
               path: bits-service.yml
         - name: bits-cert
           secret:
-            secretName: {{ .Values.tls_secret_name }}
+            secretName: {{ .Values.bits.tls_secret_name }}
         - name: bits-assets
           emptyDir: {}
       containers:
       - name: bits
-        image: {{ .Values.global.images.bits_service }}
+        image: {{ .Values.bits.global.images.bits_service }}
         imagePullPolicy: Always
         ports:
           - containerPort: 8888
-        {{- if and (.Values.blobstore.secret.name) (.Values.blobstore.secret.passwordPath) }}
+        {{- if and (.Values.bits.blobstore.secret.name) (.Values.bits.blobstore.secret.passwordPath) }}
         env:
         - name: BITS_BLOBSTORE_PASSWORD
           valueFrom:
             secretKeyRef:
-              key: "{{ .Values.blobstore.secret.passwordPath }}"
-              name: "{{ .Values.blobstore.secret.name }}"
+              key: "{{ .Values.bits.blobstore.secret.passwordPath }}"
+              name: "{{ .Values.bits.blobstore.secret.name }}"
         {{- end }}
         volumeMounts:
         - name: bits-config
           mountPath: /workspace/jobs/bits-service/config
         - name: bits-cert
           mountPath: /workspace/jobs/bits-service/certs
-        {{- if .Values.download_eirinifs }}
+        {{- if .Values.bits.download_eirinifs }}
         - name: bits-assets
           mountPath: /assets/
         {{ end }}
-        {{- with .Values.resources }}
+        {{- with .Values.bits.resources }}
         {{- if or .cpu .memory }}
         resources:
           requests:
@@ -64,18 +64,18 @@ spec:
             {{- end }}
         {{- end }}
         {{- end }}
-      {{- if .Values.download_eirinifs }}
+      {{- if .Values.bits.download_eirinifs }}
       initContainers:
       - name: "download-eirini-rootfs"
-        image: {{ .Values.global.images.rootfs_downloader }}
+        image: {{ .Values.bits.global.images.rootfs_downloader }}
         env:
         - name: EIRINI_ROOTFS_VERSION
-          value: {{ .Values.global.rootfs_version }}
-          {{- if .Values.env.eirinifs_downloader_http_proxy }}
+          value: {{ .Values.bits.global.rootfs_version }}
+          {{- if .Values.bits.env.eirinifs_downloader_http_proxy }}
         - name: http_proxy
-          value: "{{ .Values.env.eirinifs_downloader_http_proxy }}"
+          value: "{{ .Values.bits.env.eirinifs_downloader_http_proxy }}"
         - name: https_proxy
-          value: "{{ .Values.env.eirinifs_downloader_http_proxy }}"
+          value: "{{ .Values.bits.env.eirinifs_downloader_http_proxy }}"
           {{- end }}
         command: ["/bin/sh", "-c", "./eirini-rootfs-downloader.sh"]
         volumeMounts:
@@ -96,30 +96,30 @@ kind: Service
 metadata:
   name: "bits"
   annotations:
-{{- if .Values.services.externalDNS }}
-    external-dns.alpha.kubernetes.io/hostname: registry.{{ .Values.env.DOMAIN }}
+{{- if .Values.bits.services.externalDNS }}
+    external-dns.alpha.kubernetes.io/hostname: registry.{{ .Values.bits.env.DOMAIN }}
 {{- end }}
 spec:
-{{- if and (not .Values.ingress.use) (not .Values.services.nodePort) }}
-  externalIPs: {{ .Values.kube.external_ips | toJson }}
+{{- if and (not .Values.bits.ingress.use) (not .Values.bits.services.nodePort) }}
+  externalIPs: {{ .Values.bits.kube.external_ips | toJson }}
 {{- end }}
   ports:
-    - port: {{ if .Values.ingress.use }}8888{{ else }}6666{{ end }}
+    - port: {{ if .Values.bits.ingress.use }}8888{{ else }}6666{{ end }}
       protocol: TCP
-      targetPort: {{ if .Values.ingress.use }}8888{{ else }}6666{{ end }}
-      {{- with .Values.services.nodePort }}
+      targetPort: {{ if .Values.bits.ingress.use }}8888{{ else }}6666{{ end }}
+      {{- with .Values.bits.services.nodePort }}
       nodePort: {{ . }}
       {{- end }}
       name: bits
   selector:
     name: "bits"
 
-  {{- if .Values.services.nodePort }}
+  {{- if .Values.bits.services.nodePort }}
   type: "NodePort"
   {{- end }}
 
 # Ingress
-{{- if .Values.ingress.use }}
+{{- if .Values.bits.ingress.use }}
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -129,14 +129,14 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
   annotations:
-{{ toYaml .Values.ingress.annotations | indent 4 }}
+{{ toYaml .Values.bits.ingress.annotations | indent 4 }}
 spec:
   tls:
     - hosts:
-      - "registry.{{ .Values.ingress.endpoint }}"
-      secretName: {{ .Values.tls_secret_name }}
+      - "registry.{{ .Values.bits.ingress.endpoint }}"
+      secretName: {{ .Values.bits.tls_secret_name }}
   rules:
-    - host: "registry.{{ .Values.ingress.endpoint }}"
+    - host: "registry.{{ .Values.bits.ingress.endpoint }}"
       http:
         paths:
           - path: /

@@ -11,61 +11,61 @@ stringData:
     logging:
       level: debug
     private_endpoint: "https://bits.{{ .Release.Namespace }}.svc"
-    {{- if .Values.ingress.use }}
-    public_endpoint: "https://registry.{{ .Values.ingress.endpoint }}:443"
-    {{- else if .Values.services.nodePort }}
-    public_endpoint: "https://registry.{{ .Values.env.DOMAIN }}:{{ .Values.services.nodePort }}"
+    {{- if .Values.bits.ingress.use }}
+    public_endpoint: "https://registry.{{ .Values.bits.ingress.endpoint }}:443"
+    {{- else if .Values.bits.services.nodePort }}
+    public_endpoint: "https://registry.{{ .Values.bits.env.DOMAIN }}:{{ .Values.bits.services.nodePort }}"
     {{- else }}
-    public_endpoint: "https://bits.{{ index .Values.kube.external_ips 0 }}.nip.io"
+    public_endpoint: "https://bits.{{ index .Values.bits.kube.external_ips 0 }}.nip.io"
     {{- end }}
-    {{- if .Values.ingress.use }}
-    registry_endpoint: "https://registry.{{ .Values.ingress.endpoint }}"
-    {{- else if .Values.services.nodePort }}
+    {{- if .Values.bits.ingress.use }}
+    registry_endpoint: "https://registry.{{ .Values.bits.ingress.endpoint }}"
+    {{- else if .Values.bits.services.nodePort }}
     # The registry endpoint must not include the port
-    registry_endpoint: "https://registry.{{ .Values.env.DOMAIN }}"
+    registry_endpoint: "https://registry.{{ .Values.bits.env.DOMAIN }}"
     {{- else }}
-    registry_endpoint: "https://registry.{{ index .Values.kube.external_ips 0 }}.nip.io"
+    registry_endpoint: "https://registry.{{ index .Values.bits.kube.external_ips 0 }}.nip.io"
     {{- end }}
-    cert_file: /workspace/jobs/bits-service/certs/{{ index .Values "tls_cert_name" | default "tls.crt" }}
-    key_file: /workspace/jobs/bits-service/certs/{{ index .Values "tls_key_name" | default "tls.key" }}
+    cert_file: /workspace/jobs/bits-service/certs/{{ index .Values.bits "tls_cert_name" | default "tls.crt" }}
+    key_file: /workspace/jobs/bits-service/certs/{{ index .Values.bits "tls_key_name" | default "tls.key" }}
     port: 6666
     enable_http: true
     http_port: 8888
-    secret:  {{ .Values.secrets.BITS_SERVICE_SECRET }}
+    secret:  {{ .Values.bits.secrets.BITS_SERVICE_SECRET }}
     skip_cert_verify: true
     max_body_size: 2M
     signing_users:
       - username: admin
-        password:  {{ .Values.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD }}
+        password:  {{ .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD }}
     app_stash_config:
       maximum_size: 512M
       minimum_size: 64K
-    {{- if index (default (dict) .Values) "blobstore_config" }}
-    buildpacks: {{ .Values.blobstore_config.buildpacks | toJson }}
-    droplets: {{ .Values.blobstore_config.droplets | toJson }}
-    packages: {{ .Values.blobstore_config.packages | toJson }}
-    app_stash: {{ .Values.blobstore_config.app_stash | toJson }}
+    {{- if index (default (dict) .Values.bits) "blobstore_config" }}
+    buildpacks: {{ .Values.bits.blobstore_config.buildpacks | toJson }}
+    droplets: {{ .Values.bits.blobstore_config.droplets | toJson }}
+    packages: {{ .Values.bits.blobstore_config.packages | toJson }}
+    app_stash: {{ .Values.bits.blobstore_config.app_stash | toJson }}
     {{- else }}
     buildpacks:
       blobstore_type: webdav
       webdav_config: &webdav_config
         directory_key: cc-buildpacks
-        {{- $blobstore_service := .Values.blobstore.serviceName }}
+        {{- $blobstore_service := .Values.bits.blobstore.serviceName }}
         {{- if contains "." $blobstore_service | not }}
         {{- $blobstore_service = printf "%s.%s.svc" $blobstore_service .Release.Namespace }}
         {{- end }}
         private_endpoint: https://{{ $blobstore_service }}:4443
-        {{- if .Values.ingress.use }}
-        public_endpoint: https://blobstore.{{ .Values.ingress.endpoint }}
-        {{- else if .Values.services.nodePort }}
-        public_endpoint: "https://blobstore.{{ .Values.env.DOMAIN }}:{{ .Values.services.nodePort }}"
+        {{- if .Values.bits.ingress.use }}
+        public_endpoint: https://blobstore.{{ .Values.bits.ingress.endpoint }}
+        {{- else if .Values.bits.services.nodePort }}
+        public_endpoint: "https://blobstore.{{ .Values.bits.env.DOMAIN }}:{{ .Values.bits.services.nodePort }}"
         {{- else }}
-        public_endpoint: https://blobstore.{{ index .Values.kube.external_ips 0 }}.nip.io
+        public_endpoint: https://blobstore.{{ index .Values.bits.kube.external_ips 0 }}.nip.io
         {{- end }}
-        username: {{ .Values.blobstore.userName }}
-        password: {{ .Values.secrets.BLOBSTORE_PASSWORD  }}
+        username: {{ .Values.bits.blobstore.userName }}
+        password: {{ .Values.bits.secrets.BLOBSTORE_PASSWORD  }}
         # TODO: provide proper cert file here
-        ca_cert_path: /workspace/jobs/bits-service/certs/{{ index .Values "tls_ca_name" | default "tls.crt" }}
+        ca_cert_path: /workspace/jobs/bits-service/certs/{{ index .Values.bits "tls_ca_name" | default "tls.crt" }}
         # TODO: remove this skip, when we have propert cert file above
         skip_cert_verify: true
     droplets:
