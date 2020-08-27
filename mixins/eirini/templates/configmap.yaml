@@ -15,7 +15,7 @@ data:
       {{- else if .Values.opi.use_registry_ingress }}
       registry_address: "registry.{{ .Values.opi.ingress_endpoint }}:443"
       {{- else if .Values.services.loadbalanced }}
-      registry_address: "registry.{{ .Values.env.DOMAIN }}:6666"
+      registry_address: "registry.{{ .Values.env.DOMAIN }}:{{ .Values.services.nodePort }}"
       {{- else }}
       registry_address: "registry.{{ index .Values.kube.external_ips 0 }}.nip.io:6666"
       {{- end }}

@@ -1,7 +1,9 @@
 "$schema": https://json-schema.org/draft-07/schema
 "$id": https://raw.githubusercontent.com/cloudfoundry-incubator/kubecf/master/chart/values.schema.yaml
 
-additionalProperties: false
+# additionalProperties: false
+# XXX temporary allowance for Eirini
+additionalProperties: true
 
 required:
 - system_domain
@@ -243,6 +245,9 @@ properties:
       tcp-router:
         "$ref": "#/definitions/service"
         required: [port_range]
+      # XXX temporary allowance for eirini
+      loadbalanced: {type: boolean}
+      nodePort: {type: integer}
     additionalProperties:
       allOf:
       - "$ref": "#/definitions/service"

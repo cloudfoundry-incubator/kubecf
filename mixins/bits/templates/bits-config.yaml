@@ -40,11 +40,11 @@ stringData:
     app_stash_config:
       maximum_size: 512M
       minimum_size: 64K
-    {{- if index (default (dict) .Values.bits) "blobstore_config" }}
-    buildpacks: {{ .Values.bits.blobstore_config.buildpacks | toJson }}
-    droplets: {{ .Values.bits.blobstore_config.droplets | toJson }}
-    packages: {{ .Values.bits.blobstore_config.packages | toJson }}
-    app_stash: {{ .Values.bits.blobstore_config.app_stash | toJson }}
+    {{- if index (default (dict) .Values) "blobstore_config" }}
+    buildpacks: {{ .Values.blobstore_config.buildpacks | toJson }}
+    droplets: {{ .Values.blobstore_config.droplets | toJson }}
+    packages: {{ .Values.blobstore_config.packages | toJson }}
+    app_stash: {{ .Values.blobstore_config.app_stash | toJson }}
     {{- else }}
     buildpacks:
       blobstore_type: webdav

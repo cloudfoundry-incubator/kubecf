@@ -94,6 +94,9 @@ ssh-proxy:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+  type: LoadBalancer
+  externalIPs: []
+  clusterIP: ~
 
   secrets:
     host-keys: var-diego-ssh-proxy-host-key

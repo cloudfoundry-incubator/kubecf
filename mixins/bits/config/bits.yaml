@@ -5,38 +5,34 @@ ingress:
   annotations: {}
 
 blobstore:
-  serviceName: "blobstore-blobstore"
-  userName: "blobstore_user"
+  serviceName: "singleton-blobstore"
+  userName: "blobstore-user"
   secret:
-    name: ~
-    passwordPath: ~
+    name: "var-blobstore-admin-users-password"
+    passwordPath: "password"
 
 global:
   rootfs_version: v129.0.0
   images:
-    bits_service: eirini/bits-service:2.36.0@sha256:4cf84e13890890f5d8443a5e6e129b701d524f51d35c9c4295a0562ed8bb1bb2
+    bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.20-15.1.6.2.264-24.33
     rootfs_downloader: eirini/rootfs-downloader:2.32.0@sha256:6ae511688a27a453dcf31bf5a3bd7287ba99233e1586c7aeb78c87a18c68dbe4
   labels: {}
   annotations: {}
 
-resources:
-  cpu: 800m
-  memory: 150Mi
+# resources:
+#   cpu: 800m
+#   memory: 150Mi
 
-tls_secret_name: private-registry-cert
-# set to true if you wish to use a pre-populated
-# secret for TLS certs, such as that created by
-# cert-manager
-useExistingSecret: false
 
 # If set to false, the eirinifs will not be downloaded when the bits pod
 # is started. It should be used when the eirinifs is provided in some other way.
-download_eirinifs: true
+download_eirinifs: false
 
 kube:
   external_ips: []
 
 services:
+  loadbalanced: true
   nodePort: 31666
 
 secrets:
@@ -45,8 +41,21 @@ secrets:
   BLOBSTORE_PASSWORD:  blobstore
   BITS_TLS_CRT: ~
   BITS_TLS_KEY: ~
+
 env:
   # Base domain of the SCF cluster.
   # Example: "my-scf-cluster.com"
-  DOMAIN: ~
+  DOMAIN: 127.0.0.1.nip.io
   eirinifs_downloader_http_proxy: ~
+
+tls_secret_name: private-registry-cert
+# We always create the secret for bits and this should be HIDDEN
+useExistingSecret: true
+# The TLS secret is created via quarks-operator and should be HIDDEN
+tls_secret_name: bits-service-ssl
+# The TLS secret is created via quarks-operator and should be HIDDEN
+tls_cert_name: certificate
+# The TLS secret is created via quarks-operator and should be HIDDEN
+tls_key_name: private_key
+# The TLS secret is created via quarks-operator and should be HIDDEN
+tls_ca_name: ca
