@@ -27,11 +27,7 @@ bits:
   # is started. It should be used when the eirinifs is provided in some other way.
   download_eirinifs: false
 
-  kube:
-    external_ips: []
-
   services:
-    loadbalanced: true
     nodePort: 31666
 
   secrets:

@@ -96,13 +96,7 @@ kind: Service
 metadata:
   name: "bits"
   annotations:
-{{- if .Values.bits.services.externalDNS }}
-    external-dns.alpha.kubernetes.io/hostname: registry.{{ .Values.bits.env.DOMAIN }}
-{{- end }}
 spec:
-{{- if and (not .Values.bits.ingress.use) (not .Values.bits.services.nodePort) }}
-  externalIPs: {{ .Values.bits.kube.external_ips | toJson }}
-{{- end }}
   ports:
     - port: {{ if .Values.bits.ingress.use }}8888{{ else }}6666{{ end }}
       protocol: TCP

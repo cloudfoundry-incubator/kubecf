@@ -130,10 +130,6 @@ opi:
         keyPath: "private_key"
         caPath: "ca"
 
-# used to construct bits service URL if it is not load balanced and does not behind ingress
-kube:
-  external_ips: []
-
 global:
   rootfs_version: v75.0.0
   labels: {}

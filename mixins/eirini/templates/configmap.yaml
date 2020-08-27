@@ -14,10 +14,8 @@ data:
       registry_address: {{ .Values.opi.staging.registry }}
       {{- else if .Values.opi.use_registry_ingress }}
       registry_address: "registry.{{ .Values.opi.ingress_endpoint }}:443"
-      {{- else if .Values.bits.services.loadbalanced }}
-      registry_address: "registry.{{ .Values.bits.env.DOMAIN }}:{{ .Values.bits.services.nodePort }}"
       {{- else }}
-      registry_address: "registry.{{ index .Values.kube.external_ips 0 }}.nip.io:6666"
+      registry_address: "registry.{{ .Values.bits.env.DOMAIN }}:{{ .Values.bits.services.nodePort }}"
       {{- end }}
       registry_secret_name: {{ .Values.opi.registry_secret_name }}
       {{- $default_eirini_address := printf "https://eirini-opi.%s.svc:8085" .Release.Namespace }}
