@@ -6,14 +6,6 @@ kind: Deployment
 metadata:
   name: "eirini"
   namespace: {{ .Release.Namespace }}
-{{- if .Values.global.labels }}
-  labels:
-{{ toYaml .Values.global.labels | indent 4 }}
-{{- end }}
-{{- if .Values.global.annotations }}
-  annotations:
-{{ toYaml .Values.global.annotations | indent 4 }}
-{{- end }}
 spec:
   selector:
     matchLabels:
@@ -23,13 +15,6 @@ spec:
       labels:
         name: "eirini"
         eirinifs_version: "{{  .Values.global.rootfs_version  }}"
-{{- if .Values.global.labels }}
-{{ toYaml .Values.global.labels | indent 8 }}
-{{- end }}
-{{- if .Values.global.annotations }}
-      annotations:
-{{ toYaml .Values.global.annotations | indent 8 }}
-{{- end }}
     spec:
       dnsPolicy: "ClusterFirst"
       serviceAccountName: "opi"

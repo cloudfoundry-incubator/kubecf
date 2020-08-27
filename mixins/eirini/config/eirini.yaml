@@ -132,5 +132,3 @@ opi:
 
 global:
   rootfs_version: v75.0.0
-  labels: {}
-  annotations: {}
