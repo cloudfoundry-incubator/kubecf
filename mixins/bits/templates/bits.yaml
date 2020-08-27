@@ -27,8 +27,6 @@ spec:
         - name: bits-cert
           secret:
             secretName: {{ .Values.bits.tls_secret_name }}
-        - name: bits-assets
-          emptyDir: {}
       containers:
       - name: bits
         image: {{ .Values.bits.global.images.bits_service }}
@@ -48,10 +46,6 @@ spec:
           mountPath: /workspace/jobs/bits-service/config
         - name: bits-cert
           mountPath: /workspace/jobs/bits-service/certs
-        {{- if .Values.bits.download_eirinifs }}
-        - name: bits-assets
-          mountPath: /assets/
-        {{ end }}
         {{- with .Values.bits.resources }}
         {{- if or .cpu .memory }}
         resources:
@@ -64,30 +58,6 @@ spec:
             {{- end }}
         {{- end }}
         {{- end }}
-      {{- if .Values.bits.download_eirinifs }}
-      initContainers:
-      - name: "download-eirini-rootfs"
-        image: {{ .Values.bits.global.images.rootfs_downloader }}
-        env:
-        - name: EIRINI_ROOTFS_VERSION
-          value: {{ .Values.bits.global.rootfs_version }}
-          {{- if .Values.bits.env.eirinifs_downloader_http_proxy }}
-        - name: http_proxy
-          value: "{{ .Values.bits.env.eirinifs_downloader_http_proxy }}"
-        - name: https_proxy
-          value: "{{ .Values.bits.env.eirinifs_downloader_http_proxy }}"
-          {{- end }}
-        command: ["/bin/sh", "-c", "./eirini-rootfs-downloader.sh"]
-        volumeMounts:
-        - name: bits-assets
-          mountPath: /assets/
-        resources:
-          requests:
-            cpu: 200m
-            memory: 50Mi
-      securityContext:
-        runAsNonRoot: true
-      {{ end }}
 
 # Service
 ---
