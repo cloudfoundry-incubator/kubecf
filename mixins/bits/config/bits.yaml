@@ -46,14 +46,8 @@ env:
   DOMAIN: 127.0.0.1.nip.io
   eirinifs_downloader_http_proxy: ~
 
-tls_secret_name: private-registry-cert
-# We always create the secret for bits and this should be HIDDEN
 useExistingSecret: true
-# The TLS secret is created via quarks-operator and should be HIDDEN
 tls_secret_name: bits-service-ssl
-# The TLS secret is created via quarks-operator and should be HIDDEN
 tls_cert_name: certificate
-# The TLS secret is created via quarks-operator and should be HIDDEN
 tls_key_name: private_key
-# The TLS secret is created via quarks-operator and should be HIDDEN
 tls_ca_name: ca
