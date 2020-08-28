@@ -10,11 +10,7 @@ data:
   opi.yml: |
     opi:
       app_namespace: {{ .Values.eirini.opi.namespace }}
-      {{- if .Values.eirini.opi.staging.registry }}
-      registry_address: {{ .Values.eirini.opi.staging.registry }}
-      {{- else }}
       registry_address: "127.0.0.1:{{ .Values.bits.services.nodePort }}"
-      {{- end }}
       registry_secret_name: {{ .Values.eirini.opi.registry_secret_name }}
       {{- $default_eirini_address := printf "https://eirini-opi.%s.svc:8085" .Release.Namespace }}
       eirini_address: {{ default $default_eirini_address .Values.eirini.opi.eirini_address }}

@@ -89,8 +89,6 @@ eirini:
 
     staging:
       enable: true
-      # Override the registry endpoint, including host name and port.
-      registry: ~
       downloader_image: registry.suse.com/cap-staging/recipe-downloader
       downloader_image_tag: "1.5.0-24.1"
       executor_image: registry.suse.com/cap-staging/recipe-executor
