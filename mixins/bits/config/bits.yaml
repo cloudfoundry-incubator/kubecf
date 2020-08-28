@@ -1,10 +1,4 @@
 bits:
-  # set ingress endpoint when 'use_registry_ingress' is set to true
-  ingress:
-    use: false
-    endpoint: ~
-    annotations: {}
-
   blobstore:
     serviceName: "singleton-blobstore"
     userName: "blobstore-user"

@@ -68,9 +68,9 @@ metadata:
   annotations:
 spec:
   ports:
-    - port: {{ if .Values.bits.ingress.use }}8888{{ else }}6666{{ end }}
+    - port: 6666
       protocol: TCP
-      targetPort: {{ if .Values.bits.ingress.use }}8888{{ else }}6666{{ end }}
+      targetPort: 6666
       {{- with .Values.bits.services.nodePort }}
       nodePort: {{ . }}
       {{- end }}
@@ -81,31 +81,4 @@ spec:
   {{- if .Values.bits.services.nodePort }}
   type: "NodePort"
   {{- end }}
-
-# Ingress
-{{- if .Values.bits.ingress.use }}
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: bits-registry
-  labels:
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-  annotations:
-{{ toYaml .Values.bits.ingress.annotations | indent 4 }}
-spec:
-  tls:
-    - hosts:
-      - "registry.{{ .Values.bits.ingress.endpoint }}"
-      secretName: {{ .Values.bits.tls_secret_name }}
-  rules:
-    - host: "registry.{{ .Values.bits.ingress.endpoint }}"
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: bits
-              servicePort: 8888
-{{- end }}
 {{- end }}

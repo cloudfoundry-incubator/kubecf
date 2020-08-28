@@ -11,17 +11,9 @@ stringData:
     logging:
       level: debug
     private_endpoint: "https://bits.{{ .Release.Namespace }}.svc"
-    {{- if .Values.bits.ingress.use }}
-    public_endpoint: "https://registry.{{ .Values.bits.ingress.endpoint }}:443"
-    {{- else }}
     public_endpoint: "https://127.0.0.1:{{ .Values.bits.services.nodePort }}"
-    {{- end }}
-    {{- if .Values.bits.ingress.use }}
-    registry_endpoint: "https://registry.{{ .Values.bits.ingress.endpoint }}"
-    {{- else }}
     # The registry endpoint must not include the port
     registry_endpoint: "https://127.0.0.1"
-    {{- end }}
     cert_file: /workspace/jobs/bits-service/certs/certificate
     key_file: /workspace/jobs/bits-service/certs/private_key
     port: 6666
@@ -51,11 +43,7 @@ stringData:
         {{- $blobstore_service = printf "%s.%s.svc" $blobstore_service .Release.Namespace }}
         {{- end }}
         private_endpoint: https://{{ $blobstore_service }}:4443
-        {{- if .Values.bits.ingress.use }}
-        public_endpoint: https://blobstore.{{ .Values.bits.ingress.endpoint }}
-        {{- else }}
         public_endpoint: "https://127.0.0.1:{{ .Values.bits.services.nodePort }}"
-        {{- end }}
         username: {{ .Values.bits.blobstore.userName }}
         password: {{ .Values.bits.secrets.BLOBSTORE_PASSWORD  }}
         # TODO: provide proper cert file here
