@@ -1,6 +1,6 @@
 {{- $_ := include "_config.load" $ }}
 {{- if .Values.features.eirini.enabled }}
-{{- if .Values.opi.events.enable }}
+{{- if .Values.eirini.opi.events.enable }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,23 +28,23 @@ spec:
           projected:
             sources:
             - secret:
-                name: "{{ .Values.opi.events.tls.capiClient.secretName }}"
+                name: "{{ .Values.eirini.opi.events.tls.capiClient.secretName }}"
                 items:
-                - key: "{{ .Values.opi.events.tls.capiClient.certPath }}"
+                - key: "{{ .Values.eirini.opi.events.tls.capiClient.certPath }}"
                   path: cc.crt
-                - key: "{{ .Values.opi.events.tls.capiClient.keyPath }}"
+                - key: "{{ .Values.eirini.opi.events.tls.capiClient.keyPath }}"
                   path: cc.key
             - secret:
-                name: "{{ .Values.opi.events.tls.capi.secretName }}"
+                name: "{{ .Values.eirini.opi.events.tls.capi.secretName }}"
                 items:
-                - key: "{{ .Values.opi.events.tls.capi.caPath }}"
+                - key: "{{ .Values.eirini.opi.events.tls.capi.caPath }}"
                   path: cc.ca
       securityContext:
         runAsNonRoot: true
       containers:
       - name: event-reporter
-        {{- if .Values.opi.event_reporter_image }}
-        image: {{ .Values.opi.event_reporter_image }}:{{ .Values.opi.event_reporter_image_tag }}
+        {{- if .Values.eirini.opi.event_reporter_image }}
+        image: {{ .Values.eirini.opi.event_reporter_image }}:{{ .Values.eirini.opi.event_reporter_image_tag }}
         {{- else }}
         image: eirini/event-reporter@{{ .Files.Get "assets/versions/event-reporter" }}
         {{- end }}

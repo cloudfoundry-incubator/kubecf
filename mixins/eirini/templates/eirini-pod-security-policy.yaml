@@ -5,7 +5,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: eirini-role
-  namespace: {{ .Values.opi.namespace }}
+  namespace: {{ .Values.eirini.opi.namespace }}
 rules:
 - apiGroups:
   - batch
@@ -57,7 +57,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: eirini-rolebinding
-  namespace: {{ .Values.opi.namespace }}
+  namespace: {{ .Values.eirini.opi.namespace }}
 roleRef:
   kind: Role
   name: eirini-role

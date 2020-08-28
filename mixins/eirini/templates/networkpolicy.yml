@@ -1,11 +1,11 @@
 {{- $_ := include "_config.load" $ }}
 {{- if .Values.features.eirini.enabled }}
-{{- if .Values.opi.deny_app_ingress }}
+{{- if .Values.eirini.opi.deny_app_ingress }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: deny-app-ingress
-  namespace: {{ .Values.opi.namespace }}
+  namespace: {{ .Values.eirini.opi.namespace }}
 spec:
   podSelector: {}
   policyTypes:

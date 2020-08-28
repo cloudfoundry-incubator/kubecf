@@ -1,6 +1,6 @@
 {{- $_ := include "_config.load" $ }}
 {{- if .Values.features.eirini.enabled }}
-{{- if .Values.opi.staging.enable }}
+{{- if .Values.eirini.opi.staging.enable }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22,8 +22,8 @@ spec:
         runAsNonRoot: true
       containers:
       - name: staging-reporter
-        {{- if .Values.opi.staging_reporter_image }}
-        image: {{ .Values.opi.staging_reporter_image }}:{{ .Values.opi.staging_reporter_image_tag }}
+        {{- if .Values.eirini.opi.staging_reporter_image }}
+        image: {{ .Values.eirini.opi.staging_reporter_image }}:{{ .Values.eirini.opi.staging_reporter_image_tag }}
         {{- else }}
         image: eirini/staging-reporter@{{ .Files.Get "assets/versions/staging-reporter" }}
         {{- end }}
@@ -48,18 +48,18 @@ spec:
           projected:
             sources:
             - secret:
-                name: "{{ .Values.opi.staging.tls.stagingReporter.secretName }}"
+                name: "{{ .Values.eirini.opi.staging.tls.stagingReporter.secretName }}"
                 items:
-                - key: "{{ .Values.opi.staging.tls.stagingReporter.certPath }}"
+                - key: "{{ .Values.eirini.opi.staging.tls.stagingReporter.certPath }}"
                   path: eirini-client.crt
-                - key: "{{ .Values.opi.staging.tls.stagingReporter.keyPath }}"
+                - key: "{{ .Values.eirini.opi.staging.tls.stagingReporter.keyPath }}"
                   path: eirini-client.key
-                - key: "{{ .Values.opi.staging.tls.stagingReporter.caPath }}"
+                - key: "{{ .Values.eirini.opi.staging.tls.stagingReporter.caPath }}"
                   path: eirini-client.ca
             - secret:
-                name: "{{ .Values.opi.events.tls.capi.secretName }}"
+                name: "{{ .Values.eirini.opi.events.tls.capi.secretName }}"
                 items:
-                - key: "{{ .Values.opi.events.tls.capi.caPath }}"
+                - key: "{{ .Values.eirini.opi.events.tls.capi.caPath }}"
                   path: cc.ca
 {{- end }}
 {{- end }}

@@ -32,7 +32,7 @@
 - type: replace
   path: /variables/name=cc_bridge_cc_uploader/options/copies?/-
   value:
-    namespace: {{ .Values.opi.namespace }}
+    namespace: {{ .Values.eirini.opi.namespace }}
     name: var-cc-bridge-cc-uploader
 - type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
@@ -131,7 +131,7 @@
       extended_key_usage:
       - client_auth
       copies:
-      - namespace: {{ .Values.opi.namespace }}
+      - namespace: {{ .Values.eirini.opi.namespace }}
         name: var-eirini-tls-client-cert
 
 # Remove the whole diego-cell instance group.

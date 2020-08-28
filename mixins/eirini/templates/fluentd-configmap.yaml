@@ -1,6 +1,6 @@
 {{- $_ := include "_config.load" $ }}
 {{- if .Values.features.eirini.enabled }}
-{{- if .Values.opi.logs.enable }}
+{{- if .Values.eirini.opi.logs.enable }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -46,10 +46,10 @@ data:
       loggregator_cert_file /fluentd/certs/agent.crt
       loggregator_key_file /fluentd/certs/agent.key
       loggregator_ca_file /fluentd/certs/ca.crt
-      eirini_namespace {{ .Values.opi.namespace }}
+      eirini_namespace {{ .Values.eirini.opi.namespace }}
     </match>
 
-    <match kubernetes.var.log.containers.**{{ .Values.opi.namespace }}**.log>
+    <match kubernetes.var.log.containers.**{{ .Values.eirini.opi.namespace }}**.log>
       @type stdout
     </match>
 

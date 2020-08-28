@@ -23,7 +23,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: eirini-registry-credentials
-  namespace: {{ .Values.opi.namespace }}
+  namespace: {{ .Values.eirini.opi.namespace }}
 type: kubernetes.io/dockerconfigjson
 data:
   .dockerconfigjson: {{ template "kubecf.imagePullSecret" . }}
@@ -37,7 +37,7 @@ metadata:
   annotations:
     quarks.cloudfoundry.org/secret-copy-of: {{ .Release.Namespace }}/var-eirini-tls-client-cert
   name: var-eirini-tls-client-cert
-  namespace: {{ .Values.opi.namespace | quote }}
+  namespace: {{ .Values.eirini.opi.namespace | quote }}
 ---
 apiVersion: v1
 kind: Secret
@@ -47,5 +47,5 @@ metadata:
   annotations:
     quarks.cloudfoundry.org/secret-copy-of: {{ .Release.Namespace }}/var-cc-bridge-cc-uploader
   name: var-cc-bridge-cc-uploader
-  namespace: {{ .Values.opi.namespace | quote }}
+  namespace: {{ .Values.eirini.opi.namespace | quote }}
 {{- end }}

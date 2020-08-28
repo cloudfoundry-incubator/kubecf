@@ -1,6 +1,6 @@
 {{- $_ := include "_config.load" $ }}
 {{- if .Values.features.eirini.enabled }}
-{{- if .Values.opi.metrics.enable }}
+{{- if .Values.eirini.opi.metrics.enable }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,23 +28,23 @@ spec:
           projected:
             sources:
             - secret:
-                name: "{{ .Values.opi.metrics.tls.client.secretName }}"
+                name: "{{ .Values.eirini.opi.metrics.tls.client.secretName }}"
                 items:
-                - key: "{{ .Values.opi.metrics.tls.client.certPath }}"
+                - key: "{{ .Values.eirini.opi.metrics.tls.client.certPath }}"
                   path: doppler.crt
-                - key: "{{ .Values.opi.metrics.tls.client.keyPath }}"
+                - key: "{{ .Values.eirini.opi.metrics.tls.client.keyPath }}"
                   path: doppler.key
             - secret:
-                name: "{{ .Values.opi.metrics.tls.server.secretName }}"
+                name: "{{ .Values.eirini.opi.metrics.tls.server.secretName }}"
                 items:
-                - key: "{{ .Values.opi.metrics.tls.server.caPath }}"
+                - key: "{{ .Values.eirini.opi.metrics.tls.server.caPath }}"
                   path: doppler.ca
       securityContext:
         runAsNonRoot: true
       containers:
       - name: metrics-collector
-        {{- if .Values.opi.metrics_collector_image }}
-        image: {{ .Values.opi.metrics_collector_image }}:{{ .Values.opi.image_tag }}
+        {{- if .Values.eirini.opi.metrics_collector_image }}
+        image: {{ .Values.eirini.opi.metrics_collector_image }}:{{ .Values.eirini.opi.image_tag }}
         {{- else }}
         image: eirini/metrics-collector@{{ .Files.Get "assets/versions/metrics-collector" }}
         {{- end }}
