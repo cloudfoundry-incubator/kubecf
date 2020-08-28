@@ -10,10 +10,6 @@ bits:
     images:
       bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.20-15.1.6.2.264-24.33
 
-  # resources:
-  #   cpu: 800m
-  #   memory: 150Mi
-
   services:
     nodePort: 31666
 
