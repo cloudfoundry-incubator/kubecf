@@ -114,5 +114,4 @@ eirinix:
         rules: []
 
   service_account:
-    create: true
     name: "eirinix"
