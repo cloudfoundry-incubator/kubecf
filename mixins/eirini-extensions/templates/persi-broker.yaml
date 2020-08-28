@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: {{ $component }}
 {{ include "eirinix.labels" . | indent 4 }}
 spec:
-  replicas: {{ index .Values $component "replicaCount" }}
+  replicas: {{ index .Values.eirinix $component "replicaCount" }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "eirinix.name" . }}
@@ -22,14 +22,14 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: {{ $component }}
     spec:
-    {{- with .Values.imagePullSecrets }}
+    {{- with .Values.eirinix.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ .Values.service_account.name | quote }}
+      serviceAccountName: {{ .Values.eirinix.service_account.name | quote }}
       initContainers:
       - name: generate-config
-        {{- with index .Values $component "setup-image" }}
+        {{- with index .Values.eirinix $component "setup-image" }}
         image: {{ printf "%s/eirinix-%s-setup:%s" .repository $component .tag | quote }}
         imagePullPolicy: {{ .pullPolicy }}
         {{- end }}
@@ -37,7 +37,7 @@ spec:
         - name: SERVICE_CONFIG
           value: |
             service:
-            {{- with index .Values $component }}
+            {{- with index .Values.eirinix $component }}
               service_name: eirini-persi
               service_id: eirini-persi
               plans:
@@ -58,7 +58,7 @@ spec:
               icon_image: {{ .icon_image }}
             {{- end }}
         - name: NAMESPACE
-          value: {{ .Values.namespace }}
+          value: {{ .Values.eirinix.namespace }}
         volumeMounts:
         - name: config
           mountPath: /run/secrets/config
@@ -66,7 +66,7 @@ spec:
           mountPath: /run/secrets/auth-password
       containers:
       - name: persi-broker
-        {{- with index .Values $component "image" }}
+        {{- with index .Values.eirinix $component "image" }}
         image: {{ printf "%s/eirinix-%s:%s" .repository $component .tag | quote }}
         imagePullPolicy: {{ .pullPolicy }}
         {{- end }}
@@ -77,14 +77,14 @@ spec:
         - name: config
           mountPath: /run/secrets/config
         resources:
-          {{- index .Values $component "resources" | toYaml | nindent 10 }}
+          {{- index .Values.eirinix $component "resources" | toYaml | nindent 10 }}
       volumes:
       - name: config
         emptyDir: {}
       - name: auth-password
         secret:
           secretName: {{ printf "%s-auth-password" $component }}
-    {{- with index .Values $component }}
+    {{- with index .Values.eirinix $component }}
       nodeSelector:
         {{- toYaml .nodeSelector | nindent 8 }}
       affinity:
@@ -125,5 +125,5 @@ metadata:
 {{ include "eirinix.labels" . | indent 4 }}
 type: Opaque
 stringData:
-  password: {{ index .Values $component "secrets" "auth-password" | default (randAlphaNum 32) }}
+  password: {{ index .Values.eirinix $component "secrets" "auth-password" | default (randAlphaNum 32) }}
 {{- end }}

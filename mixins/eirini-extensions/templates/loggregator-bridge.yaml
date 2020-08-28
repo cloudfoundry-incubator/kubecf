@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: {{ $component }}
 {{ include "eirinix.labels" . | indent 4 }}
 spec:
-  replicas: {{ index .Values $component "replicaCount" }}
+  replicas: {{ index .Values.eirinix $component "replicaCount" }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "eirinix.name" . }}
@@ -22,14 +22,14 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: {{ $component }}
     spec:
-    {{- with .Values.imagePullSecrets }}
+    {{- with .Values.eirinix.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ .Values.service_account.name | quote }}
+      serviceAccountName: {{ .Values.eirinix.service_account.name | quote }}
       containers:
         - name: {{ $component }}
-          {{- with index .Values $component "image" }}
+          {{- with index .Values.eirinix $component "image" }}
           image: {{ printf "%s/eirinix-%s:%s" .repository $component .tag | quote }}
           imagePullPolicy: {{ .pullPolicy }}
           {{- end }}
@@ -43,34 +43,34 @@ spec:
           - name: LOGGREGATOR_CA_PATH
             value: /run/secrets/loggregator-ca/certificate
           - name: NAMESPACE
-            value: {{ .Values.namespace }}
+            value: {{ .Values.eirinix.namespace }}
           - name: LOGGREGATOR_ENDPOINT
-            value: {{ index .Values "loggregator-bridge" "endpoint" }}
+            value: {{ index .Values.eirinix "loggregator-bridge" "endpoint" }}
           volumeMounts:
           - name: loggregator-ca
             mountPath: /run/secrets/loggregator-ca
           - name: loggregator-cert
             mountPath: /run/secrets/loggregator-cert
           resources:
-            {{- index .Values $component "resources" | toYaml | nindent 12 }}
+            {{- index .Values.eirinix $component "resources" | toYaml | nindent 12 }}
       volumes:
       - name: config
         emptyDir: {}
       - name: loggregator-ca
         secret:
-          secretName: {{ index .Values $component "secrets" "ca" }}
+          secretName: {{ index .Values.eirinix $component "secrets" "ca" }}
           items:
           - key: certificate
             path: certificate
       - name: loggregator-cert
         secret:
-          secretName: {{ index .Values $component "secrets" "cert" }}
+          secretName: {{ index .Values.eirinix $component "secrets" "cert" }}
           items:
           - key: certificate
             path: certificate
           - key: private_key
             path: private_key
-    {{- with index .Values $component }}
+    {{- with index .Values.eirinix $component }}
       nodeSelector:
         {{- toYaml .nodeSelector | nindent 8 }}
       affinity:

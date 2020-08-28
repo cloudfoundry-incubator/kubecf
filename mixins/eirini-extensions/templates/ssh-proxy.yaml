@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/component: {{ $component }}
 {{ include "eirinix.labels" . | indent 4 }}
 spec:
-  replicas: {{ index .Values $component "replicaCount" }}
+  replicas: {{ index .Values.eirinix $component "replicaCount" }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "eirinix.name" . }}
@@ -23,22 +23,22 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: {{ $component }}
     spec:
-    {{- with .Values.imagePullSecrets }}
+    {{- with .Values.eirinix.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ .Values.service_account.name | quote }}
+      serviceAccountName: {{ .Values.eirinix.service_account.name | quote }}
       initContainers:
       - name: generate-config
-        {{- with index .Values $component "setup-image" }}
+        {{- with index .Values.eirinix $component "setup-image" }}
         image: {{ printf "%s/eirinix-%s-setup:%s" .repository $component .tag | quote }}
         imagePullPolicy: {{ .pullPolicy }}
         {{- end }}
         env:
         - name: CC_API_URL
-          value: {{ index .Values.ssh "cc-api-url" }}
+          value: {{ index .Values.eirinix.ssh "cc-api-url" }}
         - name: UAA_TOKEN_URL
-          value: {{ index .Values.ssh "uaa-token-url" }}
+          value: {{ index .Values.eirinix.ssh "uaa-token-url" }}
         volumeMounts:
         - name: config
           mountPath: /run/secrets/config
@@ -50,7 +50,7 @@ spec:
           subPath: proxy.key
       containers:
       - name: {{ $component }}
-        {{- with index .Values $component "image" }}
+        {{- with index .Values.eirinix $component "image" }}
         # Note: Unlike all other components, the `ssh-proxy` binary lives in the
         # `eirinix-ssh` docker image.  So we do _not_ use $component here.
         # https://github.com/SUSE/eirini-ssh/blob/e2ed1ab4/Dockerfile#L15-L16
@@ -63,7 +63,7 @@ spec:
         - /run/secrets/config/eirini-ssh-proxy.json
         env:
         - name: SSH_PROXY_KUBERNETES_NAMESPACE
-          value: {{ .Values.namespace }}
+          value: {{ .Values.eirinix.namespace }}
         - name: SSH_PROXY_DAEMON_PORT
           value: "2222"
         volumeMounts:
@@ -76,11 +76,11 @@ spec:
           mountPath: /run/secrets/cc-api-ca.crt
           subPath: ca.crt
         resources:
-          {{- index .Values $component "resources" | toYaml | nindent 12 }}
+          {{- index .Values.eirinix $component "resources" | toYaml | nindent 12 }}
       volumes:
       - name: config
         emptyDir: {}
-      {{- with index .Values $component "secrets" }}
+      {{- with index .Values.eirinix $component "secrets" }}
       - name: uaa-client
         secret:
           secretName: {{ index . "uaa-client-proxy-secret" }}
@@ -106,7 +106,7 @@ spec:
           - key: certificate
             path: ca.crt
       {{- end }}
-    {{- with index .Values $component }}
+    {{- with index .Values.eirinix $component }}
       nodeSelector:
         {{- toYaml .nodeSelector | nindent 8 }}
       affinity:
@@ -134,7 +134,7 @@ spec:
     port: 2222
     targetPort: 2222
   type: ClusterIP
-  {{- if gt (len .Values.externalIPs) 0 }}
-  externalIPs: {{ .Values.externalIPs | toJson }}
+  {{- if gt (len .Values.eirinix.externalIPs) 0 }}
+  externalIPs: {{ .Values.eirinix.externalIPs | toJson }}
   {{- end }}
 {{- end }}
