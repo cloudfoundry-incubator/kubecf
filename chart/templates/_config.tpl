@@ -169,6 +169,9 @@
       {{- end }}
     {{- end }}
   {{- else }}
+    {{- if gt (len $path) 1 }}
+      {{- $_ := set $kubecf "retval" nil }}
+    {{- end }}
     {{- /* Return YAML compatible string versions of "zero" values; empty string for all other kinds */}}
     {{- $zero := dict "bool" "false" "int" 0 "int64" 0 "float64" 0 "map" "{}" "slice" "[]" }}
     {{- get $zero (kindOf $kubecf.retval) }}
