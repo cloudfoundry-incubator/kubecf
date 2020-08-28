@@ -1,3 +1,4 @@
+{{- $_ := include "_config.load" $ }}
 {{- if not .Values.features.multiple_cluster_mode.control_plane.enabled  }}
 {{- if .Values.features.multiple_cluster_mode.cell_segment.enabled }}
 ---

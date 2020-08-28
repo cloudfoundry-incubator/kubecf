@@ -1,3 +1,4 @@
+{{- $_ := include "_config.load" $ }}
 {{- $root := . }}
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
