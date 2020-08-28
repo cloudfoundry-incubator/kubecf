@@ -21,16 +21,11 @@
     {{- $disk_size := .Values.sizing.diego_cell.ephemeral_disk.size }}
     {{- $app_disk_quota := 1024 }}
 
-    {{- /* We need the nested ifs because of https://github.com/helm/helm/issues/8026 */ -}}
-    {{- if and .Values.properties.api }}
-      {{- if .Values.properties.api.cloud_controller_ng }}
-        {{- if .Values.properties.api.cloud_controller_ng.cc }}
-          {{- if .Values.properties.api.cloud_controller_ng.cc.default_app_disk_in_mb }}
-            {{- $app_disk_quota := .Values.properties.api.cloud_controller_ng.cc.default_app_disk_in_mb }}
-          {{ end }}
-        {{ end }}
-      {{ end }}
+    {{- include "_config.lookup" (list $ "properties.api.cloud_controller_ng.cc.default_app_disk_in_mb") }}
+    {{- if $.kubecf.retval }}
+      {{- $app_disk_quota = $.kubecf.retval }}
     {{- end }}
+
     {{- $estimated_apps := div (mul $cell_count $disk_size) $app_disk_quota }}
 
     You will be running [1;35m{{ $cell_count }}[0m diego cell(s), with [1;35m{{ $disk_size }}Mi[0m of disk each.
