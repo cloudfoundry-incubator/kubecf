@@ -32,7 +32,7 @@ spec:
         image: {{ .Values.bits.global.images.bits_service }}
         imagePullPolicy: Always
         ports:
-          - containerPort: 8888
+        - containerPort: 8888
         {{- if and (.Values.bits.blobstore.secret.name) (.Values.bits.blobstore.secret.passwordPath) }}
         env:
         - name: BITS_BLOBSTORE_PASSWORD
@@ -52,20 +52,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: "bits"
-  annotations:
 spec:
   ports:
     - port: 6666
       protocol: TCP
       targetPort: 6666
-      {{- with .Values.bits.services.nodePort }}
-      nodePort: {{ . }}
-      {{- end }}
+      nodePort: {{ .Values.bits.services.nodePort }}
       name: bits
   selector:
     name: "bits"
-
-  {{- if .Values.bits.services.nodePort }}
   type: "NodePort"
-  {{- end }}
 {{- end }}
