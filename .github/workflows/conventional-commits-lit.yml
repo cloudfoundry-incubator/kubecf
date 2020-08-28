@@ -1,0 +1,17 @@
+name: Conventional Commits Litter
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  validate-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Commitsar check
+        uses: aevea/commitsar@v0.15.0
