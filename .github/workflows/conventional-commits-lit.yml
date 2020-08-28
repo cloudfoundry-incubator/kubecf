@@ -1,4 +1,4 @@
-name: Conventional Commits Litter
+name: Conventional Commits Linter
 
 on:
   pull_request:
