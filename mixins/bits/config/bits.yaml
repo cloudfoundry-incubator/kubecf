@@ -27,11 +27,5 @@ bits:
     BITS_SERVICE_SECRET: secret
     BITS_SERVICE_SIGNING_USER_PASSWORD: notpassword123
     BLOBSTORE_PASSWORD:  blobstore
-    BITS_TLS_CRT: ~
-    BITS_TLS_KEY: ~
 
-  useExistingSecret: true
   tls_secret_name: bits-service-ssl
-  tls_cert_name: certificate
-  tls_key_name: private_key
-  tls_ca_name: ca

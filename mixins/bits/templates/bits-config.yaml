@@ -22,8 +22,8 @@ stringData:
     # The registry endpoint must not include the port
     registry_endpoint: "https://127.0.0.1"
     {{- end }}
-    cert_file: /workspace/jobs/bits-service/certs/{{ index .Values.bits "tls_cert_name" | default "tls.crt" }}
-    key_file: /workspace/jobs/bits-service/certs/{{ index .Values.bits "tls_key_name" | default "tls.key" }}
+    cert_file: /workspace/jobs/bits-service/certs/certificate
+    key_file: /workspace/jobs/bits-service/certs/private_key
     port: 6666
     enable_http: true
     http_port: 8888
@@ -59,7 +59,7 @@ stringData:
         username: {{ .Values.bits.blobstore.userName }}
         password: {{ .Values.bits.secrets.BLOBSTORE_PASSWORD  }}
         # TODO: provide proper cert file here
-        ca_cert_path: /workspace/jobs/bits-service/certs/{{ index .Values.bits "tls_ca_name" | default "tls.crt" }}
+        ca_cert_path: /workspace/jobs/bits-service/certs/ca
         # TODO: remove this skip, when we have propert cert file above
         skip_cert_verify: true
     droplets:
