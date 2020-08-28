@@ -12,8 +12,6 @@ data:
       app_namespace: {{ .Values.eirini.opi.namespace }}
       {{- if .Values.eirini.opi.staging.registry }}
       registry_address: {{ .Values.eirini.opi.staging.registry }}
-      {{- else if .Values.eirini.opi.use_registry_ingress }}
-      registry_address: "registry.{{ .Values.eirini.opi.ingress_endpoint }}:443"
       {{- else }}
       registry_address: "127.0.0.1:{{ .Values.bits.services.nodePort }}"
       {{- end }}
