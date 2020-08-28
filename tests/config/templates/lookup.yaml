@@ -26,10 +26,17 @@
 
 {{ include "lookup" (list $ "nil" "" "invalid") }}
 {{ include "lookup" (list $ "helm_nil" "" "invalid") }}
+{{ include "lookup" (list $ "does_not_exist" "" "invalid") }}
 
 {{ include "lookup" (list $ "empty_string" "" "string") }}
 {{ include "lookup" (list $ "empty_list" "[]" "slice") }}
 {{ include "lookup" (list $ "empty_hash" "{}" "map") }}
+
+# if the element at the end of the path does not exist, then the result is always nil
+{{ include "lookup" (list $ "nil.does_not_exist" "" "invalid") }}
+{{ include "lookup" (list $ "empty_string.does_not_exist" "" "invalid") }}
+{{ include "lookup" (list $ "empty_list.does_not_exist" "" "invalid") }}
+{{ include "lookup" (list $ "empty_hash.does_not_exist" "" "invalid") }}
 
 {{ include "lookup" (list $ "helm_empty" "" "string") }}
 
