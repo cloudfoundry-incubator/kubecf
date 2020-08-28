@@ -84,10 +84,6 @@ opi:
         secretName: "var-loggregator-tls-doppler"
         caPath: "ca"
 
-  rootfsPatcher:
-    enable: false
-    timeout: 2m
-
   # All configs in this section should be HIDDEN from the user; they are here
   # to adapt the Eirini helm chart for KubeCF use.
   routing:
@@ -129,6 +125,3 @@ opi:
         certPath: "certificate"
         keyPath: "private_key"
         caPath: "ca"
-
-global:
-  rootfs_version: v75.0.0

@@ -59,7 +59,8 @@ data:
       cc_cert_path: "/workspace/jobs/opi/secrets/cc.crt"
       cc_key_path: "/workspace/jobs/opi/secrets/cc.key"
       cc_ca_path: "/workspace/jobs/opi/secrets/cc.ca"
-      rootfs_version: {{ .Values.global.rootfs_version }}
+      # We really don't know the rootfs version...
+      # rootfs_version: {{/* .Values.global.rootfs_version */}}
       client_ca_path: "/workspace/jobs/opi/secrets/eirini.ca"
       server_cert_path: "/workspace/jobs/opi/secrets/eirini-server.crt"
       server_key_path: "/workspace/jobs/opi/secrets/eirini-server.key"

@@ -14,7 +14,6 @@ spec:
     metadata:
       labels:
         name: "eirini"
-        eirinifs_version: "{{  .Values.global.rootfs_version  }}"
     spec:
       dnsPolicy: "ClusterFirst"
       serviceAccountName: "opi"
