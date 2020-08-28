@@ -30,11 +30,6 @@ bits:
     BITS_TLS_CRT: ~
     BITS_TLS_KEY: ~
 
-  env:
-    # Base domain of the SCF cluster.
-    # Example: "my-scf-cluster.com"
-    DOMAIN: 127.0.0.1.nip.io
-
   useExistingSecret: true
   tls_secret_name: bits-service-ssl
   tls_cert_name: certificate
