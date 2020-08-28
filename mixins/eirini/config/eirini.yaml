@@ -62,9 +62,7 @@ eirini:
           caPath: "ca"
 
     logs:
-      # disable fluentd, use eirinix-loggregator-bridge (HIDDEN from the user).
-      enable: false
-      # HIDDEN from the user as changing this breaks logging.
+      # changing this breaks logging.
       serviceName: doppler
 
     # All configs in this section should be HIDDEN from the user; they are here
