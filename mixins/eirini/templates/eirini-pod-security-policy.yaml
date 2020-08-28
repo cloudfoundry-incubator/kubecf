@@ -95,9 +95,6 @@ subjects:
 - kind: ServiceAccount
   name: opi
   namespace: {{ .Release.Namespace }}
-- kind: ServiceAccount
-  name: eirini-secret-smuggler
-  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy

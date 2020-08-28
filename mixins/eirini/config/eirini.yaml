@@ -93,10 +93,6 @@ opi:
       passwordPath: "password"
       serviceName: "nats"
 
-  secretSmuggler:
-    # We never want to enable the secret-smuggler (it's for SCF), so this option should be HIDDEN.
-    enable: false
-
   staging:
     enable: true
     # Override the registry endpoint, including host name and port.
