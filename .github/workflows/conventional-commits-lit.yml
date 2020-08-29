@@ -1,17 +1,11 @@
-name: Conventional Commits Linter
+name: "Lint PR"
 
-on:
-  pull_request:
-    types:
-      - opened
-      - edited
-      - synchronize
+on: [pull_request]
 
 jobs:
-  validate-commits:
+  main:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v1
-      - name: Commitsar check
-        uses: aevea/commitsar@v0.15.0
+      - uses: amannn/action-semantic-pull-request@v1.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
