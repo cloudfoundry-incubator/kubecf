@@ -11,6 +11,24 @@
   path: /instance_groups/name=diego-cell/jobs/name=vxlan-policy-agent/properties/disable?
   value: true
 
+# Don't inject replica count for the diego cells
+# The instance count is not needed for diego cells, and removing it optimizes scaling up/down diego cells
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/injectReplicasEnv?
+  value: false
+# Also remove link instances for vpa, they are not required and they make the cells restart when scaling
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh/agent/settings/preRenderOps/instanceGroup?
+  value:
+  - type: replace
+    path: /instance_groups/name=diego-cell/jobs/name=silk-daemon/properties/quarks/consumes/vpa/instances?
+    value:
+    - address: diego-cell-0
+  - type: replace
+    path: /instance_groups/name=diego-cell/jobs/name=silk-cni/properties/quarks/consumes/vpa/instances?
+    value:
+    - address: diego-cell-0
+
 # Enable BPM on garden.
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/bpm?/enabled
