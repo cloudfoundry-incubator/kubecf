@@ -114,7 +114,6 @@ definitions:
         type: array
         items: {type: string}
       clusterIP: {"$ref": "#/definitions/string_or_null"}
-      # loadBalancerIP is not mentioned in values.yaml but referenced in ingress.yaml
       loadBalancerIP: {"$ref": "#/definitions/string_or_null"}
       port_range:
         type: object
