@@ -138,16 +138,19 @@ services:
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~
+    loadBalancerIP: ~
   ssh-proxy:
     annotations: ~
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~
+    loadBalancerIP: ~
   tcp-router:
     annotations: ~
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~
+    loadBalancerIP: ~
     port_range:
       start: 20000
       end: 20008
