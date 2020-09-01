@@ -35,11 +35,11 @@ eirinix:
     replicaCount: 1
     image:
       repository: splatform
-      tag: v0.0.0-g47355df
+      tag: v0.0.0-g5bb88d3
       pullPolicy: IfNotPresent
     setup-image:
       repository: splatform
-      tag: v0.0.0-ge2799d8
+      tag: v0.0.0-gf340692
       pullPolicy: IfNotPresent
     resources: {}
     nodeSelector: {}
@@ -50,7 +50,7 @@ eirinix:
     - id: default
       name: "default"
       description: "Existing default storage class"
-      kube_storage_class: "default"
+      kube_storage_class: ~
       free: true
       default_size: "1Gi"
     description: Eirini persistence broker
@@ -85,7 +85,7 @@ eirinix:
       pullPolicy: IfNotPresent
     setup-image:
       repository: splatform
-      tag: v0.0.0-ge2799d8
+      tag: v0.0.0-gf340692
       pullPolicy: IfNotPresent
     resources: {}
     nodeSelector: {}
