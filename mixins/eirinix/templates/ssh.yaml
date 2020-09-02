@@ -40,7 +40,7 @@ spec:
           value: "0.0.0.0"
         - name: OPERATOR_WEBHOOK_PORT
           value: "2999"
-        - name: EIRINI_EXTENSION_NAMESPACE
+        - name: NAMESPACE
           value: {{ .Values.eirini.opi.namespace }}
         - name: OPERATOR_SERVICE_NAME
           value: eirinix-{{ $component }}
