@@ -60,7 +60,7 @@ spec:
               icon_image: {{ .icon_image }}
             {{- end }}
         - name: NAMESPACE
-          value: {{ .Values.eirinix.namespace }}
+          value: {{ .Values.eirini.opi.namespace }}
         volumeMounts:
         - name: config
           mountPath: /run/secrets/config

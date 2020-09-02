@@ -44,7 +44,7 @@ spec:
           - name: OPERATOR_WEBHOOK_PORT
             value: "8443"
           - name: NAMESPACE
-            value: {{ .Values.eirinix.namespace }}
+            value: {{ .Values.eirini.opi.namespace }}
           resources:
             {{- index .Values.eirinix $component "resources" | toYaml | nindent 12 }}
     {{- with index .Values.eirinix $component }}

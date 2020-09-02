@@ -63,7 +63,7 @@ spec:
         - /run/secrets/config/eirini-ssh-proxy.json
         env:
         - name: SSH_PROXY_KUBERNETES_NAMESPACE
-          value: {{ .Values.eirinix.namespace }}
+          value: {{ .Values.eirini.opi.namespace }}
         - name: SSH_PROXY_DAEMON_PORT
           value: "2222"
         volumeMounts:

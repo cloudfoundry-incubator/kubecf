@@ -43,7 +43,7 @@ spec:
           - name: LOGGREGATOR_CA_PATH
             value: /run/secrets/loggregator-ca/certificate
           - name: NAMESPACE
-            value: {{ .Values.eirinix.namespace }}
+            value: {{ .Values.eirini.opi.namespace }}
           - name: LOGGREGATOR_ENDPOINT
             value: {{ index .Values.eirinix "loggregator-bridge" "endpoint" }}
           volumeMounts:

@@ -1,9 +1,4 @@
 eirinix:
-  # The namespace into which Eirini applications will be deployed.
-  # This does not have to (and probably shouldn't) match the namespace in which
-  # Eirini, or the extensions helm chart, is deployed into.
-  namespace: eirini
-
   loggregator-bridge:
     replicaCount: 1
     image:
