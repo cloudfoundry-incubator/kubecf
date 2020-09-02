@@ -410,6 +410,7 @@ operations:
 
 eirinix:
   persi-broker:
+    # Service plans for Eirini persistant storage support
     service-plans:
     - id: default
       name: "default"
