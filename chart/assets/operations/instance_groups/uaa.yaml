@@ -36,7 +36,7 @@
 - type: replace
   path: /instance_groups/name=uaa/jobs/-
   value:
-    name: cf-cli-6-linux
+    name: cf-cli-7-linux
     release: cf-cli
     properties:
       quarks:
@@ -48,7 +48,7 @@
             args:
             - -c
             - |-
-              {{- .Files.Get "assets/scripts/jobs/cf-cli-6-linux/setup_internal_security_group.sh" | nindent 14 }}
+              {{- .Files.Get "assets/scripts/jobs/cf-cli-7-linux/setup_internal_security_group.sh" | nindent 14 }}
         envs:
         - name: CF_API
           value: https://cloud-controller-ng.service.cf.internal:9024
@@ -84,7 +84,7 @@
         - name: PORTS
           value: *uaa_https_port
         - name: DATA_DIR
-          value: /var/vcap/data/cf-cli-6-linux
+          value: /var/vcap/data/cf-cli-7-linux
 
 - type: replace
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/uaa_setup?

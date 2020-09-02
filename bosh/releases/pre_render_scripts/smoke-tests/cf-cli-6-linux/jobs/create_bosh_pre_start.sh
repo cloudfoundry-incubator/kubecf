@@ -5,7 +5,7 @@
 set -o errexit -o nounset
 
 release="cf-cli"
-job="cf-cli-6-linux"
+job="cf-cli-7-linux"
 pre_start="/var/vcap/all-releases/jobs-src/${release}/${job}/templates/bin/pre-start"
 copy_dst_dir="/var/vcap/data/shared-packages/"
 mkdir -p "$(dirname "${pre_start}")"
