@@ -67,7 +67,7 @@ eirinix:
     replicaCount: 1
     image:
       repository: splatform
-      tag: v0.0.0-0.ge2ed1ab
+      tag: v0.0.0-0.g04a3871
       pullPolicy: IfNotPresent
     resources: {}
     nodeSelector: {}
@@ -94,6 +94,7 @@ eirinix:
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~
+    loadBalancerIP: ~
 
     secrets:
       host-keys: var-diego-ssh-proxy-host-key
@@ -104,8 +105,6 @@ eirinix:
   imagePullSecrets: []
   nameOverride: ""
   fullnameOverride: ""
-
-  externalIPs: []
 
   rbac:
     enable: true
