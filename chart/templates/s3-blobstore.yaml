@@ -1,3 +1,4 @@
+{{- $_ := include "_config.load" $ }}
 {{- if eq .Values.features.blobstore.provider "s3" }}
 
 apiVersion: "v1"

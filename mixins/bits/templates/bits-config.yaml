@@ -1,0 +1,70 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bits
+type: Opaque
+stringData:
+  bits-config-key: |
+    logging:
+      level: debug
+    private_endpoint: "https://bits.{{ .Release.Namespace }}.svc"
+    public_endpoint: "https://127.0.0.1:{{ .Values.bits.services.nodePort }}"
+    # The registry endpoint must not include the port
+    registry_endpoint: "https://127.0.0.1"
+    cert_file: /workspace/jobs/bits-service/certs/certificate
+    key_file: /workspace/jobs/bits-service/certs/private_key
+    port: 6666
+    enable_http: true
+    http_port: 8888
+    secret:  {{ .Values.bits.secrets.BITS_SERVICE_SECRET }}
+    skip_cert_verify: true
+    max_body_size: 2M
+    signing_users:
+      - username: admin
+        password:  {{ .Values.bits.secrets.BITS_SERVICE_SIGNING_USER_PASSWORD }}
+    app_stash_config:
+      maximum_size: 512M
+      minimum_size: 64K
+    {{- if index (default (dict) .Values.bits) "blobstore_config" }}
+    buildpacks: {{ .Values.bits.blobstore_config.buildpacks | toJson }}
+    droplets: {{ .Values.bits.blobstore_config.droplets | toJson }}
+    packages: {{ .Values.bits.blobstore_config.packages | toJson }}
+    app_stash: {{ .Values.bits.blobstore_config.app_stash | toJson }}
+    {{- else }}
+    buildpacks:
+      blobstore_type: webdav
+      webdav_config: &webdav_config
+        directory_key: cc-buildpacks
+        {{- $blobstore_service := .Values.bits.blobstore.serviceName }}
+        {{- if contains "." $blobstore_service | not }}
+        {{- $blobstore_service = printf "%s.%s.svc" $blobstore_service .Release.Namespace }}
+        {{- end }}
+        private_endpoint: https://{{ $blobstore_service }}:4443
+        public_endpoint: "https://127.0.0.1:{{ .Values.bits.services.nodePort }}"
+        username: {{ .Values.bits.blobstore.userName }}
+        password: {{ .Values.bits.secrets.BLOBSTORE_PASSWORD  }}
+        # TODO: provide proper cert file here
+        ca_cert_path: /workspace/jobs/bits-service/certs/ca
+        # TODO: remove this skip, when we have propert cert file above
+        skip_cert_verify: true
+    droplets:
+      blobstore_type: webdav
+      webdav_config:
+        <<: *webdav_config
+        directory_key: cc-droplets
+    packages:
+      blobstore_type: webdav
+      webdav_config:
+        <<: *webdav_config
+        directory_key: cc-packages
+    app_stash:
+      blobstore_type: webdav
+      webdav_config:
+        <<: *webdav_config
+        directory_key: cc-resources
+    {{- end }}
+    enable_registry: true
+{{- end }}

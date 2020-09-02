@@ -330,8 +330,7 @@ properties:
     additionalProperties:
       type: string
 
-  # subchart configs
+  # mixin configs
   bits: {type: object}
   eirini: {type: object}
   eirinix: {type: object}
-  eirini-extensions: {type: object}

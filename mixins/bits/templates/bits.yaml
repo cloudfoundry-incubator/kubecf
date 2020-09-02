@@ -1,0 +1,65 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
+# Deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "bits"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: "bits"
+  template:
+    metadata:
+      labels:
+        name: "bits"
+    spec:
+      dnsPolicy: "ClusterFirst"
+      volumes:
+        - name: bits-config
+          secret:
+            secretName: "bits"
+            items:
+            - key: bits-config-key
+              path: bits-service.yml
+        - name: bits-cert
+          secret:
+            secretName: {{ .Values.bits.tls_secret_name }}
+      containers:
+      - name: bits
+        image: {{ .Values.bits.global.images.bits_service }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8888
+        {{- if and (.Values.bits.blobstore.secret.name) (.Values.bits.blobstore.secret.passwordPath) }}
+        env:
+        - name: BITS_BLOBSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: "{{ .Values.bits.blobstore.secret.passwordPath }}"
+              name: "{{ .Values.bits.blobstore.secret.name }}"
+        {{- end }}
+        volumeMounts:
+        - name: bits-config
+          mountPath: /workspace/jobs/bits-service/config
+        - name: bits-cert
+          mountPath: /workspace/jobs/bits-service/certs
+# Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "bits"
+spec:
+  ports:
+    - port: 6666
+      protocol: TCP
+      targetPort: 6666
+      nodePort: {{ .Values.bits.services.nodePort }}
+      name: bits
+  selector:
+    name: "bits"
+  type: "NodePort"
+{{- end }}

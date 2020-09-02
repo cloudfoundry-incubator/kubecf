@@ -1,0 +1,91 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
+{{- if .Values.eirini.opi.routing.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "eirini-routing"
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      name: "eirini-routing"
+  template:
+    metadata:
+      labels:
+        name: "eirini-routing"
+    spec:
+      dnsPolicy: "ClusterFirst"
+      serviceAccountName: "eirini-routing"
+      volumes:
+        - name: config-map-volume
+          configMap:
+            name: "eirini"
+            items:
+            - key: routing.yml
+              path: routing.yml
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - name: route-collector
+        {{- if .Values.eirini.opi.route_collector_image }}
+        image: {{ .Values.eirini.opi.route_collector_image }}:{{ .Values.eirini.opi.image_tag }}
+        {{- else }}
+        image: eirini/route-collector@{{ .Files.Get "assets/versions/route-collector" }}
+        {{- end }}
+        imagePullPolicy: Always
+        env:
+        - name: "NATS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "{{ .Values.eirini.opi.routing.nats.passwordPath }}"
+              name: "{{ .Values.eirini.opi.routing.nats.secretName }}"
+        volumeMounts:
+        - name: config-map-volume
+          mountPath: /etc/eirini/
+        resources:
+          requests:
+            cpu: 30m
+            memory: 45Mi
+      - name: route-pod-informer
+        {{- if .Values.eirini.opi.route_pod_informer_image }}
+        image: {{ .Values.eirini.opi.route_pod_informer_image }}:{{ .Values.eirini.opi.image_tag }}
+        {{- else }}
+        image: eirini/route-pod-informer@{{ .Files.Get "assets/versions/route-pod-informer" }}
+        {{- end }}
+        imagePullPolicy: Always
+        env:
+        - name: "NATS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "{{ .Values.eirini.opi.routing.nats.passwordPath }}"
+              name: "{{ .Values.eirini.opi.routing.nats.secretName }}"
+        volumeMounts:
+        - name: config-map-volume
+          mountPath: /etc/eirini/
+        resources:
+          requests:
+            cpu: 30m
+            memory: 45Mi
+      - name: route-statefulset-informer
+        {{- if .Values.eirini.opi.route_statefulset_informer_image }}
+        image: {{ .Values.eirini.opi.route_statefulset_informer_image }}:{{ .Values.eirini.opi.image_tag }}
+        {{- else }}
+        image: eirini/route-statefulset-informer@{{ .Files.Get "assets/versions/route-statefulset-informer" }}
+        {{- end }}
+        imagePullPolicy: Always
+        env:
+        - name: "NATS_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              key: "{{ .Values.eirini.opi.routing.nats.passwordPath }}"
+              name: "{{ .Values.eirini.opi.routing.nats.secretName }}"
+        volumeMounts:
+        - name: config-map-volume
+          mountPath: /etc/eirini/
+        resources:
+          requests:
+            cpu: 30m
+            memory: 45Mi
+{{- end }}
+{{- end }}

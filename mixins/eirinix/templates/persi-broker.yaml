@@ -1,0 +1,131 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
+{{- $component := "persi-broker" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ mustMerge (dict "name" $component) . | include "eirinix.component-name" }}
+  labels:
+    app.kubernetes.io/component: {{ $component }}
+{{ include "eirinix.labels" . | indent 4 }}
+spec:
+  replicas: {{ index .Values.eirinix $component "replicaCount" }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "eirinix.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: {{ $component }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "eirinix.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: {{ $component }}
+    spec:
+    {{- with .Values.eirinix.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ .Values.eirinix.service_account.name | quote }}
+      initContainers:
+      - name: generate-config
+        {{- with index .Values.eirinix $component "setup-image" }}
+        image: {{ printf "%s/eirinix-%s-setup:%s" .repository $component .tag | quote }}
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
+        env:
+        - name: SERVICE_CONFIG
+          value: |
+            service:
+            {{- with index .Values.eirinix $component }}
+              service_name: eirini-persi
+              service_id: eirini-persi
+              plans:
+                {{- range index . "service-plans" }}
+                - plan_id: {{ .id }}
+                  plan_name: {{ .name }}
+                  description: {{ .description }}
+                  {{- with .kube_storage_class }}
+                  kube_storage_class: {{ . }}
+                  {{- end }}
+                  free: {{ .free }}
+                  default_size: {{ .default_size }}
+                {{- end }}
+              description: {{ .description }}
+              long_description: {{ .long_description }}
+              provider_display_name: {{ .provider_display_name }}
+              documentation_url: {{ .documentation_url }}
+              support_url: {{ .support_url }}
+              display_name: {{ .display_name }}
+              icon_image: {{ .icon_image }}
+            {{- end }}
+        - name: NAMESPACE
+          value: {{ .Values.eirini.opi.namespace }}
+        volumeMounts:
+        - name: config
+          mountPath: /run/secrets/config
+        - name: auth-password
+          mountPath: /run/secrets/auth-password
+      containers:
+      - name: persi-broker
+        {{- with index .Values.eirinix $component "image" }}
+        image: {{ printf "%s/eirinix-%s:%s" .repository $component .tag | quote }}
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
+        env:
+        - name: BROKER_CONFIG_PATH
+          value: /run/secrets/config/eirini-persi-broker.yml
+        volumeMounts:
+        - name: config
+          mountPath: /run/secrets/config
+        resources:
+          {{- index .Values.eirinix $component "resources" | toYaml | nindent 10 }}
+      volumes:
+      - name: config
+        emptyDir: {}
+      - name: auth-password
+        secret:
+          secretName: {{ printf "%s-auth-password" $component }}
+    {{- with index .Values.eirinix $component }}
+      nodeSelector:
+        {{- toYaml .nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .tolerations | nindent 8 }}
+    {{- end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eirini-persi-broker
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: {{ $component }}
+{{ include "eirinix.labels" . | indent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: {{ include "eirinix.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: {{ $component }}
+  ports:
+  - protocol: TCP
+    name: http
+    port: 8999
+    targetPort: 8999
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ printf "%s-auth-password" $component }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: {{ $component }}
+{{ include "eirinix.labels" . | indent 4 }}
+type: Opaque
+stringData:
+  password: {{ index .Values.eirinix $component "secrets" "auth-password" | default (randAlphaNum 32) }}
+{{- end }}

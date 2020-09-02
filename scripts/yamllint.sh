@@ -18,7 +18,15 @@ find_args=(
     # evaluated before the files become valid YAML.
     \( -path "./chart/values.*"
        -or
+       -path "./chart/config/*"
+       -or
        -not -path "./chart/*"
+    \)
+    \( -path "./mixins/*/values.*"
+       -or
+       -path "./mixins/*/config/*"
+       -or
+       -not -path "./mixins/*"
     \)
     \( -path "./tests/config/values.*"
        -or

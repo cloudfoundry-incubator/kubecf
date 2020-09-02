@@ -1,3 +1,4 @@
+{{- $_ := include "_config.load" $ }}
 # This template creates a ConfigMap for each ops file under assets/operations.
 {{- define "kubecf.ops" }}
 ---

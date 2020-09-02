@@ -1,0 +1,21 @@
+bits:
+  blobstore:
+    serviceName: "singleton-blobstore"
+    userName: "blobstore-user"
+    secret:
+      name: "var-blobstore-admin-users-password"
+      passwordPath: "password"
+
+  global:
+    images:
+      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.20-15.1.6.2.264-24.33
+
+  services:
+    nodePort: 31666
+
+  secrets:
+    BITS_SERVICE_SECRET: secret
+    BITS_SERVICE_SIGNING_USER_PASSWORD: notpassword123
+    BLOBSTORE_PASSWORD: blobstore
+
+  tls_secret_name: bits-service-ssl

@@ -1,0 +1,62 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
+{{- if .Values.eirini.opi.events.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "eirini-events"
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      name: "eirini-events"
+  template:
+    metadata:
+      labels:
+        name: "eirini-events"
+    spec:
+      dnsPolicy: "ClusterFirst"
+      serviceAccountName: "eirini-events"
+      volumes:
+        - name: config-map-volume
+          configMap:
+            name: "eirini"
+            items:
+            - key: events.yml
+              path: events.yml
+        - name: cf-secrets
+          projected:
+            sources:
+            - secret:
+                name: "{{ .Values.eirini.opi.events.tls.capiClient.secretName }}"
+                items:
+                - key: "{{ .Values.eirini.opi.events.tls.capiClient.certPath }}"
+                  path: cc.crt
+                - key: "{{ .Values.eirini.opi.events.tls.capiClient.keyPath }}"
+                  path: cc.key
+            - secret:
+                name: "{{ .Values.eirini.opi.events.tls.capi.secretName }}"
+                items:
+                - key: "{{ .Values.eirini.opi.events.tls.capi.caPath }}"
+                  path: cc.ca
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - name: event-reporter
+        {{- if .Values.eirini.opi.event_reporter_image }}
+        image: {{ .Values.eirini.opi.event_reporter_image }}:{{ .Values.eirini.opi.event_reporter_image_tag }}
+        {{- else }}
+        image: eirini/event-reporter@{{ .Files.Get "assets/versions/event-reporter" }}
+        {{- end }}
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: config-map-volume
+          mountPath: /etc/eirini/config
+        - name: cf-secrets
+          mountPath: /etc/eirini/secrets
+        resources:
+          requests:
+            cpu: 15m
+            memory: 15Mi
+{{- end }}
+{{- end }}
