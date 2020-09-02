@@ -407,3 +407,22 @@ operations:
   #       name: my_password
   #       type: password
   inline: []
+
+eirinix:
+  persi-broker:
+    service-plans:
+    - id: default
+      name: "default"
+      description: "Existing default storage class"
+      kube_storage_class: ~
+      free: true
+      default_size: "1Gi"
+    description: Eirini persistence broker
+    long_description: Eirini persistence broker to provide Kubernete storage classes
+    provider_display_name: Eirini broker
+    documentation_url: https://github.com/SUSE/eirini-persi-broker
+    support_url: https://github.com/SUSE/eirini-persi-broker/issues
+    display_name: Eirini broker
+    icon_image: Eirini broker
+    secrets:
+      auth-password: ~ # Password is randomly generated if not given
