@@ -115,37 +115,42 @@ spec:
         {{- toYaml .tolerations | nindent 8 }}
     {{- end }}
 ---
+{{- $root := . }}
+{{- with $service := index .Values.services "ssh-proxy" }}
 apiVersion: v1
 kind: Service
 metadata:
   name: eirinix-{{ $component }}
-  namespace: {{ .Release.Namespace | quote}}
+  namespace: {{ $root.Release.Namespace | quote}}
+  {{- if $service.annotations }}
+  annotations:
+    {{- toYaml $service.annotations | nindent 4 }}
+  {{- end }}
   labels:
     app.kubernetes.io/component: {{ $component }}
-{{ include "eirinix.labels" . | indent 4 }}
+{{ include "eirinix.labels" $root | indent 4 }}
 spec:
   selector:
-    app.kubernetes.io/name: {{ include "eirinix.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ include "eirinix.name" $root }}
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
     app.kubernetes.io/component: {{ $component }}
   ports:
   - name: ssh
     protocol: TCP
     port: 2222
     targetPort: 2222
-  {{- with index .Values $component }}
-    {{- if .type }}
-    type: {{ .type | quote }}
-    {{- end}}
+  {{- if $service.type }}
+  type: {{ $service.type | quote }}
+  {{- end}}
 
-    {{- if gt (len .externalIPs) 0 }}
-    externalIPs: {{ .externalIPs | toJson }}
-    {{- end }}
-    {{- if .clusterIP }}
-    clusterIP: {{ .clusterIP | quote }}
-    {{- end }}
-    {{- if .loadBalancerIP }}
-    loadBalancerIP: {{ .loadBalancerIP | quote }}
-    {{- end }}
+  {{- if gt (len $service.externalIPs) 0 }}
+  externalIPs: {{ $service.externalIPs | toJson }}
   {{- end }}
+  {{- if $service.clusterIP }}
+  clusterIP: {{ $service.clusterIP | quote }}
+  {{- end }}
+  {{- if $service.loadBalancerIP }}
+  loadBalancerIP: {{ $service.loadBalancerIP | quote }}
+  {{- end }}
+{{- end }}
 {{- end }}

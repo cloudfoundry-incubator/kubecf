@@ -91,10 +91,6 @@ eirinix:
     nodeSelector: {}
     affinity: {}
     tolerations: []
-    type: LoadBalancer
-    externalIPs: []
-    clusterIP: ~
-    loadBalancerIP: ~
 
     secrets:
       host-keys: var-diego-ssh-proxy-host-key
