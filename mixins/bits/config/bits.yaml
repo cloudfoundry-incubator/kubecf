@@ -16,6 +16,6 @@ bits:
   secrets:
     BITS_SERVICE_SECRET: secret
     BITS_SERVICE_SIGNING_USER_PASSWORD: notpassword123
-    BLOBSTORE_PASSWORD:  blobstore
+    BLOBSTORE_PASSWORD: blobstore
 
   tls_secret_name: bits-service-ssl
