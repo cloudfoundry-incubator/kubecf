@@ -26,6 +26,16 @@
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego?/executor/disk_capacity_mb
   value: {{ .Values.sizing.diego_cell.ephemeral_disk.size }}
 
+{{- if .Values.sizing.diego_cell.ephemeral_disk.storage_class }}
+# Use a PVC for garden data
+- type: replace
+  path: /instance_groups/name=diego-cell/env?/bosh?/agent?/settings?/ephemeralAsPVC?
+  value: true
+- type: replace
+  path: /instance_groups/name=diego-cell/persistent_disk_type?
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk.storage_class | quote }}
+{{- end }}
+
 # Rep data should not be a PVC - since that could end up as a PVC
 # and if it's NFS, garden won't work
 - type: replace
