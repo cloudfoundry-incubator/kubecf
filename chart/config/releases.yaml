@@ -10,7 +10,7 @@ releases:
     url: docker.io/cfcontainerization
     stemcell:
       os: SLE_15_SP1
-      version: 27.1-7.0.0_374.gb8e8e6af
+      version: 27.4-7.0.0_374.gb8e8e6af
   app-autoscaler:
     condition: features.autoscaler.enabled
     version: 3.0.1
@@ -28,18 +28,12 @@ releases:
     version: 0.0.16
   credhub:
     condition: features.credhub.enabled
-    stemcell:
-      version: 27.2-7.0.0_374.gb8e8e6af
     version: ~
   database:
     # database (previously known as pxc) is not a BOSH release.
     image:
       repository: docker.io/cfcontainerization/pxc
       tag: 0.9.11
-  loggregator-agent:
-    stemcell:
-      version: 27.2-7.0.0_374.gb8e8e6af
-    version: ~
   pxc:
     # not needed for kubecf; functionality provided by a native kube role
     # called "database" (still pxc based so far)
@@ -47,10 +41,6 @@ releases:
   postgres:
     condition: features.autoscaler.enabled
     version: "39"
-  silk:
-    stemcell:
-      version: 27.2-7.0.0_374.gb8e8e6af
-    version: ~
   sync-integration-tests:
     # XXX SITS only makes sense when using Diego; add error check somewhere?
     condition: testing.sync_integration_tests.enabled
