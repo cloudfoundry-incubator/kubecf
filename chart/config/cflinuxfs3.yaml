@@ -2,10 +2,10 @@
 
 stacks:
   cflinuxfs3:
-    # Some dummy settings are included here, even though they will be overridden
-    # at install time with values from cf-deployment.yml.  This makes it possible
-    # to validate this config file with the values.schema.json validator.
-    description: "will be set from cf-deployment"
+    version: 0.204.0
+    stemcell:
+      os: SLE_15_SP1
+      version: 27.4-7.0.0_374.gb8e8e6af
     install_buildpacks: [will-be-set-from-cf-deployment]
 
     releases:
