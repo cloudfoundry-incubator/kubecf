@@ -34,6 +34,9 @@ releases:
     image:
       repository: docker.io/cfcontainerization/pxc
       tag: 0.9.11
+  metrics-discovery:
+    # metrics-agent add-on (new in cf-deployment 13.0) is not used by kubecf
+    condition: false
   pxc:
     # not needed for kubecf; functionality provided by a native kube role
     # called "database" (still pxc based so far)
