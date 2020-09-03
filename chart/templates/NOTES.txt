@@ -16,5 +16,22 @@
 
     to monitor continuously.
 
+    {{- if not .Values.features.eirini.enabled }}
+    {{- $cell_count := .Values.sizing.diego_cell.instances | default 1 }}
+    {{- $disk_size := .Values.sizing.diego_cell.ephemeral_disk.size }}
+    {{- $app_disk_quota := 1024 }}
+
+    {{- include "_config.lookup" (list $ "properties.api.cloud_controller_ng.cc.default_app_disk_in_mb") }}
+    {{- if $.kubecf.retval }}
+      {{- $app_disk_quota = $.kubecf.retval }}
+    {{- end }}
+
+    {{- $estimated_apps := div (mul $cell_count $disk_size) $app_disk_quota }}
+
+    You will be running [1;35m{{ $cell_count }}[0m diego cell(s), with [1;35m{{ $disk_size }}Mi[0m of disk each.
+    The default app quota is set to [1;35m{{ $app_disk_quota }}Mi[0m, which means you'll have enough disk
+    space to run about [1;35m{{ $estimated_apps }}[0m apps.
+    {{- end }}
+
     The online documentation (release notes, deployment guide) can be found at
         [1;36mhttps://kubecf.suse.dev/docs[0m

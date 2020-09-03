@@ -109,6 +109,10 @@ sizing:
     ephemeral_disk:
       # Size of the ephemeral disk used to store applications in MB
       size: 40960
+      # IMPORTANT! Only set this if you understand the consequences of using a PVC as ephemeral
+      # storage for diego cells. The storage class should be high performance, and not based on NFS.
+      # Do not set this value in production environments unless you've tested your storage class with
+      # diego cells and have found no problems.
       # The name of the storage class used for the ephemeral disk PVC.
       storage_class: ~
     instances: ~

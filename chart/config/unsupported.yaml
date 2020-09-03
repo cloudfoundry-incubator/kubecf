@@ -1,0 +1,11 @@
+# This file contains a set of values.yaml keys that have become unsupported
+# and should no longer be used.
+
+unsupported:
+  properties.diego-cell.rep.diego.executor.disk_capacity_mb: |
+    Don't use properties.diego-cell.rep.diego.executor.disk_capacity_mb.
+    Use sizing.diego_cell.ephemeral_disk.size to set the amount of disk available to the cell.
+
+  properties.diego-cell.garden.grootfs.reserved_space_for_other_jobs_in_mb: |
+    Don't use properties.diego-cell.garden.grootfs.reserved_space_for_other_jobs_in_mb.
+    Use sizing.diego_cell.ephemeral_disk.size to set the amount of disk available to the cell.

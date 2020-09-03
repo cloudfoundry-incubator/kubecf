@@ -59,7 +59,7 @@
 
     {{- range $condition, $message := $.Values.unsupported }}
       {{- if eq "true" (include "_config.condition" (list $ $condition)) }}
-        {{- fail $message }}
+        {{- fail (printf "\n\n\n\n============================\n\n%s" $message) }}
       {{- end }}
     {{- end }}
   {{- end }}
