@@ -71,6 +71,9 @@ cf-login:
 cf-operator-apply:
 	@./scripts/cf-operator-apply.sh
 
+cf-operator-delete:
+	@./scripts/cf-operator-delete.sh
+
 cf-operator-wait:
 	@./scripts/cf-operator-wait.sh
 

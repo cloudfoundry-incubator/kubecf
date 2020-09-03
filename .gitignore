@@ -8,6 +8,7 @@ password
 *.vmdk
 personal-setup
 .concourse/config.yaml
-
+.envrc
+/*values.yaml
 /output
 /tmp
