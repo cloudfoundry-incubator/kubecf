@@ -103,9 +103,9 @@ binaries:
 # Additional files we need to download; see http_file() invocation in WORKSPACE.
 external_files:
   cf_operator:
-    sha256: a1af6afd6e31f494dfad06b515439db0a32db813955c51c452a147b099d3bcf3
+    sha256: 4d2fd23ab28b765959a35555296c6909573ec557957403046492cc34792a29e5
     url: https://s3.amazonaws.com/cf-operators/release/helm-charts/cf-operator-{version}.tgz
-    version: 6.0.2%2B0.g4eb7fc9f
+    version: 6.0.4%2B0.gb44bb859
   kube_dashboard:
     sha256: f849252870818a2971dfc3c4f8a8c5f58a57606bc2b5f221d7ab693e1d1190e0
     url: https://raw.githubusercontent.com/kubernetes/dashboard/{version}/aio/deploy/recommended.yaml
