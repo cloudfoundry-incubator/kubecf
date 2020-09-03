@@ -18,6 +18,16 @@ class Hash
     end
     super
   end
+
+  def deep_merge!(other)
+    merge! other do |_key, old, new|
+      if old.respond_to? :deep_merge!
+        old.deep_merge! new
+      else
+        new
+      end
+    end
+  end
 end
 
 # deep_populate_nil_values is useful for setting the nil values found under the
@@ -32,18 +42,18 @@ end
 chart = ARGV.first
 
 # Inspect the chart to obtain the values YAML.
-values_cmd = "helm inspect values #{chart}"
-values = Open3.popen3(values_cmd) do |_, stdout, stderr, wait_thr|
-  values = YAML.safe_load(stdout.read)
-  raise stderr.read unless wait_thr.value.success?
+values_stdout, status = Open3.capture2('helm', 'inspect', 'values', chart)
+raise 'Could not read values' unless status.success?
 
-  values
-end
+values = YAML.safe_load(values_stdout)
 values['releases'] ||= {}
 
+# Process the override values file
+values.deep_merge! YAML.load_file(ENV['VALUES']) if ENV.key? 'VALUES'
+
 # Enable all tests.
-values['testing'].keys.each do |key|
-  values['testing'][key]['enabled'] = true
+values.testing.keys.each do |key|
+  values.testing[key]['enabled'] = true
 end
 
 # The output object.
@@ -57,23 +67,20 @@ output = {
 }
 
 # Process the non-BOSH releases.
-values['releases'].keys.each do |release_name|
+values.releases.keys.each do |release_name|
   # Filter out the 'defaults' key as it's not a release.
   next if release_name == 'defaults'
 
-  release = values['releases'][release_name]
+  release = values.releases[release_name]
 
   # Filter out the releases that don't specify the 'image' key. I.e. if the
   # 'image' key is not specified, it's assumed that the release will be
   # captured in the BOSH-release processing below.
   next unless release.key?('image')
 
-  image_key = release['image']
-  repository = image_key['repository']
-  repository_base = repository[0..(repository.rindex('/') - 1)]
+  repository_base = release.image.repository.rpartition('/').first
   output[:repository_bases].add?(repository_base)
-  tag = image_key['tag']
-  image = "#{repository}:#{tag}"
+  image = "#{release.image.repository}:#{release.image.tag}"
   output[:images].add?(image)
 end
 
@@ -265,7 +272,7 @@ end
 # add additional feature flags. Some flag combinations also could throw errors.
 # So far running with features either all enabled or all disabled generates
 # the complete set of used images and is nearly instantaneous.
-features = values['features'].keys
+features = values.features.keys
 permutations = [false, true].map do |v|
   features.map { |x| [x, v] }.to_h
 end
@@ -276,9 +283,9 @@ permutations.each do |permutation|
   # Create the values YAML based on the current permutation.
   values = values.clone
   permutation.keys.each do |feature|
-    values['features'][feature]['enabled'] = permutation[feature]
+    values.features[feature]['enabled'] = permutation[feature]
   end
-  deep_populate_nil_values(values['features'])
+  deep_populate_nil_values(values.features)
 
   # Render the Helm chart.
   docs = HelmRenderer.new(chart: chart, values: values)
