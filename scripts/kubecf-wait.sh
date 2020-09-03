@@ -24,7 +24,6 @@ check_qjob_ready() {
     local output='--output=jsonpath={.status.completed}'
     test true == "$(get_resource "${qjob}" "${output}")"
 }
-RETRIES=180 DELAY=10 retry check_qjob_ready dm
 RETRIES=180 DELAY=10 retry check_qjob_ready ig
 
 green "Waiting for things to exist"
