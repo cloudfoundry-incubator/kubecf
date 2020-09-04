@@ -40,20 +40,20 @@
 limits:
   memory:
     asactors:
-      '$default': 40Mi
+      '$default': 30Mi
       operator: ~
       scalingengine: ~
-      scheduler: 600Mi
+      scheduler: 800Mi
     asapi:
-      '$default': 20Mi
+      '$default': 30Mi
       golangapiserver: ~
       metricsforwarder: ~
       route_registrar: ~
     asdatabase:
-      '$default': 100Mi
-      postgres: ~
+      '$default': 30Mi
+      postgres: 300Mi
     asmetrics:
-      '$default': 20Mi
+      '$default': 30Mi
       eventgenerator: ~
       metricsserver: ~
     asnozzle:
@@ -61,36 +61,37 @@ limits:
       metricsgateway: ~
 
     api:
-      '$default': 100Mi
-      cloud_controller_ng: 1Gi
+      '$default': 550Mi
+      cloud_controller_ng: 2Gi
     cc-worker:
-      '$default': 250Mi
+      '$default': 350Mi
     credhub:
-      '$default': 10Mi
-      credhub: 600Mi
+      '$default': 15Mi
+      credhub: 750Mi
     diego-api:
-      '$default': 70Mi
+      '$default': 50Mi
     diego-cell:
       '$default': 40Mi
-      garden: 3Gi
-      rep: 600Mi
+      garden: 17Gi
+      rep: 3Gi
     doppler:
-      '$default': 300Mi
-      log-cache: 3Gi
+      '$default': 40Mi
+      doppler: 70Mi
+      log-cache: 26Gi
     log-api:
-      '$default': 60Mi
+      '$default': 100Mi
     nats:
-      '$default': 40Mi
+      '$default': 30Mi
     router:
-      '$default': 40Mi
+      '$default': 100Mi
     scheduler:
       '$default': 40Mi
-      cc_deployment_updater: 500Mi
-      cloud_controller_clock: 500Mi
+      cc_deployment_updater: 260Mi
+      cloud_controller_clock: 360Mi
     singleton-blobstore:
-      '$default': 100Mi
+      '$default': 330Mi
     tcp-router:
-      '$default': 40Mi
+      '$default': 60Mi
     uaa:
       '$default': 30Mi
-      uaa: 1Gi
+      uaa: 1100Mi
