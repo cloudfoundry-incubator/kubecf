@@ -77,7 +77,7 @@ data:
     {{- $serviceName = printf "%s.%s.svc" $serviceName .Release.Namespace }}
     {{- end }}
     loggregator_address: "{{ $serviceName }}:8082"
-    loggergator_cert_path: "/etc/eirini/secrets/doppler.crt"
+    loggregator_cert_path: "/etc/eirini/secrets/doppler.crt"
     loggregator_key_path: "/etc/eirini/secrets/doppler.key"
     loggregator_ca_path: "/etc/eirini/secrets/doppler.ca"
   events.yml: |

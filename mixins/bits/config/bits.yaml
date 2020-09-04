@@ -8,7 +8,7 @@ bits:
 
   global:
     images:
-      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.20-15.1.6.2.264-24.33
+      bits_service: registry.suse.com/cap-staging/bits-service:bits-1.0.21-15.1.6.2.298-24.56
 
   services:
     nodePort: 31666
