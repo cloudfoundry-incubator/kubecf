@@ -33,7 +33,7 @@
               - /var/vcap/jobs/log-cache/config/certs/metrics.crt
               - --key
               - /var/vcap/jobs/log-cache/config/certs/metrics.key
-              - https://localhost:6060/debug/pprof/cmdline
+              - https://localhost:6060/metrics
 
 # Add quarks properties for log-cache-gateway.
 - type: replace
@@ -60,7 +60,7 @@
               - /var/vcap/jobs/log-cache/config/certs/metrics.crt
               - --key
               - /var/vcap/jobs/log-cache/config/certs/metrics.key
-              - https://localhost:6063/debug/pprof/cmdline
+              - https://localhost:6063/metrics
 
 # Add quarks properties for log-cache-nozzle.
 - type: replace
@@ -103,7 +103,7 @@
               - /var/vcap/jobs/log-cache/config/certs/metrics.crt
               - --key
               - /var/vcap/jobs/log-cache/config/certs/metrics.key
-              - https://localhost:6065/debug/pprof/cmdline
+              - https://localhost:6065/metrics
 
 # Add quarks properties for route_registrar.
 - type: replace
