@@ -103,7 +103,7 @@ function AddCredentialsFun(){
     credential_name=$(echo "${credentials_list[$i]}" | cut -d "." -f 1 | sed "s/_/-/g" )
 
     if [ "X${credential_name}" != "X" ] && [ "X${credential_type}" != "X" ]; then
-      credential_value=$(kubectl get secret var-"${credential_name}" -n ${cp_namespace} -o yaml 2> /dev/null | grep "^  ${credential_type}:" | awk '{print $2}' | base64 --decode)
+      credential_value=$(kubectl get secret var-"${credential_name}" -n "${cp_namespace}" -o yaml 2> /dev/null | grep "^  ${credential_type}:" | awk '{print $2}' | base64 --decode)
       if [ "X${credential_value}" != "X" ]; then
         echo "  ${credentials_list[$i]}: |" >> "${minions_value_file}"
         for j in ${credential_value}; do
@@ -119,7 +119,7 @@ function AddCredentialsFun(){
     fi
   done
 
-  credential_value=$(kubectl get secret var-uaa-clients-tcp-emitter-secret -n ${cp_namespace} -o yaml 2> /dev/null | grep "^  password:" | awk '{print $2}' | base64 --decode)
+  credential_value=$(kubectl get secret var-uaa-clients-tcp-emitter-secret -n "${cp_namespace}" -o yaml 2> /dev/null | grep "^  password:" | awk '{print $2}' | base64 --decode)
   if [ "X${credential_value}" != "X" ]; then
     echo "  uaa_clients_tcp_emitter_secret: ${credential_value}" >> "${minions_value_file}"
   else
@@ -156,7 +156,7 @@ if ! hash kubectl 2>/dev/null; then
 fi
 
 #Check if kubectl connected to control plane.
-kubectl get pod -n ${cp_namespace} &> /dev/null
+kubectl get pod -n "${cp_namespace}" &> /dev/null
 isConnected=$?
 if [ "$isConnected" -ne 0 ]; then
   echo "Not find namespace ${cp_namespace}, please set kubectl connect to control plane."
@@ -173,7 +173,7 @@ fi
 
 echo "Generating value file for minions cluster ..."
 #Add system_domain
-system_domain=$(kubectl get secret var-system-domain -n ${cp_namespace} -o yaml 2> /dev/null | grep "^  value:" | awk '{print $2}' | base64 --decode)
+system_domain=$(kubectl get secret var-system-domain -n "${cp_namespace}" -o yaml 2> /dev/null | grep "^  value:" | awk '{print $2}' | base64 --decode)
 if [ "X$system_domain" == "X" ]; then
   echo "Warning: Not find system domain, please manually update it in file ${minions_value_file}."
 else
