@@ -59,13 +59,25 @@
 
     {{- range $condition, $message := $.Values.unsupported }}
       {{- if eq "true" (include "_config.condition" (list $ $condition)) }}
-        {{- fail (printf "\n\n\n\n============================\n\n%s" $message) }}
+        {{- include "_config.fail" $message }}
       {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}
 
-{{- /*
+{- /*
+==========================================================================================
+| _config.fail $message
++-----------------------------------------------------------------------------------------
+| Fails with $message but also with additional newlines and a separator upfront
+| to make it distinct from the mix of stack trace and YAML data preceeding it.
+==========================================================================================
+*/}}
+{{- define "_config.fail" }}
+  {{- fail (printf "\n\n\n\n============================\n\n%s" .) }}
+{{- end }}
+
+{- /*
 ==========================================================================================
 | _config.lookup (list $ $path)
 +-----------------------------------------------------------------------------------------

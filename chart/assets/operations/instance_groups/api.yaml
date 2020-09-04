@@ -34,10 +34,10 @@
 
 {{- range $keyLabel := .Values.ccdb.encryption.rotation.key_labels }}
 {{- if not (regexMatch "^[a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9]+$" $keyLabel) }}
-{{ fail "One or more items in ccdb.encryption.rotation.key_labels don't match the regex /^[a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9]+$/" }}
+{{- include "_config.fail" "One or more items in ccdb.encryption.rotation.key_labels don't match the regex /^[a-zA-Z]+[a-zA-Z0-9_]*[a-zA-Z0-9]+$/" }}
 {{- end }}
 {{- if gt (len $keyLabel) 240 }}
-{{ fail "One or more items in ccdb.encryption.rotation.key_labels exceed the maximum length of 240 characters" }}
+{{- include "_config.fail" "One or more items in ccdb.encryption.rotation.key_labels exceed the maximum length of 240 characters" }}
 {{- end }}
 - type: replace
   path: /variables/-
