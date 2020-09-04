@@ -54,6 +54,21 @@
   value: {{ .Values.sizing.diego_cell.ephemeral_disk.storage_class | quote }}
 {{- end }}
 
+# The loggr UDP forwarder needs some env vars specific to the container they're running in
+# The INDEX env var cannot be rendered properly as part of BPM rendering, it can only be set
+# correctly through pod reflection. Without this, the index would be 0 for any replica
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=loggr-udp-forwarder/properties?/quarks/envs?
+  value:
+  - name: IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
+  - name: INDEX
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.labels['statefulset.kubernetes.io/pod-name']
+
 # Rep data should not be a PVC - since that could end up as a PVC
 # and if it's NFS, garden won't work
 - type: replace

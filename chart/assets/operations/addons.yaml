@@ -1,13 +1,44 @@
 - type: remove
   path: /addons/name=bpm
 
+# The loggr forwarder agent needs a special env var with tags that identify the job
+# The AGENT_INDEX env var cannot be rendered properly as part of BPM rendering, it can only be set
+# correctly through pod reflection. Without this, the index would be 0 for any replica
 - type: replace
-  path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/properties/quarks?/envs?
+  path: /addons/name=forwarder_agent/jobs/name=loggr-forwarder-agent/properties?/quarks/envs
   value:
   - name: AGENT_IP
     valueFrom:
       fieldRef:
-        apiVersion: v1
         fieldPath: status.podIP
   - name: AGENT_INDEX
-    value: "0"
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.labels['statefulset.kubernetes.io/pod-name']
+  - name: AGENT_DEPLOYMENT
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.labels['quarks.cloudfoundry.org/deployment-name']
+  - name: AGENT_IG_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.labels['quarks.cloudfoundry.org/instance-group-name']
+  - name: AGENT_TAGS
+    value: "deployment:$(AGENT_DEPLOYMENT),job:$(AGENT_IG_NAME)-loggr-forwarder-agent,index:$(AGENT_INDEX),ip:$(AGENT_IP)"
+
+# The loggregator agent needs env vars to identify the job
+# The AGENT_INDEX env var cannot be rendered properly as part of BPM rendering, it can only be set
+# correctly through pod reflection. Without this, the index would be 0 for any replica
+- type: replace
+  path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/properties?/quarks/envs
+  value:
+  - name: AGENT_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
+  - name: AGENT_INDEX
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.labels['statefulset.kubernetes.io/pod-name']
+  - name: AGENT_TAGS
+    value: "deployment:$(AGENT_DEPLOYMENT),job:$(AGENT_JOB),index:$(AGENT_INDEX),ip:$(AGENT_IP)"
