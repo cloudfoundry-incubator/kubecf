@@ -67,11 +67,9 @@ output = {
 }
 
 # Process the non-BOSH releases.
-values.releases.keys.each do |release_name|
-  # Filter out the 'defaults' key as it's not a release.
-  next if release_name == 'defaults'
-
-  release = values.releases[release_name]
+values.releases.each_pair do |release_name, release|
+  # Filter out the '$defaults' key as it's not a release.
+  next if release_name == '$defaults'
 
   # Filter out the releases that don't specify the 'image' key. I.e. if the
   # 'image' key is not specified, it's assumed that the release will be
@@ -79,9 +77,8 @@ values.releases.keys.each do |release_name|
   next unless release.key?('image')
 
   repository_base = release.image.repository.rpartition('/').first
-  output[:repository_bases].add?(repository_base)
-  image = "#{release.image.repository}:#{release.image.tag}"
-  output[:images].add?(image)
+  output.repository_bases.add repository_base
+  output.images.add "#{release.image.repository}:#{release.image.tag}"
 end
 
 # HelmRenderer renders the helm chart
