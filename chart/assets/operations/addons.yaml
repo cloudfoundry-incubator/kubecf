@@ -3,7 +3,7 @@
 
 # The loggr forwarder agent needs a special env var with tags that identify the job
 - type: replace
-  path: /addons/name=forwarder_agent/jobs/name=loggr-forwarder-agent/properties?/quarks/envs?
+  path: /addons/name=forwarder_agent/jobs/name=loggr-forwarder-agent/properties?/quarks/envs
   value:
   - name: AGENT_IP
     valueFrom:
@@ -26,7 +26,7 @@
 
 # The loggregator agent needs env vars to identify the job
 - type: replace
-  path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/properties?/quarks/envs?
+  path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/properties?/quarks/envs
   value:
   - name: AGENT_IP
     valueFrom:
