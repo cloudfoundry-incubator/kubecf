@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset
 
-target="/var/vcap/all-releases/jobs-src/garden-runc/garden/templates/bin/pre-start"
+target="/var/vcap/all-releases/jobs-src/garden-runc/garden/templates/bin/bpm-pre-start.erb"
 sentinel="${target}.patch_sentinel"
 if [[ -f "${sentinel}" ]]; then
   if sha256sum --check "${sentinel}" ; then
@@ -12,17 +12,15 @@ if [[ -f "${sentinel}" ]]; then
   echo "Sentinel mismatch, re-patching"
 fi
 
+# Patch the pre-start script to setup /var/vcap/data
 patch --verbose "${target}" <<'EOT'
---- jobs/garden/templates/bin/pre-start
-+++ jobs/garden/templates/bin/pre-start
-@@ -1,7 +1,3 @@
- #!/bin/bash
-
- set -e
--
--source /var/vcap/packages/greenskeeper/bin/system-preparation
--
--permit_device_control
+2a3,4
+> find /var/vcap/data/grootfs/ -iname '*' -delete
+> 
+20a23,25
+> 
+> # Ensure that runc and container processes can stat everything
+> chmod ugo+rx /var/vcap/data/grootfs
 EOT
 
 sha256sum "${target}" > "${sentinel}"
