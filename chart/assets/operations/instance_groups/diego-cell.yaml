@@ -1,10 +1,3 @@
-{{- if .Values.features.multiple_cluster_mode.control_plane.enabled }}
-# To deploy the control plane
-- type: remove
-  path: /instance_groups/name=diego-cell
-
-{{- else }}
-
 {{- if not .Values.features.eirini.enabled }}
 
 - type: replace
@@ -215,33 +208,8 @@
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties?/garden?/disable_swap_limit?
   value: true
 
-# To support multi-clusters and deploy a cell
-{{- if not .Values.features.multiple_cluster_mode.control_plane.enabled  }}
-{{- if .Values.features.multiple_cluster_mode.cell_segment.enabled }}
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/consumes?
-  value:
-    nats: {from: nats}
-    nats-tls: {from: nats-tls}
-    routing_api: {from: routing_api}
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=loggr-udp-forwarder/consumes?
-  value:
-    cloud_controller: {from: cloud_controller}
-- type: replace
-  path: /addons/name=prom_scraper/jobs/name=prom_scraper/consumes?
-  value:
-    loggregator: {from: loggregator}
-- type: replace
-  path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/consumes?
-  value:
-    doppler: {from: doppler}
-{{- end }}
-{{- end }}
-
 {{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-cell_*" }}
 {{ $bytes | toString }}
 {{- end }}
 
-{{- end }}
 {{- end }}

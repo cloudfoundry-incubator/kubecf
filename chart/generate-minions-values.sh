@@ -3,6 +3,7 @@
 scriptname=$(basename "${0}")
 minions_value_file="minions-values.yaml"
 placement_tags='minions-1'
+cp_namespace='kubecf'
 #
 # Usage statement
 # This script generates a helm value file for kubecf worker clusters
@@ -15,6 +16,8 @@ usage() {
     echo "              The output value file name for minions cluster, default is minions-values.yaml"
     echo "   -t"
     echo "              The placement tag for minions cluster, default is minions-1"
+    echo "   -n"
+    echo "              The namespace of KubeCF control plane, default is kubecf"
     echo
     echo "   -h --help  Output this help."
 }
@@ -33,6 +36,10 @@ case $key in
     ;;
     -t)
     placement_tags=$1
+    shift
+    ;;
+    -n)
+    cp_namespace=$1
     shift
     ;;
     -h|--help)
@@ -96,7 +103,7 @@ function AddCredentialsFun(){
     credential_name=$(echo "${credentials_list[$i]}" | cut -d "." -f 1 | sed "s/_/-/g" )
 
     if [ "X${credential_name}" != "X" ] && [ "X${credential_type}" != "X" ]; then
-      credential_value=$(kubectl get secret var-"${credential_name}" -n kubecf -o yaml 2> /dev/null | grep "^  ${credential_type}:" | awk '{print $2}' | base64 --decode)
+      credential_value=$(kubectl get secret var-"${credential_name}" -n "${cp_namespace}" -o yaml 2> /dev/null | grep "^  ${credential_type}:" | awk '{print $2}' | base64 --decode)
       if [ "X${credential_value}" != "X" ]; then
         echo "  ${credentials_list[$i]}: |" >> "${minions_value_file}"
         for j in ${credential_value}; do
@@ -112,7 +119,7 @@ function AddCredentialsFun(){
     fi
   done
 
-  credential_value=$(kubectl get secret var-uaa-clients-tcp-emitter-secret -n kubecf -o yaml 2> /dev/null | grep "^  password:" | awk '{print $2}' | base64 --decode)
+  credential_value=$(kubectl get secret var-uaa-clients-tcp-emitter-secret -n "${cp_namespace}" -o yaml 2> /dev/null | grep "^  password:" | awk '{print $2}' | base64 --decode)
   if [ "X${credential_value}" != "X" ]; then
     echo "  uaa_clients_tcp_emitter_secret: ${credential_value}" >> "${minions_value_file}"
   else
@@ -120,69 +127,12 @@ function AddCredentialsFun(){
   fi
 }
 
-function AddInlineFun(){
-  cat >>"${minions_value_file}" <<EOF
-operations:
-  inline:
-  # To deploy a cell
-  - type: remove
-    path: /instance_groups/name=adapter
-  - type: remove
-    path: /instance_groups/name=api
-  - type: remove
-    path: /instance_groups/name=auctioneer
-  - type: remove
-    path: /instance_groups/name=cc-worker
-  - type: remove
-    path: /instance_groups/name=diego-api
-  - type: remove
-    path: /instance_groups/name=doppler
-  - type: remove
-    path: /instance_groups/name=log-api
-  - type: remove
-    path: /instance_groups/name=log-cache
-  - type: remove
-    path: /instance_groups/name=nats
-  - type: remove
-    path: /instance_groups/name=router
-  - type: remove
-    path: /instance_groups/name=scheduler
-  - type: remove
-    path: /instance_groups/name=singleton-blobstore
-  - type: remove
-    path: /instance_groups/name=uaa
-  - type: remove
-    path: /instance_groups/name=rotate-cc-database-key
-  - type: remove
-    path: /instance_groups/name=smoke-tests?
-  - type: remove
-    path: /instance_groups/name=acceptance-tests?
-  - type: remove
-    path: /instance_groups/name=sync-integration-tests?
-  - type: replace
-    path: /instance_groups/name=diego-cell/jobs/name=route_emitter/consumes?
-    value:
-      nats: {from: nats}
-      nats-tls: {from: nats-tls}
-      routing_api: {from: routing_api}
-  - type: replace
-    path: /instance_groups/name=diego-cell/jobs/name=loggr-udp-forwarder/consumes?
-    value:
-      cloud_controller: {from: cloud_controller}
-  - type: replace
-    path: /addons/name=prom_scraper/jobs/name=prom_scraper/consumes?
-    value:
-      loggregator: {from: loggregator}
-  - type: replace
-    path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/consumes?
-    value:
-      doppler: {from: doppler}
-EOF
-}
-
 function AddFeaturesFun(){
    cat >>"${minions_value_file}" <<EOF 
 features:
+  multiple_cluster_mode:
+    cell_segment:
+      enabled: true
   embedded_database:
     enabled: false
   routing_api:
@@ -206,10 +156,10 @@ if ! hash kubectl 2>/dev/null; then
 fi
 
 #Check if kubectl connected to control plane.
-kubectl get pod -n kubecf &> /dev/null
+kubectl get pod -n "${cp_namespace}" &> /dev/null
 isConnected=$?
 if [ "$isConnected" -ne 0 ]; then
-  echo "Not find namespace kubecf, please set kubectl connect to control plane."
+  echo "Not find namespace ${cp_namespace}, please set kubectl connect to control plane."
   exit 1
 fi
 
@@ -223,7 +173,7 @@ fi
 
 echo "Generating value file for minions cluster ..."
 #Add system_domain
-system_domain=$(kubectl get secret var-system-domain -n kubecf -o yaml 2> /dev/null | grep "^  value:" | awk '{print $2}' | base64 --decode)
+system_domain=$(kubectl get secret var-system-domain -n "${cp_namespace}" -o yaml 2> /dev/null | grep "^  value:" | awk '{print $2}' | base64 --decode)
 if [ "X$system_domain" == "X" ]; then
   echo "Warning: Not find system domain, please manually update it in file ${minions_value_file}."
 else
@@ -236,8 +186,6 @@ echo "add Properties ..."
 AddPropertiesFun
 echo "add Credentials ..."
 AddCredentialsFun
-echo "add Inline ..."
-AddInlineFun
 echo "add Features ..."
 AddFeaturesFun
 

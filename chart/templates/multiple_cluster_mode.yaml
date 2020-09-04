@@ -1,11 +1,10 @@
 {{- $_ := include "_config.load" $ }}
-{{- if not .Values.features.multiple_cluster_mode.control_plane.enabled  }}
-{{- if .Values.features.multiple_cluster_mode.cell_segment.enabled }}
+{{- if or .Values.features.multiple_cluster_mode.control_plane.enabled .Values.features.multiple_cluster_mode.cell_segment.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: user-provided-inline-operations
+  name: multiple-cluster-mode-operations
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app.kubernetes.io/component: operations
@@ -16,40 +15,77 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 data:
   ops: |-
-    - path: /instance_groups/name=adapter
-      type: remove
-    - path: /instance_groups/name=api
-      type: remove
-    - path: /instance_groups/name=auctioneer
-      type: remove
-    - path: /instance_groups/name=cc-worker
-      type: remove
-    - path: /instance_groups/name=diego-api
-      type: remove
-    - path: /instance_groups/name=doppler
-      type: remove
-    - path: /instance_groups/name=log-api
-      type: remove
-    - path: /instance_groups/name=log-cache
-      type: remove
-    - path: /instance_groups/name=nats
-      type: remove
-    - path: /instance_groups/name=router
-      type: remove
-    - path: /instance_groups/name=routing-api
-      type: remove
-    - path: /instance_groups/name=scheduler
-      type: remove
-    - path: /instance_groups/name=singleton-blobstore
-      type: remove
-    - path: /instance_groups/name=tcp-router
-      type: remove
-    - path: /instance_groups/name=uaa
-      type: remove
-    - path: /instance_groups/name=rotate-cc-database-key
-      type: remove
-    - path: /instance_groups/name=smoke-tests
-      type: remove    
+{{- if .Values.features.multiple_cluster_mode.control_plane.enabled }}
+    # To deploy the control plane
+    - type: remove
+      path: /instance_groups/name=diego-cell
+{{- end }}{{/* if .Values.features.multiple_cluster_mode.control_plane.enabled */}}
+{{- if .Values.features.multiple_cluster_mode.cell_segment.enabled }}
+    # To deploy a cell
+    - type: remove
+      path: /instance_groups/name=api
+    - type: remove
+      path: /instance_groups/name=auctioneer
+    - type: remove
+      path: /instance_groups/name=cc-worker
+    - type: remove
+      path: /instance_groups/name=diego-api
+    - type: remove
+      path: /instance_groups/name=doppler
+    - type: remove
+      path: /instance_groups/name=log-api
+    - type: remove
+      path: /instance_groups/name=log-cache
+    - type: remove
+      path: /instance_groups/name=nats
+    - type: remove
+      path: /instance_groups/name=router
+    - type: remove
+      path: /instance_groups/name=scheduler
+    - type: remove
+      path: /instance_groups/name=singleton-blobstore
+    - type: remove
+      path: /instance_groups/name=uaa
+    - type: remove
+      path: /instance_groups/name=rotate-cc-database-key
+    - type: remove
+      path: /instance_groups/name=smoke-tests?
+    - type: remove
+      path: /instance_groups/name=acceptance-tests?
+    - type: remove
+      path: /instance_groups/name=sync-integration-tests?
+    - type: remove
+      path: /variables/name=silk_controller?
+    - type: remove
+      path: /instance_groups/name=diego-cell/jobs/name=bosh-dns-adapter?
+    - type: replace
+      path: /instance_groups/name=diego-cell/jobs/name=route_emitter/consumes?
+      value:
+        nats: {from: nats}
+        nats-tls: {from: nats-tls}
+{{- if .Values.features.routing_api.enabled }}
+        routing_api: {from: routing_api}
+{{- end }}{{/* if .Values.features.routing_api.enabled */}}
+    - type: replace
+      path: /instance_groups/name=diego-cell/jobs/name=loggr-udp-forwarder/consumes?
+      value:
+        cloud_controller: {from: cloud_controller}
+    - type: replace
+      path: /instance_groups/name=diego-cell/jobs/name=garden-cni/consumes?
+      value:
+        cloud_controller_container_networking_info: {from: cloud_controller_container_networking_info}
+    - type: replace
+      path: /instance_groups/name=diego-cell/jobs/name=vxlan-policy-agent/consumes?
+      value:
+        cf_network: {from: cf_network}
+    - type: replace
+      path: /addons/name=prom_scraper/jobs/name=prom_scraper/consumes?
+      value:
+        loggregator: {from: loggregator}
+    - type: replace
+      path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/consumes?
+      value:
+        doppler: {from: doppler}
 ---
 apiVersion: v1
 kind: Secret
@@ -176,8 +212,6 @@ metadata:
 spec:
   clusterIP: None
   type: ClusterIP
-
-
 ---
 apiVersion: v1
 kind: Endpoints
@@ -238,5 +272,77 @@ subsets:
   {{- range .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.addresses }}
     - ip: {{ .ip }}
   {{- end }}
-{{- end }}
-{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.control_plane_workers.uaa.name }}
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.control_plane_workers.uaa.name }}
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.control_plane_workers.uaa.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.control_plane_workers.diego_api.name }}
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.control_plane_workers.diego_api.name }}
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.control_plane_workers.diego_api.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.control_plane_workers.api.name }} 
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.control_plane_workers.api.name }} 
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.control_plane_workers.api.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.control_plane_workers.singleton_blobstore.name }} 
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.control_plane_workers.singleton_blobstore.name }}
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.control_plane_workers.singleton_blobstore.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+{{- end }}{{/* if .Values.features.multiple_cluster_mode.cell_segment.enabled */}}
+{{- end }}{{/* if or .Values.features.multiple_cluster_mode.control_plane.enabled .Values.features.multiple_cluster_mode.cell_segment.enabled */}}
