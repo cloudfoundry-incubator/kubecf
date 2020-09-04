@@ -8,11 +8,25 @@ require 'yaml'
 
 # Make Hash act like OpenStruct for key lookups
 class Hash
+  def respond_to_missing?(symbol, _include_all)
+    [symbol, symbol.to_s].any? { |key| key? key }
+  end
+
   def method_missing(symbol, *args)
     [symbol, symbol.to_s].each do |key|
-        return self[key] if self.key? key
+      return self[key] if key? key
     end
-    super(symbol, *args)
+    super
+  end
+
+  def deep_merge!(other)
+    merge! other do |_key, old, new|
+      if old.respond_to? :deep_merge!
+        old.deep_merge! new
+      else
+        new
+      end
+    end
   end
 end
 
@@ -28,18 +42,18 @@ end
 chart = ARGV.first
 
 # Inspect the chart to obtain the values YAML.
-values_cmd = "helm inspect values #{chart}"
-values = Open3.popen3(values_cmd) do |_, stdout, stderr, wait_thr|
-  values = YAML.safe_load(stdout.read)
-  raise stderr.read unless wait_thr.value.success?
+values_stdout, status = Open3.capture2('helm', 'inspect', 'values', chart)
+raise 'Could not read values' unless status.success?
 
-  values
-end
+values = YAML.safe_load(values_stdout)
 values['releases'] ||= {}
 
+# Process the override values file
+values.deep_merge! YAML.load_file(ENV['VALUES']) if ENV.key? 'VALUES'
+
 # Enable all tests.
-values['testing'].keys.each do |key|
-  values['testing'][key]['enabled'] = true
+values.testing.keys.each do |key|
+  values.testing[key]['enabled'] = true
 end
 
 # The output object.
@@ -53,23 +67,20 @@ output = {
 }
 
 # Process the non-BOSH releases.
-values['releases'].keys.each do |release_name|
+values.releases.keys.each do |release_name|
   # Filter out the 'defaults' key as it's not a release.
   next if release_name == 'defaults'
 
-  release = values['releases'][release_name]
+  release = values.releases[release_name]
 
   # Filter out the releases that don't specify the 'image' key. I.e. if the
   # 'image' key is not specified, it's assumed that the release will be
   # captured in the BOSH-release processing below.
   next unless release.key?('image')
 
-  image_key = release['image']
-  repository = image_key['repository']
-  repository_base = repository[0..(repository.rindex('/') - 1)]
+  repository_base = release.image.repository.rpartition('/').first
   output[:repository_bases].add?(repository_base)
-  tag = image_key['tag']
-  image = "#{repository}:#{tag}"
+  image = "#{release.image.repository}:#{release.image.tag}"
   output[:images].add?(image)
 end
 
@@ -102,10 +113,11 @@ class HelmRenderer
 
   # Find a resource from the documents
   def find(kind: nil, name: nil)
-    fail "No documents" if documents.empty?
+    raise 'No documents' if documents.empty?
+
     documents.find do |doc|
-      (kind.nil? || doc.kind.downcase == kind.to_s.downcase) &&
-      (name.nil? || doc.metadata.name == name.to_s)
+      (kind.nil? || doc.kind.casecmp?(kind.to_s)) &&
+        (name.nil? || doc.metadata.name == name.to_s)
     end
   end
 end
@@ -148,17 +160,19 @@ class BOSHDeployment < Resource
 
   def interpolated
     return @interpolated unless @interpolated.nil?
+
     result = nil
     Tempfile.open(['ops-', '.yaml']) do |ops_file|
       doc.spec.ops.each do |op|
         ops_doc = resources.find(kind: op.type, name: op.name)
         contents = ops_doc.data.ops
-        if contents.match? /(?:^|\n)---/
+        if contents.match?(/(?:^|\n)---/)
           raise <<~ERROR
             The ops-file #{op.name} should not have multiple YAML documents:
             #{contents}
           ERROR
         end
+
         ops_file.puts contents
       end
 
@@ -186,7 +200,7 @@ class BOSHDeployment < Resource
   end
 
   def output
-    @output ||= Hash.new.tap do |result|
+    @output ||= {}.tap do |result|
       result[:images] = Set.new
       result[:stemcells] = Set.new
       result[:repository_bases] = Set.new
@@ -209,17 +223,22 @@ class PodSpec
   def initialize(doc:)
     @doc = doc
   end
+
   attr_reader :doc
+
   def containers
-    %w(initContainers containers ephemeralContainers).flat_map { |k| doc.fetch(k, []) }
+    %w[initContainers containers ephemeralContainers].flat_map do |k|
+      doc.fetch(k, [])
+    end
   end
+
   def images
     @images ||= containers.flat_map(&:image)
   end
 end
 
 # Standard classes
-%w(DaemonSet Deployment Job).each do |class_name|
+%w[DaemonSet Deployment Job].each do |class_name|
   Object.const_set(class_name, Class.new(Resource) do
     def images
       @images ||= PodSpec.new(doc: doc.spec.template.spec).images
@@ -228,7 +247,7 @@ end
 end
 
 # Quarks classes
-%w(QuarksJob QuarksStatefulSet).each do |class_name|
+%w[QuarksJob QuarksStatefulSet].each do |class_name|
   Object.const_set(class_name, Class.new(Resource) do
     def images
       @images ||= PodSpec.new(doc: doc.spec.template.spec.template.spec).images
@@ -240,9 +259,10 @@ end
 # https://github.com/cloudfoundry-incubator/eirini-release/blob/d87444b10e17/helm/eirini/templates/configmap.yaml#L20-L34
 class ConfigMap < Resource
   def images
-    return [] unless doc.data.has_key? 'opi.yml'
+    return [] unless doc.data.key? 'opi.yml'
+
     opi_config = YAML.safe_load doc.data['opi.yml']
-    %w(downloader_image executor_image uploader_image).map do |key|
+    %w[downloader_image executor_image uploader_image].map do |key|
       opi_config.opi.fetch(key, nil)
     end.compact
   end
@@ -252,8 +272,10 @@ end
 # add additional feature flags. Some flag combinations also could throw errors.
 # So far running with features either all enabled or all disabled generates
 # the complete set of used images and is nearly instantaneous.
-features = values['features'].keys
-permutations = [ features.map{ |x| [x, false] }.to_h, features.map{ |x| [x, true] }.to_h ]
+features = values.features.keys
+permutations = [false, true].map do |v|
+  features.map { |x| [x, v] }.to_h
+end
 
 # Iterate over all permutations, rendering the chart to obtain all possible
 # images.
@@ -261,20 +283,22 @@ permutations.each do |permutation|
   # Create the values YAML based on the current permutation.
   values = values.clone
   permutation.keys.each do |feature|
-    values['features'][feature]['enabled'] = permutation[feature]
+    values.features[feature]['enabled'] = permutation[feature]
   end
-  deep_populate_nil_values(values['features'])
+  deep_populate_nil_values(values.features)
 
   # Render the Helm chart.
   docs = HelmRenderer.new(chart: chart, values: values)
   # Sanity check: we should have at least _one_ BDPL
-  fail "Could not find BDPL" if docs.find(kind: :BOSHDeployment).nil?
+  raise 'Could not find BDPL' if docs.find(kind: :BOSHDeployment).nil?
 
   # Iterate through all objects and get images from them if we know how
   docs.documents.each do |doc|
     next unless Object.constants.include? doc.kind.to_sym
+
     clazz = Object.const_get(doc.kind)
     next unless clazz.ancestors.include? Resource
+
     obj = clazz.new(resources: docs, doc: doc)
     output.keys.each do |key|
       output[key].merge obj.output[key]
