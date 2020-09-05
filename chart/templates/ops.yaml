@@ -33,15 +33,11 @@ data:
 {{- end }}
 {{- end }}
 
-{{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
+{{- range $path, $_ := .Files.Glob "assets/operations/instance_groups/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
 
-{{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
-{{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
-{{- end }}
-
-{{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
+{{- range $path, $_ := .Files.Glob "assets/operations/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
 

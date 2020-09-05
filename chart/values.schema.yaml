@@ -279,6 +279,19 @@ properties:
           properties:
             size: {type: string}
           additionalProperties: false
+        tolerations:
+          # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#toleration-v1-core
+          type: array
+          items:
+            type: object
+            properties:
+              effect: {"$ref": "#/definitions/string_or_null"}
+              key: {"$ref": "#/definitions/string_or_null"}
+              operator: {"$ref": "#/definitions/string_or_null"}
+              tolerationSeconds:
+                anyOf: [{type: integer}, {type: 'null'}]
+              value: {"$ref": "#/definitions/string_or_null"}
+            additionalProperties: false
       additionalProperties: false
 
   stacks:

@@ -31,11 +31,15 @@ spec:
   vars: []
 {{- end }}
   ops:
+
+# Job moving operations
 {{- range $path, $_ := .Files.Glob "assets/operations/job_moving/*" }}
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}
+
 {{- if eq .Values.features.blobstore.provider "s3" }}
+# S3 blobstore operations
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/use-external-blobstore.yml") }}
     type: configmap
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/use-s3-blobstore.yml") }}
@@ -45,29 +49,38 @@ spec:
     type: configmap
 {{- end }}
 {{- end }}
+
+# Instance group operations
 {{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
   - name: {{ include "kubecf.ops-name" (dict "Path" $path) }}
     type: configmap
 {{- end }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
+
+# General operations
+{{- /* We want to have specific order here, hence the extra work */}}
+{{- $ops := list }}
+{{- /* `.Files.Glob` results can't be piped to `keys` for some reason */}}
+{{- range $path, $_ := .Files.Glob "assets/operations/*" }}
+  {{- $ops = append $ops $path }}
+{{- end }}
+{{- $ops = sortAlpha $ops }}
+{{- /* Put sizing.yaml and azs.yaml at the start, then the rest */}}
+{{- $ops = prepend $ops "assets/operations/sizing.yaml" }}
+{{- $ops = prepend $ops "assets/operations/azs.yaml" }}
+{{- range $path := uniq $ops }}
   - name: {{ include "kubecf.ops-name" (dict "Path" $path) }}
     type: configmap
 {{- end }}
-  - name: {{ include "kubecf.ops-name" (dict "Path" "assets/operations/sizing.yaml") }}
-    type: configmap
-  - name: {{ include "kubecf.ops-name" (dict "Path" "assets/operations/azs.yaml") }}
-    type: configmap
-{{- range $path, $bytes := .Files.Glob "assets/operations/*" }}
-  - name: {{ include "kubecf.ops-name" (dict "Path" $path) }}
-    type: configmap
-{{- end }}
-{{- range $_, $ops := .Values.operations.custom }}
-  - name: {{ $ops | quote }}
-    type: configmap
-{{- end }}
+
 # To support multi-clusters
 {{- if or .Values.features.multiple_cluster_mode.control_plane.enabled .Values.features.multiple_cluster_mode.cell_segment.enabled }}
   - name: multiple-cluster-mode-operations
+    type: configmap
+{{- end }}
+
+# Custom operations
+{{- range $_, $ops := .Values.operations.custom }}
+  - name: {{ $ops | quote }}
     type: configmap
 {{- end }}
 {{- if gt (len .Values.operations.inline) 0 }}
