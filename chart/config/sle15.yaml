@@ -32,6 +32,6 @@ stacks:
       suse-php-buildpack:
         version: "4.4.18.1"
       suse-nginx-buildpack:
-        version: "1.1.7.1"
+        version: "1.1.15.1"
       suse-binary-buildpack:
         version: "1.0.36.1"
