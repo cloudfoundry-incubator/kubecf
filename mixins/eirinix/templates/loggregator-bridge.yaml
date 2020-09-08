@@ -46,6 +46,14 @@ spec:
             value: {{ .Values.eirini.opi.namespace }}
           - name: LOGGREGATOR_ENDPOINT
             value: {{ index .Values.eirinix "loggregator-bridge" "endpoint" }}
+          - name: OPERATOR_SERVICE_NAME
+            value: eirini-{{ $component }}
+          - name: OPERATOR_WEBHOOK_NAMESPACE
+            value: {{ .Release.Namespace | quote }}
+          - name: OPERATOR_WEBHOOK_HOST
+            value: "0.0.0.0"
+          - name: OPERATOR_WEBHOOK_PORT
+            value: "8443"
           volumeMounts:
           - name: loggregator-ca
             mountPath: /run/secrets/loggregator-ca
@@ -78,4 +86,21 @@ spec:
       tolerations:
         {{- toYaml .tolerations | nindent 8 }}
     {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eirinix-{{ $component }}
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: {{ include "eirinix.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: {{ $component }}
+  ports:
+  - protocol: TCP
+    name: https
+    port: 443
+    targetPort: 8443
 {{- end }}
