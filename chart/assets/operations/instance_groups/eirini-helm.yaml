@@ -6,7 +6,7 @@
   {{- $ok := len $.Values.install_stacks | eq 1 }}
   {{- $ok = first $.Values.install_stacks | eq $eirini_stack | and $ok }}
   {{- if not $ok }}
-    {{ fail (printf "Eirini can only be enabled with \"install_stacks=[%s]\"" $eirini_stack) }}
+    {{- include "_config.fail" (printf "Eirini can only be enabled with \"install_stacks=[%s]\"" $eirini_stack) }}
   {{- end }}
 
 - type: replace

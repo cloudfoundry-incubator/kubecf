@@ -31,7 +31,7 @@
   {{- $cc_stacks := $.kubecf.retval }}
 
   {{- if ne (len $cc_stacks) 1 }}
-    {{- fail "cf-deployment defines more than one stack (or none)" }}
+    {{- include "_config.fail" "cf-deployment defines more than one stack (or none)" }}
   {{- end }}
   {{- $cc_stack := index $cc_stacks 0 }}
 
@@ -39,7 +39,7 @@
   {{- $_ := include "_config.lookup" (list $ "stacks" $cc_stack.name) }}
   {{- $stack := $.kubecf.retval }}
   {{- if not $stack }}
-    {{- fail (printf "cf-deployment stack %q not configured in kubecf" $cc_stack.name) }}
+    {{- include "_config.fail" (printf "cf-deployment stack %q not configured in kubecf" $cc_stack.name) }}
   {{- end }}
 
   {{- /* *** Copy stack "description" from manifest *** */}}
@@ -122,15 +122,15 @@
   {{- /* *** Make sure all requested stacks and their buildpacks are defined *** */}}
   {{- range $stack_name := $.Values.install_stacks }}
     {{- if not (include "_config.lookup" (list $ "stacks" $stack_name)) }}
-      {{- fail (printf "Stack %s is not defined" $stack_name) }}
+      {{- include "_config.fail" (printf "Stack %s is not defined" $stack_name) }}
     {{- end }}
     {{- $stack := $.kubecf.retval }}
     {{- if not (include "_config.lookup" (list $ "releases" $stack_name)) }}
-      {{- fail (printf "No rootfs release found for stack %s" $stack_name) }}
+      {{- include "_config.fail" (printf "No rootfs release found for stack %s" $stack_name) }}
     {{- end }}
     {{- range $buildpack_name := $stack.install_buildpacks }}
       {{- if not (include "_config.lookup" (list $ "stacks" $stack_name "buildpacks" $buildpack_name)) }}
-        {{- fail (printf "No release found for buildpack %s (used by stack %s)" $buildpack_name $stack_name) }}
+        {{- include "_config.fail" (printf "No release found for buildpack %s (used by stack %s)" $buildpack_name $stack_name) }}
       {{- end }}
     {{- end }}
   {{- end }}
