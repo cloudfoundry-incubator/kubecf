@@ -3,7 +3,7 @@ eirinix:
     replicaCount: 1
     image:
       repository: splatform
-      tag: v0.0.0-0.gfd70cac
+      tag: v0.0.0-0.g2c55fd6
       pullPolicy: IfNotPresent
     resources: {}
     nodeSelector: {}
@@ -19,7 +19,7 @@ eirinix:
     replicaCount: 1
     image:
       repository: splatform
-      tag: v0.0.0-67.ge68b3d3
+      tag: v0.0.0-73.g8201eba
       pullPolicy: IfNotPresent
     resources: {}
     nodeSelector: {}
@@ -30,11 +30,11 @@ eirinix:
     replicaCount: 1
     image:
       repository: splatform
-      tag: v0.0.0-g5bb88d3
+      tag: v0.0.0-g0c241e7
       pullPolicy: IfNotPresent
     setup-image:
       repository: splatform
-      tag: v0.0.0-gf340692
+      tag: v0.0.0-g9d08cc7
       pullPolicy: IfNotPresent
     resources: {}
     nodeSelector: {}
@@ -63,7 +63,7 @@ eirinix:
     replicaCount: 1
     image:
       repository: splatform
-      tag: v0.0.0-0.g04a3871
+      tag: v0.0.0-0.g09b53c0
       pullPolicy: IfNotPresent
     resources: {}
     nodeSelector: {}
@@ -77,11 +77,11 @@ eirinix:
     replicaCount: 1
     image:
       repository: splatform
-      tag: v0.0.0-0.ge2ed1ab
+      tag: v0.0.0-0.g09b53c0
       pullPolicy: IfNotPresent
     setup-image:
       repository: splatform
-      tag: v0.0.0-gf340692
+      tag: v0.0.0-g9d08cc7
       pullPolicy: IfNotPresent
     resources: {}
     nodeSelector: {}
