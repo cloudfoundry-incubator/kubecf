@@ -38,7 +38,7 @@
     {{- $_ := unset $ig "$default" }}
     {{- /* Iterate the jobs */}}
     {{- range $jobname, $jobvalue := $ig }}
-      {{- if index $.Values.jobs $igname $jobname }}
+      {{- if index $.Values.jobs $igname $jobname "condition" }}
         {{- /* For active jobs, resolve missing (nil) values to the fallback value */}}
         {{- if kindIs "invalid" $jobvalue }}
           {{- $_ := set $ig $jobname $default }}

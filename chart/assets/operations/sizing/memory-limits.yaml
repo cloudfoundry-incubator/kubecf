@@ -19,9 +19,11 @@
   {{- range $igname, $jobs := $.Values.limits.memory }}
     {{- if not (hasPrefix "as" $igname) }}
       {{- range $jobname, $limit := $jobs }}
+        {{- range $processname := (index $.Values.jobs $igname $jobname "processes") }}
     - type: replace
-      path: /instance_groups/name={{ $igname }}/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $jobname }}/limits/memory
+      path: /instance_groups/name={{ $igname }}/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $processname }}/limits/memory
       value: {{ $limit }}
+        {{- end }}{{/* -- range process names */}}
       {{- end }}{{/* -- range job/condition <- jobs */}}
     {{- end }}{{/* -- if not prefix */}}
   {{- end }}{{/* -- range igroup/jobs <- instance_group_condition */}}

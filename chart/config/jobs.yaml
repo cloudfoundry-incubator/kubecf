@@ -1,5 +1,7 @@
 # This configuration tree associates feature flag conditions with jobs
-# in instance groups.
+# in instance groups. It further allows the specification of the
+# processes of a job, for jobs where job and process names differ from
+# each other, and jobs with more than one process.
 #
 # Syntax: See `chart/values.schema.yaml`
 #
@@ -65,8 +67,13 @@ jobs:
     '$default': true
     auctioneer: '!features.eirini.enabled'
     ssh_proxy: '!features.eirini.enabled'
-    tps: '!features.eirini.enabled'
+    tps:
+      condition: '!features.eirini.enabled'
+      processes: [ 'watcher' ]
   singleton-blobstore:
     '$default': '!features.external_blobstore.enabled'
   tcp-router:
     '$default': 'features.routing_api.enabled'
+  rotate-cc-database-key:
+    rotate_cc_database_key:
+      processes: ['rotate' ]

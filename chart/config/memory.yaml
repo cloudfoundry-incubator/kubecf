@@ -15,7 +15,12 @@
 #
 #	This is all handled by `_memory.update` in `chart/templates/_memory.tpl`.
 #
-# NOTE 2: The `as*` groupds are for autoscaler. As they do not exist
+# NOTE 2: We need process names per job per group. This information is taken
+#         from the data in `chart/config/jobs.yaml`, the per-job `processes` key.
+#
+#         All the processes of a job are given the same limit.
+#
+# NOTE 3: The `as*` groupds are for autoscaler. As they do not exist
 # 	  in cf-deployment the auto-fill will not work for them. Thus
 # 	  them being listed in full.
 #

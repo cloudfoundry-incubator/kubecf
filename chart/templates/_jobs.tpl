@@ -18,7 +18,7 @@
   {{- /* Phase I - Fill missing entries with data from the manifest */}}
   {{- /* Iterate the groups (in the manifest) */}}
   {{- range $mf_ig := $.kubecf.retval }}
-    {{- /* Groups missing under `jobs` are added, with a default */}}
+    {{- /* Groups missing under `jobs` are added, with defaults */}}
     {{- if not (hasKey $.Values.jobs $mf_ig.name) }}
       {{- $_ := set $.Values.jobs $mf_ig.name (dict "$default" true) }}
     {{- end }}
@@ -29,9 +29,29 @@
     {{- end }}
     {{- /* Iterate jobs of the group (in the manifest) */}}
     {{- range $mf_job := $mf_ig.jobs }}
-      {{- /* Job missing in group is added, with nil condition (to use fallback) */}}
+      {{- /* Job missing in group is added, with defaults:
+           * - nil condition (to use fallback)
+           * - single process, equals job
+           */}}
       {{- if not (hasKey $ig $mf_job.name) }}
-        {{- $_ := set $ig $mf_job.name nil }}
+        {{- $_ := set $ig $mf_job.name (dict "condition" nil "processes" (list $mf_job.name)) }}
+      {{- end }}
+      {{- /* Job with string data (condition!) is expanded to full map.
+           * Sets default for processes: single, equals job.
+           */}}
+      {{ $data := index $ig $mf_job.name }}
+      {{- if kindIs "invalid" $data }}
+        {{- $_ := set $ig $mf_job.name (dict "condition" nil "processes" (list $mf_job.name)) }}
+      {{- else if not (kindIs "map" $data) }}
+        {{- $_ := set $ig $mf_job.name (dict "condition" $data "processes" (list $mf_job.name)) }}
+      {{- end }}
+      {{- /* Job with partial data is completed. */}}
+      {{ $job := index $ig $mf_job.name }}
+      {{- if not (hasKey $job "condition") }}
+        {{- $_ := set $job "condition" nil }}
+      {{- end }}
+      {{- if not (hasKey $job "processes") }}
+        {{- $_ := set $job "processes" (list $mf_job.name) }}
       {{- end }}
     {{- end }}
   {{- end }}
@@ -50,13 +70,15 @@
     {{- $default := index $ig "$default" }}
     {{- $_ := unset $ig "$default" }}
     {{- /* Iterate the jobs */}}
-    {{- range $jobname, $_ := $ig }}
+    {{- range $jobname, $job := $ig }}
+      {{- $condition := index $job "condition" }}
       {{- /* Resolve missing (nil) conditions to the fallback condition */}}
-      {{- if kindIs "invalid" $_ }}
-        {{- $_ := set $ig $jobname $default }}
+      {{- if kindIs "invalid" $condition }}
+        {{- $_ := set $job "condition" $default }}
       {{- end }}
       {{- /* Resolve condition to a boolean here */}}
-      {{- $_ := set $ig $jobname (eq "true" (include "_config.condition" (list $ (index $ig $jobname)))) }}
+      {{- $condition := index $job "condition" }}
+      {{- $_ := set $job "condition" (eq "true" (include "_config.condition" (list $ $condition))) }}
     {{- end }}
   {{- end }}
 {{- end }}
