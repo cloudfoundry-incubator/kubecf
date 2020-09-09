@@ -15,46 +15,21 @@
 {{- define "_jobs.update" }}
   {{- /* Load the instance groups from the cf-deployment manifest */}}
   {{- $_ := include "_config.lookupManifest" (list $ "instance_groups") }}
-  {{- /* Phase I - Fill missing entries with data from the manifest */}}
-  {{- /* Iterate the groups (in the manifest) */}}
   {{- range $mf_ig := $.kubecf.retval }}
-    {{- /* Groups missing under `jobs` are added, with defaults */}}
+    {{- /* Groups missing under `jobs` are added */}}
     {{- if not (hasKey $.Values.jobs $mf_ig.name) }}
-      {{- $_ := set $.Values.jobs $mf_ig.name (dict "$default" true) }}
+      {{- $_ := set $.Values.jobs $mf_ig.name dict }}
     {{- end }}
+
     {{- $ig := index $.Values.jobs $mf_ig.name }}
-    {{- /* Groups without a default get one */}}
-    {{- if not (hasKey $ig "$default") }}
-      {{- $_ := set $ig "$default" true }}
-    {{- end }}
     {{- /* Iterate jobs of the group (in the manifest) */}}
     {{- range $mf_job := $mf_ig.jobs }}
-      {{- /* Job missing in group is added, with defaults:
-           * - nil condition (to use fallback)
-           * - single process, equals job
-           */}}
       {{- if not (hasKey $ig $mf_job.name) }}
-        {{- $_ := set $ig $mf_job.name (dict "condition" nil "processes" (list $mf_job.name)) }}
-      {{- end }}
-      {{- /* Job with string data (condition!) is expanded to full map.
-           * Sets default for processes: single, equals job.
-           */}}
-      {{ $data := index $ig $mf_job.name }}
-      {{- if kindIs "invalid" $data }}
-        {{- $_ := set $ig $mf_job.name (dict "condition" nil "processes" (list $mf_job.name)) }}
-      {{- else if not (kindIs "map" $data) }}
-        {{- $_ := set $ig $mf_job.name (dict "condition" $data "processes" (list $mf_job.name)) }}
-      {{- end }}
-      {{- /* Job with partial data is completed. */}}
-      {{ $job := index $ig $mf_job.name }}
-      {{- if not (hasKey $job "condition") }}
-        {{- $_ := set $job "condition" nil }}
-      {{- end }}
-      {{- if not (hasKey $job "processes") }}
-        {{- $_ := set $job "processes" (list $mf_job.name) }}
+        {{- $_ := set $ig $mf_job.name dict }}
       {{- end }}
     {{- end }}
   {{- end }}
+
   {{/* -- Translate the non-standard blobstore.provider feature into
      * a proper boolean we can query in the conditions.
      */}}
@@ -63,7 +38,7 @@
   {{- else }}
     {{ $_ := merge $.Values (dict "features" (dict "external_blobstore" (dict "enabled" false))) }}
   {{- end}}
-  {{- /* Phase II - Resolve the conditions to plain true/false */}}
+
   {{- /* Iterate the groups (in jobs) */}}
   {{- range $igname, $ig := $.Values.jobs }}
     {{- /* Get the fallback condition */}}
@@ -71,14 +46,18 @@
     {{- $_ := unset $ig "$default" }}
     {{- /* Iterate the jobs */}}
     {{- range $jobname, $job := $ig }}
-      {{- $condition := index $job "condition" }}
-      {{- /* Resolve missing (nil) conditions to the fallback condition */}}
-      {{- if kindIs "invalid" $condition }}
-        {{- $_ := set $job "condition" $default }}
+      {{- $condition := default $default $job }}
+      {{- if kindIs "map" $job }}
+        {{- $condition = default $default (index $job "condition") }}
+      {{- else }}
+        {{- $job = dict "condition" $condition }}
+        {{- $_ := set $ig $jobname $job }}
       {{- end }}
-      {{- /* Resolve condition to a boolean here */}}
-      {{- $condition := index $job "condition" }}
+      {{- /* Resolve the conditions to plain boolean true/false */}}
       {{- $_ := set $job "condition" (eq "true" (include "_config.condition" (list $ $condition))) }}
+      {{- if not (hasKey $job "processes") }}
+        {{- $_ := set $job "processes" (list $jobname) }}
+      {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}
