@@ -90,7 +90,7 @@ read -r -d '' CONFIG_OVERRIDE <<'EOF' || true
 sizing:
   diego_cell:
     ephemeral_disk:
-      size: 300000
+      size: 60000
 EOF
 export CONFIG_OVERRIDE
 
