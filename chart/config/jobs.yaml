@@ -61,19 +61,26 @@ jobs:
     routing-api: 'features.routing_api.enabled'
   credhub:
     '$default': 'features.credhub.enabled'
+  diego-api:
+    cfdot:
+      processes: []
   diego-cell:
     '$default': '!features.eirini.enabled && !features.multiple_cluster_mode.control_plane.enabled'
+    cfdot:
+      processes: []
   scheduler:
     '$default': true
     auctioneer: '!features.eirini.enabled'
+    cfdot:
+      processes: []
     ssh_proxy: '!features.eirini.enabled'
     tps:
       condition: '!features.eirini.enabled'
-      processes: [ 'watcher' ]
+      processes: [watcher]
   singleton-blobstore:
     '$default': '!features.external_blobstore.enabled'
   tcp-router:
     '$default': 'features.routing_api.enabled'
   rotate-cc-database-key:
     rotate_cc_database_key:
-      processes: ['rotate' ]
+      processes: [rotate]

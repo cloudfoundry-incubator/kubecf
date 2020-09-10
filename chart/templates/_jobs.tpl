@@ -26,6 +26,11 @@
     {{- range $mf_job := $mf_ig.jobs }}
       {{- if not (hasKey $ig $mf_job.name) }}
         {{- $_ := set $ig $mf_job.name dict }}
+        {{- /* Data-only releases have an empty process list */}}
+        {{- $release := index $.Values.releases $mf_job.release }}
+        {{- if index $release "data-only" }}
+          {{- $_ := set (index $ig $mf_job.name) "processes" list }}
+        {{- end }}
       {{- end }}
     {{- end }}
   {{- end }}
