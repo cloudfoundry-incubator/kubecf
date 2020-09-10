@@ -1,0 +1,189 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apps-dns
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: apps-dns
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+spec:
+  ports:
+  - name: dns-udp
+    protocol: UDP
+    port: 53
+    targetPort: dns-udp
+  - name: dns-tcp
+    protocol: TCP
+    port: 53
+    targetPort: dns-tcp
+  selector:
+    app: apps-dns
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apps-dns
+  namespace:
+  labels:
+data:
+  Corefile: |-
+    . {
+      errors
+      health
+
+      svcdiscovery {
+        tls_ca_path /tls/ca.pem
+        tls_client_cert_path /tls/cert.pem
+        tls_client_key_path /tls/key.pem
+        sdc_host {{ printf "service-discovery-controller.%s.svc" .Release.Namespace }}
+        sdc_port 8054
+        ttl 300
+      }
+
+      forward . /config/forward.conf
+
+      cache 120
+      loop
+      reload
+      loadbalance
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apps-dns
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: apps-dns
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+spec:
+  {{- if $.Values.sizing.apps_dns.instances }}
+  replicas: {{ $.Values.sizing.apps_dns.instances }}
+  {{- else if $.Values.high_availability }}
+  replicas: 2
+  {{- else }}
+  replicas: 1
+  {{- end }}
+  selector:
+    matchLabels:
+      app: apps-dns
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
+      app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+      app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+      app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+      helm.sh/chart: {{ include "kubecf.chart" . }}
+  template:
+    metadata:
+      labels:
+        app: apps-dns
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+        app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+        helm.sh/chart: {{ include "kubecf.chart" . }}
+    spec:
+      {{- if $.Values.sizing.apps_dns.affinity }}
+      affinity: {{ $.Values.sizing.apps_dns.affinity | toJson }}
+      {{- else }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - apps-dns
+              topologyKey: kubernetes.io/hostname
+      {{- end }}
+      volumes:
+      - name: corefile-config
+        configMap:
+          name: apps-dns
+      - name: forward-config
+        emptyDir: {}
+      - name: client-tls
+        secret:
+          secretName: var-cf-app-sd-client-tls
+          items:
+          - key: ca
+            path: ca.pem
+          - key: certificate
+            path: cert.pem
+          - key: private_key
+            path: key.pem
+      initContainers:
+      - name: resolv-writer
+        {{- with $image := $.Values.releases.apps_dns.image }}
+        image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+        {{- end }}
+        imagePullPolicy: IfNotPresent
+        command: [/resolvwriter]
+        args:
+        - --upstream-dns-host
+        - {{ printf "bosh-dns.%s.svc" .Release.Namespace | quote }}
+        - --out
+        - /config/forward.conf
+        volumeMounts:
+        - name: forward-config
+          mountPath: /config
+      containers:
+      - name: apps-dns
+        {{- with $image := $.Values.releases.apps_dns.image }}
+        image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+        {{- end }}
+        imagePullPolicy: IfNotPresent
+        args:
+        - -conf
+        - /config/Corefile
+        ports:
+        - containerPort: 53
+          name: dns-udp
+          protocol: UDP
+        - containerPort: 53
+          name: dns-tcp
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: corefile-config
+          mountPath: /config/Corefile
+          subPath: Corefile
+          readOnly: true
+        - name: forward-config
+          mountPath: /config/forward.conf
+          subPath: forward.conf
+          readOnly: true
+        - name: client-tls
+          mountPath: /tls
+          readOnly: true

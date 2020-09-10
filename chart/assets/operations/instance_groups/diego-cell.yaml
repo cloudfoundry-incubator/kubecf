@@ -92,8 +92,25 @@
   path: /instance_groups/name=diego-cell/jobs/name=garden-cni/properties/cni_plugin_dir?
   value: /var/vcap/data/silk-cni/bin
 
-- type: remove
+- type: replace
   path: /instance_groups/name=diego-cell/jobs/name=silk-cni/properties/dns_servers?
+  value:
+  # The bosh-dns.<namespace>.svc gets resolved to the service ClusterIP it points to and then
+  # replaced with its value when rendering the silk-cni configuration file. This functionality is
+  # provided by a patch on a pre-render script.
+  - {{ printf "apps-dns.%s.svc" .Release.Namespace | quote }}
+
+- type: replace
+  path: /variables/name=cf_app_sd_ca/options/common_name
+  value: {{ printf "service-discovery-controller.%s.svc" .Release.Namespace | quote }}
+- type: replace
+  path: /variables/name=cf_app_sd_client_tls/options/common_name
+  value: {{ printf "service-discovery-controller.%s.svc" .Release.Namespace | quote }}
+- type: replace
+  path: /variables/name=cf_app_sd_server_tls/options/common_name
+  value: {{ printf "service-discovery-controller.%s.svc" .Release.Namespace | quote }}
+- type: remove
+  path: /instance_groups/name=diego-cell/jobs/name=bosh-dns-adapter?
 
 # Add quarks properties for garden.
 - type: replace

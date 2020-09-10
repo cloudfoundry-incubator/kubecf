@@ -14,6 +14,10 @@ releases:
   app-autoscaler:
     condition: features.autoscaler.enabled
     version: 3.0.1
+  apps_dns:
+    image:
+      repository: ghcr.io/cfcontainerizationbot/kubecf-apps-dns
+      tag: 0.1.0
   brain-tests:
     condition: testing.brain_tests.enabled
     version: v0.0.13
