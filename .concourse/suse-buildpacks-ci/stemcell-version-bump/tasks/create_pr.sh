@@ -27,10 +27,8 @@ chmod 0600 ~/.ssh/id_ecdsa
 git config --global user.email "$GIT_MAIL"
 git config --global user.name "$GIT_USER"
 
-stemcell_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}" | cut -d- -f2)"
+stemcell_version="$(cut -d- -f2 < s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}" )"
 COMMIT_TITLE="feat: Bump stemcell version for SUSE buildpacks to ${stemcell_version}"
-
-images_dir=$(pwd)/"${BUILT_IMAGES}"
 
 # Update release in kubecf repo
 cp -r kubecf/. updated-kubecf/
@@ -40,7 +38,7 @@ git pull
 GIT_BRANCH_NAME="bump_${stemcell_version}-$(date +%Y%m%d%H%M%S)"
 git checkout -b "${GIT_BRANCH_NAME}"
 
-perl -i -0pe "s/        stemcell:\n          version: \"\d+\.\d+\"/        stemcell:\n          version: \"${stemcell_version}\"/" ${KUBECF_VALUES}
+perl -i -0pe "s/        stemcell:\n          version: \"\d+\.\d+\"/        stemcell:\n          version: \"${stemcell_version}\"/" "${KUBECF_VALUES}"
 
 git commit "${KUBECF_VALUES}" -m "${COMMIT_TITLE}"
 
