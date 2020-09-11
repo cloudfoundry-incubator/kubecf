@@ -38,7 +38,7 @@ git pull
 GIT_BRANCH_NAME="bump_${BUILDPACK_NAME}-$(date +%Y%m%d%H%M%S)"
 git checkout -b "${GIT_BRANCH_NAME}"
 
-perl -i -0pe "s/      ${BUILDPACK_NAME}:\n        version: \"[\d.]+\"/      ${BUILDPACK_NAME}:\n        version: \"${RELEASE_VERSION}\"/" ${KUBECF_VALUES}
+perl -i -0pe "s/      ${BUILDPACK_NAME}:\n        version: \"[\d.]+\"/      ${BUILDPACK_NAME}:\n        version: \"${RELEASE_VERSION}\"/" "${KUBECF_VALUES}"
 
 git commit "${KUBECF_VALUES}" -m "${COMMIT_TITLE}"
 
