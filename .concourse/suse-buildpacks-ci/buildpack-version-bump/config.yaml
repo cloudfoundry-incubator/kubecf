@@ -5,7 +5,7 @@ build_image_resource_uri: https://github.com/concourse/docker-image-resource
 build_image_resource_branch: master
 kubecf_repo: git@github.com:cloudfoundry-incubator/kubecf.git
 kubecf_branch: master
-kubecf_values: chart/values.yaml
+kubecf_values: chart/config/sle15.yaml
 fissile_linux_s3_bucket: cf-opensusefs2
 stemcell_repository: splatform/fissile-stemcell-sle
 stemcell_versions_bucket: cf-operators
