@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-discovery-controller
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app: service-discovery-controller
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+spec:
+  type: ClusterIP
+  ports:
+  - name: service-discovery-controller
+    port: 8054
+    protocol: TCP
+    targetPort: 8054
+  selector:
+    quarks.cloudfoundry.org/deployment-name: {{ include "kubecf.deployment-name" . }}
+    quarks.cloudfoundry.org/instance-group-name: scheduler
