@@ -26,7 +26,7 @@ yaml.preserve_quotes = True
 
 with open("${RELEASES_YAML}") as f1, open("${KUBECF_VALUES_YAML}") as f2:
     input_releases = yaml.load(f1)["releases"]
-    values = yaml.load(f2)["releases"]
+    values = yaml.load(f2)["stacks"]["sle15"]["releases"]
 
 output_releases = []
 for release in input_releases:
