@@ -21,6 +21,8 @@ spec:
         app.kubernetes.io/name: {{ include "eirinix.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: {{ $component }}
+      annotations:
+        quarks.cloudfoundry.org/restart-on-update: "true"
     spec:
     {{- with .Values.eirinix.imagePullSecrets }}
       imagePullSecrets:
@@ -71,6 +73,5 @@ spec:
   ports:
   - protocol: TCP
     name: https
-    port: 443
-    targetPort: 2999
+    port: 2999
 {{- end }}

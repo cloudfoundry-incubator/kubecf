@@ -16,6 +16,7 @@ spec:
         name: "eirini-routing"
       annotations:
         quarks.cloudfoundry.org/wait-for: '[ "nats" ]'
+        quarks.cloudfoundry.org/restart-on-update: "true"
     spec:
       dnsPolicy: "ClusterFirst"
       serviceAccountName: "eirini-routing"
