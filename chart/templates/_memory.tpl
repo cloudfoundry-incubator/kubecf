@@ -38,6 +38,10 @@
     {{- $_ := unset $ig "$default" }}
     {{- /* Iterate the jobs */}}
     {{- range $jobname, $jobvalue := $ig }}
+      {{- if not (include "_config.lookup" (list $ "jobs" $igname $jobname)) }}
+        {{- /* XXX use "_config.fail" */}}
+        {{- fail (printf "Job %q in instance group %q does not exist" $jobname $igname) }}
+      {{- end }}
       {{- if index $.Values.jobs $igname $jobname "condition" }}
         {{- /* For active jobs, resolve missing (nil) values to the fallback value */}}
         {{- if kindIs "invalid" $jobvalue }}

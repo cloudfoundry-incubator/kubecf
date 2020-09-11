@@ -55,18 +55,31 @@ jobs:
     metricsserver: ~
   asnozzle:
     metricsgateway: 'features.autoscaler.enabled'
-
   api:
     '$default': true
+    cloud_controller_ng:
+      # "local-worker-N" processes will be appended by _jobs.update
+      processes: [cloud_controller_ng, nginx, ccng_monit_http_healthcheck]
     routing-api: 'features.routing_api.enabled'
+  cc-worker:
+    cloud_controller_worker:
+      # "worker-N" processes will be appended by _jobs.update
+      processes: []
   credhub:
     '$default': 'features.credhub.enabled'
+  database:
+    # database instance group is replaced by native release
+    '$default': false
   diego-api:
     cfdot:
       processes: []
   diego-cell:
     '$default': '!features.eirini.enabled && !features.multiple_cluster_mode.control_plane.enabled'
     cfdot:
+      processes: []
+    garden-cni:
+      processes: []
+    silk-cni:
       processes: []
   scheduler:
     '$default': true
@@ -77,8 +90,13 @@ jobs:
     tps:
       condition: '!features.eirini.enabled'
       processes: [watcher]
+  smoke-tests:
+    cf-cli-7-linux:
+      processes: []
   singleton-blobstore:
     '$default': '!features.external_blobstore.enabled'
+    blobstore:
+      processes: [nginx, url_signer]
   tcp-router:
     '$default': 'features.routing_api.enabled'
   rotate-cc-database-key:

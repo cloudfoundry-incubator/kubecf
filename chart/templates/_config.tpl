@@ -280,3 +280,36 @@
     {{- ternary "true" "false" ($or_value | not | not) }}
   {{- end }}
 {{- end }}
+
+{{- /*
+==========================================================================================
+| _config.property (list $ $ig $job $property [$default])
++-----------------------------------------------------------------------------------------
+| Lookup a property value, first by checking for an override from $.Values.properties,
+| falling back to settings from the manifest. The caller has to provide the default value
+| from the job's spec file, as the helm chart doesn't have access to that.
+==========================================================================================
+*/}}
+{{- define "_config.property" }}
+  {{- $root := index . 0 }}
+  {{- $ig := index . 1 }}
+  {{- $job := index . 2 }}
+  {{- $property := index . 3 }}
+
+  {{- /* Lookup property in $.Values */}}
+  {{- $retval := include "_config.lookup" (list $root "properties" $ig $job $property) }}
+
+  {{- /* Fallback to manifest if there was no override */}}
+  {{- if kindIs "invalid" $root.kubecf.retval }}
+    {{- $query := printf "instance_groups/name=%s/jobs/name=%s/properties/%s" $ig $job $property }}
+    {{- $retval = include "_config.lookupManifest" (list $root $query) }}
+  {{- end }}
+
+  {{- /* If there still is no value, we need to use the spec value, which the caller has to provide */}}
+  {{- if and (kindIs "invalid" $root.kubecf.retval) (gt (len .) 4) }}
+    {{- $retval := index . 4 }}
+    {{- $_ := set $root.kubecf "retval" $retval }}
+  {{- end }}
+
+  {{- $retval | toString }}
+{{- end }}

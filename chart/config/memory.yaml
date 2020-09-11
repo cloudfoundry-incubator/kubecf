@@ -69,7 +69,7 @@ limits:
       '$default': 550Mi
       cloud_controller_ng: 2Gi
     cc-worker:
-      '$default': 350Mi
+      '$default': 50Mi
     credhub:
       '$default': 15Mi
       credhub: 750Mi
@@ -82,9 +82,11 @@ limits:
     doppler:
       '$default': 40Mi
       doppler: 70Mi
-      log-cache: 26Gi
     log-api:
       '$default': 100Mi
+    log-cache:
+      '$default': 40Mi
+      log-cache: 26Gi
     nats:
       '$default': 30Mi
     router:
