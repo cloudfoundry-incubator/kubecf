@@ -27,7 +27,7 @@ chmod 0600 ~/.ssh/id_ecdsa
 git config --global user.email "$GIT_MAIL"
 git config --global user.name "$GIT_USER"
 
-stemcell_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}" | cut -d- -f2)"
+stemcell_version="$(cut -d- -f2 < s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}" )"
 COMMIT_TITLE="feat: Bump stemcell version for SUSE buildpacks to ${stemcell_version}"
 
 # Update release in kubecf repo
