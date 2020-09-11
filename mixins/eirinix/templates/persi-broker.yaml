@@ -21,6 +21,8 @@ spec:
         app.kubernetes.io/name: {{ include "eirinix.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: {{ $component }}
+      annotations:
+        quarks.cloudfoundry.org/restart-on-update: "true"
     spec:
     {{- with .Values.eirinix.imagePullSecrets }}
       imagePullSecrets:
