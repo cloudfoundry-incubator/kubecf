@@ -967,7 +967,11 @@ jobs:
       - name: kubecf
       - name: semver.gke-cluster
       params:
+        {{- if eq $cfScheduler "eirini" }}
+        KUBECF_TEST_SUITE: cats-eirini
+        {{- else }}
         KUBECF_TEST_SUITE: cats
+        {{- end }}
         BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
       run:
