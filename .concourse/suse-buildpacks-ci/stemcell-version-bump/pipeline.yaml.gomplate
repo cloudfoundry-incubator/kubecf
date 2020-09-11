@@ -51,7 +51,7 @@ jobs:
       privileged: true
       params:
         RELEASES_YAML: ci/.concourse/suse-buildpacks-ci/releases.yaml
-        KUBECF_VALUES_YAML: kubecf/chart/values.yaml
+        KUBECF_VALUES_YAML: kubecf/chart/config/sle15.yaml
       file: ci/.concourse/suse-buildpacks-ci/stemcell-version-bump/tasks/prep.yaml
 
     - task: build

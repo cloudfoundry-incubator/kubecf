@@ -3,66 +3,15 @@
 # NEVER SET xtrace!
 set -o errexit -o nounset
 
-# Updates release information in values.yaml.
+# Updates release information in sle15.yaml.
 # It looks for a release like:
-#
-# suse-go-buildpack:
-#   url: registry.suse.com/cap-staging
-#   version: "1.9.4.1"
-#   stemcell:
-#     os: SLE_15_SP1
-#     version: 23.1-7.0.0_374.gb8e8e6af
-#   file: suse-go-buildpack/packages/go-buildpack-sle15/go-buildpack-sle15-v1.9.4.1-1.1-436eaf5d.zip
-
-function update_buildpack_info() {
-
-KUBECF_VALUES=$1
-BUILT_IMAGES=$2
-
-PYTHON_CODE=$(cat <<EOF 
-#!/usr/bin/python3
-
-import ruamel.yaml
-import semver
-
-# Adds ~ to the null values to preserve existing structure of values.yaml.
-def represent_none(self, data):
-    return self.represent_scalar(u'tag:yaml.org,2002:null', u'~')
-
-def get_semver(s):
-    v = s.split(".")
-    return semver.VersionInfo(*v)
-
-yaml = ruamel.yaml.YAML()
-yaml.preserve_quotes = True
-yaml.representer.add_representer(type(None), represent_none)
-
-with open("${BUILT_IMAGES}") as built_images, open("${KUBECF_VALUES}") as kubecf_values:
-    values = yaml.load(kubecf_values)
-    for built_image in built_images:
-        # Breaking down the BUILT_IMAGE to retrieve individual values.
-        built_image_splitted = built_image.split("/", 2)
-        BUILDPACK_NAME = built_image_splitted[-1].split(":")[0]
-        built_image_splitted2 = built_image_splitted[-1].split(":")[1].split("-")
-        NEW_STEMCELL_OS = built_image_splitted2[0]
-        NEW_STEMCELL_VERSION = "-".join(built_image_splitted2[1:3])
-        
-        new_stemcell_semver = get_semver(built_image_splitted2[1])
-        existing_stemcell_semver = get_semver(values['releases'][BUILDPACK_NAME]['stemcell']['version'].split("-")[0])
-        
-        # Only update if new stemcell version is higher.
-        if new_stemcell_semver > existing_stemcell_semver:
-            values['releases'][BUILDPACK_NAME]['stemcell']['os'] = NEW_STEMCELL_OS
-            values['releases'][BUILDPACK_NAME]['stemcell']['version'] = NEW_STEMCELL_VERSION
-
-with open("${KUBECF_VALUES}", 'w') as f:
-    yaml.dump(values, f)
-
-EOF
-)
-
-python3 -c "${PYTHON_CODE}"
-}
+# stacks:
+#   sle15:
+#     releases:
+#       '$defaults':
+#         url: registry.suse.com/cap-staging
+#         stemcell:
+#           version: 27.4-7.0.0_374.gb8e8e6af
 
 if [[ -z "$GITHUB_TOKEN" ]]; then
     echo "GITHUB_TOKEN environment variable not set"
@@ -78,8 +27,8 @@ chmod 0600 ~/.ssh/id_ecdsa
 git config --global user.email "$GIT_MAIL"
 git config --global user.name "$GIT_USER"
 
-stemcell_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}")"
-COMMIT_TITLE="Bump stemcell version for SUSE buildpacks to ${stemcell_version}"
+stemcell_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}" | cut -d- -f2)"
+COMMIT_TITLE="feat: Bump stemcell version for SUSE buildpacks to ${stemcell_version}"
 
 images_dir=$(pwd)/"${BUILT_IMAGES}"
 
@@ -91,7 +40,7 @@ git pull
 GIT_BRANCH_NAME="bump_${stemcell_version}-$(date +%Y%m%d%H%M%S)"
 git checkout -b "${GIT_BRANCH_NAME}"
 
-update_buildpack_info "${KUBECF_VALUES}" "${images_dir}"
+perl -i -0pe "s/        stemcell:\n          version: \"\d+\.\d+\"/        stemcell:\n          version: \"${stemcell_version}\"/" ${KUBECF_VALUES}
 
 git commit "${KUBECF_VALUES}" -m "${COMMIT_TITLE}"
 
