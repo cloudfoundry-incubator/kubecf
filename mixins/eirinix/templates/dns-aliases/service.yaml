@@ -7,11 +7,11 @@ metadata:
   name: eirini-dns-aliases
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    {{- list . "eirini-dns-aliases" | include "kubecf.component.labels" | nindent 4 }}
+    {{- list . "eirini-dns-aliases" | include "component.labels" | nindent 4 }}
 spec:
   type: ClusterIP
   selector:
-    {{- list . "eirini-dns-aliases" | include "kubecf.component.selector" | nindent 4 }}
+    {{- list . "eirini-dns-aliases" | include "component.selector" | nindent 4 }}
   ports:
   - protocol: TCP
     name: webhook

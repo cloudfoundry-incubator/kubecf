@@ -47,7 +47,7 @@ Get the metadata name for an ops file.
 
 {{- /*
 ==========================================================================================
-| kubecf.component.selector (list $ $component)
+| component.selector (list $ $component)
 +-----------------------------------------------------------------------------------------
 | Emit standard labels for use in selectors (for services and the like).
 |
@@ -55,7 +55,7 @@ Get the metadata name for an ops file.
 | service / pod.
 ==========================================================================================
 */ -}}
-{{- define "kubecf.component.selector" }}
+{{- define "component.selector" }}
 {{- $root := first . }}
 {{- $component := index . 1 }}
 app.kubernetes.io/name: {{ include "kubecf.fullname" $root }}
@@ -65,7 +65,7 @@ app.kubernetes.io/component: {{ $component | quote }}
 
 {{- /*
 ==========================================================================================
-| kubecf.component.labels (list $ $component)
+| component.labels (list $ $component)
 +-----------------------------------------------------------------------------------------
 | Emit standard labels for use in pod/etc. declarations.
 |
@@ -75,10 +75,10 @@ app.kubernetes.io/component: {{ $component | quote }}
 | This will include any labels relevant for selectors.
 ==========================================================================================
 */ -}}
-{{- define "kubecf.component.labels" }}
+{{- define "component.labels" }}
 {{- $root := first . }}
 {{- $component := last . }}
-{{- include "kubecf.component.selector" . }}
+{{- include "component.selector" . }}
 app.kubernetes.io/managed-by: {{ $root.Release.Service | quote }}
 app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
 helm.sh/chart: {{ include "kubecf.chart" $root }}

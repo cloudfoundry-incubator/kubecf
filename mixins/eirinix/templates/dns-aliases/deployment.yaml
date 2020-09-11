@@ -6,15 +6,15 @@ kind: Deployment
 metadata:
   name: eirini-dns-aliases
   labels:
-    {{- list . "eirini-dns-aliases" | include "kubecf.component.labels" | nindent 4 }}
+    {{- list . "eirini-dns-aliases" | include "component.labels" | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- list . "eirini-dns-aliases" | include "kubecf.component.selector" | nindent 6 }}
+      {{- list . "eirini-dns-aliases" | include "component.selector" | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- list . "eirini-dns-aliases" | include "kubecf.component.labels" | nindent 8 }}
+        {{- list . "eirini-dns-aliases" | include "component.labels" | nindent 8 }}
     spec:
       serviceAccountName: eirinix
       containers:
