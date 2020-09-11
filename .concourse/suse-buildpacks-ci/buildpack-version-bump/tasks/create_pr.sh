@@ -27,8 +27,6 @@ git config --global user.email "$GIT_MAIL"
 git config --global user.name "$GIT_USER"
 
 RELEASE_VERSION=$(cat suse_final_release/version)
-BUILT_IMAGE=$(cat built_image/image)
-NEW_FILE=$(tar -zxOf suse_final_release/*.tgz packages | tar -ztf - | grep zip | cut -d'/' -f3)
 
 COMMIT_TITLE="feat: Bump ${BUILDPACK_NAME} release to ${RELEASE_VERSION}"
 

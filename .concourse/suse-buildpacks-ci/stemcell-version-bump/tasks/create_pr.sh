@@ -30,8 +30,6 @@ git config --global user.name "$GIT_USER"
 stemcell_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}" | cut -d- -f2)"
 COMMIT_TITLE="feat: Bump stemcell version for SUSE buildpacks to ${stemcell_version}"
 
-images_dir=$(pwd)/"${BUILT_IMAGES}"
-
 # Update release in kubecf repo
 cp -r kubecf/. updated-kubecf/
 cd updated-kubecf
