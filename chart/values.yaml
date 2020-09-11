@@ -140,19 +140,19 @@ sizing:
 #  External endpoints are created for the instance groups only if features.ingress.enabled is false.
 services:
   router:
-    annotations: ~
+    annotations: {}
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~
     loadBalancerIP: ~
   ssh-proxy:
-    annotations: ~
+    annotations: {}
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~
     loadBalancerIP: ~
   tcp-router:
-    annotations: ~
+    annotations: {}
     type: LoadBalancer
     externalIPs: []
     clusterIP: ~
