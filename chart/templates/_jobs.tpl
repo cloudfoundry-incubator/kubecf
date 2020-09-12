@@ -58,11 +58,16 @@
     {{- $_ := unset $ig "$default" }}
 
     {{- range $jobname, $job := $ig }}
-      {{- $condition := default $default $job }}
+      {{- $condition := $job }}
       {{- if kindIs "map" $job }}
-        {{- $condition = default $default (index $job "condition") }}
-      {{- else }}
-        {{- $job = dict "condition" $condition }}
+        {{- $condition = index $job "condition" }}
+      {{- end }}
+      {{- /* Check for nil because false is a valid condition and should not be replaced by $default */}}
+      {{- if kindIs "invalid" $condition }}
+        {{- $condition = $default }}
+      {{- end }}
+      {{- if not (kindIs "map" $job) }}
+        {{- $job = dict }}
         {{- $_ := set $ig $jobname $job }}
       {{- end }}
 

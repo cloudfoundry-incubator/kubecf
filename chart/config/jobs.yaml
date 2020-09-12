@@ -75,6 +75,7 @@ jobs:
       processes: []
   diego-cell:
     '$default': '!features.eirini.enabled && !features.multiple_cluster_mode.control_plane.enabled'
+    bosh-dns-adapter: false
     cfdot:
       processes: []
     garden-cni:
