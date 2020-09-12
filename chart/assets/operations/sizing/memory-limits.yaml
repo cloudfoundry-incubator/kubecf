@@ -23,6 +23,9 @@
     - type: replace
       path: /instance_groups/name={{ $igname }}/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $processname }}/limits/memory
       value: {{ $limit }}
+    - type: replace
+      path: /instance_groups/name={{ $igname }}/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $processname }}/requests/memory
+      value: 16Mi
         {{- end }}{{/* -- range process names */}}
       {{- end }}{{/* -- range job/condition <- jobs */}}
     {{- end }}{{/* -- if not prefix */}}
