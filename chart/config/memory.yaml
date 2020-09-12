@@ -69,7 +69,7 @@ limits:
       '$default': 550Mi
       cloud_controller_ng: 2Gi
     cc-worker:
-      '$default': 50Mi
+      '$default': 350Mi
     credhub:
       '$default': 15Mi
       credhub: 750Mi
@@ -77,7 +77,7 @@ limits:
       '$default': 50Mi
     diego-cell:
       '$default': 40Mi
-      garden: 17Gi
+      garden: 2Gi
       rep: 3Gi
     doppler:
       '$default': 40Mi
