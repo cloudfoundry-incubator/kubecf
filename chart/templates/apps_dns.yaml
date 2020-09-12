@@ -30,8 +30,14 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: apps-dns
-  namespace:
+  namespace: {{ .Release.Namespace | quote }}
   labels:
+    app: apps-dns
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
 data:
   Corefile: |-
     . {
