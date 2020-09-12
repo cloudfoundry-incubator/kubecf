@@ -68,16 +68,16 @@ spec:
 {{- $ops = prepend $ops "assets/operations/sizing.yaml" }}
 {{- $ops = prepend $ops "assets/operations/azs.yaml" }}
 {{- range $path := uniq $ops }}
+  - name: {{ include "kubecf.ops-name" (dict "Path" $path) }}
+    type: configmap
+{{- end }}
+
 {{- range $path, $_ := .Files.Glob "assets/operations/sizing/*" }}
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}
 {{- range $path, $_ := .Files.Glob "assets/operations/sizing-post/*" }}
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
-    type: configmap
-{{- end }}
-{{- range $path, $bytes := .Files.Glob "assets/operations/temporary/*" }}
-  - name: {{ include "kubecf.ops-name" (dict "Path" $path) }}
     type: configmap
 {{- end }}
 
