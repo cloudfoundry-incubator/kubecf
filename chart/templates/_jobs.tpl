@@ -35,14 +35,13 @@
     {{- end }}
   {{- end }}
 
-  {{- /* XXX Move jobs */}}
-  {{- include "_jobs.move" (list $.Values.jobs "api" "routing-api") }}
-  {{- include "_jobs.move" (list $.Values.jobs "scheduler" "auctioneer") }}
-  {{- include "_jobs.move" (list $.Values.jobs "doppler" "log-cache") }}
-  {{- include "_jobs.move" (list $.Values.jobs "doppler" "log-cache" "log-cache-gateway" ) }}
-  {{- include "_jobs.move" (list $.Values.jobs "doppler" "log-cache" "log-cache-nozzle") }}
-  {{- include "_jobs.move" (list $.Values.jobs "doppler" "log-cache" "log-cache-cf-auth-proxy") }}
-  {{- include "_jobs.move" (list $.Values.jobs "doppler" "log-cache" "route_registrar") }}
+  {{- /* Move some jobs to new instance groups */}}
+  {{- range $from_ig, $ig := index $.Values.jobs "$move" }}
+    {{- range $job, $to_ig := $ig }}
+      {{- include "_jobs.move" (list $.Values.jobs $from_ig $to_ig $job) }}
+    {{- end }}
+  {{- end }}
+  {{- $_ := unset $.Values.jobs "$move" }}
 
   {{- /* Translate blobstore.provider feature into a proper boolean we can query in the conditions */}}
   {{- if eq $.Values.features.blobstore.provider "s3" }}

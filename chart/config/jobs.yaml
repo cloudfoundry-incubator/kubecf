@@ -54,6 +54,19 @@ properties:
             number_of_workers: 1
 
 jobs:
+  # Some cf-deployment jobs are moved to different instance groups; the job name remains unchanged.
+  '$move':
+    api:
+      routing-api: routing-api
+    scheduler:
+      auctioneer: auctioneer
+    doppler:
+      log-cache: log-cache
+      log-cache-gateway: log-cache
+      log-cache-nozzle: log-cache
+      log-cache-cf-auth-proxy: log-cache
+      route_registrar: log-cache
+
   asactors:
     '$default': 'features.autoscaler.enabled'
     operator: ~
