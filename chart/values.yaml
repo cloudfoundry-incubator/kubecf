@@ -285,7 +285,6 @@ features:
         service_name: minion-service-cloud-controller-container-networking-info
         addresses:
         - ip: ~
-        # To support multi-clusters, fill the provider link secrets context of cloud_controller_container_networking_info, for example:
         # link: |
         #   cc.internal_route_vip_range: "127.128.0.0/9"
         link: ~
@@ -294,7 +293,6 @@ features:
         service_name: minion-service-cf-network
         addresses:
         - ip: ~
-        # To support multi-clusters, fill the provider link secrets context of cf_network, for example:
         # link: |
         #   network: "10.255.0.0/16"
         #   subnet_prefix_length: 24

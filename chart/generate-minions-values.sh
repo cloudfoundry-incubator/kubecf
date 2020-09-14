@@ -141,66 +141,69 @@ features:
         name: uaa
         addresses:
 EOF
-    temp_log="temp_log"
-    kubectl get pods -n kubecf -o wide > $temp_log
+    #temp_log="temp_log"
+    kubectl get pods -n kubecf -o wide | grep uaa |awk '{print$6}' > temp_log
     # uaa
-    for ip in `cat $temp_log | grep uaa |awk '{print$6}'`
+    while read -r ip
     do
      echo "        - ip: $ip" >> "${minions_value_file}"
-    done
+    done < temp_log
     
     # diego-api
+    kubectl get pods -n kubecf -o wide | grep diego-api |awk '{print$6}' > temp_log
     cat >>"${minions_value_file}" << EOF
       diego_api:
         name: diego-api
         addresses:
 EOF
-    
-    for ip in `cat $temp_log | grep diego-api|awk '{print$6}'`
+    while read -r ip 
     do
       echo "        - ip: $ip" >> diego_api.yaml
-    done
+    done < temp_log
     cat diego_api.yaml >> "${minions_value_file}"
 
     # api
+    kubectl get pods -n kubecf -o wide | grep api |grep -v diego-api|grep -v log-api|awk '{print$6}' > temp_log
     cat >>"${minions_value_file}" << EOF
       api:
         name: api
         addresses:
 EOF
-    for ip in `cat $temp_log | grep api |grep -v diego-api|grep -v log-api|awk '{print$6}'`
+    while read -r ip 
     do
      echo "        - ip: $ip" >> api_vms.yaml
-    done
+    done < temp_log
     cat api_vms.yaml >> "${minions_value_file}"
     
     # singleton_blobstore
+    kubectl get pods -n kubecf -o wide | grep singleton-blobstore|awk '{print$6}' > temp_log
     cat >>"${minions_value_file}" << EOF
       singleton_blobstore:
         name: singleton_blobstore
         addresses:
 EOF
-    for ip in `cat $temp_log | grep singleton-blobstore|awk '{print$6}'`
+    while read -r ip 
     do
       echo "        - ip: $ip" >> "${minions_value_file}"
-    done
+    done < temp_log
   
   nats_password=$(kubectl get secret var-nats-password -n kubecf -o yaml 2> /dev/null | grep "^  password:" | awk '{print $2}' | base64 --decode)
   
   #nats
-  for ip in `cat $temp_log | grep nats |awk '{print$6}'`
+  kubectl get pods -n kubecf -o wide | grep nats|awk '{print$6}' > temp_log
+  while read -r ip 
   do
      echo "        - ip: $ip" >> nats_vms.yaml
-  done
-  cat >>"${minions_value_file}" << EOF
+  done < temp_log
+  { cat  <<EOF
     provider_link_service:
       nats:
         secret_name: minion-link-nats
         service_name: minion-service-nats
         addresses:
 EOF
-  cat nats_vms.yaml  >> "${minions_value_file}"
-  cat >>"${minions_value_file}" << EOF
+  cat nats_vms.yaml
+  cat << EOF
         link:  |
           ---
           nats.user: "nats"
@@ -212,8 +215,8 @@ EOF
         service_name: minion-service-nats-tls
         addresses:
 EOF
-  cat nats_vms.yaml  >> "${minions_value_file}"
-  cat >>"${minions_value_file}" << EOF
+  cat nats_vms.yaml
+  cat << EOF
         link:  |
           ---
           nats.user: "nats"
@@ -222,6 +225,7 @@ EOF
           nats.port: 4224
           nats.cluster_port: 4225
 EOF
+} >> "${minions_value_file}"
   nats_ca=$(kubectl get secret var-nats-ca -n kubecf -o yaml 2> /dev/null | grep "^  certificate:" | awk '{print $2}' | base64 --decode) 
   if [ "X${nats_ca}" != "X" ]; then   
       echo "          nats.external.tls.ca: |" >> "${minions_value_file}"
@@ -245,22 +249,24 @@ EOF
         addresses:
 EOF
   #doppler
-  for ip in `cat $temp_log | grep doppler |awk '{print$6}'`
+  kubectl get pods -n kubecf -o wide | grep doppler|awk '{print$6}' > temp_log
+  while read -r ip
   do
      echo "        - ip: $ip" >> doppler_vms.yaml
-  done
-  cat doppler_vms.yaml >> "${minions_value_file}"
-  cat >>"${minions_value_file}" << EOF
+  done < temp_log
+  { cat doppler_vms.yaml 
+  cat << EOF
       loggregator:
         secret_name: minion-link-loggregator
         service_name: minion-service-loggregator
         addresses:
 EOF
-  cat doppler_vms.yaml >> "${minions_value_file}"
+  cat doppler_vms.yaml 
   cat >>"${minions_value_file}" << EOF
         link: |
           metron_endpoint.grpc_port: 3459
 EOF
+  } >> "${minions_value_file}" 
 
 credentials_list=(
   loggregator.tls.doppler.ca_cert
@@ -269,7 +275,7 @@ credentials_list=(
 )
 for (( i = 0 ; i < ${#credentials_list[@]} ; i++ )) do
     credential_type=$(echo "${credentials_list[$i]}" | cut -d "." -f 4 )
-    credential_name=$(echo "${credentials_list[$i]}")
+    credential_name="${credentials_list[$i]}"
     if [[ "X${credential_type}" != "X" ]]; then
       case ${credential_type} in 
       'ca_cert')
@@ -305,7 +311,7 @@ for (( i = 0 ; i < ${#credentials_list[@]} ; i++ )) do
 done
   
   # cloud-controller
-  cat >> "${minions_value_file}" << EOF
+  { cat  << EOF
       cloud_controller:
         secret_name: minion-link-cloud-controller
         service_name: minion-service-cloud-controller
@@ -314,11 +320,9 @@ done
           app_domains: []
         addresses:
 EOF
-  
-  cat api_vms.yaml  >> "${minions_value_file}"
-
+  cat api_vms.yaml
   # cloud_controller_container_networking_info
-  cat >>"${minions_value_file}" << EOF
+  cat << EOF
       cloud_controller_container_networking_info:
         secret_name: minion-link-cloud-controller-container-networking-info
         service_name: minion-service-cloud-controller-container-networking-info
@@ -326,8 +330,7 @@ EOF
           cc.internal_route_vip_range: "127.128.0.0/9"
         addresses:
 EOF
-  cat api_vms.yaml  >> "${minions_value_file}"
-  
+  cat api_vms.yaml   
   #cf-network from diego-api
   cat >>"${minions_value_file}" << EOF
       cf_network:
@@ -338,7 +341,8 @@ EOF
           subnet_prefix_length: 24
         addresses:
 EOF
-  cat diego_api.yaml >> "${minions_value_file}"
+  cat diego_api.yaml
+  } >> "${minions_value_file}"
 }
 
 
@@ -383,8 +387,9 @@ AddFeaturesFun
 echo "Complete. Please check output value file ${minions_value_file}."
 
 #clean vm files
-rm -f $temp_log
+rm -f temp_log
 rm -f nats_vms.yaml
 rm -f doppler_vms.yaml
 rm -f api_vms.yaml 
 rm -f diego_api.yaml
+
