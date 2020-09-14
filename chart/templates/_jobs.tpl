@@ -81,15 +81,15 @@
 
   {{- /* Define all api local worker processes */}}
   {{- $job := $.Values.jobs.api.cloud_controller_ng }}
-  {{- include "_config.property" (list $ "api" "cloud_controller_ng" "cc.jobs.local.number_of_workers" 2) }}
-  {{- range $worker := until $.kubecf.retval }}
+  {{- $workers := include "_config.property" (list $ "api" "cloud_controller_ng" "cc.jobs.local.number_of_workers") | int }}
+  {{- range $worker := until $workers }}
     {{- $_ := set $job "processes" (append $job.processes (printf "local_worker_%d" (add1 $worker))) }}
   {{- end }}
 
   {{- /* Define all cc-worker generic worker processes */}}
   {{- $job := index $.Values.jobs "cc-worker" "cloud_controller_worker" }}
-  {{- include "_config.property" (list $ "cc-worker" "cloud_controller_worker" "cc.jobs.generic.number_of_workers" 1) }}
-  {{- range $worker := until $.kubecf.retval }}
+  {{- $workers := include "_config.property" (list $ "cc-worker" "cloud_controller_worker" "cc.jobs.generic.number_of_workers") | int }}
+  {{- range $worker := until $workers }}
     {{- $_ := set $job "processes" (append $job.processes (printf "worker_%d" (add1 $worker))) }}
   {{- end }}
 

@@ -283,11 +283,12 @@
 
 {{- /*
 ==========================================================================================
-| _config.property (list $ $ig $job $property [$default])
+| _config.property (list $ $ig $job $property)
 +-----------------------------------------------------------------------------------------
 | Lookup a property value, first by checking for an override from $.Values.properties,
-| falling back to settings from the manifest. The caller has to provide the default value
-| from the job's spec file, as the helm chart doesn't have access to that.
+| falling back to settings from the manifest. The helm chart has no access to the defaults
+| from the job's spec file, so the defaults need to be defined in a bundled config file
+| if the property is required, but not set in cf-deployment.
 ==========================================================================================
 */}}
 {{- define "_config.property" }}
@@ -305,11 +306,5 @@
     {{- $retval = include "_config.lookupManifest" (list $root $query) }}
   {{- end }}
 
-  {{- /* If there still is no value, we need to use the spec value, which the caller has to provide */}}
-  {{- if and (kindIs "invalid" $root.kubecf.retval) (gt (len .) 4) }}
-    {{- $retval := index . 4 }}
-    {{- $_ := set $root.kubecf "retval" $retval }}
-  {{- end }}
-
-  {{- $retval | toString }}
+  {{- $retval }}
 {{- end }}
