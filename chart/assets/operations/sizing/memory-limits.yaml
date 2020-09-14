@@ -1,33 +1,21 @@
 {{- include "_config.load" $ }}
 {{/* Translate memory limits into ops instructions, if present.
    *
-   * ___ ATTENTION ATTENTION ___
-   *
-   *     This file handles all but the autoscaler groups.
-   *     They are excluded because they do not exist yet.
-   *     A separate operation under `sizing-post/` will
-   *     handle them, invoked after all instance groups
-   *     are present.
-   *
-   * ___ ATTENTION ATTENTION ___
-   *
    * Note: The `_memory.upload` function ensured that all active groups and
    *       jobs are present, and have a proper value. Inactive groups are not
    *       present, nor are defaults. This makes the conversion here trivial.
    */}}
 {{- if .Values.features.memory_limits.enabled }}
-  {{- range $igname, $jobs := $.Values.limits.memory }}
-    {{- if not (hasPrefix "as" $igname) }}
-      {{- range $jobname, $limit := $jobs }}
-        {{- range $processname := (index $.Values.jobs $igname $jobname "processes") }}
+  {{- range $ig_name, $ig := $.Values.limits.memory }}
+    {{- range $job_name, $limit := $ig }}
+      {{- range $process_name := index $.Values.jobs $ig_name $job_name "processes" }}
     - type: replace
-      path: /instance_groups/name={{ $igname }}/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $processname }}/limits/memory
+      path: /instance_groups/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/memory
       value: {{ $limit }}Mi
     - type: replace
-      path: /instance_groups/name={{ $igname }}/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $processname }}/requests/memory
+      path: /instance_groups/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/memory
       value: 16Mi
-        {{- end }}{{/* -- range process names */}}
-      {{- end }}{{/* -- range job/condition <- jobs */}}
-    {{- end }}{{/* -- if not prefix */}}
-  {{- end }}{{/* -- range igroup/jobs <- instance_group_condition */}}
-{{- end }}{{/* -- if features.memory_limits.enabled */}}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

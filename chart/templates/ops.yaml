@@ -41,10 +41,6 @@ data:
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}
 
-{{- range $path, $_ := .Files.Glob "assets/operations/sizing-post/*" }}
-{{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
-{{- end }}
-
 {{- range $path, $_ := .Files.Glob "assets/operations/temporary/*" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
 {{- end }}

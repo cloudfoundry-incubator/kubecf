@@ -72,11 +72,8 @@ spec:
     type: configmap
 {{- end }}
 
+# Pod/container sizing
 {{- range $path, $_ := .Files.Glob "assets/operations/sizing/*" }}
-  - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
-    type: configmap
-{{- end }}
-{{- range $path, $_ := .Files.Glob "assets/operations/sizing-post/*" }}
   - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}
