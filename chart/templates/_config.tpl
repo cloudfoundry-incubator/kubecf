@@ -57,7 +57,7 @@
     {{- include "_stacks.update" . }}
     {{- include "_releases.update" . }}
     {{- include "_jobs.update" . }}
-    {{- include "_memory.update" . }}
+    {{- include "_resources.update" . }}
 
     {{- range $condition, $message := $.Values.unsupported }}
       {{- if eq "true" (include "_config.condition" (list $ $condition)) }}

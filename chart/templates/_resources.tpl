@@ -1,23 +1,23 @@
 {{- /*
 ==========================================================================================
-| _memory.update $
+| _resources.update $
 +-----------------------------------------------------------------------------------------
-| Create an entry in $.Values.limits.memory for each instance group in $Values.jobs
+| Create an entry in $.Values.resources for each instance group in $Values.jobs
 | (if it doesn't already exist), and each job in the group (again, if it doesn't
-| already exist).  The config/memory.yaml file can override the groups and jobs.
+| already exist).  The config/resources.yaml file can override the groups and jobs.
 | As part of this it also adds missing '$default' keys, and uses '$default' to
 | resolve missing values.
 ==========================================================================================
 */}}
-{{- define "_memory.update" }}
+{{- define "_resources.update" }}
   {{- /* Phase I - Fill missing entries with data from jobs */}}
   {{- /* Iterate the groups */}}
   {{- range $jigname, $jig := $.Values.jobs }}
-    {{- /* Groups missing under `memory` are added, with a default */}}
-    {{- if not (hasKey $.Values.limits.memory $jigname) }}
-      {{- $_ := set $.Values.limits.memory $jigname (dict "$default" "2Gi") }}
+    {{- /* Groups missing under `resources` are added, with a default */}}
+    {{- if not (hasKey $.Values.resources $jigname) }}
+      {{- $_ := set $.Values.resources $jigname (dict "$default" "2Gi") }}
     {{- end }}
-    {{- $ig := index $.Values.limits.memory $jigname }}
+    {{- $ig := index $.Values.resources $jigname }}
     {{- /* Groups without a default get one */}}
     {{- if not (hasKey $ig "$default") }}
       {{- $_ := set $ig "$default" "2Gi" }}
@@ -32,7 +32,7 @@
   {{- end }}
   {{- /* Phase II - Resolve nil values to defaults */}}
   {{- /* Iterate the groups (in memory) */}}
-  {{- range $igname, $ig := $.Values.limits.memory }}
+  {{- range $igname, $ig := $.Values.resources }}
     {{- /* Get the fallback condition */}}
     {{- $default := index $ig "$default" }}
     {{- $_ := unset $ig "$default" }}
@@ -48,7 +48,7 @@
         {{- end }}
       {{- else }}
         {{- /* Drop inactive jobs from memory, as per the job's condition */}}
-        {{- $_ := unset (index $.Values.limits.memory $igname) $jobname }}
+        {{- $_ := unset (index $.Values.resources $igname) $jobname }}
       {{- end }}
     {{- end }}
   {{- end }}

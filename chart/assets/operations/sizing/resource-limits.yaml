@@ -1,20 +1,24 @@
 {{- include "_config.load" $ }}
 {{/* Translate memory limits into ops instructions, if present.
    *
-   * Note: The `_memory.upload` function ensured that all active groups and
+   * Note: The `_resources.update` function ensured that all active groups and
    *       jobs are present, and have a proper value. Inactive groups are not
    *       present, nor are defaults. This makes the conversion here trivial.
    */}}
 {{- if .Values.features.memory_limits.enabled }}
-  {{- range $ig_name, $ig := $.Values.limits.memory }}
-    {{- range $job_name, $limit := $ig }}
-      {{- range $process_name := index $.Values.jobs $ig_name $job_name "processes" }}
+  {{- range $ig_name, $ig := $.Values.resources }}
+    {{- range $job_name, $job := $ig }}
+      {{- range $process_name, $resource := $job }}
+        {{- if $resource.memory.limit }}
     - type: replace
       path: /instance_groups/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/memory
-      value: {{ $limit }}Mi
+      value: {{ $resource.memory.limit }}Mi
+        {{- end }}
+        {{- if $resource.memory.request }}
     - type: replace
       path: /instance_groups/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/memory
-      value: 16Mi
+      value: {{ $resource.memory.request }}Mi
+        {{- end }}
       {{- end }}
     {{- end }}
   {{- end }}

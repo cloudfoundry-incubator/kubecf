@@ -362,21 +362,17 @@ properties:
         - { type: string }
         - { type: "null" }
 
-  limits:
+  resources:
     type: object
-    additionalProperties: false
-    properties:
-      memory:
-        type: object
-        additionalProperties:
-          type: object
-          properties:
-            '$default': { type: string }
-          additionalProperties:
-            oneOf:
-            - { type: string }
-            - { type: "null" }
-            additionalProperties: false
+    additionalProperties:
+      type: object
+      properties:
+        '$default': { type: integer }
+      additionalProperties:
+        oneOf:
+        - { type: integer }
+        - { type: "null" }
+        additionalProperties: false
 
   unsupported:
     type: object
