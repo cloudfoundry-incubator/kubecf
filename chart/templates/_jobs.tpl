@@ -114,8 +114,7 @@
 
   {{- $ig := index $jobs $from_ig }}
   {{- if kindIs "invalid" (index $ig $job) }}
-    {{- /* XXX use _config.fail after rebasing this PR */}}
-    {{- fail (printf "There is no %q job in %q" $job $from_ig) }}
+    {{- include "_config.fail" (printf "Job %q in instance group %q does not exist" $job $from_ig) }}
   {{- end }}
 
   {{- if not (hasKey $jobs $to_ig) }}
