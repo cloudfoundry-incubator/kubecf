@@ -23,7 +23,7 @@
       {{- range $jobname, $limit := $ig }}
     - type: replace
       path: /instance_groups/name={{ $igname }}/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $jobname }}/limits/memory
-      value: {{ $limit }}
+      value: {{ $limit }}Mi
       {{- end }}{{/* -- range jobname/limit <- ig */}}
 
     {{- else if eq "scheduler" $igname }}
@@ -31,7 +31,7 @@
 
     - type: replace
       path: /instance_groups/name=auctioneer/jobs/name=auctioneer/properties?/quarks/bpm/processes/name=auctioneer/limits/memory
-      value: {{ $.Values.limits.memory.scheduler.auctioneer }}
+      value: {{ $.Values.limits.memory.scheduler.auctioneer }}Mi
 
       {{- end }}
 
@@ -40,7 +40,7 @@
 
     - type: replace
       path: /instance_groups/name=routing-api/jobs/name=routing-api/properties?/quarks/bpm/processes/name=routing-api/limits/memory
-      value: {{ index $.Values.limits.memory.api "routing-api" }}
+      value: {{ index $.Values.limits.memory.api "routing-api" }}Mi
 
       {{- end }}
 
@@ -49,7 +49,7 @@
 
     - type: replace
       path: /instance_groups/name=credhub/jobs/name=credhub/properties?/quarks/bpm/processes/name=credhub/limits/memory
-      value: {{ $.Values.limits.memory.credhub.credhub }}
+      value: {{ $.Values.limits.memory.credhub.credhub }}Mi
 
       {{- end }}
 
@@ -59,13 +59,13 @@
 
     - type: replace
       path: /instance_groups/name=log-cache/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $jobname }}/limits/memory
-      value: {{ $limit }}
+      value: {{ $limit }}Mi
 
         {{- else }}
 
     - type: replace
       path: /instance_groups/name={{ $igname }}/jobs/name={{ $jobname }}/properties?/quarks/bpm/processes/name={{ $jobname }}/limits/memory
-      value: {{ $limit }}
+      value: {{ $limit }}Mi
 
         {{- end }}{{/* -- if log cach jobs */}}
       {{- end }}{{/* -- range jobname/limit <- ig */}}
