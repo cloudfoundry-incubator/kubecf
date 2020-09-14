@@ -116,12 +116,14 @@
           # do not want to interrupt that.  We may want to consider using a
           # startupProbe in the future (once that feature stabilizes).
           liveness: ~
-        local_worker_1:
-          readiness: &cc_local_worker_readiness
+  {{- range $process := $.Values.jobs.api.cloud_controller_ng.processes }}
+    {{- if hasPrefix "local_worker_" $process }}
+        {{ $process }}:
+          readiness:
             exec:
               command: [/usr/bin/pgrep, --full, cc_api_worker]
-        local_worker_2:
-          readiness: *cc_local_worker_readiness
+    {{- end }}
+  {{- end }}
         nginx:
           readiness:
             httpGet:
