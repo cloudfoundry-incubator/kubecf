@@ -10,7 +10,7 @@ password=${DATABASE_ROOT_PASSWORD}
 EOF
 
 echo "Waiting for database to be ready..."
-until echo "SELECT 'Ready!'" | mysql --connect-timeout=3 1> /dev/null 2> /dev/null; do
+until echo "SELECT 'Ready!'" | mysql --connect-timeout="${DATABASE_CONNECT_TIMEOUT}" 1> /dev/null 2> /dev/null; do
   sleep 1
 done
 

@@ -313,6 +313,8 @@ features:
     # https://kubecf.suse.dev/docs/getting-started/kubernetes-deploy/#external-database for details.
     # See also features.external_database.
     enabled: true
+    # Number of seconds to wait for the database to be ready, per iteration of the waiter loop
+    connect_timeout: 3
   blobstore:
     # Possible values for provider: singleton and s3.
     provider: singleton
