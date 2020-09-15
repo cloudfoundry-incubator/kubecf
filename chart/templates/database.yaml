@@ -403,6 +403,8 @@ spec:
                   key: password
             - name: DATABASE_HOST
               value: {{ printf "database.%s" .Release.Namespace | quote }}
+            - name: DATABASE_CONNECT_TIMEOUT
+              value: {{ $.Values.features.embedded_database.connect_timeout | quote }}
             - name: CHARACTER_SET
               value: utf8
             - name: COLLATE
