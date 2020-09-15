@@ -124,3 +124,4 @@ export SCF_CHART
 
 make kubecf-chart
 make kubecf-upgrade
+KUBECF_TEST_SUITE=smokes make tests-kubecf
