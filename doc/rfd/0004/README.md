@@ -1,7 +1,7 @@
 ---
 authors: Vlad Iovanov <VIovanov@suse.com>
 state: published
-discussion: N/A
+discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/1074
 ---
 
 # RFD 4 upgrade testing methodology when releasing
