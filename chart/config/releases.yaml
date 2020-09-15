@@ -48,6 +48,11 @@ releases:
   postgres:
     condition: features.autoscaler.enabled
     version: "39"
+  secret-rotation:
+    # secret-rotation is not a BOSH release.  It requires ruby & kubectl.
+    image:
+      repository: splatform/fissile-stemcell-sle
+      tag: SLE_15_SP1-27.4
   sync-integration-tests:
     # XXX SITS only makes sense when using Diego; add error check somewhere?
     condition: testing.sync_integration_tests.enabled
