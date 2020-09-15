@@ -1,19 +1,19 @@
-# 3. upgrade testing methodology when releasing
+---
+authors: Vlad Iovanov <VIovanov@suse.com>
+state: published
+discussion: N/A
+---
 
-Date: 2020-06-25
-
-## Status
-
-Accepted
+# RFD 4 upgrade testing methodology when releasing
 
 ## Context
 
 One of the goals of the KubeCF project is to offer a smooth experience when it comes to upgrading Cloud Foundry deployments.
 That means any user operating a KubeCF deployment should:
 
-- be able to easily identify which versions they can upgrade to
-- upgrade using documented procedures
-- have confidence that the exact version upgrade they are performing has been tested by the KubeCF team 
+- be able to easily identify which versions they can upgrade to.
+- upgrade using documented procedures.
+- have confidence that the exact version upgrade they are performing has been tested by the KubeCF team.
 
 ## Decision
 
@@ -36,4 +36,4 @@ Therefore, for downstream projects, assuming they don't release as often as Kube
 - we only allow patch releases for old major releases
 - more scenarios must be tested in our pipelines to ensure the upgrade paths work.
 - accurately using semver for KubeCF is important
-- should enforce [this ADR](https://github.com/cloudfoundry-incubator/kubecf/blob/master/doc/architecture/decisions/0002-git-commit-messages.md)
+- should enforce [the RFD](https://github.com/cloudfoundry-incubator/kubecf/blob/master/doc/rfd/0002/README.md)

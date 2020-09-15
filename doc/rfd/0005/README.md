@@ -1,10 +1,10 @@
-# 5. Limit the languages, data formats, and tools used by kubecf
+---
+authors: Vlad Iovanov <VIovanov@suse.com>
+state: published
+discussion: N/A
+---
 
-Date: 2020-07-24
-
-## Status
-
-Accepted
+# RFD 5 Limit the languages, data formats, and tools used by kubecf
 
 ## Context
 

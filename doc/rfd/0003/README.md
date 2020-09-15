@@ -1,10 +1,10 @@
-# 3. deprecate bazel
+---
+authors: Vlad Iovanov <VIovanov@suse.com>
+state: published
+discussion: N/A
+---
 
-Date: 2020-05-03
-
-## Status
-
-Accepted
+# RFD 3 deprecate bazel
 
 ## Context
 

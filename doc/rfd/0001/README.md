@@ -1,10 +1,10 @@
-# 1. Record architecture decisions
+---
+authors: Jan von Löwenstein
+state: abandoned
+discussion: N/A
+---
 
-Date: 2019-11-11
-
-## Status
-
-Accepted
+# RFD 1 Record architecture decisions
 
 ## Context
 

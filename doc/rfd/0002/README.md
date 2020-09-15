@@ -1,10 +1,10 @@
-# 2. git commit messages
+---
+authors: Jaime Gomes <jaime.gomes@suse.com>
+state: published
+discussion: N/A
+---
 
-Date: 2019-11-13
-
-## Status
-
-Draft
+# RFD 2 git commit messages
 
 ## Context
 
