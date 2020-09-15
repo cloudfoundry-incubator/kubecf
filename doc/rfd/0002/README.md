@@ -1,7 +1,7 @@
 ---
 authors: Jaime Gomes <jaime.gomes@suse.com>
 state: published
-discussion: N/A
+discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/221
 ---
 
 # RFD 2 git commit messages

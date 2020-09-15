@@ -1,7 +1,7 @@
 ---
 authors: Vlad Iovanov <VIovanov@suse.com>
 state: published
-discussion: N/A
+discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/805
 ---
 
 # RFD 3 deprecate bazel

@@ -1,7 +1,7 @@
 ---
 authors: Jan von Löwenstein
 state: abandoned
-discussion: N/A
+discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/134
 ---
 
 # RFD 1 Record architecture decisions
