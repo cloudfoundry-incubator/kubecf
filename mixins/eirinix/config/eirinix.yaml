@@ -3,7 +3,7 @@ eirinix:
     replicaCount: 1
     image:
       repository: splatform
-      tag: v0.0.0-0.g2c55fd6
+      tag: v0.0.0-0.g91156e8
       pullPolicy: IfNotPresent
     resources: {}
     nodeSelector: {}
