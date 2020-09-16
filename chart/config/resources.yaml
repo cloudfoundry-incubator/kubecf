@@ -56,26 +56,15 @@
 
 resources:
   '$defaults': 32
+
   asactors:
-    '$defaults': 30
-    operator: ~
-    scalingengine: ~
     scheduler: 800
   asapi:
-    '$defaults': 30
-    golangapiserver: ~
-    metricsforwarder: ~
-    route_registrar: ~
   asdatabase:
-    '$defaults': 30
     postgres: 300
   asmetrics:
-    '$defaults': 30
-    eventgenerator: ~
-    metricsserver: ~
   asnozzle:
-    '$defaults': 40
-    metricsgateway: ~
+    metricsgateway: 40
 
   api:
     '$defaults': 550
@@ -85,12 +74,7 @@ resources:
       local_worker_2: 550
   cc-worker:
     '$defaults': 350
-  credhub:
-    '$defaults': 15
-    credhub:
-      credhub:
-        memory:
-          limit: 750
+  credhub: 750
   diego-api:
     '$defaults': 50
   diego-cell:
@@ -98,7 +82,6 @@ resources:
     garden: 2048
     rep: 3072
   doppler:
-    '$defaults': 40
     doppler: 70
   log-api:
     '$defaults': 100
@@ -106,17 +89,13 @@ resources:
     '$defaults': 40
     log-cache: 2048
   nats:
-    '$defaults': 30
-  router:
-    '$defaults': 100
+  router: 100
   scheduler:
-    '$defaults': 40
     cc_deployment_updater: 260
     cloud_controller_clock: 360
   singleton-blobstore:
-    '$defaults': 330
-  tcp-router:
-    '$defaults': 60
+    blobstore:
+      nginx: 400
+  tcp-router: 60
   uaa:
-    '$defaults': 30
     uaa: 1100
