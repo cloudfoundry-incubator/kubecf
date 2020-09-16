@@ -32,11 +32,9 @@ spec:
             value: "8443"
           - name: SERVICE_NAME
             value: eirini-dns-aliases
-          - name: OPERATOR_FINGERPRINT
-            value: eirini-dns-aliases
           - name: DNS_SERVICE_HOST
             value: {{ printf "apps-dns.%s.svc" .Release.Namespace }}
           ports:
-          - name: webhook-tls
+          - name: webhook
             containerPort: 8443
 {{- end }}
