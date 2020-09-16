@@ -118,7 +118,6 @@ spec:
   selector:
     app.kubernetes.io/component: router
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
-    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
   ports:
   - name: http
     protocol: TCP
@@ -162,7 +161,6 @@ spec:
   selector:
     app.kubernetes.io/component: ssh-proxy
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
-    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
   ports:
   - name: ssh
     protocol: TCP
@@ -202,7 +200,6 @@ spec:
   selector:
     app.kubernetes.io/component: tcp-router
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
-    app.kubernetes.io/version: {{ default $root.Chart.Version $root.Chart.AppVersion | quote }}
   ports:
   - name: healthcheck
     protocol: TCP
