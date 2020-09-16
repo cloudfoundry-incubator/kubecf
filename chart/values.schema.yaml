@@ -99,6 +99,55 @@ definitions:
         properties:
           condition: {enum: [false]}
 
+  resources:
+    type: object
+    properties:
+      cpu:
+        type: object
+        properties:
+          limit: {type: number, multipleOf: 0.001}
+          request: {type: number, multipleOf: 0.001}
+        additionalProperties: false
+      memory:
+        type: object
+        properties:
+          limit: {type: integer}
+          request: {type: integer}
+        additionalProperties: false
+    additionalProperties: false
+
+  resources_defaults:
+    anyOf:
+    - type: integer
+    - "$ref": "#/definitions/resources"
+
+  resources_ig:
+    anyOf:
+    # Allow empty ig entry for documentation purposes
+    - type: "null"
+    # integer is a shortcut for {"$defaults": integer} which in turn
+    # is a shortcut {"$defaults": {"memory": {"limit": integer}}}.
+    - type: integer
+    - type: object
+      properties:
+        '$defaults': {"$ref": "#/definitions/resources_defaults"}
+      additionalProperties: {"$ref": "#/definitions/resources_job"}
+
+  resources_job:
+    anyOf:
+    - type: "null"
+    - type: integer
+    - type: object
+      properties:
+        '$defaults': {"$ref": "#/definitions/resources_defaults"}
+      additionalProperties: {"$ref": "#/definitions/resources_process"}
+
+  resources_process:
+    anyOf:
+    - type: "null"
+    - type: integer
+    - "$ref": "#/definitions/resources"
+
   service:
     type: object
     properties:
@@ -364,15 +413,9 @@ properties:
 
   resources:
     type: object
-    additionalProperties:
-      type: object
-      properties:
-        '$default': { type: integer }
-      additionalProperties:
-        oneOf:
-        - { type: integer }
-        - { type: "null" }
-        additionalProperties: false
+    properties:
+      '$defaults': {"$ref": "#/definitions/resources_defaults"}
+    additionalProperties: {"$ref": "#/definitions/resources_ig"}
 
   unsupported:
     type: object
