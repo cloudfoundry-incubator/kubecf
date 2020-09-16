@@ -8,6 +8,31 @@ required:
 
 definitions:
 
+  jobs:
+    type: object
+    additionalProperties:
+      type: object
+      properties:
+        '$default':
+          oneOf:
+          - {type: boolean}
+          - {type: string}
+      additionalProperties:
+        oneOf:
+        - type: object
+          properties:
+            condition:
+              oneOf:
+              - {type: boolean}
+              - {type: string}
+              - {type: "null"}
+            processes:
+              type: array
+              items: {type: string}
+        - {type: boolean}
+        - {type: string}
+        - {type: "null"}
+
   operation:
     type: object
     oneOf:
@@ -189,6 +214,8 @@ definitions:
     enum: [ Always, Never, IfNotPresent, ~ ]
 
 properties:
+
+  addons: {"$ref": "#/definitions/jobs"}
 
   ccdb:
     type: object
@@ -386,30 +413,7 @@ properties:
 
   system_domain: {type: string}
 
-  jobs:
-    type: object
-    additionalProperties:
-      type: object
-      properties:
-        '$default':
-          oneOf:
-          - {type: boolean}
-          - {type: string}
-      additionalProperties:
-        oneOf:
-        - type: object
-          properties:
-            condition:
-              oneOf:
-              - {type: boolean}
-              - {type: string}
-              - {type: "null"}
-            processes:
-              type: array
-              items: {type: string}
-        - {type: boolean}
-        - {type: string}
-        - {type: "null"}
+  jobs: {"$ref": "#/definitions/jobs"}
 
   resources:
     type: object

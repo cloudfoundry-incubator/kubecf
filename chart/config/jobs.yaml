@@ -53,6 +53,19 @@ properties:
           generic:
             number_of_workers: 1
 
+# Definition of all addons; jobs and processes will be filled in by _jobs.update.
+# Format is the same as the `jobs` tree. Addons can be disabled by setting their
+# `condition` to `false`.
+addons:
+  bosh-dns-aliases:
+    '$default': false
+  bpm:
+    '$default': false
+  metrics-agent:
+    '$default': false
+  metrics-discovery-registrar:
+    '$default': false
+
 jobs:
   # Some cf-deployment jobs are moved to different instance groups; the job name remains unchanged.
   '$move':

@@ -8,19 +8,12 @@
     os: {{ $stemcell.os | quote }}
     version: {{ $stemcell.version | quote }}
 
-{{- $addons := list }}
-{{- $addons = append $addons "forwarder_agent" }}
-{{- $addons = append $addons "loggr-syslog-agent" }}
-{{- $addons = append $addons "loggregator_agent" }}
-{{- /*
-These are disabled as we don't use use them yet, and don't have images
-{{- $addons = append $addons "metrics-agent" }}
-{{- $addons = append $addons "metrics-discovery-registrar" }}
-*/}}
-{{- $addons = append $addons "prom_scraper" }}
-
-{{- range $addon := $addons }}
+{{- range $addon_name, $addon := $.Values.addons }}
+  {{- /* All jobs in the addon have the same .condition value */}}
+  {{- $job_name := $addon | keys | first }}
+  {{- if index $addon $job_name "condition" }}
 - type: replace
-  path: /addons/name={{ $addon }}/include/stemcell/os=ubuntu-xenial/os
+  path: /addons/name={{ $addon_name }}/include/stemcell/os=ubuntu-xenial/os
   value: {{ $stemcell.os | quote }}
+  {{- end }}
 {{- end }}
