@@ -9,7 +9,7 @@ features:
 eirini:
   opi:
     deny_app_ingress: false
-    image_tag: "1.8.0"
+    image_tag: "1.8.0.1"
     image: registry.suse.com/cap-staging/opi
     metrics_collector_image: registry.suse.com/cap-staging/metrics-collector
     bits_waiter_image: registry.suse.com/cap-staging/bits-waiter
