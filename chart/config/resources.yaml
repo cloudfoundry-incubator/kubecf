@@ -6,12 +6,12 @@
 # NOTE: Missing instance groups and/or jobs are filled using data from
 #  	the jobs tree.
 #
-#	Missing instance groups are added with `'$default': 2048`.
+#	Missing instance groups are added with `'$defaults': 2048`.
 #       This is a very generous global limit. Stricter limits must be
 #       specified here.
 #
-#	Instance groups without '$default' are extended with `'$default': 2048`.
-#	Missing jobs are added with nil value -> This invokes the '$default'
+#	Instance groups without '$defaults' are extended with `'$defaults': 2048`.
+#	Missing jobs are added with nil value -> This invokes the '$defaults'
 #
 #	This is all handled by `_resources.update` in `chart/templates/_resources.tpl`.
 #
@@ -42,62 +42,81 @@
 
 # # ## ### ###### ######## ############# #####################
 
+# resources:
+#   '$defaults':
+#     memory:
+#       limit: 32
+#   instance_group:
+#     job:
+#       process:
+#         memory:
+#           limit: 32
+#           request: 16
+#      job2: 128
+
 resources:
+  '$defaults': 32
   asactors:
-    '$default': 30
+    '$defaults': 30
     operator: ~
     scalingengine: ~
     scheduler: 800
   asapi:
-    '$default': 30
+    '$defaults': 30
     golangapiserver: ~
     metricsforwarder: ~
     route_registrar: ~
   asdatabase:
-    '$default': 30
+    '$defaults': 30
     postgres: 300
   asmetrics:
-    '$default': 30
+    '$defaults': 30
     eventgenerator: ~
     metricsserver: ~
   asnozzle:
-    '$default': 40
+    '$defaults': 40
     metricsgateway: ~
 
   api:
-    '$default': 550
-    cloud_controller_ng: 2048
+    '$defaults': 550
+    cloud_controller_ng:
+      cloud_controller_ng: 2048
+      local_worker_1: {memory: {limit: 550, request: 400}}
+      local_worker_2: 550
   cc-worker:
-    '$default': 350
+    '$defaults': 350
   credhub:
-    '$default': 15
-    credhub: 750
+    '$defaults': 15
+    credhub:
+      credhub:
+        memory:
+          limit: 750
   diego-api:
-    '$default': 50
+    '$defaults': 50
   diego-cell:
-    '$default': 40
+    '$defaults': 40
     garden: 2048
     rep: 3072
   doppler:
-    '$default': 40
+    '$defaults': 40
     doppler: 70
   log-api:
-    '$default': 100
+    '$defaults': 100
   log-cache:
-    '$default': 40
+    '$defaults': 40
     log-cache: 2048
   nats:
-    '$default': 30
+    '$defaults': 30
   router:
-    '$default': 100
+    '$defaults': 100
   scheduler:
-    '$default': 40
+    '$defaults': 40
     cc_deployment_updater: 260
     cloud_controller_clock: 360
   singleton-blobstore:
-    '$default': 330
+    '$defaults': 330
   tcp-router:
-    '$default': 60
+    '$defaults': 60
   uaa:
-    '$default': 30
+    '$defaults': 30
     uaa: 1100
