@@ -16,5 +16,4 @@ spec:
   - protocol: TCP
     name: webhook
     port: 8443
-    targetPort: webhook-tls
 {{- end }}
