@@ -56,6 +56,8 @@ spec:
             value: "0.0.0.0"
           - name: OPERATOR_WEBHOOK_PORT
             value: "8443"
+          - name: OPI_IMAGE_CONTAINS
+            value: "127.0.0.1:{{ .Values.bits.services.nodePort }}"
           volumeMounts:
           - name: loggregator-ca
             mountPath: /run/secrets/loggregator-ca
