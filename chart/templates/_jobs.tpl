@@ -80,17 +80,26 @@
 
   {{- /* Define all api local worker processes */}}
   {{- $job := $.Values.jobs.api.cloud_controller_ng }}
+  {{- $resources := index $.Values.resources.api.cloud_controller_ng "$local_worker" }}
   {{- $workers := include "_config.property" (list $ "api" "cloud_controller_ng" "cc.jobs.local.number_of_workers") | int }}
   {{- range $worker := until $workers }}
-    {{- $_ := set $job "processes" (append $job.processes (printf "local_worker_%d" (add1 $worker))) }}
+    {{- $process_name := printf "local_worker_%d" (add1 $worker) }}
+    {{- $_ := set $job "processes" (append $job.processes $process_name) }}
+    {{- $_ := set $.Values.resources.api.cloud_controller_ng $process_name $resources }}
   {{- end }}
+  {{- $_ := unset $.Values.resources.api.cloud_controller_ng "$local_worker" }}
 
   {{- /* Define all cc-worker generic worker processes */}}
   {{- $job := index $.Values.jobs "cc-worker" "cloud_controller_worker" }}
+  {{- $resources := index $.Values.resources "cc-worker" "cloud_controller_worker" "$worker" }}
   {{- $workers := include "_config.property" (list $ "cc-worker" "cloud_controller_worker" "cc.jobs.generic.number_of_workers") | int }}
   {{- range $worker := until $workers }}
+    {{- $process_name := printf "worker_%d" (add1 $worker) }}
+    {{- $_ := set $job "processes" (append $job.processes $process_name) }}
+    {{- $_ := set (index $.Values.resources "cc-worker" "cloud_controller_worker") $process_name $resources }}
     {{- $_ := set $job "processes" (append $job.processes (printf "worker_%d" (add1 $worker))) }}
   {{- end }}
+  {{- $_ := unset (index $.Values.resources "cc-worker" "cloud_controller_worker") "$worker" }}
 
 {{- end }}
 

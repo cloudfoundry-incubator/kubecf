@@ -70,17 +70,23 @@ resources:
     '$defaults': 550
     cloud_controller_ng:
       cloud_controller_ng: 2048
-      local_worker_1: {memory: {limit: 550, request: 400}}
-      local_worker_2: 550
+      # Template for all `local_worker_N` processes.
+      # Will be replaced by _jobs.update.
+      '$local_worker': {memory: {limit: 550, request: 400}}
   cc-worker:
-    '$defaults': 350
+    cloud_controller_worker:
+      # Template for all `worker_N` processes.
+      # Will be replaced by _jobs.update.
+      '$worker': 350
   credhub: 750
   diego-api:
     '$defaults': 50
   diego-cell:
     '$defaults': 40
-    garden: 2048
-    rep: 3072
+    garden:
+      garden: {memory: {limit: 2048, request: 2048}}
+    rep:
+      rep: {memory: {limit: 3072, request: 2048}}
   doppler:
     doppler: 70
   log-api:
