@@ -228,8 +228,19 @@
       # routes are healthy
 
 - type: replace
-  path: /instance_groups/name=api/jobs/name=loggr-udp-forwarder/properties/quarks?/run/healthcheck/loggr-udp-forwarder/readiness/exec/command
-  value: ["sh", "-c", "ss -nlu sport = 3457 | grep :3457"]
+  path: /instance_groups/name=api/jobs/name=loggr-udp-forwarder/properties/quarks?
+  value:
+    run:
+      healthcheck:
+        loggr-udp-forwarder:
+          readiness:
+            exec:
+              command: ["sh", "-c", "ss -nlu sport = 3457 | grep :3457"]
+    envs:
+    - name: INDEX
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.labels['statefulset.kubernetes.io/pod-name']
 
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/api_*" }}
 {{ $bytes | toString }}

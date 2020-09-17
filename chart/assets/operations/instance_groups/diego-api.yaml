@@ -70,6 +70,14 @@
   path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/quarks?/bpm/processes
   value: []
 
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=loggr-udp-forwarder/properties?/quarks/envs
+  value:
+  - name: INDEX
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.labels['statefulset.kubernetes.io/pod-name']
+
 {{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/diego-api_*" }}
 {{ $bytes | toString }}
 {{- end }}
