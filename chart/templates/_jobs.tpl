@@ -2,14 +2,9 @@
 ==========================================================================================
 | _jobs.update $
 +-----------------------------------------------------------------------------------------
-| Create an entry in $.Values.jobs for each instance group in the deployment
-| manifest (if it doesn't already exist), and each job in the group (again, if
-| it doesn't already exist).  The config/jobs.yaml file can override the groups
-| and jobs. As part of this it also adds missing '$default' keys, and uses '$default'
-| to resolve missing condition values.
-|
-| After filling the tree all feature conditions are resolved, i.e. turned into
-| simple true/false.
+| * Create $.Values.jobs and $.Values.addon_jobs from the deployment manifest.
+| * Define CC workers based on their property settings in both "jobs" and "resources" trees.
+| * Move some jobs from their manifest locations to other instance groups.
 ==========================================================================================
 */}}
 {{- define "_jobs.update" }}
@@ -17,28 +12,9 @@
   {{- include "_jobs.fromManifest" (list $ $.Values.jobs "instance_groups") }}
   {{- include "_jobs.fromManifest" (list $ $.Values.addon_jobs "addons") }}
 
-  {{- /* *** Define all api local worker processes *** */}}
-  {{- $job := $.Values.jobs.api.cloud_controller_ng }}
-  {{- $resources := index $.Values.resources.api.cloud_controller_ng "$local_worker" }}
-  {{- $workers := include "_config.property" (list $ "api" "cloud_controller_ng" "cc.jobs.local.number_of_workers") | int }}
-  {{- range $worker := until $workers }}
-    {{- $process_name := printf "local_worker_%d" (add1 $worker) }}
-    {{- $_ := set $job "processes" (append $job.processes $process_name) }}
-    {{- $_ := set $.Values.resources.api.cloud_controller_ng $process_name $resources }}
-  {{- end }}
-  {{- $_ := unset $.Values.resources.api.cloud_controller_ng "$local_worker" }}
-
-  {{- /* *** Define all cc-worker generic worker processes *** */}}
-  {{- $job := index $.Values.jobs "cc-worker" "cloud_controller_worker" }}
-  {{- $resources := index $.Values.resources "cc-worker" "cloud_controller_worker" "$worker" }}
-  {{- $workers := include "_config.property" (list $ "cc-worker" "cloud_controller_worker" "cc.jobs.generic.number_of_workers") | int }}
-  {{- range $worker := until $workers }}
-    {{- $process_name := printf "worker_%d" (add1 $worker) }}
-    {{- $_ := set $job "processes" (append $job.processes $process_name) }}
-    {{- $_ := set (index $.Values.resources "cc-worker" "cloud_controller_worker") $process_name $resources }}
-    {{- $_ := set $job "processes" (append $job.processes (printf "worker_%d" (add1 $worker))) }}
-  {{- end }}
-  {{- $_ := unset (index $.Values.resources "cc-worker" "cloud_controller_worker") "$worker" }}
+  {{- /* *** Define CC workers based on their property settings *** */}}
+  {{- include "_jobs.defineWorkers" (list $ "api" "cloud_controller_ng" "local_worker" "local") }}
+  {{- include "_jobs.defineWorkers" (list $ "cc-worker" "cloud_controller_worker" "worker" "generic") }}
 
   {{- /* *** Move some jobs to new instance groups *** */}}
   {{- range $from_ig, $ig := $.Values.move_jobs }}
@@ -46,7 +22,116 @@
       {{- include "_jobs.move" (list $.Values.jobs $from_ig $to_ig $job) }}
     {{- end }}
   {{- end }}
-  {{- $_ := unset $.Values.jobs "$move" }}
+{{- end }}
+
+{{- /*
+==========================================================================================
+| _jobs.fromManifest $ $jobs $manifest_key
++-----------------------------------------------------------------------------------------
+| * Load all instance groups and their jobs from the deployment manifest.
+| * For data-only releases set the process list to the empty list.
+| * If no process list is defined then set it to a single process with the same
+|   name as the job.
+| * Set default conditions for jobs based on the $default of the instance group.
+| * Evaluate all conditions to a boolean value.
+==========================================================================================
+*/}}
+{{- define "_jobs.fromManifest" }}
+  {{- $root := index . 0 }}
+  {{- $jobs := index . 1 }}
+  {{- $mf_key := index . 2 }}
+
+  {{- /* *** Load the instance groups from the cf-deployment manifest *** */}}
+  {{- $_ := include "_config.lookupManifest" (list $root $mf_key) }}
+  {{- range $mf_ig := $root.kubecf.retval }}
+    {{- if not (hasKey $jobs $mf_ig.name) }}
+      {{- $_ := set $jobs $mf_ig.name dict }}
+    {{- end }}
+
+    {{- $ig := index $jobs $mf_ig.name }}
+    {{- range $mf_job := $mf_ig.jobs }}
+      {{- if not (hasKey $ig $mf_job.name) }}
+        {{- $_ := set $ig $mf_job.name dict }}
+        {{- /* Data-only releases have an empty process list */}}
+        {{- $release := index $root.Values.releases $mf_job.release }}
+        {{- if index $release "data-only" }}
+          {{- $_ := set (index $ig $mf_job.name) "processes" list }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- /* *** For each job fill in conditions from $default and evaluate into boolean *** */}}
+  {{- range $ig_name, $ig := $jobs }}
+    {{- /* Get the fallback condition */}}
+    {{- $default := index $ig "$default" }}
+    {{- $_ := unset $ig "$default" }}
+
+    {{- range $job_name, $job := $ig }}
+      {{- $condition := $job }}
+      {{- if kindIs "map" $job }}
+        {{- $condition = index $job "condition" }}
+      {{- end }}
+      {{- /* Check for nil because false is a valid condition and should not be replaced by $default */}}
+      {{- if kindIs "invalid" $condition }}
+        {{- $condition = $default }}
+      {{- end }}
+      {{- if not (kindIs "map" $job) }}
+        {{- $job = dict }}
+        {{- $_ := set $ig $job_name $job }}
+      {{- end }}
+
+      {{- /* Evaluate the conditions to plain boolean true/false value */}}
+      {{- $_ := set $job "condition" (eq "true" (include "_config.condition" (list $root $condition))) }}
+
+      {{- /* If process list doesn't exist create it with a single process name same as the job name */}}
+      {{- if not (hasKey $job "processes") }}
+        {{- $_ := set $job "processes" (list $job_name) }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- /*
+==========================================================================================
+| _jobs.defineWorkers $ $ig_name $job_name $process_name_root $scope
++-----------------------------------------------------------------------------------------
+| * Define CC worker processes based on their "number_of_workers" property setting.
+| * Since the default for the properties is not set in the deployment manifest,
+|   it must be provided in config/jobs.yaml.
+| * Create corresponding process entries in $.Values.resources for each new worker,
+|   with default resource settings copied from "$worker" template.
+==========================================================================================
+*/}}
+{{- define "_jobs.defineWorkers" }}
+  {{- $root := index . 0 }}
+  {{- $ig_name := index . 1 }}
+  {{- $job_name := index . 2 }}
+  {{- $process_name_root := index . 3 }}
+  {{- $scope := index . 4 }}
+
+  {{- /* Get normalized default resources for this type of worker process */}}
+  {{- $resources_job := index $root.Values.resources $ig_name $job_name }}
+  {{- $template := printf "$%s" $process_name_root }}
+  {{- include "_resources.expandDefaults" (list $resources_job $template) }}
+  {{- $resources_default := index $resources_job $template "$defaults"}}
+  {{- $_ := unset $resources_job $template }}
+
+  {{- /* Get number of worker processes from cc.jobs properties */}}
+  {{- $property := printf "cc.jobs.%s.number_of_workers" $scope }}
+  {{- $workers := include "_config.property" (list $root $ig_name $job_name $property) | int }}
+
+  {{- $job := index $root.Values.jobs $ig_name $job_name }}
+
+  {{- range $worker := until $workers }}
+    {{- $process_name := printf "%s_%d" $process_name_root (add1 $worker) }}
+    {{- $_ := set $job "processes" (append $job.processes $process_name) }}
+
+    {{- /* Merge resource defaults from template with user overrides */}}
+    {{- include "_resources.expandDefaults" (list $resources_job $process_name) }}
+    {{- $process := index $resources_job $process_name }}
+    {{- $_ := set $process "$defaults" (merge (index $process "$defaults") $resources_default) }}
+  {{- end }}
 {{- end }}
 
 {{- /*
@@ -78,66 +163,4 @@
 
   {{- $_ := set (index $jobs $to_ig) $job (index $ig $job) }}
   {{- $_ := unset $ig $job }}
-{{- end }}
-
-
-{{- /*
-==========================================================================================
-| _jobs.fromManifest $ $jobs $mf_key
-+-----------------------------------------------------------------------------------------
-| XXX
-==========================================================================================
-*/}}
-{{- define "_jobs.fromManifest" }}
-  {{- $root := index . 0 }}
-  {{- $jobs := index . 1 }}
-  {{- $mf_key := index . 2 }}
-
-  {{- /* Load the instance groups from the cf-deployment manifest */}}
-  {{- $_ := include "_config.lookupManifest" (list $root $mf_key) }}
-  {{- range $mf_ig := $root.kubecf.retval }}
-    {{- if not (hasKey $jobs $mf_ig.name) }}
-      {{- $_ := set $jobs $mf_ig.name dict }}
-    {{- end }}
-
-    {{- $ig := index $jobs $mf_ig.name }}
-    {{- /* Iterate jobs of the group (in the manifest) */}}
-    {{- range $mf_job := $mf_ig.jobs }}
-      {{- if not (hasKey $ig $mf_job.name) }}
-        {{- $_ := set $ig $mf_job.name dict }}
-        {{- /* Data-only releases have an empty process list */}}
-        {{- $release := index $root.Values.releases $mf_job.release }}
-        {{- if index $release "data-only" }}
-          {{- $_ := set (index $ig $mf_job.name) "processes" list }}
-        {{- end }}
-      {{- end }}
-    {{- end }}
-  {{- end }}
-
-  {{- range $ig_name, $ig := $jobs }}
-    {{- /* Get the fallback condition */}}
-    {{- $default := index $ig "$default" }}
-    {{- $_ := unset $ig "$default" }}
-
-    {{- range $job_name, $job := $ig }}
-      {{- $condition := $job }}
-      {{- if kindIs "map" $job }}
-        {{- $condition = index $job "condition" }}
-      {{- end }}
-      {{- /* Check for nil because false is a valid condition and should not be replaced by $default */}}
-      {{- if kindIs "invalid" $condition }}
-        {{- $condition = $default }}
-      {{- end }}
-      {{- if not (kindIs "map" $job) }}
-        {{- $job = dict }}
-        {{- $_ := set $ig $job_name $job }}
-      {{- end }}
-
-      {{- /* Resolve the conditions to plain boolean true/false */}}
-      {{- $_ := set $job "condition" (eq "true" (include "_config.condition" (list $root $condition))) }}
-      {{- if not (hasKey $job "processes") }}
-        {{- $_ := set $job "processes" (list $job_name) }}
-      {{- end }}
-    {{- end }}
-  {{- end }}
 {{- end }}
