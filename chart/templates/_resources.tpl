@@ -106,7 +106,7 @@
   {{- end }}
   {{- $value := index $dict $key }}
 
-  {{- $defaults := dict "memory" (dict "limit" nil "request" nil) }}
+  {{- $defaults := dict "cpu" (dict "limit" nil "request" nil) "memory" (dict "limit" nil "request" nil) }}
   {{- if kindIs "map" $value }}
     {{- if not (hasKey $value "$defaults") }}
       {{- $_ := set $value "$defaults" $defaults }}

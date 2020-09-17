@@ -136,8 +136,8 @@ definitions:
       cpu:
         type: object
         properties:
-          limit: {type: number, multipleOf: 0.001}
-          request: {type: number, multipleOf: 0.001}
+          limit: {type: integer}
+          request: {type: integer}
         additionalProperties: false
       memory:
         type: object

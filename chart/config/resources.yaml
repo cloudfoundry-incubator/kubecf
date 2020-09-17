@@ -42,6 +42,13 @@
 
 # # ## ### ###### ######## ############# #####################
 
+# non-advertised features because we don't have any default cpu settings yet
+features:
+  cpu_limits:
+    enabled: false
+  cpu_requests:
+    enabled: false
+
 # resources:
 #   '$defaults':
 #     memory:

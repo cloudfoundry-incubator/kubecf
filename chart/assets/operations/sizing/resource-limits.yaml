@@ -1,25 +1,44 @@
 {{- include "_config.load" $ }}
-{{/* Translate memory limits into ops instructions, if present.
-   *
-   * Note: The `_resources.update` function ensured that all active groups and
-   *       jobs are present, and have a proper value. Inactive groups are not
-   *       present, nor are defaults. This makes the conversion here trivial.
-   */}}
-{{- if .Values.features.memory_limits.enabled }}
-  {{- range $ig_name, $ig := $.Values.resources }}
+{{/* Translate memory limits into ops instructions, if present */}}
+
+{{- define "ops.resources" }}
+  {{- $root := index . 0 }}
+  {{- $values_name := index . 1 }}
+  {{- $bosh_name := index . 2 }}
+
+  {{- $resources := index $root.Values $values_name }}
+  {{- range $ig_name, $ig := $resources }}
     {{- range $job_name, $job := $ig }}
       {{- range $process_name, $resource := $job }}
-        {{- if $resource.memory.limit }}
+
+        {{- if and $root.Values.features.cpu_limits.enabled $resource.cpu.limit }}
     - type: replace
-      path: /instance_groups/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/memory
+      path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/cpu
+      value: {{ $resource.cpu.limit }}m
+        {{- end }}
+
+        {{- if and $root.Values.features.cpu_requests.enabled $resource.cpu.request }}
+    - type: replace
+      path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/cpu
+      value: {{ $resource.cpu.request }}m
+        {{- end }}
+
+        {{- if and $root.Values.features.memory_limits.enabled $resource.memory.limit }}
+    - type: replace
+      path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/memory
       value: {{ $resource.memory.limit }}Mi
         {{- end }}
-        {{- if $resource.memory.request }}
+
+        {{- if and $root.Values.features.memory_requests.enabled $resource.memory.request }}
     - type: replace
-      path: /instance_groups/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/memory
+      path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/memory
       value: {{ $resource.memory.request }}Mi
         {{- end }}
+
       {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}
+
+{{- include "ops.resources" (list $ "resources" "instance_groups") }}
+{{- include "ops.resources" (list $ "addon_resources" "addons") }}
