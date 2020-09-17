@@ -54,6 +54,9 @@
 #           request: 16
 #      job2: 128
 
+addon_resources:
+  '$defaults': 32
+
 resources:
   '$defaults': 32
 
@@ -67,41 +70,42 @@ resources:
     metricsgateway: 40
 
   api:
-    '$defaults': 550
     cloud_controller_ng:
       cloud_controller_ng: 2048
+      nginx: 192
       # Template for all `local_worker_N` processes.
       # Will be replaced by _jobs.update.
       '$local_worker': {memory: {limit: 550, request: 400}}
+    file_server: 96
   cc-worker:
     cloud_controller_worker:
       # Template for all `worker_N` processes.
       # Will be replaced by _jobs.update.
       '$worker': 350
-  credhub: 750
+  credhub: 1024
   diego-api:
-    '$defaults': 50
+    '$defaults': 64
   diego-cell:
-    '$defaults': 40
+    '$defaults': 64
     garden:
       garden: {memory: {limit: 2048, request: 2048}}
     rep:
       rep: {memory: {limit: 3072, request: 2048}}
   doppler:
-    doppler: 70
+    doppler: 128
   log-api:
-    '$defaults': 100
+    '$defaults': 128
   log-cache:
     '$defaults': 40
     log-cache: 2048
   nats:
   router: 100
   scheduler:
-    cc_deployment_updater: 260
-    cloud_controller_clock: 360
+    cc_deployment_updater: 320
+    cloud_controller_clock: 512
   singleton-blobstore:
     blobstore:
       nginx: 400
-  tcp-router: 60
+  tcp-router: 96
   uaa:
-    uaa: 1100
+    uaa: 1400
