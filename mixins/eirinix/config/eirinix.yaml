@@ -1,7 +1,7 @@
 eirinix:
   dns-aliases:
     image: ghcr.io/cfcontainerizationbot/eirini-dns-aliases
-    image_tag: 0.0.0-25.g85d1e391
+    image_tag: 0.0.0-29.gcc4c08ea
     pullPolicy: IfNotPresent
 
   loggregator-bridge:
