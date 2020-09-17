@@ -136,6 +136,9 @@ definitions:
     - type: object
       additionalProperties: {"$ref": "#/definitions/tree_of_strings"}
 
+  image_pull_policy:
+    enum: [ Always, Never, IfNotPresent, ~ ]
+
 properties:
 
   ccdb:
@@ -346,4 +349,13 @@ properties:
   # mixin configs
   bits: {type: object}
   eirini: {type: object}
-  eirinix: {type: object}
+  eirinix:
+    type: object
+    additionalProperties: true
+    properties:
+      dns-aliases:
+        type: object
+        properties:
+          image: {type: string}
+          image_tag: {type: string}
+          pullPolicy: {"$ref": "#/definitions/image_pull_policy"}

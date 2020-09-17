@@ -1,0 +1,40 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eirini-dns-aliases
+  labels:
+    {{- list . "eirini-dns-aliases" | include "component.labels" | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- list . "eirini-dns-aliases" | include "component.selector" | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- list . "eirini-dns-aliases" | include "component.labels" | nindent 8 }}
+    spec:
+      serviceAccountName: eirinix
+      containers:
+        - name: eirini-dns-aliases
+          {{- with index .Values.eirinix "dns-aliases" }}
+          image: {{ printf "%s:%s" .image .image_tag | quote }}
+          imagePullPolicy: {{ .pullPolicy }}
+          {{- end }}
+          env:
+          - name: EIRINI_NAMESPACE
+            value: {{ .Values.eirini.opi.namespace }}
+          - name: WEBHOOK_NAMESPACE
+            value: {{ .Release.Namespace }}
+          - name: PORT
+            value: "8443"
+          - name: SERVICE_NAME
+            value: eirini-dns-aliases
+          - name: DNS_SERVICE_HOST
+            value: {{ printf "apps-dns.%s.svc" .Release.Namespace }}
+          ports:
+          - name: webhook
+            containerPort: 8443
+{{- end }}

@@ -1,0 +1,19 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eirini-dns-aliases
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- list . "eirini-dns-aliases" | include "component.labels" | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- list . "eirini-dns-aliases" | include "component.selector" | nindent 4 }}
+  ports:
+  - protocol: TCP
+    name: webhook
+    port: 8443
+{{- end }}
