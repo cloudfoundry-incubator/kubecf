@@ -196,11 +196,15 @@ spec:
         app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
         helm.sh/chart: {{ include "kubecf.chart" . }}
     spec:
-      {{- with $replicas := default 1 .Values.sizing.database.instances }}
-      {{- if eq (mod $replicas 2) 0 }}
-      {{- include "_config.fail" "The number of database instances must be odd to avoid split-brain" }}
-      {{- end }}
-      replicas: {{ $replicas }}
+      {{- if $.Values.sizing.database.instances }}
+        {{- if eq (mod $.Values.sizing.database.instances 2) 0 }}
+        {{- include "_config.fail" "The number of database instances must be odd to avoid split-brain" }}
+        {{- end }}
+      replicas: {{ $.Values.sizing.database.instances }}
+      {{- else if $.Values.high_availability }}
+      replicas: 3
+      {{- else }}
+      replicas: 1
       {{- end }}
       selector:
         matchLabels:
