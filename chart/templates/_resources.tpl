@@ -10,13 +10,25 @@
 ==========================================================================================
 */}}
 {{- define "_resources.update" }}
-  {{- include "_resources.expandDefaults" (list $.Values.resources "$defaults") }}
+  {{- include "_resources._update" (list $ "resources" "jobs") }}
+  {{- include "_resources._update" (list $ "addon_resources" "addon_jobs") }}
+{{- end }}
+
+{{- define "_resources._update" }}
+  {{- $root := index . 0 }}
+  {{- $resources_name := index . 1 }}
+  {{- $jobs_name := index . 2 }}
+
+  {{- $resources := index $root.Values $resources_name }}
+  {{- $jobs := index $root.Values $jobs_name }}
+
+  {{- include "_resources.expandDefaults" (list $resources "$defaults") }}
 
   {{- /* Fill missing resources entries with data from jobs tree. */}}
-  {{- range $jobs_ig_name, $jobs_ig := $.Values.jobs }}
-    {{- include "_resources.expandDefaults" (list $.Values.resources $jobs_ig_name) }}
+  {{- range $jobs_ig_name, $jobs_ig := $jobs }}
+    {{- include "_resources.expandDefaults" (list $resources $jobs_ig_name) }}
 
-    {{- $resources_ig := index $.Values.resources $jobs_ig_name }}
+    {{- $resources_ig := index $resources $jobs_ig_name }}
     {{- range $job_name, $jobs_job := $jobs_ig }}
       {{- include "_resources.expandDefaults" (list $resources_ig $job_name) }}
 
@@ -27,22 +39,23 @@
     {{- end }}
   {{- end }}
 
-  {{- $global_defaults := index $.Values.resources "$defaults" }}
-  {{- $_ := unset $.Values.resources "$defaults" }}
+  {{- $global_defaults := index $resources "$defaults" }}
+  {{- $_ := unset $resources "$defaults" }}
 
   {{- /* Verify that each entry in the 'resources' tree also has a 'jobs' entry */}}
-  {{- range $ig_name, $ig := $.Values.resources }}
-    {{- if not (hasKey $.Values.jobs $ig_name) }}
-      {{- include "_config.fail" (printf "Instance group %q defined in resources but not in jobs" $ig_name) }}
+  {{- $fail_suffix := printf " defined in %s but not in %s" $resources_name $jobs_name }}
+  {{- range $ig_name, $ig := $resources }}
+    {{- if not (hasKey $jobs $ig_name) }}
+      {{- include "_config.fail" (printf "Instance group %q%s" $ig_name $fail_suffix) }}
     {{- end }}
 
-    {{- $jobs_ig := index $.Values.jobs $ig_name }}
+    {{- $jobs_ig := index $jobs $ig_name }}
     {{- $ig_defaults := index $ig "$defaults" }}
     {{- $_ := unset $ig "$defaults" }}
 
     {{- range $job_name, $job := $ig }}
       {{- if not (hasKey $jobs_ig $job_name) }}
-        {{- include "_config.fail" (printf "Instance group %q job %q defined in resources but not in jobs" $ig_name $job_name) }}
+        {{- include "_config.fail" (printf "Instance group %q job %q%s" $ig_name $job_name $fail_suffix) }}
       {{- end }}
 
       {{- $jobs_job := index $jobs_ig $job_name }}
@@ -51,7 +64,7 @@
 
       {{- range $process_name, $process := $job }}
         {{- if not (has $process_name $jobs_job.processes) }}
-          {{- include "_config.fail" (printf "Instance group %q job %q process %q defined in resources but not in jobs" $ig_name $job_name $process_name) }}
+          {{- include "_config.fail" (printf "Instance group %q job %q process %q%s" $ig_name $job_name $process_name $fail_suffix) }}
         {{- end }}
 
         {{- $process_defaults := index $process "$defaults" }}
@@ -70,7 +83,7 @@
         {{- end }}
       {{- end }}
 
-      {{- if not (index $.Values.jobs $ig_name $job_name "condition") }}
+      {{- if not (index $jobs $ig_name $job_name "condition") }}
         {{- $_ := unset $ig $job_name }}
       {{- end }}
     {{- end }}
