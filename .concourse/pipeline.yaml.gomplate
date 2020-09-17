@@ -120,7 +120,7 @@ resources:
   source:
     uri: https://github.com/SUSE/catapult
   version:
-    ref: 53d070314a3351aff3fcd74c5ea6bf844f3ccbb4
+    ref: 6786ef6e0c44e50e7960200dd472639d03ed3091
 
 - name: s3.kubecf-ci
   type: s3
@@ -217,7 +217,7 @@ deploy_args: &deploy_args
   sizing:
     diego_cell:
       ephemeral_disk:
-        size: 60000
+        size: 40000
   EOF
   export CONFIG_OVERRIDE
 

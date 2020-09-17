@@ -90,7 +90,7 @@ read -r -d '' CONFIG_OVERRIDE <<'EOF' || true
 sizing:
   diego_cell:
     ephemeral_disk:
-      size: 60000
+      size: 40000
 EOF
 export CONFIG_OVERRIDE
 
@@ -124,3 +124,4 @@ export SCF_CHART
 
 make kubecf-chart
 make kubecf-upgrade
+KUBECF_TEST_SUITE=smokes make tests-kubecf
