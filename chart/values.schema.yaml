@@ -136,8 +136,10 @@ definitions:
       cpu:
         type: object
         properties:
-          limit: {type: integer}
-          request: {type: integer}
+          # The "minimum" exists to make sure users specify in millicpu units.
+          # So validation will catch when they request 2 millicpus instead of 2000.
+          limit: {type: integer, minimum: 50}
+          request: {type: integer, minimum: 50}
         additionalProperties: false
       memory:
         type: object
