@@ -127,6 +127,12 @@ definitions:
   resources:
     type: object
     properties:
+      '$defaults': {"$ref": "#/definitions/resources_defaults"}
+    additionalProperties: {"$ref": "#/definitions/resources_ig"}
+
+  resources_definition:
+    type: object
+    properties:
       cpu:
         type: object
         properties:
@@ -144,7 +150,7 @@ definitions:
   resources_defaults:
     anyOf:
     - type: integer
-    - "$ref": "#/definitions/resources"
+    - "$ref": "#/definitions/resources_definition"
 
   resources_ig:
     anyOf:
@@ -171,7 +177,7 @@ definitions:
     anyOf:
     - type: "null"
     - type: integer
-    - "$ref": "#/definitions/resources"
+    - "$ref": "#/definitions/resources_definition"
 
   service:
     type: object
@@ -206,7 +212,7 @@ definitions:
   tree_of_strings:
     # multi-level object where all final properties are strings
     oneOf:
-    - {type: string}
+    - type: string
     - type: object
       additionalProperties: {"$ref": "#/definitions/tree_of_strings"}
 
@@ -215,7 +221,9 @@ definitions:
 
 properties:
 
-  addons: {"$ref": "#/definitions/jobs"}
+  addon_jobs: {"$ref": "#/definitions/jobs"}
+
+  addon_resources: {"$ref": "#/definitions/resources"}
 
   ccdb:
     type: object
@@ -241,9 +249,21 @@ properties:
   features:
     type: object
     properties:
-      # "blobstore" and "multiple_cluster_mode" don't have an "enabled" property
+      # "blobstore" doesn't have an "enabled" property
       blobstore: {}
+
+      memory_requests:
+        # should "null" be allowed too?
+        type: object
+        properties:
+          default_in_percent: {type: integer, minimum: 1, maximum: 100}
+          default_minimum: {type: integer, minimum: 1}
+          enabled: {type: boolean}
+        additionalProperties: false
+
+      # "multiple_cluster_mode" doesn't have an "enabled" property
       multiple_cluster_mode: {}
+
     additionalProperties:
       type: object
       properties:
@@ -259,6 +279,8 @@ properties:
     minItems: 1
     uniqueItems: true
 
+  jobs: {"$ref": "#/definitions/jobs"}
+
   kube:
     type: object
     properties:
@@ -270,6 +292,13 @@ properties:
       storage_class: {"$ref": "#/definitions/string_or_null"}
     # XXX Catapult sets additional (unused) properties; allow them for now to pass CI
     additionalProperties: true
+
+  move_jobs:
+    type: object
+    additionalProperties:
+      type: object
+      additionalProperties:
+        type: string
 
   # Does not really work because the zone names cannot be configured
   multi_az: {type: boolean}
@@ -313,6 +342,8 @@ properties:
           url: {}
           version: {}
         additionalProperties: false
+
+  resources: {"$ref": "#/definitions/resources"}
 
   services:
     type: object
@@ -412,14 +443,6 @@ properties:
       additionalProperties: false
 
   system_domain: {type: string}
-
-  jobs: {"$ref": "#/definitions/jobs"}
-
-  resources:
-    type: object
-    properties:
-      '$defaults': {"$ref": "#/definitions/resources_defaults"}
-    additionalProperties: {"$ref": "#/definitions/resources_ig"}
 
   unsupported:
     type: object
