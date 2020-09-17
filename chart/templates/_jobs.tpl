@@ -13,29 +13,11 @@
 ==========================================================================================
 */}}
 {{- define "_jobs.update" }}
+  {{- /* *** Fill in $.Values.jobs and $.Values.addon_jobs from cf-manifest *** */}}
   {{- include "_jobs.fromManifest" (list $ $.Values.jobs "instance_groups") }}
+  {{- include "_jobs.fromManifest" (list $ $.Values.addon_jobs "addons") }}
 
-  {{- /* Move some jobs to new instance groups */}}
-  {{- range $from_ig, $ig := index $.Values.jobs "$move" }}
-    {{- range $job, $to_ig := $ig }}
-      {{- include "_jobs.move" (list $.Values.jobs $from_ig $to_ig $job) }}
-    {{- end }}
-  {{- end }}
-  {{- $_ := unset $.Values.jobs "$move" }}
-
-  {{- /* Translate blobstore.provider feature into a proper boolean we can query in the conditions */}}
-  {{- if eq $.Values.features.blobstore.provider "s3" }}
-    {{- $_ := merge $.Values (dict "features" (dict "external_blobstore" (dict "enabled" true))) }}
-  {{- else }}
-    {{- $_ := merge $.Values (dict "features" (dict "external_blobstore" (dict "enabled" false))) }}
-  {{- end}}
-
-  {{- include "_jobs.normalize" (list $ $.Values.jobs) }}
-
-  {{- include "_jobs.fromManifest" (list $ $.Values.addons "addons") }}
-  {{- include "_jobs.normalize" (list $ $.Values.addons) }}
-
-  {{- /* Define all api local worker processes */}}
+  {{- /* *** Define all api local worker processes *** */}}
   {{- $job := $.Values.jobs.api.cloud_controller_ng }}
   {{- $resources := index $.Values.resources.api.cloud_controller_ng "$local_worker" }}
   {{- $workers := include "_config.property" (list $ "api" "cloud_controller_ng" "cc.jobs.local.number_of_workers") | int }}
@@ -46,7 +28,7 @@
   {{- end }}
   {{- $_ := unset $.Values.resources.api.cloud_controller_ng "$local_worker" }}
 
-  {{- /* Define all cc-worker generic worker processes */}}
+  {{- /* *** Define all cc-worker generic worker processes *** */}}
   {{- $job := index $.Values.jobs "cc-worker" "cloud_controller_worker" }}
   {{- $resources := index $.Values.resources "cc-worker" "cloud_controller_worker" "$worker" }}
   {{- $workers := include "_config.property" (list $ "cc-worker" "cloud_controller_worker" "cc.jobs.generic.number_of_workers") | int }}
@@ -57,6 +39,14 @@
     {{- $_ := set $job "processes" (append $job.processes (printf "worker_%d" (add1 $worker))) }}
   {{- end }}
   {{- $_ := unset (index $.Values.resources "cc-worker" "cloud_controller_worker") "$worker" }}
+
+  {{- /* *** Move some jobs to new instance groups *** */}}
+  {{- range $from_ig, $ig := $.Values.move_jobs }}
+    {{- range $job, $to_ig := $ig }}
+      {{- include "_jobs.move" (list $.Values.jobs $from_ig $to_ig $job) }}
+    {{- end }}
+  {{- end }}
+  {{- $_ := unset $.Values.jobs "$move" }}
 {{- end }}
 
 {{- /*
@@ -123,18 +113,6 @@
       {{- end }}
     {{- end }}
   {{- end }}
-{{- end }}
-
-{{- /*
-==========================================================================================
-| _jobs.normalize $ $jobs
-+-----------------------------------------------------------------------------------------
-| XXX
-==========================================================================================
-*/}}
-{{- define "_jobs.normalize" }}
-  {{- $root := index . 0 }}
-  {{- $jobs := index . 1 }}
 
   {{- range $ig_name, $ig := $jobs }}
     {{- /* Get the fallback condition */}}

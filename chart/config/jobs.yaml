@@ -36,6 +36,19 @@
 
 # # ## ### ###### ######## ############# #####################
 
+# Some cf-deployment jobs are moved to different instance groups; the job name remains unchanged.
+move_jobs:
+  api:
+    routing-api: routing-api
+  scheduler:
+    auctioneer: auctioneer
+  doppler:
+    log-cache: log-cache
+    log-cache-gateway: log-cache
+    log-cache-nozzle: log-cache
+    log-cache-cf-auth-proxy: log-cache
+    route_registrar: log-cache
+
 # Include default settings for `number_of_worker` properties because
 # they are not set in cf-deployment, and spec files are not available
 # to the helm chart.
@@ -56,7 +69,7 @@ properties:
 # Definition of all addons; jobs and processes will be filled in by _jobs.update.
 # Format is the same as the `jobs` tree. Addons can be disabled by setting their
 # `condition` to `false`.
-addons:
+addon_jobs:
   bosh-dns-aliases:
     '$default': false
   bpm:
@@ -67,19 +80,6 @@ addons:
     '$default': false
 
 jobs:
-  # Some cf-deployment jobs are moved to different instance groups; the job name remains unchanged.
-  '$move':
-    api:
-      routing-api: routing-api
-    scheduler:
-      auctioneer: auctioneer
-    doppler:
-      log-cache: log-cache
-      log-cache-gateway: log-cache
-      log-cache-nozzle: log-cache
-      log-cache-cf-auth-proxy: log-cache
-      route_registrar: log-cache
-
   asactors:
     '$default': 'features.autoscaler.enabled'
     operator: ~

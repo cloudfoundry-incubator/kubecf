@@ -54,6 +54,7 @@
 
     {{- $_ := set $.Values "defaults" (index $.Values.releases "$defaults") }}
 
+    {{- include "_features.update" . }}
     {{- include "_stacks.update" . }}
     {{- include "_releases.update" . }}
     {{- include "_jobs.update" . }}
