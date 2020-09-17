@@ -46,7 +46,11 @@
 
     {{- $configs := dict }}
     {{- range $name, $bytes := $.Files.Glob "config/*" }}
-      {{- $_ := set $configs $name ($bytes | toString | fromYaml) }}
+      {{- $config := $bytes | toString | fromYaml }}
+      {{- if hasKey $config "Error" }}
+        {{- include "_config.fail" (printf "Config file %q is invalid:\n%s" $name $config.Error) }}
+      {{- end }}
+      {{- $_ := set $configs $name $config }}
     {{- end }}
     {{- range $name := keys $configs | sortAlpha }}
       {{- $_ := merge $.Values (get $configs $name) }}
