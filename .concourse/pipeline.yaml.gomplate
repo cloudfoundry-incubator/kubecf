@@ -217,7 +217,7 @@ deploy_args: &deploy_args
   sizing:
     diego_cell:
       ephemeral_disk:
-        size: 60000
+        size: 40000
   EOF
   export CONFIG_OVERRIDE
 
