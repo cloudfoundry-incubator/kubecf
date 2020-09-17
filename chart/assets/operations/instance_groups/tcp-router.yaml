@@ -45,6 +45,10 @@
     valueFrom:
       fieldRef:
         fieldPath: metadata.labels['statefulset.kubernetes.io/pod-name']
+  - name: IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
 
 {{- else }}
 # Disable the tcp-router ig, as there will be no routing-api SSE events to read from.

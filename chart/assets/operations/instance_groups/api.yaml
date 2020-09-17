@@ -241,6 +241,10 @@
       valueFrom:
         fieldRef:
           fieldPath: metadata.labels['statefulset.kubernetes.io/pod-name']
+    - name: IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
 
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/api_*" }}
 {{ $bytes | toString }}

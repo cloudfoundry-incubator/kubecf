@@ -93,6 +93,10 @@
     valueFrom:
       fieldRef:
         fieldPath: metadata.labels['statefulset.kubernetes.io/pod-name']
+  - name: IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
 
 {{- if not .Values.features.eirini.enabled }}
 
