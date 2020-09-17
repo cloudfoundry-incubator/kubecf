@@ -29,7 +29,7 @@ releases:
     condition: false
   cf-acceptance-tests:
     condition: testing.cf_acceptance_tests.enabled
-    version: 0.0.16
+    version: 0.0.18
   credhub:
     condition: features.credhub.enabled
     version: ~
