@@ -10,6 +10,7 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name={{ $release_name }}/release?
   value: {{ $release_name | quote }}
+{{- /* $.Values.resources doesn't include the non-default stack jobs, so won't define the process list for them */}}
 - type: replace
   path: /instance_groups/name=api/jobs/name={{ $release_name }}/properties?/quarks/bpm/processes
   value: []

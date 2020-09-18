@@ -61,7 +61,7 @@ for PRE_RENDER_SCRIPT in $(find bosh/releases/pre_render_scripts -name '*.sh'); 
 
     cat <<EOT > "${OUTPUT}"
 - type: replace
-  path: /instance_groups/name=${INSTANCE_GROUP}/jobs/name=${JOB}/properties/quarks?/pre_render_scripts/${TYPE}/-
+  path: /instance_groups/name=${INSTANCE_GROUP}/jobs/name=${JOB}/properties?/quarks/pre_render_scripts/${TYPE}/-
   value: |
 EOT
     sed 's/^/    /' < "${PRE_RENDER_SCRIPT}" >> "${OUTPUT}"

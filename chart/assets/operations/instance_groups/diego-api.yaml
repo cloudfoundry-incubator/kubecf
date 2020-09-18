@@ -62,9 +62,6 @@
           - bash
           - -ce
           - "head -c0 </dev/tcp/${HOSTNAME}/8889"
-- type: replace
-  path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/quarks?/bpm/processes
-  value: []
 
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=loggr-udp-forwarder/properties?/quarks/envs
