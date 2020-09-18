@@ -1,42 +1,13 @@
-# This configuration tree associates feature flag conditions with jobs
+# The `jobs` tree associates feature flag conditions with jobs
 # in instance groups. It further allows the specification of the
 # processes of a job, for jobs where job and process names differ from
 # each other, and jobs with more than one process.
-#
-# Syntax: See `chart/values.schema.yaml`
-#
-# NOTE: Missing instance groups and/or jobs are filled using data from
-#  	the cf-deployment manifest.
-#
-#	Missing instance groups are added with `'$default': true`.
-#	Instance groups without '$default' are extended with `'$default': true`.
-#	Missing jobs are added with nil condition -> This invokes the '$default'
-#
-#	This is all handled by `_jobs.update` in `chart/templates/_jobs.tpl`.
-#
-# NOTE 2: The `as*` groups are for autoscaler. As they do not exist
-# 	  in cf-deployment the auto-fill will not work for them. Thus
-# 	  them being listed in full.
-#
-# The information from here is used by the helm templating creating
-# ops instructions from the memory configuration for jobs to determine
-# which jobs to ignore in the current deployment, in a generic
-# manner. I.e not mixed into the templating code itself.
-#
-# All relevant supporting and using files are
-#
-# - chart/config/jobs.yaml			Self
-# - chart/config/memory.yaml			Memory configuration
-# - chart/operations/memory-limits.yaml		Transform memory config to ops
-# - chart/templates/_jobs.tpl			Take self and complete/resolve
-# - chart/templates/_memory.tpl			Take memory and complete
-# - chart/templates/bosh_deployment.yaml	Reference the new config map
-# - chart/templates/ops.yaml			Wrap `memory-limits.yaml` into config map
-# - chart/values.schema.yaml			Job, memory config structure spec
 
-# # ## ### ###### ######## ############# #####################
+# Some cf-deployment jobs are moved to different instance groups;
+# the job name remains unchanged. Currently jobs are moved during
+# build time; in the future this data could be used to move jobs
+# at deploy time using the "qmove" ops.
 
-# Some cf-deployment jobs are moved to different instance groups; the job name remains unchanged.
 move_jobs:
   api:
     routing-api: routing-api
@@ -51,7 +22,9 @@ move_jobs:
 
 # Include default settings for `number_of_worker` properties because
 # they are not set in cf-deployment, and spec files are not available
-# to the helm chart.
+# to the helm chart. The values are required to dynamically generate
+# process entries for all worker processes at deployment time.
+
 properties:
   api:
     cloud_controller_ng:
@@ -69,6 +42,7 @@ properties:
 # Definition of all addons; jobs and processes will be filled in by _jobs.update.
 # Format is the same as the `jobs` tree. Addons can be disabled by setting their
 # `condition` to `false`.
+
 addon_jobs:
   bosh-dns-aliases:
     '$default': false
@@ -79,7 +53,33 @@ addon_jobs:
   metrics-discovery-registrar:
     '$default': false
 
+# `jobs` contains a map of instance groups to jobs.
+#
+# Each job has a `condition` and a list of `processes`. Jobs can inherit
+# their condition from the special "$defaults" entry of their instance group.
+# If neither is set, the condition defaults to `true`. For convenience
+#
+#   jobs:
+#     some_ig:
+#       some_job: some_condition
+#
+# is equivalent to
+#
+#   jobs:
+#     some_ig:
+#       some_job:
+#         condition: some_condition
+#         processes: ~
+#
+# _jobs.update will fill in additional jobs from the cf-deployment manifest.
+# They will inherit the "$default" condition of their instance group.
+# If the job doesn't yet have a process list, it will be given a default one
+# with a single process of the same name as the job.
+
 jobs:
+  # Autoscaler instance groups. They need to include the full list of jobs because
+  # this information is not available from the cf-deployment manifest.
+
   asactors:
     '$default': 'features.autoscaler.enabled'
     operator: ~
@@ -98,17 +98,20 @@ jobs:
     metricsserver: ~
   asnozzle:
     metricsgateway: 'features.autoscaler.enabled'
+
+  # cf-deployement instance groups. Data here will be extended with settings from
+  # the manifest. CC worker processes are created dynamically based on property values.
+
   api:
-    '$default': true
     cloud_controller_ng:
-      # "local-worker-N" processes will be appended by _jobs.update
+      # "local_worker_N" processes will be appended by _jobs.update.
       # Number of local worker processes is:
       # properties.api.cloud_controller_ng.cc.jobs.local.number_of_workers
       processes: [cloud_controller_ng, nginx, ccng_monit_http_healthcheck]
     routing-api: 'features.routing_api.enabled'
   cc-worker:
     cloud_controller_worker:
-      # "worker-N" processes will be appended by _jobs.update
+      # "worker_N" processes will be appended by _jobs.update.
       # Number of local worker processes is:
       # properties.cc-worker.cloud_controller_worker.cc.jobs.generic.number_of_workers
       processes: []
@@ -134,7 +137,6 @@ jobs:
     silk-cni:
       processes: []
   scheduler:
-    '$default': true
     auctioneer: '!features.eirini.enabled'
     cfdot:
       processes: []
