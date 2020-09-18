@@ -15,23 +15,23 @@ definitions:
       properties:
         '$default':
           oneOf:
-          - {type: boolean}
-          - {type: string}
+          - type: boolean
+          - type: string
       additionalProperties:
         oneOf:
         - type: object
           properties:
             condition:
               oneOf:
-              - {type: boolean}
-              - {type: string}
-              - {type: "null"}
+              - type: boolean
+              - type: string
+              - type: "null"
             processes:
               type: array
               items: {type: string}
-        - {type: boolean}
-        - {type: string}
-        - {type: "null"}
+        - type: boolean
+        - type: string
+        - type: "null"
 
   operation:
     type: object
