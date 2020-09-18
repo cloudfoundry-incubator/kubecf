@@ -28,6 +28,7 @@
 #            --> tcp-router                (feature: routing-api)
 #            --> credhub                   (feature: credhub)
 #            --> diego-cell                (feature: not eirini)
+# apps-dns   --> diego-cell                (feature: not eirini)
 # deigo-api  --> auctioneer                (feature: not eirini)
 # asdatabase --> asactors                  (feature: autoscaler)
 #            --> asapi                     (feature: autoscaler)
@@ -50,7 +51,7 @@
 
 {{- if not .Values.features.eirini.enabled }}
   {{- template "wait-for" list "auctioneer" "diego-api" }}
-  {{- template "wait-for" list "diego-cell" "uaa" }}
+  {{- template "wait-for" list "diego-cell" "uaa" "apps-dns" }}
 {{- end }}
 
 {{- if eq .Values.features.blobstore.provider "singleton" }}
