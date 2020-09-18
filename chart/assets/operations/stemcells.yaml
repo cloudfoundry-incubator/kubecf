@@ -1,4 +1,3 @@
-{{- include "_config.load" $ }}
 {{- $stemcell := $.Values.defaults.stemcell }}
 
 - type: replace

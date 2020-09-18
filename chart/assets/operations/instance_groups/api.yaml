@@ -1,5 +1,3 @@
-{{- include "_config.load" $ }}
-
 {{- if .Values.testing.brain_tests.enabled}}
 # For brain tests, allow CC access to the insecure registry they will create.
 - type: replace

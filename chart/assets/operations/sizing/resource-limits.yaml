@@ -1,5 +1,4 @@
-{{- include "_config.load" $ }}
-{{/* Translate memory limits into ops instructions, if present */}}
+{{- /* Translate memory limits into ops instructions, if present */}}
 
 {{- define "ops.resources" }}
   {{- $root := index . 0 }}
