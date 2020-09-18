@@ -114,7 +114,8 @@
   {{- $resources_job := index $root.Values.resources $ig_name $job_name }}
   {{- $template := printf "$%s" $process_name_root }}
   {{- include "_resources.expandDefaults" (list $resources_job $template) }}
-  {{- $resources_default := index $resources_job $template "$defaults"}}
+  {{- $resources_default := merge (index $resources_job $template) (index $resources_job $template "$defaults")}}
+  {{- $_ := unset $resources_default "$defaults" }}
   {{- $_ := unset $resources_job $template }}
 
   {{- /* Get number of worker processes from cc.jobs properties */}}
