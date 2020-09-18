@@ -102,13 +102,15 @@ jobs:
     '$default': true
     cloud_controller_ng:
       # "local-worker-N" processes will be appended by _jobs.update
-      # Number of local worker processes is properties.api.cloud_controller_ng.cc.jobs.local.number_of_workers
+      # Number of local worker processes is:
+      # properties.api.cloud_controller_ng.cc.jobs.local.number_of_workers
       processes: [cloud_controller_ng, nginx, ccng_monit_http_healthcheck]
     routing-api: 'features.routing_api.enabled'
   cc-worker:
     cloud_controller_worker:
       # "worker-N" processes will be appended by _jobs.update
-      # Number of local worker processes is properties.cc-worker.cloud_controller_worker.cc.jobs.generic.number_of_workers
+      # Number of local worker processes is:
+      # properties.cc-worker.cloud_controller_worker.cc.jobs.generic.number_of_workers
       processes: []
   credhub:
     '$default': 'features.credhub.enabled'
