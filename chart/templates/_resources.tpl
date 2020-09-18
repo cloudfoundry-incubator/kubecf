@@ -2,11 +2,7 @@
 ==========================================================================================
 | _resources.update $
 +-----------------------------------------------------------------------------------------
-| Create an entry in $.Values.resources for each instance group in $Values.jobs
-| (if it doesn't already exist), and each job in the group (again, if it doesn't
-| already exist).  The config/resources.yaml file can override the groups and jobs.
-| As part of this it also adds missing '$defaults' keys, and uses '$defaults' to
-| resolve missing values.
+| Update $.Values.resources and $.Values.addon_resources.
 ==========================================================================================
 */}}
 {{- define "_resources.update" }}
@@ -14,6 +10,18 @@
   {{- include "_resources._update" (list $ "addon_resources" "addon_jobs") }}
 {{- end }}
 
+{{- /*
+==========================================================================================
+| _resources._update $ $resources_name $jobs_name
++-----------------------------------------------------------------------------------------
+| * Create an entry in $resources for each instance group in $jobs, and each job
+|   in each group, and each process in each job. Verify that each ig, job, process
+|   in $resources also exists in $jobs.
+| * Apply defaults from each level off the tree to fill in missing entries in the
+|   resources definitions.
+| * Remove jobs whose "condition" is false.
+==========================================================================================
+*/}}
 {{- define "_resources._update" }}
   {{- $root := index . 0 }}
   {{- $resources_name := index . 1 }}
@@ -92,9 +100,20 @@
 
 {{- /*
 ==========================================================================================
-| _resources.expandDefaults (list $dict $key)
+| _resources.expandDefaults $dict $key
 +-----------------------------------------------------------------------------------------
-| XXX
+| Make sure $dict[$key] either contains a fully expanded "$defaults" element or
+| is a fully expanded "$defaults" element itself if $key is "$defaults".
+|
+| * Set $dict[$key] to an empty dict if it doesn't exist yet.
+| * If $dict[$key] is a dict already:
+|   - If $dict[$key]["$defaults"] doesn't exist, set it to a fully expanded $defaults tree.
+|   - Else if $dict[$key]["$defaults"] is a scalar
+|          then run expandDefaults($dict[$key], "$defaults") to expand it to a full tree.
+| * Else
+    - Set the $default["memory"]["limit"] to $dict[$key]
+|   - If $key is the literal string "$default" set $dict[$key] to $default.
+|   - Else set $dict[$key]["$defaults"] to $default.
 ==========================================================================================
 */}}
 {{- define "_resources.expandDefaults" }}
@@ -107,6 +126,7 @@
   {{- $value := index $dict $key }}
 
   {{- $defaults := dict "cpu" (dict "limit" nil "request" nil) "memory" (dict "limit" nil "request" nil) }}
+
   {{- if kindIs "map" $value }}
     {{- if not (hasKey $value "$defaults") }}
       {{- $_ := set $value "$defaults" $defaults }}
