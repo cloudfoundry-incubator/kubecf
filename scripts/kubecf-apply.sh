@@ -53,9 +53,16 @@ fi
 if [ -z "${CHART:-}" ]; then
     CHART="output/kubecf-$(./scripts/version.sh).tgz"
     export TARGET_FILE="${CHART}"
+    if [ -n "${RENDER_LOCAL:-}" ]; then
+        export NO_IMAGELIST=1
+    fi
     ./scripts/kubecf-build.sh
-
 fi
 
-helm upgrade kubecf "${CHART}" \
-     --install --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
+if [ -n "${RENDER_LOCAL:-}" ]; then
+    helm template kubecf "${CHART}" \
+         --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
+else
+    helm upgrade kubecf "${CHART}" \
+         --install --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
+fi
