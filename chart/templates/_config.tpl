@@ -287,9 +287,12 @@
 | _config.property (list $ $ig $job $property)
 +-----------------------------------------------------------------------------------------
 | Lookup a property value, first by checking for an override from $.Values.properties,
-| falling back to settings from the manifest. The helm chart has no access to the defaults
-| from the job's spec file, so the defaults need to be defined in a bundled config file
-| if the property is required, but not set in cf-deployment.
+| falling back to settings from the manifest. Returns the string value of the property,
+| but also sets $.kubecf.retval in case the caller needs the object itself.
+|
+| The helm chart has no access to the defaults from the job's spec file, so the defaults
+| need to be defined in a bundled config file if the property is required, but not set
+| in cf-deployment.
 ==========================================================================================
 */}}
 {{- define "_config.property" }}
