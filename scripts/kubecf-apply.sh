@@ -14,7 +14,9 @@ if [ -z "${LOCAL_IP:-}" ]; then
     CONTEXT="$(kubectl config current-context)"
     if [ "${CONTEXT}" = "minikube" ]; then
         require_tools minikube
-        LOCAL_IP=$(minikube ip)
+        if ! LOCAL_IP=$(minikube ip); then
+            unset LOCAL_IP
+        fi
     elif [[ "${CONTEXT}" =~ ^kind- ]]; then
         LOCAL_IP="$(kubectl get node ${CLUSTER_NAME}-control-plane \
          -o jsonpath='{ .status.addresses[?(@.type == "InternalIP")].address }')"
