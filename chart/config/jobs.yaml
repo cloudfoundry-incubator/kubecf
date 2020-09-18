@@ -114,6 +114,10 @@ jobs:
       processes: []
   credhub:
     '$default': 'features.credhub.enabled'
+    # Added via ops in assets/operations/instance_groups/credhub.yaml
+    route_registrar: ~
+    cf-cli-7-linux:
+      processes: [credhub-internal-security-group-setup]
   database:
     # database instance group is replaced by native release
     '$default': false
@@ -150,3 +154,7 @@ jobs:
   rotate-cc-database-key:
     rotate_cc_database_key:
       processes: [rotate]
+  uaa:
+    # Added via ops in assets/operations/instance_groups/uaa.yaml
+    cf-cli-7-linux:
+      processes: [uaa-internal-security-group-setup]
