@@ -80,9 +80,11 @@
 
         {{- $merged := merge $process $process_defaults $job_defaults $ig_defaults $global_defaults }}
 
-        {{- /* Default request is limit/4, but at least 32, and never more than limit */}}
+        {{- /* Default memory request is a percentage of the limit, at least a minimum, but never more than the limit itself */}}
         {{- if and $merged.memory.limit (not $merged.memory.request) }}
-          {{- $_ := set $merged.memory "request" ((div $merged.memory.limit 4) | max 32 | min $merged.memory.limit | int) }}
+          {{- $request := div (mul $merged.memory.limit $root.Values.features.memory_limits.default_request_in_percent) 100 }}
+          {{- $request = $request | max $root.Values.features.memory_limits.default_request_minimum | min $merged.memory.limit }}
+          {{- $_ := set $merged.memory "request" $request }}
         {{- end }}
 
         {{- /* Update resource settings in-place */}}

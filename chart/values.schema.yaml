@@ -254,12 +254,12 @@ properties:
       # "blobstore" doesn't have an "enabled" property
       blobstore: {}
 
-      memory_requests:
+      memory_limits:
         # should "null" be allowed too?
         type: object
         properties:
-          default_in_percent: {type: integer, minimum: 1, maximum: 100}
-          default_minimum: {type: integer, minimum: 1}
+          default_request_in_percent: {type: integer, minimum: 1, maximum: 100}
+          default_request_minimum: {type: integer, minimum: 1}
           enabled: {type: boolean}
         additionalProperties: false
 

@@ -178,11 +178,13 @@ settings:
 
 
 features:
-  # Set to false to deploy without the default memory limits
+  # Set default memory limits and requests for all containers
   memory_limits:
     enabled: true
-  memory_requests:
-    enabled: true
+    # The memory request size default is calculated as a percentage of the limit.
+    # The default is always at least a minimum value, but never larger than the limit itself.
+    default_request_minimum: 32
+    default_request_in_percent: 25
   eirini:
     enabled: false
   # To support multi-clusters, deploy diego-cell separately please set control_plane is false  and cell_segment is true
