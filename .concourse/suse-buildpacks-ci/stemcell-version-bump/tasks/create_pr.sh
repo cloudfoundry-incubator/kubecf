@@ -38,7 +38,7 @@ git pull
 GIT_BRANCH_NAME="bump_${stemcell_version}-$(date +%Y%m%d%H%M%S)"
 git checkout -b "${GIT_BRANCH_NAME}"
 
-perl -i -0pe "s/        stemcell:\n          version: \"\d+\.\d+\"/        stemcell:\n          version: \"${stemcell_version}\"/" "${KUBECF_VALUES}"
+perl -i -0pe "s/        stemcell:\n          version: \d+\.\d+/        stemcell:\n          version: ${stemcell_version}/" "${KUBECF_VALUES}"
 
 git commit "${KUBECF_VALUES}" -m "${COMMIT_TITLE}"
 
