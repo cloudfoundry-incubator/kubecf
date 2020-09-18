@@ -95,13 +95,10 @@
 | '/' may also be used in place of the '.' for a more JSON-patch look.
 |
 | See comments on the _config._lookup implementation function for more details.
-|
-| This function calls _config.load to make sure the config object is initialized.
 ==========================================================================================
 */}}
 {{- define "_config.lookup" }}
   {{- $root := first . }}
-  {{- include "_config.load" $root }}
   {{- $query := join "." (rest .) | replace "/" "." }}
   {{- include "_config._lookup" (concat (list $root.kubecf $root.Values) (splitList "." $query)) }}
 {{- end }}
@@ -114,7 +111,6 @@
 ==========================================================================================
 */}}
 {{- define "_config.lookupManifest" }}
-  {{- include "_config.load" (first .) }}
   {{- $kubecf := get (first .) "kubecf" }}
   {{- $query := join "." (rest .) | replace "/" "." }}
   {{- include "_config._lookup" (concat (list $kubecf $kubecf.manifest) (splitList "." $query)) }}
