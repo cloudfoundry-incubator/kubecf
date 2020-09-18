@@ -70,10 +70,35 @@ class SecretRotator
   end
 
   # The names of the QuarksSecrets to rotate
-  def secrets
+  def all_secrets
     quarks_client
       .get_quarks_secrets(namespace: namespace, selector: secret_selector)
       .map { |secret| secret.metadata.name }
+  end
+
+  def excluded_secrets
+    [
+      # Do not rotate the various CC DB encryption related secrets; that has
+      # effects on the data in the databases.  These need to be rotated manually.
+      /^var-ccdb-key-label/,
+      'var-cc-db-encryption-key',
+      # Do not rotate the PXC root password: we can't restart the database pod
+      # afterwards if we do (because the database root password isn't actually
+      # updated).
+      'var-pxc-root-password',
+      # Since we don't restart the PXC container, we can't update its CA cert.
+      'var-pxc-ca'
+    ]
+  end
+
+  def secrets
+    all_secrets.sort.reject do |secret|
+      excluded_secrets.any? { |excluded| excluded === secret } # rubocop:disable Style/CaseEquality
+    end
+  end
+
+  def configmap_name
+    @configmap_name ||= "rotate.all-secrets.#{Time.now.to_i}"
   end
 
   # The ConfigMap resource to be created
@@ -82,16 +107,18 @@ class SecretRotator
       metadata: {
         namespace: namespace,
         # Set a unique-ish name to help running this multiple times
-        name: "rotate.all-secrets-#{Time.now.to_i}",
+        name: configmap_name,
         labels: { 'quarks.cloudfoundry.org/secret-rotation': 'true' }
       },
-      data: { secrets: secrets.to_json }
+      data: { secrets: JSON.pretty_generate(secrets) }
     )
   end
 
   # Trigger rotation of all QuarksSecrets
   def rotate
     client.create_config_map configmap
+    puts "Created secret rotation configmap #{configmap_name} with #{secrets.length} secrets:"
+    secrets.each { |secret| puts "    #{secret}" }
   end
 end
 
