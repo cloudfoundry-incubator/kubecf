@@ -27,11 +27,23 @@
   value: false
 
 - type: replace
-  path: /instance_groups/name=router/jobs/name=loggr-udp-forwarder/properties/quarks?/run/healthcheck/loggr-udp-forwarder
+  path: /instance_groups/name=router/jobs/name=loggr-udp-forwarder/properties/quarks?
   value:
-    readiness:
-      exec:
-        command: ["sh", "-c", "ss -nlu sport = 3457 | grep :3457"]
+    run:
+      healthcheck:
+        loggr-udp-forwarder:
+          readiness:
+            exec:
+              command: ["sh", "-c", "ss -nlu sport = 3457 | grep :3457"]
+    envs:
+    - name: INDEX
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.labels['statefulset.kubernetes.io/pod-name']
+    - name: IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
 
 # Add necessary labels to the router instance group so that the service can select it to create the
 # endpoint.
