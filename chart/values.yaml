@@ -161,6 +161,25 @@ services:
       start: 20000
       end: 20008
 
+# CPU and memory resources can be configured via the `resources` tree when features.cpu_limits.enabled
+# or features.memory_limits.enabled are set respectively. Each setting covers both limit and request
+# settings for their resource type.
+#
+# The helm chart includes default memory limits for all processes, and some explicit requests. When no
+# request size is specified, a default is calculated as a percentage of the limit, but at least some
+# minimum threshold, but never more than the limit itself. See the features.memory_limits setting to
+# finetune this algorithm.
+#
+# All values are integers; cpu values are in millicpus (m) and memory is in megabytes (Mi).
+#
+# More information about the `resources` structure can be found in the config/resources.yaml file
+# inside this helm chart.
+
+resources:
+  diego-cell:
+    garden:
+      garden: {memory: {limit: 2048, request: 2048}}
+
 settings:
   router:
     # tls sets up the public TLS for the router. The tls keys:

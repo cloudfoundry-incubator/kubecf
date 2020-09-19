@@ -143,6 +143,8 @@ resources:
   diego-api: 64
   diego-cell:
     '$defaults': 64
+    # The garden resource definition is included in values.yaml, as it is the
+    # most likely candidate for user customization.
     garden:
       garden: {memory: {limit: 2048, request: 2048}}
     rep:
