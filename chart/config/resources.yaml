@@ -100,7 +100,7 @@ resources:
 
   # A global default makes sure *every* bosh process gets a memory limit (and related request).
 
-  '$defaults': 32
+  '$defaults': 64
 
   # AutoScaler instance group resources; only jobs/processes with a non-default limit need to be specified.
   # All-default instance groups are included here only for documentation purposes.
@@ -111,8 +111,7 @@ resources:
   asdatabase:
     postgres: 300
   asmetrics: ~
-  asnozzle:
-    metricsgateway: 40
+  asnozzle: ~
 
   # cf-deployment defined instance group resources.
 
@@ -121,13 +120,15 @@ resources:
       cloud_controller_ng: {memory: {limit: 2048, request: 1024}}
       nginx: 192
       # Template for all `local_worker_N` processes. Will be applied by _jobs.update.
-      '$local_worker': {memory: {limit: 550, request: 400}}
+      '$local_worker': {memory: {limit: 800, request: 400}}
     file_server: 96
   cc-worker:
     cloud_controller_worker:
       # Template for all `worker_N` processes. Will be applied by _jobs.update.
-      '$worker': 350
-  credhub: 1024
+      '$worker': {memory: {limit: 512, request: 384}}
+  credhub:
+    credhub:
+      credhub: {memory: {limit: 1200, request: 700}}
   diego-api: 64
   diego-cell:
     '$defaults': 64
@@ -141,7 +142,6 @@ resources:
     doppler: 128
   log-api: 128
   log-cache:
-    '$defaults': 40
     log-cache: 2048
   nats: ~
   router: 100
