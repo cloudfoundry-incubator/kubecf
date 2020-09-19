@@ -11,18 +11,6 @@ features:
   cpu_limits:
     enabled: true
 
-# resources:
-#   '$defaults':
-#     memory:
-#       limit: 32
-#   instance_group:
-#     job:
-#       process:
-#         memory:
-#           limit: 32
-#           request: 16
-#      job2: 128
-
 # resource definitions for addons. It has the same schema as the `resources` tree.
 
 addon_resources:

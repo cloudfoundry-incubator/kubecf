@@ -1,4 +1,4 @@
-{{- /* Translate memory limits into ops instructions, if present */}}
+{{- /* Translate memory limits into ops instructions */}}
 
 {{- define "ops.resources" }}
   {{- $root := index . 0 }}
