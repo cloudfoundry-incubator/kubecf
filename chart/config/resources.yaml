@@ -1,48 +1,12 @@
-# This configuration tree specifies the default resource limits and requests
-# for the kubecf instance groups and jobs.
+# The `resources` tree specifies the default resource limits and requests
+# for the jobs/processes of the kubecf instance groups and addons.
 #
-# Syntax: See `chart/values.schema.yaml`
-#
-# NOTE: Missing instance groups and/or jobs are filled using data from
-#  	the jobs tree.
-#
-#	Missing instance groups are added with `'$defaults': 2048`.
-#       This is a very generous global limit. Stricter limits must be
-#       specified here.
-#
-#	Instance groups without '$defaults' are extended with `'$defaults': 2048`.
-#	Missing jobs are added with nil value -> This invokes the '$defaults'
-#
-#	This is all handled by `_resources.update` in `chart/templates/_resources.tpl`.
-#
-# NOTE 2: We need process names per job per group. This information is taken
-#         from the data in `chart/config/jobs.yaml`, the per-job `processes` key.
-#
-#         All the processes of a job are given the same limit.
-#
-# NOTE 3: The `as*` groupds are for autoscaler. As they do not exist
-# 	  in cf-deployment the auto-fill will not work for them. Thus
-# 	  them being listed in full.
-#
-# The information from here is used by the helm templating creating
-# ops instructions from the resource configuration for jobs to determine
-# which jobs to ignore in the current deployment, in a generic
-# manner. I.e not mixed into the templating code itself.
-#
-# All relevant supporting and using files are
-#
-# - chart/config/jobs.yaml			Job conditions
-# - chart/config/resources.yaml			Self
-# - chart/operations/resource-limits.yaml	Transform resource config to ops
-# - chart/templates/_jobs.tpl			Take conditions and complete/resolve
-# - chart/templates/_resources.tpl		Take self and complete
-# - chart/templates/bosh_deployment.yaml	Reference the new config map
-# - chart/templates/ops.yaml			Wrap `resources-limits.yaml` into config map
-# - chart/values.schema.yaml			Job, resource config structure spec
+# Missing instance groups and/or jobs are filled using data from
+# the `jobs` (and `addon_jobs`) tree.
 
-# # ## ### ###### ######## ############# #####################
+# Non-advertised feature because we don't have any default cpu settings yet.
+# It is fully functional though, so any values provided by the user will be applied.
 
-# non-advertised feature because we don't have any default cpu settings yet
 features:
   cpu_limits:
     enabled: true
@@ -59,37 +23,124 @@ features:
 #           request: 16
 #      job2: 128
 
+# resource definitions for addons. It has the same schema as the `resources` tree.
+
 addon_resources:
   '$defaults': 32
 
+# `resources` contains a maping of instance groups to jobs to processes.
+# The process then contains a resource definition with limits and requests
+# for cpu and memory. All values are integers; cpu is in millicpu units (m)
+# and memory is in megabytes (Mi). A fully expanded tree looks like:
+#
+#   resources:
+#     some_ig:
+#       some_job:
+#         some_process:
+#           cpu:
+#             limit: ~
+#             request: ~
+#           memory:
+#             limit: ~
+#             request: ~
+#
+# Each level can define a "$defaults" resource definitions that will be applied
+# to all processes below it, that don't have their own definition (or a default
+# further down the tree closer to them):
+#
+#   resources:
+#     '$defaults':
+#       cpu:
+#         limit: ~
+#         request: ~
+#       memory:
+#         limit: ~
+#         request: ~
+#     some_ig:
+#       '$defaults': { ... }
+#       some_job:
+#         '$defaults': { ... }
+#         some_process: ~
+#
+# For convenience a "$defaults" value can be just an integer. This
+#
+#   resources
+#     '$defaults': 32
+#
+# is a shortcut for:
+#
+#   resources:
+#     '$defaults': {memory: {limit: 32, request: ~}, cpu: {limit: ~, request: ~}}
+#
+# In addition, an instance group, job, or process can also be set to just an integer. This:
+#
+#   resources:
+#     some_ig: 32
+#
+# is a shortcut for:
+#
+#   resources:
+#     some_ig:
+#       '$defaults': 32
+#
+# Of course this means that any lower level jobs and processes will have to share this
+# specific resource definition, as there is no way to explicitly enumerate the jobs or
+# processes when the value is just an integer and not a map.
+#
+# Note that there is a difference between this
+#
+#   resources:
+#     '$defaults': 32
+#     some_ig: 64
+#
+# and this:
+#
+#   resources:
+#     '$defaults': 32
+#     some_ig:
+#       some_job: 64
+#
+# The former definitions sets the memory limit of *all* jobs under "some_ig" while the
+# latter only specifies the limit for "some_job". If there are more jobs in "some_ig",
+# then they will use the global limit (32) and only "some_job" will use the specific
+# limit (64).
+#
+# memory requests will have a calculated default value, which is a configurable percentage of
+# the limit, at least some configurable minimum value, and never higher than the limit itself.
+
 resources:
+
+  # A global default makes sure *every* bosh process gets a memory limit (and related request).
+
   '$defaults': 32
+
+  # AutoScaler instance group resources; only jobs/processes with a non-default limit need to be specified.
+  # All-default instance groups are included here only for documentation purposes.
 
   asactors:
     scheduler: 800
-  asapi:
+  asapi: ~
   asdatabase:
     postgres: 300
-  asmetrics:
+  asmetrics: ~
   asnozzle:
     metricsgateway: 40
 
+  # cf-deployment defined instance group resources.
+
   api:
     cloud_controller_ng:
-      cloud_controller_ng: 2048
+      cloud_controller_ng: {memory: {limit: 2048, request: 1024}}
       nginx: 192
-      # Template for all `local_worker_N` processes.
-      # Will be replaced by _jobs.update.
+      # Template for all `local_worker_N` processes. Will be applied by _jobs.update.
       '$local_worker': {memory: {limit: 550, request: 400}}
     file_server: 96
   cc-worker:
     cloud_controller_worker:
-      # Template for all `worker_N` processes.
-      # Will be replaced by _jobs.update.
+      # Template for all `worker_N` processes. Will be applied by _jobs.update.
       '$worker': 350
   credhub: 1024
-  diego-api:
-    '$defaults': 64
+  diego-api: 64
   diego-cell:
     '$defaults': 64
     garden:
@@ -98,12 +149,11 @@ resources:
       rep: {memory: {limit: 3072, request: 2048}}
   doppler:
     doppler: 128
-  log-api:
-    '$defaults': 128
+  log-api: 128
   log-cache:
     '$defaults': 40
     log-cache: 2048
-  nats:
+  nats: ~
   router: 100
   scheduler:
     cc_deployment_updater: 320
