@@ -10,30 +10,30 @@
     {{- range $job_name, $job := $ig }}
       {{- range $process_name, $resource := $job }}
         {{- if $root.Values.features.cpu_limits.enabled }}
-          {{- if $resource.cpu.limit }}
+          {{- with $resource.cpu.limit }}
 - type: replace
   path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/cpu
-  value: {{ $resource.cpu.limit }}m
+  value: {{ . }}m
           {{- end }}
 
-          {{- if $resource.cpu.request }}
+          {{- with $resource.cpu.request }}
 - type: replace
   path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/cpu
-  value: {{ $resource.cpu.request }}m
+  value: {{ . }}m
           {{- end }}
         {{- end }}
 
         {{- if $root.Values.features.memory_limits.enabled }}
-          {{- if $resource.memory.limit }}
+          {{- with $resource.memory.limit }}
 - type: replace
   path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/memory
-  value: {{ $resource.memory.limit }}Mi
+  value: {{ . }}Mi
           {{- end }}
 
-          {{- if $resource.memory.request }}
+          {{- with $resource.memory.request }}
 - type: replace
   path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/memory
-  value: {{ $resource.memory.request }}Mi
+  value: {{ . }}Mi
           {{- end }}
         {{- end }}
       {{- end }}

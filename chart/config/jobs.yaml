@@ -77,6 +77,7 @@ addon_jobs:
 # with a single process of the same name as the job.
 
 jobs:
+
   # Autoscaler instance groups. They need to include the full list of jobs because
   # this information is not available from the cf-deployment manifest.
 
@@ -145,6 +146,7 @@ jobs:
       condition: '!features.eirini.enabled'
       processes: [watcher]
   smoke-tests:
+    # Added via ops in assets/operations/instance_groups/smoke-tests.yaml
     cf-cli-7-linux:
       processes: []
   singleton-blobstore:
