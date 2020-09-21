@@ -1,0 +1,54 @@
+{{- /*
+  This ops file sets Quarks-specific annotations on instance groups to ensure
+  they are correctly restarted when their dependent secrets change (so that we
+  can rotate the various generated secrets).
+
+  See: https://github.com/cloudfoundry-incubator/quarks-operator/issues/1136
+*/ -}}
+{{- include "_config.load" $ }}
+
+{{- $instance_groups := list }}
+
+{{- $instance_groups = append $instance_groups "api" }}
+{{- $instance_groups = append $instance_groups "cc-worker" }}
+{{- $instance_groups = append $instance_groups "diego-api" }}
+{{- $instance_groups = append $instance_groups "doppler" }}
+{{- $instance_groups = append $instance_groups "log-api" }}
+{{- $instance_groups = append $instance_groups "log-cache" }}
+{{- $instance_groups = append $instance_groups "nats" }}
+{{- $instance_groups = append $instance_groups "router" }}
+{{- $instance_groups = append $instance_groups "scheduler" }}
+{{- $instance_groups = append $instance_groups "uaa" }}
+
+{{- if .Values.features.autoscaler.enabled }}
+  {{- $instance_groups = append $instance_groups "asactors" }}
+  {{- $instance_groups = append $instance_groups "asapi" }}
+  {{- $instance_groups = append $instance_groups "asmetrics" }}
+  {{- $instance_groups = append $instance_groups "asnozzle" }}
+{{- end }}
+
+{{- if .Values.features.credhub.enabled }}
+  {{- $instance_groups = append $instance_groups "credhub" }}
+{{- end }}
+
+{{- if .Values.features.routing_api.enabled }}
+  {{- $instance_groups = append $instance_groups "routing-api" }}
+  {{- $instance_groups = append $instance_groups "tcp-router" }}
+{{- end }}
+
+{{- if not $.Values.features.eirini.enabled }}
+  {{- $instance_groups = append $instance_groups "auctioneer" }}
+  {{- if not .Values.features.multiple_cluster_mode.control_plane.enabled }}
+    {{- $instance_groups = append $instance_groups "diego-cell" }}
+  {{- end }}
+{{- end }}
+
+{{- if eq .Values.features.blobstore.provider "singleton" }}
+  {{- $instance_groups = append $instance_groups "singleton-blobstore" }}
+{{- end }}
+
+{{- range $instance_groups }}
+- type: replace
+  path: /instance_groups/name={{ . }}/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1restart-on-update
+  value: "true"
+{{- end }}
