@@ -13,8 +13,6 @@ usage() {
     echo
     echo "   -o"
     echo "              The output value file name for minions cluster, default is minions-values.yaml"
-    echo "   -t"
-    echo "              The placement tag for minions cluster, default is minions-1"
     echo
     echo "   -h --help  Output this help."
 }
@@ -23,12 +21,10 @@ usage() {
 Run `generate-minions-values.sh` on the host with kubectl targeting to the control plane cluster.
 
 ```
-$ bash generate-minions-values.sh -o test-minions-values.yaml -t test
+$ bash generate-minions-values.sh -o test-minions-values.yaml
 Generating value file for minions cluster ...
 add system_domain ...
-add Properties ...
 add Credentials ...
-add Inline ...
 add Features ...
 Complete. Please check output value file test-minions-values.yaml.
 ```
@@ -36,12 +32,6 @@ Complete. Please check output value file test-minions-values.yaml.
 Part of the output file `test-minions-values.yaml` content as below:
 ```
 system_domain: cluster01-xxxxxxxxx-0000.cloud
-properties:
-  diego-cell:
-    rep:
-      diego:
-        rep:
-          placement_tags: ['test']
 credentials:
   diego_bbs_client.ca: |
     -----BEGIN CERTIFICATE-----

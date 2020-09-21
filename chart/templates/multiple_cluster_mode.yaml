@@ -63,9 +63,9 @@ data:
       value:
         nats: {from: nats}
         nats-tls: {from: nats-tls}
-{{- if .Values.features.routing_api.enabled }}
+        {{- if .Values.features.routing_api.enabled }}
         routing_api: {from: routing_api}
-{{- end }}{{/* if .Values.features.routing_api.enabled */}}
+        {{- end }}{{/* if .Values.features.routing_api.enabled */}}
     - type: replace
       path: /instance_groups/name=diego-cell/jobs/name=loggr-udp-forwarder/consumes?
       value:
@@ -106,6 +106,7 @@ metadata:
     quarks.cloudfoundry.org/provides: '{"name":"nats-tls","type":"nats-tls"}'
 stringData:
   link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.nats_tls.link | nindent 4 }} 
+{{- if .Values.features.routing_api.enabled }}
 ---
 apiVersion: v1
 kind: Secret
@@ -116,6 +117,7 @@ metadata:
     quarks.cloudfoundry.org/provides: '{"name":"routing_api","type":"routing_api"}'
 stringData:
   link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.routing_api.link | nindent 4 }} 
+{{- end }}
 ---
 apiVersion: v1
 kind: Secret
@@ -148,6 +150,26 @@ stringData:
   link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.link | nindent 4 }} 
 ---
 apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cf_network.secret_name }} 
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"cf_network","type":"cf_network"}'
+stringData:
+  link:  {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.cf_network.link | nindent 4 }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller_container_networking_info.secret_name }} 
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/provides: '{"name":"cloud_controller_container_networking_info","type":"cloud_controller_container_networking_info"}'
+stringData:
+  link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller_container_networking_info.link | nindent 4 }}
+---
+apiVersion: v1
 kind: Service
 metadata:
   annotations:
@@ -168,6 +190,7 @@ metadata:
 spec:
   clusterIP: None
   type: ClusterIP
+{{- if .Values.features.routing_api.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -179,6 +202,7 @@ metadata:
 spec:
   clusterIP: None
   type: ClusterIP
+{{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -214,6 +238,28 @@ spec:
   type: ClusterIP
 ---
 apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: cloud_controller_container_networking_info
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller_container_networking_info.service_name }} 
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
+    quarks.cloudfoundry.org/link-provider-name: cf_network
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cf_network.service_name }} 
+spec:
+  clusterIP: None
+  type: ClusterIP
+---
+apiVersion: v1
 kind: Endpoints
 metadata:
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats.service_name }} 
@@ -232,6 +278,7 @@ subsets:
   {{- range .Values.features.multiple_cluster_mode.provider_link_service.nats_tls.addresses }}
     - ip: {{ .ip }}
   {{- end }}
+{{- if .Values.features.routing_api.enabled }}
 ---
 apiVersion: v1
 kind: Endpoints
@@ -242,6 +289,7 @@ subsets:
   {{- range .Values.features.multiple_cluster_mode.provider_link_service.routing_api.addresses }}
     - ip: {{ .ip }}
   {{- end }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Endpoints
@@ -270,6 +318,26 @@ metadata:
 subsets:
 - addresses:
   {{- range .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller_container_networking_info.service_name }} 
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller_container_networking_info.addresses }}
+    - ip: {{ .ip }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cf_network.service_name }} 
+subsets:
+- addresses:
+  {{- range .Values.features.multiple_cluster_mode.provider_link_service.cf_network.addresses }}
     - ip: {{ .ip }}
   {{- end }}
 ---
