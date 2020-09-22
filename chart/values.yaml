@@ -178,7 +178,7 @@ services:
 resources:
   diego-cell:
     garden:
-      garden: {memory: {limit: 2048, request: 2048}}
+      garden: {memory: {limit: 524288, request: 16}}
 
 settings:
   router:
