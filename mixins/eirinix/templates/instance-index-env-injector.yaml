@@ -1,0 +1,75 @@
+{{- $_ := include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
+{{ $component := "instance-index-env-injector" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ mustMerge (dict "name" $component) . | include "eirinix.component-name" }}
+  labels:
+    app.kubernetes.io/component: {{ $component }}
+{{ include "eirinix.labels" . | indent 4 }}
+spec:
+  replicas: {{ index .Values.eirinix $component "replicaCount" }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "eirinix.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: {{ $component }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "eirinix.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: {{ $component }}
+      annotations:
+        quarks.cloudfoundry.org/restart-on-update: "true"
+    spec:
+    {{- with .Values.eirinix.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ .Values.eirinix.service_account.name | quote }}
+      containers:
+        - name: {{ $component }}
+          {{- with index .Values.eirinix $component "image" }}
+          image: {{ printf "%s/%s:%s" .repository $component .tag | quote }}
+          args: ["-c", "/etc/eirini/config/instance-index-env-injector.yml"]
+          imagePullPolicy: {{ .pullPolicy }}
+          {{- end }}
+          volumeMounts:
+          - name: config
+            mountPath: /etc/eirini/config
+          resources:
+            {{- index .Values.eirinix $component "resources" | toYaml | nindent 12 }}
+      volumes:
+      - name: config
+        configMap:
+          name: eirini
+          items:
+            - key: instance-index-env-injector.yml
+              path: instance-index-env-injector.yml
+    {{- with index .Values.eirinix $component }}
+      nodeSelector:
+        {{- toYaml .nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .affinity | nindent 9 }}
+      tolerations:
+        {{- toYaml .tolerations | nindent 8 }}
+    {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eirinix-{{ $component }}
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: {{ include "eirinix.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: {{ $component }}
+  ports:
+  - protocol: TCP
+    name: https
+    port: 8443
+{{- end }}
