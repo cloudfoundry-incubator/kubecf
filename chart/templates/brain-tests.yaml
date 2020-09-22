@@ -248,5 +248,103 @@ roleRef:
   kind: "ClusterRole"
   apiGroup: "rbac.authorization.k8s.io"
   name: "cluster-admin"
-
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksJob
+metadata:
+  name: brain-tests
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  template:
+    backoffLimit: 2
+    spec:
+      template:
+        spec:
+          serviceAccountName: tests-brain
+          containers:
+          - command:
+            - /bin/run.sh
+            image: brains
+            name: brain-tests
+            env:
+              - name: "CF_DOMAIN"
+                value: "((system_domain))"
+              - name: "CF_TCP_DOMAIN"
+                value: "tcp.((system_domain))"
+              - name: "CF_USERNAME"
+                value: "admin"
+              - name: "CF_PASSWORD"
+                value: "((cf_admin_password))"
+              - name: "CF_ORG"
+                value: "test-brain-org"
+              - name: "CF_SPACE"
+                value: "test-space-org"
+              - name: "KUBERNETES_NAMESPACE"
+                value: {{ .Release.Namespace | quote }}
+              - name: "KUBERNETES_STORAGE_CLASS_PERSISTENT"
+                value: {{ default "" .Values.kube.storage_class | quote }}
+              {{- if .Values.features.credhub.enabled }}
+              - name: "CREDHUB_CLIENT"
+                value: "credhub_admin_client"
+              - name: "CREDHUB_SECRET"
+                value: "((credhub_admin_client_secret))"
+              {{- end }}
+              - name: "CREDHUB_ENABLED"
+                value: "{{ .Values.features.credhub.enabled }}"
+              - name: "CFLOGIN_ENABLED"
+                value: "true"
+              - name: "PUSHAPP_ENABLED"
+                value: "true"
+              - name: "SECURITYGROUPS_ENABLED"
+                value: "true"
+              - name: "DOCKERAPP_ENABLED"
+                value: "true"
+              - name: "TCPROUTING_ENABLED"
+                value: "{{ .Values.features.routing_api.enabled }}"
+              - name: "METRON_ENABLED"
+                value: "true"
+              - name: "SSH_ENABLED"
+                value: "true"
+              - name: "BUILDPACKS_ENABLED"
+                value: "true"
+              - name: "BACKUP_ENABLED"
+                value: "true"
+              - name: "INSECURE_REGISTRY_ENABLED"
+                value: "{{ .Values.features.routing_api.enabled }}"
+              - name: "NFSPERSI_ENABLED"
+                value: "true"
+              - name: "EIRINIPERSI_ENABLED"
+                value: "true"
+              - name: "MINIBROKER_REDIS_ENABLED"
+                value: "true"
+              - name: "MINIBROKER_MARIADB_ENABLED"
+                value: "true"
+              - name: "MINIBROKER_POSTGRES_ENABLED"
+                value: "true"
+              - name: "MINIBROKER_MONGODB_ENABLED"
+                value: "true"
+              - name: "SYSLOG_FORWARDING_ENABLED"
+                value: "true"
+              - name: "AUTOSCALER_ENABLED"
+                value: "{{ .Values.features.autoscaler.enabled }}"
+              - name: "APPS_DOMAIN"
+                value: "((system_domain))"
+              - name: "AUTOSCALER_URL"
+                value: "https://autoscaler.((system_domain))"
+              - name: "MINIBROKER_REPO"
+                value: "https://minibroker-helm-charts.s3.amazonaws.com/minibroker-charts/"
+              - name: "KUBERNETES_REPO"
+                value: "https://minibroker-helm-charts.s3.amazonaws.com/kubernetes-charts/"
+              - name: "EXCLUDE"
+                value: ""
+              - name: "IN_ORDER"
+                value: "false"
+              - name: "INCLUDE"
+                value: ""
+              - name: "VERBOSE"
+                value: "false"
+          restartPolicy: Never
+          terminationGracePeriodSeconds: 1
+  trigger:
+    strategy: manual
 {{- end }}
