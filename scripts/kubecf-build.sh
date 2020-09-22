@@ -3,6 +3,8 @@ source scripts/include/setup.sh
 
 require_tools bosh cf_operator_url git helm jq j2y ruby y2j
 
+unset KUBECONFIG
+
 if [[ ! "$(git submodule status -- src/cf-deployment)" =~ ^[[:space:]] ]]; then
     die "git submodule for cf-deployment is uninitialized or not up-to-date"
 fi
