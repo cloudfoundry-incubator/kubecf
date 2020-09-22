@@ -30,6 +30,9 @@ releases:
   cf-acceptance-tests:
     condition: testing.cf_acceptance_tests.enabled
     version: 0.0.20
+    stemcell:
+      os: SLE_15_SP1
+      version: 27.5-7.0.0_374.gb8e8e6af
   credhub:
     condition: features.credhub.enabled
     version: ~
