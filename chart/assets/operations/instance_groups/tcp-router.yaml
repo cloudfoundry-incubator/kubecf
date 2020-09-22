@@ -37,6 +37,19 @@
 - type: replace
   path: /instance_groups/name=tcp-router/env?/bosh/agent/settings/labels/app.kubernetes.io~1version
   value: {{ default .Chart.Version .Chart.AppVersion | quote }}
+
+- type: replace
+  path: /instance_groups/name=tcp-router/jobs/name=loggr-udp-forwarder/properties?/quarks/envs
+  value:
+  - name: INDEX
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.labels['statefulset.kubernetes.io/pod-name']
+  - name: IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
+
 {{- else }}
 # Disable the tcp-router ig, as there will be no routing-api SSE events to read from.
 - type: remove

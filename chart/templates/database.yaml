@@ -196,12 +196,16 @@ spec:
         app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
         helm.sh/chart: {{ include "kubecf.chart" . }}
     spec:
-      {{- with $replicas := default 1 .Values.sizing.database.instances }}
+      {{- $replicas := 1 }}
+      {{- if $.Values.sizing.database.instances }}
+        {{- $replicas = $.Values.sizing.database.instances }}
+      {{- else if $.Values.high_availability }}
+        {{- $replicas = 3 }}
+      {{- end }}
       {{- if eq (mod $replicas 2) 0 }}
-      {{- include "_config.fail" "The number of database instances must be odd to avoid split-brain" }}
+        {{- include "_config.fail" "The number of database instances must be odd to avoid split-brain" }}
       {{- end }}
       replicas: {{ $replicas }}
-      {{- end }}
       selector:
         matchLabels:
           app: database
@@ -295,7 +299,7 @@ spec:
                   - "/bin/bash"
                   - "-c"
                   - "mysqladmin ping || test -e /var/lib/mysql/sst_in_progress"
-              initialDelaySeconds: 30
+              initialDelaySeconds: 300
               timeoutSeconds: 2
             readinessProbe:
               exec:
@@ -498,4 +502,3 @@ spec:
           restartPolicy: Never
 
 {{- end }}
-
