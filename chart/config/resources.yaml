@@ -16,7 +16,7 @@ features:
 addon_resources:
   '$defaults': 32
 
-# `resources` contains a maping of instance groups to jobs to processes.
+# `resources` contains a mapping of instance groups to jobs to processes.
 # The process then contains a resource definition with limits and requests
 # for cpu and memory. All values are integers; cpu is in millicpu units (m)
 # and memory is in megabytes (Mi). A fully expanded tree looks like:
@@ -32,7 +32,7 @@ addon_resources:
 #             limit: ~
 #             request: ~
 #
-# Each level can define a "$defaults" resource definitions that will be applied
+# Each level can define a "$defaults" resource definition that will be applied
 # to all processes below it, that don't have their own definition (or a default
 # further down the tree closer to them):
 #
