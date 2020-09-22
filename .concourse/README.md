@@ -32,7 +32,7 @@ If you wish to deploy a custom pipeline:
    artifacts, updating github status, s3 buckets to consume, etc).
 3. If needed, change the branches to track in the `branches` map in
    `<your-pipeline-name>`.yaml.
-4. Deploy as usual with `$ ./create_pipeline.sh <concourse-target> <your-pipeline-name>`
+4. Deploy as usual with `$ ./create_pipeline.sh <concourse-target> <your-pipeline-name>`.
 
 
 
