@@ -2005,9 +2005,11 @@ jobs:
         args:
         - -ce
         - |
-          # Revert to original name without the timestamp part, then add back `v`
+          # Revert to original name without the timestamp part, without the
+          # git part, then add back `v`
           for file in s3.kubecf-ci*/*.tgz; do
               new_filename=$(basename $file | sed  's/-[0-9]\+\.tgz/\.tgz/' \
+                                            | sed 's/\-[0-9].g.*\.tgz/\.tgz/' \
                                             | sed  's/\([0-9]\+\.[0-9]\+\.[0-9]\+\)/v\1/g')
               mv "$file" "output/${new_filename}"
           done
