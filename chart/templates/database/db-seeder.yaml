@@ -1,0 +1,69 @@
+{{- include "_config.load" $ }}
+{{- if .Values.features.embedded_database.enabled }}
+{{- include "_database.load" $  }}
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksJob
+metadata:
+  name: database-seeder
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+spec:
+  trigger:
+    strategy: once
+  updateOnConfigChange: true
+  template:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: seeder
+            {{- with $image := $.Values.releases.database.image }}
+            image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+            imagePullPolicy: {{ $image.pullPolicy | quote }}
+            {{- end }}
+            env:
+            - name: DATABASE_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: var-pxc-root-password
+                  key: password
+            - name: DATABASE_HOST
+              value: {{ printf "database.%s" .Release.Namespace | quote }}
+            - name: DATABASE_CONNECT_TIMEOUT
+              value: {{ $.Values.features.embedded_database.connect_timeout | quote }}
+            - name: CHARACTER_SET
+              value: utf8
+            - name: COLLATE
+              value: utf8_unicode_ci
+            - name: DATABASES
+              value: |-
+                {{- range $database, $_ := $.databases }}
+                {{- $database | nindent 16 }}
+                {{- end }}
+            volumeMounts:
+            {{- range $database, $secret := $.databases }}
+            - name: {{ printf  "%s-database-password" $secret | quote }}
+              mountPath: {{ printf "/passwords/%s" $database | quote }}
+              readOnly: true
+            {{- end }}
+            command:
+            - "/bin/bash"
+            - "-c"
+            - |-
+              {{- .Files.Get "assets/scripts/jobs/pxc/seeder.sh" | nindent 14 }}
+
+          volumes:
+          {{- range $secret := $.databases }}
+          - name: {{ printf  "%s-database-password" $secret | quote }}
+            secret:
+              secretName: {{ printf "var-%s-database-password" $secret | quote }}
+          {{- end }}
+          restartPolicy: Never
+
+{{- end }}{{/* .Values.features.embedded_database.enabled */}}
