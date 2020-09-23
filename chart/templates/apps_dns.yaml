@@ -64,7 +64,7 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: apps-dns
+  name: cf-apps-dns
   namespace: {{ .Release.Namespace | quote }}
   labels:
     app: apps-dns
@@ -87,7 +87,6 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name | quote }}
       app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
       app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-      helm.sh/chart: {{ include "kubecf.chart" . }}
   template:
     metadata:
       labels:
@@ -95,8 +94,6 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name | quote }}
         app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
         app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-        app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-        helm.sh/chart: {{ include "kubecf.chart" . }}
     spec:
       {{- if $.Values.sizing.apps_dns.affinity }}
       affinity: {{ $.Values.sizing.apps_dns.affinity | toJson }}
