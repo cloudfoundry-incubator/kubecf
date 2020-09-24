@@ -381,6 +381,11 @@ features:
     type: ~
     host: ~
     port: ~
+    connect_timeout: 3
+    # If seed is set to true, we will initialize the database using the provided
+    # root password (see `.variables.pxc-root-password`); in that case it is not
+    # necessary to provide the configuration for the individual databases.
+    seed: false
     databases:
       uaa:
         name: uaa

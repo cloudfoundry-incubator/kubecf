@@ -283,7 +283,30 @@ properties:
 
       # "multiple_cluster_mode" doesn't have an "enabled" property
       multiple_cluster_mode: {}
-
+      external_database:
+        oneOf:
+        - type: object
+          properties:
+            enabled: {enum: [false]}
+          additionalProperties: true
+        - type: object
+          properties:
+            enabled: {enum: [true]}
+            require_ssl: {type: boolean}
+            ca_cert: {"$ref": "#/definitions/string_or_null"}
+            type: {enum: [mysql, postgres, null]}
+            host: {"$ref": "#/definitions/string_or_null"}
+            port: {anyOf: [{"$ref": "#/definitions/port"}, {type: 'null'}]}
+            connect_timeout: {type: integer}
+            seed: {type: boolean}
+            databases:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  name: {type: string}
+                  username: {"$ref": "#/definitions/string_or_null"}
+                  password: {"$ref": "#/definitions/string_or_null"}
     additionalProperties:
       type: object
       properties:

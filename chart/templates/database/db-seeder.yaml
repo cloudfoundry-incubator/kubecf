@@ -1,5 +1,5 @@
 {{- include "_config.load" $ }}
-{{- if .Values.features.embedded_database.enabled }}
+{{- if or .Values.features.embedded_database.enabled .Values.features.external_database.seed }}
 {{- include "_database.load" $  }}
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
@@ -36,9 +36,17 @@ spec:
                   name: var-pxc-root-password
                   key: password
             - name: DATABASE_HOST
-              value: {{ printf "database.%s" .Release.Namespace | quote }}
+              {{- $db_host := printf "database.%s" .Release.Namespace }}
+              {{- if .Values.features.external_database.enabled }}
+                {{- $db_host = .Values.features.external_database.host }}
+              {{- end }}
+              value: {{ $db_host | quote }}
             - name: DATABASE_CONNECT_TIMEOUT
-              value: {{ $.Values.features.embedded_database.connect_timeout | quote }}
+              {{- $connect_timeout := .Values.features.embedded_database.connect_timeout }}
+              {{- if .Values.features.external_database.enabled }}
+                {{- $connect_timeout = .Values.features.external_database.connect_timeout }}
+              {{- end }}
+              value: {{ $connect_timeout | quote }}
             - name: CHARACTER_SET
               value: utf8
             - name: COLLATE
