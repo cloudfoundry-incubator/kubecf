@@ -24,7 +24,6 @@ spec:
   selector:
     app: apps-dns
     app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
 ---
 apiVersion: v1
 kind: ConfigMap
