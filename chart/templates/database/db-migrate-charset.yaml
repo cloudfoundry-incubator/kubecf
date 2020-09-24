@@ -8,18 +8,20 @@ metadata:
   name: database-migrate-charset
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ include "kubecf.chart" . }}
+    {{- list . "database" | include "component.labels" | nindent 4 }}
 spec:
   trigger:
     strategy: manual
   updateOnConfigChange: true
   template:
+    metadata:
+      labels:
+        {{- list . "database" | include "component.labels" | nindent 8 }}
     spec:
       template:
+        metadata:
+          labels:
+            {{- list . "database" | include "component.labels" | nindent 12 }}
         spec:
           containers:
           - name: migrate-charset

@@ -7,12 +7,7 @@ metadata:
   name: database
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    app: database
-    app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ include "kubecf.chart" . }}
+    {{- list . "database" | include "component.labels" | nindent 4 }}
 spec:
   updateOnConfigChange: true
   activePassiveProbes:
@@ -29,12 +24,7 @@ spec:
       name: database
       namespace: {{ .Release.Namespace | quote }}
       labels:
-        app: database
-        app.kubernetes.io/instance: {{ .Release.Name | quote }}
-        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-        app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-        app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-        helm.sh/chart: {{ include "kubecf.chart" . }}
+        {{- list . "database" | include "component.labels" | nindent 8 }}
     spec:
       {{- $replicas := 1 }}
       {{- if $.Values.sizing.database.instances }}
@@ -48,22 +38,12 @@ spec:
       replicas: {{ $replicas }}
       selector:
         matchLabels:
-          app: database
-          app.kubernetes.io/instance: {{ .Release.Name | quote }}
-          app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-          app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-          app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-          helm.sh/chart: {{ include "kubecf.chart" . }}
+          {{- list . "database" | include "component.labels" | nindent 10 }}
       serviceName: database
       template:
         metadata:
           labels:
-            app: database
-            app.kubernetes.io/instance: {{ .Release.Name | quote }}
-            app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-            app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-            app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-            helm.sh/chart: {{ include "kubecf.chart" . }}
+            {{- list . "database" | include "component.labels" | nindent 12 }}
         spec:
           {{- if $.Values.sizing.database.affinity }}
           affinity: {{ $.Values.sizing.database.affinity | toJson }}
