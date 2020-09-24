@@ -42,14 +42,10 @@
               command:
               - /var/vcap/packages/cfdot/bin/cfdot
               - locks
-              - --locketAPILocation=localhost:8891
-              # We need to both give --skipCertVerify and provide a CA cert;
-              # skipping the former ends up with context deadline exceeded, and
-              # skipping the latter errors out failing to read file ""
-              - --skipCertVerify
-              - --caCertFile=/var/vcap/jobs/locket/config/certs/ca.crt
-              - --clientCertFile=/var/vcap/jobs/locket/config/certs/server.crt
-              - --clientKeyFile=/var/vcap/jobs/locket/config/certs/server.key
+              - --locketAPILocation=127.0.0.1:8891
+              - --caCertFile=/var/vcap/jobs/cfdot/config/certs/cfdot/ca.crt
+              - --clientCertFile=/var/vcap/jobs/cfdot/config/certs/cfdot/client.crt
+              - --clientKeyFile=/var/vcap/jobs/cfdot/config/certs/cfdot/client.key
 
 # Add quarks properties for bbs.
 - type: replace
