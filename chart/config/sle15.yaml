@@ -26,7 +26,7 @@ stacks:
       suse-nodejs-buildpack:
         version: "1.7.28.1"
       suse-go-buildpack:
-        version: "1.9.18.1"
+        version: "1.9.19.1"
       suse-python-buildpack:
         version: "1.7.21.1"
       suse-php-buildpack:
