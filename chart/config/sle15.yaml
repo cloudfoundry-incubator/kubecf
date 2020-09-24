@@ -20,7 +20,7 @@ stacks:
       suse-java-buildpack:
         version: "4.32.1.1"
       suse-ruby-buildpack:
-        version: "1.8.24.1"
+        version: "1.8.25.1"
       suse-dotnet-core-buildpack:
         version: "2.3.9.1"
       suse-nodejs-buildpack:
