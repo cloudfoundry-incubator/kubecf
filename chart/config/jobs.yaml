@@ -146,6 +146,7 @@ jobs:
       condition: '!features.eirini.enabled'
       processes: [watcher]
   smoke-tests:
+    '$default': 'testing.smoke_tests.enabled'
     # Added via ops in assets/operations/instance_groups/smoke-tests.yaml
     cf-cli-7-linux:
       processes: []
@@ -162,3 +163,12 @@ jobs:
     # Added via ops in assets/operations/instance_groups/uaa.yaml
     cf-cli-7-linux:
       processes: [uaa-internal-security-group-setup]
+
+  # additional tests defined in ops files; only smoke-tests is in cf-deployment
+
+  acceptance-tests:
+    acceptance-tests: 'testing.cf_acceptance_tests.enabled'
+  brain-tests:
+    acceptance-tests-brain: 'testing.brain_tests.enabled'
+  sync-integration-tests:
+    sync-integration-tests: 'testing.sync_integration_tests.enabled && !features.eirini.enabled'

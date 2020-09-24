@@ -144,13 +144,20 @@ resources:
   log-cache:
     log-cache: 2048
   nats: ~
-  router: 100
+  router: 200
   scheduler:
     cc_deployment_updater: 320
     cloud_controller_clock: 512
   singleton-blobstore:
     blobstore:
       nginx: 400
+  smoke-tests: 1000
   tcp-router: 96
   uaa:
     uaa: 1400
+
+  # additional test jobs
+
+  acceptance-tests: 8000
+  brain-tests: 1000
+  sync-integration-tests: 1000
