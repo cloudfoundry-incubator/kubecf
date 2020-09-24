@@ -19,7 +19,7 @@ if [ -z "${LOCAL_IP:-}" ]; then
             fi
         elif [[ "${CONTEXT}" =~ ^kind- ]]; then
             LOCAL_IP="$(kubectl get node ${CLUSTER_NAME}-control-plane \
-         -o jsonpath='          { .status.addresses[?(@.type == "InternalIP")].address }')"
+                                -o jsonpath='{ .status.addresses[?(@.type == "InternalIP")].address }')"
         fi
     fi
 fi
@@ -64,7 +64,7 @@ fi
 
 if [ -n "${RENDER_LOCAL:-}" ]; then
     if [ -z "${LOCAL_IP:-}" ]; then
-        HELM_ARGS+=(--set system_domain=example.com)
+        HELM_ARGS+=(--set "system_domain=example.com")
     fi
     helm template kubecf "${CHART}" \
          --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
