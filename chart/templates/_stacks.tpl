@@ -66,7 +66,7 @@
         {{- $_ := set $stack.releases $job.release dict }}
       {{- end }}
       {{- /* Set job condition so no spurious references are generated when the stack is disabled  */}}
-      {{- $_ := set $.Values.jobs.api $job.name (printf "stacks.%s.enabled" $cc_stack.name) }}
+      {{- $_ := set $.Values.jobs.api $job.name (dict "condition" (printf "stacks.%s.enabled" $cc_stack.name) "processes" list) }}
     {{- end }}
   {{- end }}
 
