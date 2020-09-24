@@ -42,6 +42,7 @@ mysql < <(
 
       GRANT ALL ON \`${database}\`.* TO '${database}'@'%';
     "
+    echo "  ${database}" >&2 # For status
   done
   echo "COMMIT;"
 )

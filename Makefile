@@ -13,10 +13,13 @@ version:
 update-subcharts:
 	@./scripts/update-subcharts.sh
 
-lint: shellcheck yamllint helmlint httplint
+lint: shellcheck yamllint helmlint httplint rubocop
 
 helmlint:
 	@./scripts/helmlint.sh
+
+rubocop:
+	@./scripts/rubocop.sh
 
 shellcheck:
 	@./scripts/shellcheck.sh
@@ -26,6 +29,7 @@ yamllint:
 
 test:
 	./tests/config.sh
+	./tests/rspec.sh
 
 .PHONY: httplint
 httplint:
