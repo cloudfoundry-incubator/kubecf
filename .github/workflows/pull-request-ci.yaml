@@ -300,7 +300,7 @@ jobs:
       - run: make smoke-tests
 
       # Run brain tests
-      - run: make brain-tests
+      # - run: make brain-tests
 
       # Run sits tests
       - run: make sync-integration-tests
