@@ -158,6 +158,7 @@ resources:
 
   # additional test jobs
 
-  acceptance-tests: 8000
+  acceptance-tests:
+    '$defaults': {memory: {limit: 8000, request: 256}}
   brain-tests: 1000
   sync-integration-tests: 1000
