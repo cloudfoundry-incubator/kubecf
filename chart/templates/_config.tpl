@@ -17,6 +17,10 @@
 | uppercase config filename, to be merged first. Obviously no config file can overwrite
 | an explict user choice from $.Values.
 |
+| __Note__ that while templates are allowed in config files, they only have access to
+| the global helm variables, and the user-provided values from `values.yaml`. They cannot
+| use the internal config data, as that has not been merged yet.
+|
 | The $.Values.release.$defaults are saved in $.kubecf.defaults because they are used
 | in templates to set the default and addon stemcells.
 |
@@ -46,7 +50,7 @@
 
     {{- $configs := dict }}
     {{- range $name, $bytes := $.Files.Glob "config/*" }}
-      {{- $config := $bytes | toString | fromYaml }}
+      {{- $config := tpl ($bytes | toString) $ | fromYaml }}
       {{- if hasKey $config "Error" }}
         {{- include "_config.fail" (printf "Config file %q is invalid:\n%s" $name $config.Error) }}
       {{- end }}
