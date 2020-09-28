@@ -11,7 +11,7 @@ stacks:
       '$defaults':
         url: registry.suse.com/cap-staging
         stemcell:
-          version: 27.5-7.0.0_374.gb8e8e6af
+          version: 27.7-7.0.0_374.gb8e8e6af
       sle15:
         version: "10.93"
         url: docker.io/cfcontainerization
