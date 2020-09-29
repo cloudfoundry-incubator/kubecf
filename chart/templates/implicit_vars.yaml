@@ -43,5 +43,9 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" $ }}
 type: Opaque
 stringData:
+{{- if kindOf $value | eq "map" }}
+  {{- $value | toYaml | nindent 2 }}
+{{- else }}
   value: {{ $value | quote }}
+{{- end }}
 {{- end }}
