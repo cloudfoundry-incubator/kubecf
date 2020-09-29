@@ -1,8 +1,7 @@
 name: CI
 on:
   # Trigger the workflow when PRs are labeled
-  pull_request_target:
-    branches: [master]
+  pull_request:
     types: [labeled]
 jobs:
 
@@ -233,6 +232,7 @@ jobs:
         working-directory: catapult
 
       # TBD: Don't generate values.yaml
+      # TODO pass eirini options correctly, either to catapult, or by gomplate
       - name: Generate KubeCF Configuration
         run: |
           set -o errexit -o nounset -o pipefail
