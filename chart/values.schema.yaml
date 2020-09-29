@@ -308,7 +308,8 @@ properties:
           additionalProperties: false
         - type: object
           properties:
-            # When _not_ seeding, we need database information.
+            # When _not_ seeding, we additionally support postgres; also, we need to ensure that the
+            # database credentials are of the correct shape.
             <<: *features_external_database_properties
             enabled: {enum: [true]}
             seed: {enum: [false]}
