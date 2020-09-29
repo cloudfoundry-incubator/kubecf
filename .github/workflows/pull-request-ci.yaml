@@ -202,12 +202,12 @@ jobs:
         env:
           GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
 
-      # Cache catapult's common tools
-      - name: cache.catapult-common-tools
+      # Cache catapult's downloaded tools
+      - name: cache.catapult-downloaded-tools
         uses: actions/cache@v2
         with:
-          path: ${{ github.workspace }}/catapult/modules/common/bin
-          key: ${{ runner.os }}-catapult-common-tools
+          path: ${{ github.workspace }}/catapult/buildgke/bin
+          key: ${{ runner.os }}-catapult-downloaded-tools
 
       # Deploy k8s cluster
       - run: make k8s
