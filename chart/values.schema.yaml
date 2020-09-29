@@ -288,17 +288,28 @@ properties:
         - type: object
           properties:
             enabled: {enum: [false]}
+          # When external database is disabled, we will likely still have all the properties that
+          # would be set as when it's enabled, but it may not validate due to missing (unnecessary)
+          # fields.  Just allow everything here, as they are not used anyway.
           additionalProperties: true
         - type: object
-          properties:
+          properties: &features_external_database_properties
             enabled: {enum: [true]}
+            seed: {enum: [true]}
+            type: {enum: [mysql]}
             require_ssl: {type: boolean}
             ca_cert: {"$ref": "#/definitions/string_or_null"}
-            type: {enum: [mysql, postgres, null]}
-            host: {"$ref": "#/definitions/string_or_null"}
-            port: {anyOf: [{"$ref": "#/definitions/port"}, {type: 'null'}]}
+            host: {type: string}
+            port: {"$ref": "#/definitions/port"}
             connect_timeout: {type: integer}
-            seed: {type: boolean}
+          additionalProperties: false
+        - type: object
+          properties:
+            # When _not_ seeding, we need database information.
+            <<: *features_external_database_properties
+            enabled: {enum: [true]}
+            seed: {enum: [false]}
+            type: {enum: [mysql, postgres]}
             databases:
               type: object
               additionalProperties:
@@ -307,6 +318,8 @@ properties:
                   name: {type: string}
                   username: {"$ref": "#/definitions/string_or_null"}
                   password: {"$ref": "#/definitions/string_or_null"}
+                additionalProperties: false
+          additionalProperties: false
     additionalProperties:
       type: object
       properties:
