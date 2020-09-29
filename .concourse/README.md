@@ -27,7 +27,7 @@ All the required config options are in `<pipeline-name>.yaml`.
 
 If you wish to deploy a custom pipeline:
 1. copy either `kubecf.yaml` or `kubecf-pool-reconciler.yaml` into
-   `<your-pipeline-name>.yaml`. 
+   `<your-pipeline-name>.yaml`
 2. Edit the yaml and disable production options as said by the NOTEs (publishing
    artifacts, updating github status, s3 buckets to consume, etc)
 3. If needed, change the branches to track in the `branches` map in
