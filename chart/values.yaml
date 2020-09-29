@@ -351,8 +351,8 @@ features:
     # port forwarding.
     enabled: true
   embedded_database:
-    # Enable the embedded database (the PXC helm sub-chart).  If this is disabled, then
-    # features.external_database should be configured to use an external database.
+    # Enable the embedded database.  If this is disabled, then features.external_database should be
+    # configured to use an external database.
     enabled: true
     # Number of seconds to wait for the database to be ready, per iteration of the waiter loop
     connect_timeout: 3
