@@ -7,7 +7,7 @@ image_resource:
 inputs:
 - name: kubecf
 - name: catapult
-- name: s3.kubecf-ci
+- name: s3.kubecf-ci-bundle
 - name: kubecf-github-release
 - name: semver.gke-cluster
 run:
