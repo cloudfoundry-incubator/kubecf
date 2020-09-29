@@ -1,6 +1,5 @@
 {{- include "_config.load" $ }}
 {{- if .Values.features.embedded_database.enabled }}
-{{- include "_database.load" $ }}
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksJob
@@ -43,11 +42,11 @@ spec:
               value: utf8_unicode_ci
             - name: DATABASES
               value: |-
-                {{- range $database, $_ := $.databases }}
+                {{- range $database, $_ := $.kubecf.databases }}
                 {{- $database | nindent 16 }}
                 {{- end }}
             volumeMounts:
-            {{- range $database, $secret := $.databases }}
+            {{- range $database, $secret := $.kubecf.databases }}
             - name: {{ printf  "%s-database-password" $secret | quote }}
               mountPath: {{ printf "/passwords/%s" $database | quote }}
               readOnly: true
@@ -59,7 +58,7 @@ spec:
               {{- .Files.Get "assets/scripts/jobs/pxc/migrate_charset.sh" | nindent 14 }}
 
           volumes:
-          {{- range $secret := $.databases }}
+          {{- range $secret := $.kubecf.databases }}
           - name: {{ printf  "%s-database-password" $secret | quote }}
             secret:
               secretName: {{ printf "var-%s-database-password" $secret | quote }}
