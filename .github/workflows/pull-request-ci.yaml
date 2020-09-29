@@ -213,7 +213,7 @@ jobs:
       - run: make k8s
         working-directory: catapult
         env:
-          GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
+          GKE_CLUSTER_NAME: kubecf-ci-${{github.event.number}}-${{ github.run_id }}-${{ matrix.backend }}
           OWNER: ${{ github.repository_owner }}
           DEBUG_MODE: true
           GKE_NODE_COUNT: 1
