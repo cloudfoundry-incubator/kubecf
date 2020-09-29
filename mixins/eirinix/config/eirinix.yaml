@@ -20,6 +20,17 @@ eirinix:
       ca: var-loggregator-ca          # Name of secret containing loggregator CA
       cert: var-loggregator-tls-agent # Name of secret containing cert info
 
+  instance-index-env-injector:
+    replicaCount: 1
+    image:
+      repository: registry.suse.com/cap-staging
+      tag: c101e581d7f5ec01b6970eb2ae1a58df4600f872
+      pullPolicy: IfNotPresent
+    resources: {}
+    nodeSelector: {}
+    affinity: {}
+    tolerations: []
+
   persi:
     replicaCount: 1
     image:
