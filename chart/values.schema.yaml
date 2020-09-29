@@ -302,6 +302,9 @@ properties:
             host: {type: string}
             port: {"$ref": "#/definitions/port"}
             connect_timeout: {type: integer}
+            databases:
+              type: object
+              additionalProperties: {type: object}
           additionalProperties: false
         - type: object
           properties:
@@ -316,8 +319,8 @@ properties:
                 type: object
                 properties:
                   name: {type: string}
-                  username: {"$ref": "#/definitions/string_or_null"}
-                  password: {"$ref": "#/definitions/string_or_null"}
+                  username: {type: string}
+                  password: {type: string}
                 additionalProperties: false
           additionalProperties: false
     additionalProperties:
