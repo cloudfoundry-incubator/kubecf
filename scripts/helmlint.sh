@@ -17,9 +17,12 @@ helm lint "${TARGET_DIR}" --set system_domain=example.com
 # Running json schema validator a second time to also check the embedded config files.
 # Done in a separate run because the config files are merged here on top of values.yaml,
 # which will cause replacement of any arrays.
+#
+# NOTE: We exclude all config files which contain templating.
 
 # shellcheck disable=SC2046
 # We want word splitting with find.
 helm template "${TARGET_DIR}" --set system_domain=example.com \
-     --values "$(perl -e 'print join ",", @ARGV' -- $(find "${TARGET_DIR}/config" -type f))" \
+     --values "$(perl -e 'print join ",", @ARGV' -- \
+              $(grep -L '{{' $(find "${TARGET_DIR}/config" -type f)))" \
      > /dev/null
