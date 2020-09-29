@@ -65,6 +65,8 @@
       {{- if not (index $stack.releases $job.release) }}
         {{- $_ := set $stack.releases $job.release dict }}
       {{- end }}
+      {{- /* Set job condition so no spurious references are generated when the stack is disabled  */}}
+      {{- $_ := set $.Values.jobs.api $job.name (dict "condition" (printf "stacks.%s.enabled" $cc_stack.name) "processes" list) }}
     {{- end }}
   {{- end }}
 
@@ -75,6 +77,12 @@
   {{- $_ := include "_config.lookup" (list $ "stacks") }}
   {{- range $stack_name, $stack := $.kubecf.retval }}
     {{- $_ := set $stack "enabled" (has $stack_name $.Values.install_stacks) }}
+
+    {{- /* *** Mark all releases in the stack as data-only *** */}}
+    {{- if not (hasKey $stack.releases "$defaults") }}
+      {{- $_ := set $stack.releases "$defaults" dict }}
+    {{- end }}
+    {{- $_ := set (index $stack.releases "$defaults") "data-only" true }}
 
     {{- /* *** Update all releases with defaults from stack.releases.$defaults *** */}}
     {{- $_ := include "_releases.applyDefaults" $stack.releases }}

@@ -83,10 +83,6 @@
 {{- end }}
 
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cfdot/properties/quarks?/bpm/processes
-  value: []
-
-- type: replace
   path: /instance_groups/name=scheduler/jobs/name=loggr-udp-forwarder/properties?/quarks/envs
   value:
   - name: INDEX

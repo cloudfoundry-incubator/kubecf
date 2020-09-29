@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- if .Values.features.eirini.enabled }}
 {{- if .Values.eirini.opi.metrics.enable }}
 apiVersion: apps/v1

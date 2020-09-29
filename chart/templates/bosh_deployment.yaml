@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- $root := . }}
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1
@@ -69,6 +69,12 @@ spec:
 {{- $ops = prepend $ops "assets/operations/azs.yaml" }}
 {{- range $path := uniq $ops }}
   - name: {{ include "kubecf.ops-name" (dict "Path" $path) }}
+    type: configmap
+{{- end }}
+
+# Pod/container sizing
+{{- range $path, $_ := .Files.Glob "assets/operations/sizing/*" }}
+  - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
     type: configmap
 {{- end }}
 

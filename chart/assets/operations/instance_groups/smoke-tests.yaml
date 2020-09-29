@@ -7,10 +7,6 @@
 {{- end }}
 
 - type: replace
-  path: /instance_groups/name=smoke-tests/jobs/name=cf-cli-7-linux/properties?/quarks/bpm/processes
-  value: []
-
-- type: replace
   path: /instance_groups/name=smoke-tests/env?/bosh/agent/settings/disable_log_sidecar
   value: true
 

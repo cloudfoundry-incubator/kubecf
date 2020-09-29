@@ -189,18 +189,6 @@
   value: unconfined
 
 - type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=cfdot/properties/quarks?/bpm/processes
-  value: []
-
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden-cni/properties/quarks?/bpm/processes
-  value: []
-
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=silk-cni/properties/quarks?/bpm/processes
-  value: []
-
-- type: replace
   path: /instance_groups/name=diego-cell/jobs/name=garden/properties/garden/network_pool?
   value: 10.38.0.0/16
 

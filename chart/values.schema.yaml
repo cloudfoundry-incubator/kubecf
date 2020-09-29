@@ -8,6 +8,31 @@ required:
 
 definitions:
 
+  jobs:
+    type: object
+    additionalProperties:
+      type: object
+      properties:
+        '$default':
+          oneOf:
+          - type: boolean
+          - type: string
+      additionalProperties:
+        oneOf:
+        - type: object
+          properties:
+            condition:
+              oneOf:
+              - type: boolean
+              - type: string
+              - type: "null"
+            processes:
+              type: array
+              items: {type: string}
+        - type: boolean
+        - type: string
+        - type: "null"
+
   operation:
     type: object
     oneOf:
@@ -99,6 +124,81 @@ definitions:
         properties:
           condition: {enum: [false]}
 
+  resources:
+    type: object
+    properties:
+      '$defaults': {"$ref": "#/definitions/resources_defaults"}
+    additionalProperties: {"$ref": "#/definitions/resources_ig"}
+
+  resources_definition:
+    type: object
+    properties:
+      # The "null" alternatives below are required because templates/_resources.tpl
+      # will fill in missing keys with a null value to simplify the code that accesses
+      # properties. These filled in values will be passed through the validator again
+      # when a chart is upgraded with the --reuse-values option.
+      cpu:
+        type: object
+        properties:
+          # The "minimum" exists to make sure users specify in millicpu units.
+          # So validation will catch when they request 2 millicpus instead of 2000.
+          limit:
+            anyOf:
+            - type: integer
+              minimum: 50
+            - type: "null"
+          request:
+            anyOf:
+            - type: integer
+              minimum: 50
+            - type: "null"
+        additionalProperties: false
+      memory:
+        type: object
+        properties:
+          limit:
+            anyOf:
+            - type: integer
+            - type: "null"
+          request:
+            anyOf:
+            - type: integer
+            - type: "null"
+        additionalProperties: false
+    additionalProperties: false
+
+  resources_defaults:
+    anyOf:
+    - type: integer
+    - "$ref": "#/definitions/resources_definition"
+
+  resources_ig:
+    anyOf:
+    # Allow empty ig entry for documentation purposes
+    - type: "null"
+    # integer is a shortcut for {"$defaults": integer} which in turn
+    # is a shortcut {"$defaults": {"memory": {"limit": integer}}}.
+    - type: integer
+    - type: object
+      properties:
+        '$defaults': {"$ref": "#/definitions/resources_defaults"}
+      additionalProperties: {"$ref": "#/definitions/resources_job"}
+
+  resources_job:
+    anyOf:
+    - type: "null"
+    - type: integer
+    - type: object
+      properties:
+        '$defaults': {"$ref": "#/definitions/resources_defaults"}
+      additionalProperties: {"$ref": "#/definitions/resources_process"}
+
+  resources_process:
+    anyOf:
+    - type: "null"
+    - type: integer
+    - "$ref": "#/definitions/resources_definition"
+
   service:
     type: object
     properties:
@@ -132,7 +232,7 @@ definitions:
   tree_of_strings:
     # multi-level object where all final properties are strings
     oneOf:
-    - {type: string}
+    - type: string
     - type: object
       additionalProperties: {"$ref": "#/definitions/tree_of_strings"}
 
@@ -140,6 +240,10 @@ definitions:
     enum: [ Always, Never, IfNotPresent, ~ ]
 
 properties:
+
+  addon_jobs: {"$ref": "#/definitions/jobs"}
+
+  addon_resources: {"$ref": "#/definitions/resources"}
 
   ccdb:
     type: object
@@ -165,9 +269,21 @@ properties:
   features:
     type: object
     properties:
-      # "blobstore" and "multiple_cluster_mode" don't have an "enabled" property
+      # "blobstore" doesn't have an "enabled" property
       blobstore: {}
+
+      memory_limits:
+        # should "null" be allowed too?
+        type: object
+        properties:
+          default_request_in_percent: {type: integer, minimum: 1, maximum: 100}
+          default_request_minimum: {type: integer, minimum: 1}
+          enabled: {type: boolean}
+        additionalProperties: false
+
+      # "multiple_cluster_mode" doesn't have an "enabled" property
       multiple_cluster_mode: {}
+
     additionalProperties:
       type: object
       properties:
@@ -183,6 +299,8 @@ properties:
     minItems: 1
     uniqueItems: true
 
+  jobs: {"$ref": "#/definitions/jobs"}
+
   kube:
     type: object
     properties:
@@ -194,6 +312,13 @@ properties:
       storage_class: {"$ref": "#/definitions/string_or_null"}
     # XXX Catapult sets additional (unused) properties; allow them for now to pass CI
     additionalProperties: true
+
+  move_jobs:
+    type: object
+    additionalProperties:
+      type: object
+      additionalProperties:
+        type: string
 
   # Does not really work because the zone names cannot be configured
   multi_az: {type: boolean}
@@ -237,6 +362,8 @@ properties:
           url: {}
           version: {}
         additionalProperties: false
+
+  resources: {"$ref": "#/definitions/resources"}
 
   services:
     type: object

@@ -46,7 +46,11 @@
 
     {{- $configs := dict }}
     {{- range $name, $bytes := $.Files.Glob "config/*" }}
-      {{- $_ := set $configs $name ($bytes | toString | fromYaml) }}
+      {{- $config := $bytes | toString | fromYaml }}
+      {{- if hasKey $config "Error" }}
+        {{- include "_config.fail" (printf "Config file %q is invalid:\n%s" $name $config.Error) }}
+      {{- end }}
+      {{- $_ := set $configs $name $config }}
     {{- end }}
     {{- range $name := keys $configs | sortAlpha }}
       {{- $_ := merge $.Values (get $configs $name) }}
@@ -54,8 +58,11 @@
 
     {{- $_ := set $.Values "defaults" (index $.Values.releases "$defaults") }}
 
-    {{- $_ := include "_stacks.update" . }}
-    {{- $_ := include "_releases.update" . }}
+    {{- include "_features.update" . }}
+    {{- include "_stacks.update" . }}
+    {{- include "_releases.update" . }}
+    {{- include "_jobs.update" . }}
+    {{- include "_resources.update" . }}
 
     {{- range $condition, $message := $.Values.unsupported }}
       {{- if eq "true" (include "_config.condition" (list $ $condition)) }}
@@ -65,7 +72,7 @@
   {{- end }}
 {{- end }}
 
-{- /*
+{{- /*
 ==========================================================================================
 | _config.fail $message
 +-----------------------------------------------------------------------------------------
@@ -77,7 +84,7 @@
   {{- fail (printf "\n\n\n\n============================\n\n%s" .) }}
 {{- end }}
 
-{- /*
+{{- /*
 ==========================================================================================
 | _config.lookup (list $ $path)
 +-----------------------------------------------------------------------------------------
@@ -88,13 +95,10 @@
 | '/' may also be used in place of the '.' for a more JSON-patch look.
 |
 | See comments on the _config._lookup implementation function for more details.
-|
-| This function calls _config.load to make sure the config object is initialized.
 ==========================================================================================
 */}}
 {{- define "_config.lookup" }}
   {{- $root := first . }}
-  {{- $_ := include "_config.load" $root }}
   {{- $query := join "." (rest .) | replace "/" "." }}
   {{- include "_config._lookup" (concat (list $root.kubecf $root.Values) (splitList "." $query)) }}
 {{- end }}
@@ -107,7 +111,6 @@
 ==========================================================================================
 */}}
 {{- define "_config.lookupManifest" }}
-  {{- $_ := include "_config.load" (first .) }}
   {{- $kubecf := get (first .) "kubecf" }}
   {{- $query := join "." (rest .) | replace "/" "." }}
   {{- include "_config._lookup" (concat (list $kubecf $kubecf.manifest) (splitList "." $query)) }}
@@ -277,4 +280,35 @@
     {{- /* Double-negation turns $or_value into a true boolean, as required by "ternary" */}}
     {{- ternary "true" "false" ($or_value | not | not) }}
   {{- end }}
+{{- end }}
+
+{{- /*
+==========================================================================================
+| _config.property (list $ $ig $job $property)
++-----------------------------------------------------------------------------------------
+| Lookup a property value, first by checking for an override from $.Values.properties,
+| falling back to settings from the manifest. Returns the string value of the property,
+| but also sets $.kubecf.retval in case the caller needs the object itself.
+|
+| The helm chart has no access to the defaults from the job's spec file, so the defaults
+| need to be defined in a bundled config file if the property is required, but not set
+| in cf-deployment.
+==========================================================================================
+*/}}
+{{- define "_config.property" }}
+  {{- $root := index . 0 }}
+  {{- $ig := index . 1 }}
+  {{- $job := index . 2 }}
+  {{- $property := index . 3 }}
+
+  {{- /* Lookup property in $.Values */}}
+  {{- $retval := include "_config.lookup" (list $root "properties" $ig $job $property) }}
+
+  {{- /* Fallback to manifest if there was no override */}}
+  {{- if kindIs "invalid" $root.kubecf.retval }}
+    {{- $query := printf "instance_groups/name=%s/jobs/name=%s/properties/%s" $ig $job $property }}
+    {{- $retval = include "_config.lookupManifest" (list $root $query) }}
+  {{- end }}
+
+  {{- $retval }}
 {{- end }}

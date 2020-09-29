@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- /*
   Template "kubecf.implicit-var" generates the kube secret declaration for a
   variable.  It takes a list of three arguments: the context, the variable

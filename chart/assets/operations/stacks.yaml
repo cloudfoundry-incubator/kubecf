@@ -1,4 +1,3 @@
-{{- $_ := include "_config.load" $ }}
 {{- range $release_name, $release := $.Values.releases }}
   {{- if $release.buildpack }}
     {{- /* buildpack release conditions are set in _stacks.update to either true or false */}}
@@ -10,6 +9,7 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name={{ $release_name }}/release?
   value: {{ $release_name | quote }}
+{{- /* $.Values.resources doesn't include the non-default stack jobs, so won't define the process list for them */}}
 - type: replace
   path: /instance_groups/name=api/jobs/name={{ $release_name }}/properties?/quarks/bpm/processes
   value: []

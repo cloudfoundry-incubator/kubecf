@@ -1,0 +1,164 @@
+# The `resources` tree specifies the default resource limits and requests
+# for the jobs/processes of the kubecf instance groups and addons.
+#
+# Missing instance groups and/or jobs are filled using data from
+# the `jobs` (and `addon_jobs`) tree.
+
+# Non-advertised feature because we don't have any default cpu settings yet.
+# It is fully functional though, so any values provided by the user will be applied.
+
+features:
+  cpu_limits:
+    enabled: true
+
+# resource definitions for addons. It has the same schema as the `resources` tree.
+
+addon_resources:
+  '$defaults': 32
+
+# `resources` contains a mapping of instance groups to jobs to processes.
+# The process then contains a resource definition with limits and requests
+# for cpu and memory. All values are integers; cpu is in millicpu units (m)
+# and memory is in megabytes (Mi). A fully expanded tree looks like:
+#
+#   resources:
+#     some_ig:
+#       some_job:
+#         some_process:
+#           cpu:
+#             limit: ~
+#             request: ~
+#           memory:
+#             limit: ~
+#             request: ~
+#
+# Each level can define a "$defaults" resource definition that will be applied
+# to all processes below it, that don't have their own definition (or a default
+# further down the tree closer to them):
+#
+#   resources:
+#     '$defaults':
+#       cpu:
+#         limit: ~
+#         request: ~
+#       memory:
+#         limit: ~
+#         request: ~
+#     some_ig:
+#       '$defaults': { ... }
+#       some_job:
+#         '$defaults': { ... }
+#         some_process: ~
+#
+# For convenience a "$defaults" value can be just an integer. This
+#
+#   resources
+#     '$defaults': 32
+#
+# is a shortcut for:
+#
+#   resources:
+#     '$defaults': {memory: {limit: 32, request: ~}, cpu: {limit: ~, request: ~}}
+#
+# In addition, an instance group, job, or process can also be set to just an integer. This:
+#
+#   resources:
+#     some_ig: 32
+#
+# is a shortcut for:
+#
+#   resources:
+#     some_ig:
+#       '$defaults': 32
+#
+# Of course this means that any lower level jobs and processes will have to share this
+# specific resource definition, as there is no way to explicitly enumerate the jobs or
+# processes when the value is just an integer and not a map.
+#
+# Note that there is a difference between this
+#
+#   resources:
+#     '$defaults': 32
+#     some_ig: 64
+#
+# and this:
+#
+#   resources:
+#     '$defaults': 32
+#     some_ig:
+#       some_job: 64
+#
+# The former definitions sets the memory limit of *all* jobs under "some_ig" while the
+# latter only specifies the limit for "some_job". If there are more jobs in "some_ig",
+# then they will use the global limit (32) and only "some_job" will use the specific
+# limit (64).
+#
+# memory requests will have a calculated default value, which is a configurable percentage of
+# the limit, at least some configurable minimum value, and never higher than the limit itself.
+
+resources:
+
+  # A global default makes sure *every* bosh process gets a memory limit (and related request).
+
+  '$defaults': 64
+
+  # AutoScaler instance group resources; only jobs/processes with a non-default limit need to be specified.
+  # All-default instance groups are included here only for documentation purposes.
+
+  asactors:
+    scheduler: 800
+  asapi: ~
+  asdatabase:
+    postgres: 300
+  asmetrics: ~
+  asnozzle: ~
+
+  # cf-deployment defined instance group resources.
+
+  api:
+    cloud_controller_ng:
+      cloud_controller_ng: {memory: {limit: 2048, request: 1024}}
+      nginx: 192
+      # Template for all `local_worker_N` processes. Will be applied by _jobs.update.
+      '$local_worker': {memory: {limit: 800, request: 400}}
+    file_server: 96
+  cc-worker:
+    cloud_controller_worker:
+      # Template for all `worker_N` processes. Will be applied by _jobs.update.
+      '$worker': {memory: {limit: 512, request: 384}}
+  credhub:
+    credhub:
+      credhub: {memory: {limit: 1200, request: 700}}
+  diego-api: 64
+  diego-cell:
+    '$defaults': 64
+    # The garden resource definition is included in values.yaml, as it is the
+    # most likely candidate for user customization.
+    garden:
+      garden: {memory: {limit: 524288, request: 16}}
+    rep:
+      rep: {memory: {limit: 3072, request: 2048}}
+  doppler:
+    doppler: 128
+  log-api: 128
+  log-cache:
+    log-cache: 2048
+  nats: ~
+  router: 200
+  scheduler:
+    cc_deployment_updater: 320
+    cloud_controller_clock: 512
+  singleton-blobstore:
+    blobstore:
+      nginx: 400
+  smoke-tests: 1000
+  tcp-router: 96
+  uaa:
+    uaa: 1400
+
+  # additional test jobs
+
+  acceptance-tests:
+    '$defaults': {memory: {limit: 8000, request: 256}}
+  brain-tests: 1000
+  sync-integration-tests: 1000
