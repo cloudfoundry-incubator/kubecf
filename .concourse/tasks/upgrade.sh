@@ -118,8 +118,8 @@ gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction execu
        --zone="${GKE_DNS_ZONE}"
 
 # Now upgrade to whatever chart we built for commit-to-test
-# The chart should be in s3.kubecf-ci directory
-SCF_CHART="$(readlink -f ../s3.kubecf-ci/*.tgz)"
+# The chart should be in s3.kubecf-ci-bundle directory
+SCF_CHART="$(readlink -f ../s3.kubecf-ci-bundle/*.tgz)"
 export SCF_CHART
 
 make kubecf-chart

@@ -11,26 +11,26 @@ stacks:
       '$defaults':
         url: registry.suse.com/cap-staging
         stemcell:
-          version: 27.4-7.0.0_374.gb8e8e6af
+          version: 27.7-7.0.0_374.gb8e8e6af
       sle15:
         version: "10.93"
         url: docker.io/cfcontainerization
       suse-staticfile-buildpack:
-        version: "1.5.10.1"
+        version: "1.5.11.1"
       suse-java-buildpack:
         version: "4.32.1.1"
       suse-ruby-buildpack:
-        version: "1.8.24.1"
+        version: "1.8.25.1"
       suse-dotnet-core-buildpack:
         version: "2.3.9.1"
       suse-nodejs-buildpack:
-        version: "1.7.28.1"
+        version: "1.7.29.1"
       suse-go-buildpack:
-        version: "1.9.18.1"
+        version: "1.9.19.1"
       suse-python-buildpack:
         version: "1.7.21.1"
       suse-php-buildpack:
-        version: "4.4.21.1"
+        version: "4.4.22.1"
       suse-nginx-buildpack:
         version: "1.1.15.1"
       suse-binary-buildpack:
