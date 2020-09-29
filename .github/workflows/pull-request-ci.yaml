@@ -363,7 +363,6 @@ jobs:
       - name: kubernetes:teardown
         if: always()
         run: |
-          set +o errexit
           # Remove any terraform locks, because we don't care if the previous run
           # has finished successfully (e.g. on cancel).
           find "build${BACKEND}" -name '.terraform.*.lock*' -delete
