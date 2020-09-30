@@ -168,7 +168,5 @@ jobs:
 
   acceptance-tests:
     acceptance-tests: 'testing.cf_acceptance_tests.enabled'
-  brain-tests:
-    acceptance-tests-brain: 'testing.brain_tests.enabled'
   sync-integration-tests:
     sync-integration-tests: 'testing.sync_integration_tests.enabled && !features.eirini.enabled'

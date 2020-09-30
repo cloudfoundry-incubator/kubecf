@@ -160,5 +160,4 @@ resources:
 
   acceptance-tests:
     '$defaults': {memory: {limit: 8000, request: 256}}
-  brain-tests: 1000
   sync-integration-tests: 1000
