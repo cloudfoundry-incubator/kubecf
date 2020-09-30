@@ -1,0 +1,175 @@
+{{- include "_config.load" $ }}
+{{- if .Values.features.embedded_database.enabled }}
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksStatefulSet
+metadata:
+  name: database
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- list . "database" | include "component.labels" | nindent 4 }}
+spec:
+  updateOnConfigChange: true
+  activePassiveProbes:
+    database:
+      periodSeconds: 5
+      exec:
+        command:
+          - /bin/bash
+          - -c
+          - |
+            {{- .Files.Get "assets/scripts/jobs/pxc/active_passive_probe.sh" | nindent 12 }}
+  template:
+    metadata:
+      name: database
+      namespace: {{ .Release.Namespace | quote }}
+      labels:
+        {{- list . "database" | include "component.labels" | nindent 8 }}
+    spec:
+      {{- $replicas := 1 }}
+      {{- if $.Values.sizing.database.instances }}
+        {{- $replicas = $.Values.sizing.database.instances }}
+      {{- else if $.Values.high_availability }}
+        {{- $replicas = 3 }}
+      {{- end }}
+      {{- if eq (mod $replicas 2) 0 }}
+        {{- include "_config.fail" "The number of database instances must be odd to avoid split-brain" }}
+      {{- end }}
+      replicas: {{ $replicas }}
+      selector:
+        matchLabels:
+          {{- list . "database" | include "component.labels" | nindent 10 }}
+      serviceName: database
+      template:
+        metadata:
+          labels:
+            {{- list . "database" | include "component.labels" | nindent 12 }}
+        spec:
+          {{- if $.Values.sizing.database.affinity }}
+          affinity: {{ $.Values.sizing.database.affinity | toJson }}
+          {{- else }}
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: quarks.cloudfoundry.org/quarks-statefulset-name
+                      operator: In
+                      values:
+                      - database
+                  topologyKey: kubernetes.io/hostname
+          {{- end }}
+          initContainers:
+          - name: remove-lost-found
+            {{- with $image := $.Values.releases.database.image }}
+            image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+            imagePullPolicy: {{ $image.pullPolicy | quote }}
+            {{- end }}
+            command: ["rm", "-fr", "/var/lib/mysql/lost+found"]
+            volumeMounts:
+            - name: pxc-data
+              mountPath: /var/lib/mysql
+          containers:
+          - name: database
+            {{- with $image := $.Values.releases.database.image }}
+            image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+            imagePullPolicy: {{ $image.pullPolicy | quote }}
+            {{- end }}
+            command: ["/bin/bash", "/startup-scripts/entrypoint.sh"]
+            env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: var-pxc-root-password
+                  key: password
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: var-pxc-password
+                  key: password
+            - name: XTRABACKUP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: var-xtrabackup-password
+                  key: password
+            - name: ALLOW_ROOT_FROM
+              value: "%"
+            - name: CLUSTER_NAME
+              value: {{ .Release.Name }}-database
+            - name: SHORT_CLUSTER_NAME
+              value: {{ .Release.Name }}-database
+            - name: K8S_SERVICE_NAME
+              value: database-repl
+            - name: PXC_STRICT_MODE
+              value: ENFORCING
+            ports:
+            - name: mysql
+              containerPort: 3306
+            - name: galera-repl
+              containerPort: 4567
+            - name: state-transfer
+              containerPort: 4568
+            - name: state-snapshot
+              containerPort: 4444
+            livenessProbe:
+              exec:
+                command:
+                  - "/bin/bash"
+                  - "-c"
+                  - "mysqladmin ping || test -e /var/lib/mysql/sst_in_progress"
+              initialDelaySeconds: 300
+              timeoutSeconds: 2
+            readinessProbe:
+              exec:
+                command: ["mysql", "-h", "127.0.0.1", "-e", "SELECT 1"]
+              initialDelaySeconds: 30
+              timeoutSeconds: 2
+            volumeMounts:
+            - name: pxc-tls
+              mountPath: /etc/mysql/tls/certs
+            - name: pxc-data
+              mountPath: /var/lib/mysql
+            - name: pxc-config-files
+              mountPath: /etc/mysql/conf.d
+            - name: pxc-startup-scripts
+              mountPath: /startup-scripts
+            - name: slash-root
+              mountPath: /root
+            - name: var-log
+              mountPath: /var/log
+          - name: "logs"
+            {{- with $image := $.Values.releases.database.image }}
+            image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+            imagePullPolicy: {{ $image.pullPolicy | quote }}
+            {{- end }}
+            command: ["tail", "-f", "/var/log/mysqld.log"]
+            volumeMounts:
+            - name: var-log
+              mountPath: /var/log
+          volumes:
+          - name: slash-root
+            emptyDir: {}
+          - name: var-log
+            emptyDir: {}
+          - name: pxc-config-files
+            configMap:
+              name: database-config-files
+          - name: pxc-startup-scripts
+            configMap:
+              name: database-startup-scripts
+          - name: pxc-tls
+            secret:
+              secretName: var-pxc-tls
+      volumeClaimTemplates:
+      - metadata:
+          name: pxc-data
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: {{ default "" .Values.kube.storage_class }}
+          resources:
+            requests:
+              storage: {{ .Values.sizing.database.persistence.size | quote }}
+
+{{- end }}{{/* .Values.features.embedded_database.enabled */}}

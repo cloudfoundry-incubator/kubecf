@@ -42,6 +42,10 @@ mysql < <(
 
       GRANT ALL ON \`${database}\`.* TO '${database}'@'%';
     "
+
+    # Print out the name of the database for troubleshooting; this container
+    # otherwise has very little output.
+    echo "    ... will update database ${database}" >&2
   done
   echo "COMMIT;"
 )

@@ -1,0 +1,68 @@
+{{- include "_config.load" $ }}
+{{- if .Values.features.embedded_database.enabled }}
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksJob
+metadata:
+  name: database-migrate-charset
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- list . "database" | include "component.labels" | nindent 4 }}
+spec:
+  trigger:
+    strategy: manual
+  updateOnConfigChange: true
+  template:
+    metadata:
+      labels:
+        {{- list . "database" | include "component.labels" | nindent 8 }}
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- list . "database" | include "component.labels" | nindent 12 }}
+        spec:
+          containers:
+          - name: migrate-charset
+            {{- with $image := $.Values.releases.database.image }}
+            image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+            imagePullPolicy: {{ $image.pullPolicy | quote }}
+            {{- end }}
+            env:
+            - name: DATABASE_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: var-pxc-root-password
+                  key: password
+            - name: DATABASE_HOST
+              value: {{ printf "database.%s" .Release.Namespace | quote }}
+            - name: CHARACTER_SET
+              value: utf8
+            - name: COLLATE
+              value: utf8_unicode_ci
+            - name: DATABASES
+              value: |-
+                {{- range $database, $_ := $.kubecf.databases }}
+                {{- $database | nindent 16 }}
+                {{- end }}
+            volumeMounts:
+            {{- range $database, $secret := $.kubecf.databases }}
+            - name: {{ printf  "%s-database-password" $secret | quote }}
+              mountPath: {{ printf "/passwords/%s" $database | quote }}
+              readOnly: true
+            {{- end }}
+            command:
+            - "/bin/bash"
+            - "-c"
+            - |-
+              {{- .Files.Get "assets/scripts/jobs/pxc/migrate_charset.sh" | nindent 14 }}
+
+          volumes:
+          {{- range $secret := $.kubecf.databases }}
+          - name: {{ printf  "%s-database-password" $secret | quote }}
+            secret:
+              secretName: {{ printf "var-%s-database-password" $secret | quote }}
+          {{- end }}
+          restartPolicy: Never
+
+{{- end }}

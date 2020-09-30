@@ -351,10 +351,8 @@ features:
     # port forwarding.
     enabled: true
   embedded_database:
-    # Enable the embedded database (the PXC helm sub-chart).  Disabled it allows using an external,
-    # already seeded, database.  Please refer to
-    # https://kubecf.suse.dev/docs/getting-started/kubernetes-deploy/#external-database for details.
-    # See also features.external_database.
+    # Enable the embedded database.  If this is disabled, then features.external_database should be
+    # configured to use an external database.
     enabled: true
     # Number of seconds to wait for the database to be ready, per iteration of the waiter loop
     connect_timeout: 3
@@ -372,7 +370,8 @@ features:
       droplet_directory_key: ~
       resource_directory_key: ~
 
-  # Configuration for the external database; see also features.embedded_database.
+  # Configuration for the external database; see also features.embedded_database.  Please refer to
+  # https://kubecf.suse.dev/docs/getting-started/kubernetes-deploy/#external-database for details.
   external_database:
     enabled: false
     require_ssl: false
@@ -381,6 +380,12 @@ features:
     type: ~
     host: ~
     port: ~
+    # Number of seconds to wait for the database to be ready, per iteration of the waiter loop
+    connect_timeout: 3
+    # If seed is set to true, we will initialize the database using the provided
+    # root password (see `.variables.pxc-root-password`); in that case it is not
+    # necessary to provide the configuration for the individual databases.
+    seed: false
     databases:
       uaa:
         name: uaa
