@@ -1,0 +1,3 @@
+testing:
+  brain_tests:
+    image: "ghcr.io/cloudfoundry-incubator/brain-tests:g08d790a4"
