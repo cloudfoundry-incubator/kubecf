@@ -93,6 +93,13 @@
     secret: ((credhub_setup_client_secret))
 
 - type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/authentication?/uaa?/url?
+  value: "https://uaa.((system_domain))"
+- type: replace
+  path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/authentication?/uaa?/internal_url?
+  value: "https://uaa.service.cf.internal:8443"
+
+- type: replace
   path: /variables/name=credhub_setup_client_secret?
   value:
     name: credhub_setup_client_secret
