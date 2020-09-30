@@ -55,9 +55,9 @@ stable_jobs:
 - upgrade-test
 - cleanup-diego-cluster
 - cleanup-eirini-cluster
+- cf-acceptance-tests-eirini
 
 experimental_jobs:
-- cf-acceptance-tests-eirini
 - cats-internetless-eirini
 - ccdb-rotate-eirini
 - smoke-tests-post-rotate-eirini
