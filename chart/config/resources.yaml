@@ -14,7 +14,7 @@ features:
 # resource definitions for addons. It has the same schema as the `resources` tree.
 
 addon_resources:
-  '$defaults': 32
+  '$defaults': 64
 
 # `resources` contains a mapping of instance groups to jobs to processes.
 # The process then contains a resource definition with limits and requests
