@@ -563,7 +563,7 @@ jobs:
       outputs:
       - name: output
       params:
-        CATS_NODES: 5
+        CATS_NODES: 3
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
         BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
