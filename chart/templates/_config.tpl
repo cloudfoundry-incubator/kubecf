@@ -38,7 +38,6 @@
 | * $.Values
 | * $.Values.defaults
 | * $.kubecf.manifest
-| * $.kubecf.databases
 | * $.kubecf.retval
 ==========================================================================================
 */}}
@@ -71,7 +70,6 @@
     {{- include "_releases.update" . }}
     {{- include "_jobs.update" . }}
     {{- include "_resources.update" . }}
-    {{- include "_database.update" . }}{{/* database/_database.tpl */}}
 
     {{- range $condition, $message := $.Values.unsupported }}
       {{- if eq "true" (include "_config.condition" (list $ $condition)) }}

@@ -265,47 +265,7 @@ properties:
 
       # "multiple_cluster_mode" doesn't have an "enabled" property
       multiple_cluster_mode: {}
-      external_database:
-        oneOf:
-        - type: object
-          properties:
-            enabled: {enum: [false]}
-          # When external database is disabled, we will likely still have all the properties that
-          # would be set as when it's enabled, but it may not validate due to missing (unnecessary)
-          # fields.  Just allow everything here, as they are not used anyway.
-          additionalProperties: true
-        - type: object
-          properties: &features_external_database_properties
-            enabled: {enum: [true]}
-            seed: {enum: [true]}
-            type: {enum: [mysql]}
-            require_ssl: {type: boolean}
-            ca_cert: {"$ref": "#/definitions/string_or_null"}
-            host: {type: string}
-            port: {"$ref": "#/definitions/port"}
-            connect_timeout: {type: integer}
-            databases:
-              type: object
-              additionalProperties: {type: object}
-          additionalProperties: false
-        - type: object
-          properties:
-            # When _not_ seeding, we additionally support postgres; also, we need to ensure that the
-            # database credentials are of the correct shape.
-            <<: *features_external_database_properties
-            enabled: {enum: [true]}
-            seed: {enum: [false]}
-            type: {enum: [mysql, postgres]}
-            databases:
-              type: object
-              additionalProperties:
-                type: object
-                properties:
-                  name: {type: string}
-                  username: {type: string}
-                  password: {type: string}
-                additionalProperties: false
-          additionalProperties: false
+
     additionalProperties:
       type: object
       properties:
@@ -493,9 +453,7 @@ properties:
   variables:
     type: object
     additionalProperties:
-      anyOf:
-      - type: string
-      - type: object
+      type: string
 
   # mixin configs
   bits: {type: object}
