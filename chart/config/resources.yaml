@@ -144,6 +144,9 @@ resources:
   log-cache:
     log-cache: 2048
   nats: ~
+  rotate-cc-database-key:
+    rotate_cc_database_key:
+      rotate: {memory: {limit: 512, request: 192}}
   router: 200
   scheduler:
     cc_deployment_updater: 320
