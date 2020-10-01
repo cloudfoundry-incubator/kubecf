@@ -139,7 +139,7 @@ resources:
     rep:
       rep: {memory: {limit: 3072, request: 2048}}
   doppler:
-    doppler: 128
+    doppler: 256
   log-api: 128
   log-cache:
     log-cache: 2048
