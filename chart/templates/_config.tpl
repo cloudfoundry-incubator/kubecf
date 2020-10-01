@@ -47,6 +47,9 @@
     {{- $_ := set $ "kubecf" dict }}
   {{- end }}
   {{- if not $.kubecf.manifest }}
+    {{- /* copy all structures under $.Values so our changes do not affect --reuse-values */}}
+    {{- $_ := set $ "Values" (deepCopy $.Values) }}
+
     {{- $_ := set $.kubecf "manifest" (fromYaml ($.Files.Get "assets/cf-deployment.yml")) }}
 
     {{- $configs := dict }}

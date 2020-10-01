@@ -133,37 +133,19 @@ definitions:
   resources_definition:
     type: object
     properties:
-      # The "null" alternatives below are required because templates/_resources.tpl
-      # will fill in missing keys with a null value to simplify the code that accesses
-      # properties. These filled in values will be passed through the validator again
-      # when a chart is upgraded with the --reuse-values option.
       cpu:
         type: object
         properties:
           # The "minimum" exists to make sure users specify in millicpu units.
           # So validation will catch when they request 2 millicpus instead of 2000.
-          limit:
-            anyOf:
-            - type: integer
-              minimum: 50
-            - type: "null"
-          request:
-            anyOf:
-            - type: integer
-              minimum: 50
-            - type: "null"
+          limit: {type: integer, minimum: 50}
+          request: {type: integer, minimum: 50}
         additionalProperties: false
       memory:
         type: object
         properties:
-          limit:
-            anyOf:
-            - type: integer
-            - type: "null"
-          request:
-            anyOf:
-            - type: integer
-            - type: "null"
+          limit: {type: integer}
+          request: {type: integer}
         additionalProperties: false
     additionalProperties: false
 
