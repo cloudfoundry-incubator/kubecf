@@ -85,7 +85,10 @@ wait_for_rotate_pod_to_end() {
 	if [[ -n "${exit_code}" ]]; then
             echo " $(blue "Completed")"
             echo Terminating job
-            kubectl delete --ignore-not-found=true --namespace "${KUBECF_NAMESPACE}" "$(rotate_job_name)"
+            job_name="$(rotate_job_name)"
+            if [ -n "${job_name}" ]; then
+                kubectl delete --ignore-not-found=true --namespace "${KUBECF_NAMESPACE}" "${job_name}"
+            fi
 	    # shellcheck disable=SC2005
 	    echo "$(green "OK")"
             exit "${exit_code}"
