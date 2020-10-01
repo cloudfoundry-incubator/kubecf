@@ -9,3 +9,20 @@ unsupported:
   properties.diego-cell.garden.grootfs.reserved_space_for_other_jobs_in_mb: |
     Don't use properties.diego-cell.garden.grootfs.reserved_space_for_other_jobs_in_mb.
     Use sizing.diego_cell.ephemeral_disk.size to set the amount of disk available to the cell.
+
+  features.embedded_database.enabled && features.external_database.enabled: |
+    Cannot simultaneously activate both features.embedded_database and features.external_database.
+
+  # We must enable _some_ database, or this must be the cell segment in a multi-cluster deployment.
+  ? >
+    !features.embedded_database.enabled && !features.external_database.enabled
+    && !features.multiple_cluster_mode.cell_segment.enabled
+  : >
+    The database must be enabled via either features.embedded_database or
+    features.external_database, or this must be the cell segment in a multi-cluster deployment.
+
+  # This setting was in values.yaml in kubecf 2.4.0 and earlier; it no longer exists:
+  eirini.env.DOMAIN: |
+    You are reusing an old and incompatible configuration, either via a values.yaml file from an
+    older release, or by using the --reuse-values option. Please start with a fresh configuration,
+    only changing settings relative to the defaults in the current release.

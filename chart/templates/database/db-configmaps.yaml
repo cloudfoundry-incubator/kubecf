@@ -1,0 +1,61 @@
+{{- include "_config.load" $ }}
+{{- if .Values.features.embedded_database.enabled }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: database-config-files
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- list . "database" | include "component.labels" | nindent 4 }}
+data:
+  ssl.cnf: |+
+    [mysqld]
+    ssl-ca=/etc/mysql/tls/certs/ca
+    ssl-cert=/etc/mysql/tls/certs/certificate
+    ssl-key=/etc/mysql/tls/certs/private_key
+  node.cnf: |
+    [mysqld]
+    datadir=/var/lib/mysql
+    default_storage_engine=InnoDB
+    binlog_format=ROW
+    innodb_flush_log_at_trx_commit  = 0
+    innodb_flush_method             = O_DIRECT
+    innodb_file_per_table           = 1
+    innodb_autoinc_lock_mode=2
+    bind_address = 0.0.0.0
+    wsrep_slave_threads=2
+    wsrep_cluster_address=gcomm://
+    wsrep_provider=/usr/lib/galera3/libgalera_smm.so
+    wsrep_sst_method=xtrabackup-v2
+  charset.cnf: |-
+    [client]
+    default_character_set           = utf8
+
+    [mysql]
+    default_character_set           = utf8
+
+    [mysqld]
+    # Ignore the client information and use the default server character set.
+    character_set_client_handshake  = false
+
+    character_set_server            = utf8
+    collation_server                = utf8_unicode_ci
+
+    [mysqld_safe]
+    default_character_set           = utf8
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: database-startup-scripts
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- list . "database" | include "component.labels" | nindent 4 }}
+data:
+  entrypoint.sh: |
+    {{- .Files.Get "assets/scripts/jobs/pxc/entrypoint.sh" | nindent 4 }}
+  functions.sh: |
+    {{- .Files.Get "assets/scripts/jobs/pxc/functions.sh" | nindent 4 }}
+
+{{- end }}{{/* .Values.features.embedded_database.enabled */}}

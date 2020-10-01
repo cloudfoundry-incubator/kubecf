@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- if and .Values.testing.sync_integration_tests.enabled (not .Values.features.eirini.enabled) }}
 # SITS only makes sense when using Diego, for this reason, we only enable it if Eirini is not
 # enabled.

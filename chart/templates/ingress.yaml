@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- $root := . }}
 {{- if .Values.features.ingress.enabled }}
 {{- if and .Values.features.ingress.tls.crt .Values.features.ingress.tls.key }}

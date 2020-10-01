@@ -11,13 +11,16 @@ for TEST in brain cf_acceptance smoke; do
 done
 
 if [ -z "${LOCAL_IP:-}" ]; then
-    CONTEXT="$(kubectl config current-context)"
-    if [ "${CONTEXT}" = "minikube" ]; then
-        require_tools minikube
-        LOCAL_IP=$(minikube ip)
-    elif [[ "${CONTEXT}" =~ ^kind- ]]; then
-        LOCAL_IP="$(kubectl get node ${CLUSTER_NAME}-control-plane \
-         -o jsonpath='{ .status.addresses[?(@.type == "InternalIP")].address }')"
+    if CONTEXT="$(kubectl config current-context 2>/dev/null)"; then
+        if [ "${CONTEXT}" = "minikube" ]; then
+            require_tools minikube
+            if ! LOCAL_IP=$(minikube ip); then
+                unset LOCAL_IP
+            fi
+        elif [[ "${CONTEXT}" =~ ^kind- ]]; then
+            LOCAL_IP="$(kubectl get node ${CLUSTER_NAME}-control-plane \
+                                -o jsonpath='{ .status.addresses[?(@.type == "InternalIP")].address }')"
+        fi
     fi
 fi
 
@@ -53,9 +56,19 @@ fi
 if [ -z "${CHART:-}" ]; then
     CHART="output/kubecf-$(./scripts/version.sh).tgz"
     export TARGET_FILE="${CHART}"
+    if [ -n "${RENDER_LOCAL:-}" ]; then
+        export NO_IMAGELIST=1
+    fi
     ./scripts/kubecf-build.sh
-
 fi
 
-helm upgrade kubecf "${CHART}" \
-     --install --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
+if [ -n "${RENDER_LOCAL:-}" ]; then
+    if [ -z "${LOCAL_IP:-}" ]; then
+        HELM_ARGS+=(--set "system_domain=example.com")
+    fi
+    helm template kubecf "${CHART}" \
+         --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
+else
+    helm upgrade kubecf "${CHART}" \
+         --install --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
+fi

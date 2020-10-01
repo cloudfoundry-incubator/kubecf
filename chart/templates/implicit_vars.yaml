@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- /*
   Template "kubecf.implicit-var" generates the kube secret declaration for a
   variable.  It takes a list of three arguments: the context, the variable
@@ -43,5 +43,9 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" $ }}
 type: Opaque
 stringData:
+{{- if kindOf $value | eq "map" }}
+  {{- $value | toYaml | nindent 2 }}
+{{- else }}
   value: {{ $value | quote }}
+{{- end }}
 {{- end }}

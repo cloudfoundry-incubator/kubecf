@@ -1,0 +1,39 @@
+{{- include "_config.load" $ }}
+{{- if .Values.features.embedded_database.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- list . "database" | include "component.labels" | nindent 4 }}
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: mysql
+  selector:
+    {{- list . "database" | include "component.selector" | nindent 4 }}
+    quarks.cloudfoundry.org/pod-active: active
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-repl
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- list . "database" | include "component.labels" | nindent 4 }}
+spec:
+  clusterIP: None
+  ports:
+  - name: galera
+    port: 4567
+  - name: state-xfer
+    port: 4568
+  - name: state-snap
+    port: 4444
+  selector:
+    {{- list . "database" | include "component.selector" | nindent 4 }}
+
+{{- end }}{{/* .Values.features.embedded_database.enabled */}}

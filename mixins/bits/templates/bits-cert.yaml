@@ -1,4 +1,4 @@
-{{- $_ := include "_config.load" $ }}
+{{- include "_config.load" $ }}
 {{- if .Values.features.eirini.enabled }}
 ---
 apiVersion: quarks.cloudfoundry.org/v1alpha1

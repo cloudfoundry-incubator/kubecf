@@ -1,0 +1,77 @@
+{{- include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
+{{- $component := "ssh" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ mustMerge (dict "name" $component) . | include "eirinix.component-name" }}
+  labels:
+    app.kubernetes.io/component: {{ $component }}
+{{ include "eirinix.labels" . | indent 4 }}
+spec:
+  replicas: {{ index .Values.eirinix $component "replicaCount" }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "eirinix.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: {{ $component }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "eirinix.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: {{ $component }}
+      annotations:
+        quarks.cloudfoundry.org/restart-on-update: "true"
+    spec:
+    {{- with .Values.eirinix.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ .Values.eirinix.service_account.name | quote }}
+      containers:
+      - name: {{ $component }}
+        {{- with index .Values.eirinix $component "image" }}
+        image: {{ printf "%s/eirinix-%s:%s" .repository $component .tag | quote }}
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
+        command: [ /bin/{{ $component }}-extension ]
+        args: [ start ]
+        env:
+        - name: OPERATOR_WEBHOOK_HOST
+          value: "0.0.0.0"
+        - name: OPERATOR_WEBHOOK_PORT
+          value: "2999"
+        - name: NAMESPACE
+          value: {{ .Values.eirini.opi.namespace }}
+        - name: OPERATOR_SERVICE_NAME
+          value: eirinix-{{ $component }}
+        - name: OPERATOR_WEBHOOK_NAMESPACE
+          value: {{ .Release.Namespace }}
+        resources:
+          {{- index .Values.eirinix $component "resources" | toYaml | nindent 12 }}
+    {{- with index .Values.eirinix $component }}
+      nodeSelector:
+        {{- toYaml .nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .tolerations | nindent 8 }}
+    {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eirinix-{{ $component }}
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: {{ include "eirinix.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: {{ $component }}
+  ports:
+  - protocol: TCP
+    name: https
+    port: 2999
+{{- end }}

@@ -1,6 +1,6 @@
 {{- $_ := include "_config.load" $ }}
 {{- if .Values.features.eirini.enabled }}
-{{- $component := "ssh" }}
+{{ $component := "instance-index-env-injector" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,31 +30,29 @@ spec:
     {{- end }}
       serviceAccountName: {{ .Values.eirinix.service_account.name | quote }}
       containers:
-      - name: {{ $component }}
-        {{- with index .Values.eirinix $component "image" }}
-        image: {{ printf "%s/eirinix-%s:%s" .repository $component .tag | quote }}
-        imagePullPolicy: {{ .pullPolicy }}
-        {{- end }}
-        command: [ /bin/{{ $component }}-extension ]
-        args: [ start ]
-        env:
-        - name: OPERATOR_WEBHOOK_HOST
-          value: "0.0.0.0"
-        - name: OPERATOR_WEBHOOK_PORT
-          value: "2999"
-        - name: NAMESPACE
-          value: {{ .Values.eirini.opi.namespace }}
-        - name: OPERATOR_SERVICE_NAME
-          value: eirinix-{{ $component }}
-        - name: OPERATOR_WEBHOOK_NAMESPACE
-          value: {{ .Release.Namespace }}
-        resources:
-          {{- index .Values.eirinix $component "resources" | toYaml | nindent 12 }}
+        - name: {{ $component }}
+          {{- with index .Values.eirinix $component "image" }}
+          image: {{ printf "%s/%s:%s" .repository $component .tag | quote }}
+          args: ["-c", "/etc/eirini/config/instance-index-env-injector.yml"]
+          imagePullPolicy: {{ .pullPolicy }}
+          {{- end }}
+          volumeMounts:
+          - name: config
+            mountPath: /etc/eirini/config
+          resources:
+            {{- index .Values.eirinix $component "resources" | toYaml | nindent 12 }}
+      volumes:
+      - name: config
+        configMap:
+          name: eirini
+          items:
+            - key: instance-index-env-injector.yml
+              path: instance-index-env-injector.yml
     {{- with index .Values.eirinix $component }}
       nodeSelector:
         {{- toYaml .nodeSelector | nindent 8 }}
       affinity:
-        {{- toYaml .affinity | nindent 8 }}
+        {{- toYaml .affinity | nindent 9 }}
       tolerations:
         {{- toYaml .tolerations | nindent 8 }}
     {{- end }}
@@ -73,5 +71,5 @@ spec:
   ports:
   - protocol: TCP
     name: https
-    port: 2999
+    port: 8443
 {{- end }}

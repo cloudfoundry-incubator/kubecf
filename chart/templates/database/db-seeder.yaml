@@ -1,0 +1,78 @@
+{{- include "_config.load" $ }}
+{{- if or .Values.features.embedded_database.enabled .Values.features.external_database.seed }}
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksJob
+metadata:
+  name: database-seeder
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- list . "database" | include "component.labels" | nindent 4 }}
+spec:
+  trigger:
+    strategy: once
+  updateOnConfigChange: true
+  template:
+    metadata:
+      labels:
+        {{- list . "database" | include "component.labels" | nindent 8 }}
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- list . "database" | include "component.labels" | nindent 12 }}
+        spec:
+          containers:
+          - name: seeder
+            {{- with $image := $.Values.releases.database.image }}
+            image: {{ printf "%s:%s" $image.repository $image.tag | quote }}
+            imagePullPolicy: {{ $image.pullPolicy | quote }}
+            {{- end }}
+            env:
+            - name: DATABASE_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: var-pxc-root-password
+                  key: password
+            - name: DATABASE_HOST
+              {{- $db_host := printf "database.%s" .Release.Namespace }}
+              {{- if .Values.features.external_database.enabled }}
+                {{- $db_host = .Values.features.external_database.host }}
+              {{- end }}
+              value: {{ $db_host | quote }}
+            - name: DATABASE_CONNECT_TIMEOUT
+              {{- $connect_timeout := .Values.features.embedded_database.connect_timeout }}
+              {{- if .Values.features.external_database.enabled }}
+                {{- $connect_timeout = .Values.features.external_database.connect_timeout }}
+              {{- end }}
+              value: {{ $connect_timeout | quote }}
+            - name: CHARACTER_SET
+              value: utf8
+            - name: COLLATE
+              value: utf8_unicode_ci
+            - name: DATABASES
+              value: |-
+                {{- range $database, $_ := $.kubecf.databases }}
+                {{- $database | nindent 16 }}
+                {{- end }}
+            volumeMounts:
+            {{- range $database, $secret := $.kubecf.databases }}
+            - name: {{ printf  "%s-database-password" $secret | quote }}
+              mountPath: {{ printf "/passwords/%s" $database | quote }}
+              readOnly: true
+            {{- end }}
+            command:
+            - "/bin/bash"
+            - "-c"
+            - |-
+              {{- .Files.Get "assets/scripts/jobs/pxc/seeder.sh" | nindent 14 }}
+
+          volumes:
+          {{- range $secret := $.kubecf.databases }}
+          - name: {{ printf  "%s-database-password" $secret | quote }}
+            secret:
+              secretName: {{ printf "var-%s-database-password" $secret | quote }}
+          {{- end }}
+          restartPolicy: Never
+
+{{- end }}{{/* .Values.features.embedded_database.enabled */}}

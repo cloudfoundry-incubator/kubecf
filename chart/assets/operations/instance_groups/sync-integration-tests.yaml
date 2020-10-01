@@ -19,8 +19,8 @@
     - name: sync-integration-tests
       properties:
         quarks:
-        bpm:
-          processes: []
+          bpm:
+            processes: []
         sync_integration_tests:
           bbs:
             svc:

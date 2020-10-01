@@ -189,7 +189,6 @@ deploy_args: &deploy_args
     --disk-size "100" \
     --metadata disable-legacy-endpoints=true \
     --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
-    --preemptible \
     --num-nodes "1" \
     --enable-stackdriver-kubernetes \
     --enable-ip-alias \
@@ -230,6 +229,9 @@ deploy_args: &deploy_args
   # Setup dns
   tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
   public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+  # ssh-proxy service is named differently in diego and eirini
+  ssh_proxy_svc=$(kubectl get svc -n scf | grep ssh-proxy | awk '{print $1}' | head -n 1)
+  ssh_proxy_ip=$(kubectl get svc -n scf ${ssh_proxy_svc} -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 
   gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets transaction start \
     --zone=${GKE_DNS_ZONE}
@@ -237,6 +239,8 @@ deploy_args: &deploy_args
     --name=\*.${DOMAIN}. --ttl=300 --type=A --zone=${GKE_DNS_ZONE} $public_router_ip
   gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets transaction add \
     --name=tcp.${DOMAIN}. --ttl=300 --type=A --zone=${GKE_DNS_ZONE} $tcp_router_ip
+  gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets transaction add \
+    --name=ssh.${DOMAIN}. --ttl=300 --type=A --zone=${GKE_DNS_ZONE} $ssh_proxy_ip
   gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets transaction execute \
     --zone=${GKE_DNS_ZONE}
 
@@ -558,7 +562,7 @@ jobs:
       outputs:
       - name: output
       params:
-        CATS_NODES: 5
+        CATS_NODES: 3
         ENABLE_EIRINI: {{ eq $cfScheduler "eirini" }}
         BRANCH: {{ $branch | strings.Trunc 12 }}
         CFSCHEDULER: {{ $cfScheduler }}
@@ -633,6 +637,9 @@ jobs:
               pvcs=$(kubectl get pvc -n scf -o json | jq -r .items[].spec.volumeName | paste -sd "|")
               tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
               public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+              # ssh-proxy service is named differently in diego and eirini
+              ssh_proxy_svc=$(kubectl get svc -n scf | grep ssh-proxy | awk '{print $1}' | head -n 1)
+              ssh_proxy_ip=$(kubectl get svc -n scf ${ssh_proxy_svc} -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 
               # Delete cluster
               gcloud --quiet container --project "${GKE_PROJECT}" clusters delete "${GKE_CLUSTER_NAME}" \
@@ -662,6 +669,9 @@ jobs:
               gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets \
                 transaction remove --name=tcp.${DOMAIN}. --ttl=300 --type=A \
                 --zone=${GKE_DNS_ZONE} $tcp_router_ip
+              gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets \
+                transaction remove --name=ssh.${DOMAIN}. --ttl=300 --type=A \
+                --zone=${GKE_DNS_ZONE} $ssh_proxy_ip
               gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets \
                 transaction execute --zone=${GKE_DNS_ZONE}
 

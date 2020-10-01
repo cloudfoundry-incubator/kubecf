@@ -1,7 +1,11 @@
 # Add quarks properties for cloud_controller_worker
+{{- range $process := index $.Values.jobs "cc-worker" "cloud_controller_worker" "processes" }}
+  {{- if hasPrefix "worker_" $process }}
 - type: replace
-  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/quarks?/run/healthcheck/worker_1
+  path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/quarks?/run/healthcheck/{{ $process }}
   value:
-    readiness: &cloud_controller_worker_readiness
+    readiness:
       exec:
         command: [/usr/bin/pgrep, --full, cc-worker-cloud_controller_worker]
+  {{- end }}
+{{- end }}
