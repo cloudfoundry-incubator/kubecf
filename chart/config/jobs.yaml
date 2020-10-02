@@ -162,6 +162,7 @@ jobs:
   uaa:
     # Added via ops in assets/operations/instance_groups/uaa.yaml
     cf-cli-7-linux:
+      condition: 'features.credhub.enabled'
       processes: [uaa-internal-security-group-setup]
 
   # additional tests defined in ops files; only smoke-tests is in cf-deployment
