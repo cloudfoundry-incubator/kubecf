@@ -1,0 +1,3 @@
+- path: /instance_groups/name=rotate-cc-database-key/env?/bosh/agent/settings/disable_log_sidecar
+  type: replace
+  value: true
