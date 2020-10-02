@@ -12,7 +12,7 @@ kubectl delete --ignore-not-found clusterrole cf-operator-quarks-job-cluster
 kubectl delete --ignore-not-found clusterrole cf-operator-cluster
 kubectl delete --ignore-not-found clusterrolebinding cf-operator-quarks-job-cluster
 kubectl delete --ignore-not-found clusterrolebinding cf-operator-cluster
-kubectl delete --ignore-not-foundcrd boshdeployments.quarks.cloudfoundry.org
+kubectl delete --ignore-not-found crd boshdeployments.quarks.cloudfoundry.org
 kubectl delete --ignore-not-found crd quarksjobs.quarks.cloudfoundry.org
 kubectl delete --ignore-not-found crd quarkssecrets.quarks.cloudfoundry.org
 kubectl delete --ignore-not-found crd quarksstatefulsets.quarks.cloudfoundry.org
