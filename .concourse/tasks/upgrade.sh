@@ -107,6 +107,9 @@ make kubecf
 # Setup dns
 tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+# ssh-proxy service is named differently in diego and eirini
+ssh_proxy_svc=$(kubectl get svc -n scf | grep ssh-proxy | awk '{print $1}' | head -n 1)
+ssh_proxy_ip=$(kubectl get svc -n scf "${ssh_proxy_svc}" -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 
 gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction start \
        --zone="${GKE_DNS_ZONE}"
@@ -114,6 +117,8 @@ gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
        --name="*.${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "$public_router_ip"
 gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
        --name="tcp.${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "${tcp_router_ip}"
+gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction add \
+       --name="ssh.${DOMAIN}." --ttl=300 --type=A --zone="${GKE_DNS_ZONE}" "$ssh_proxy_ip"
 gcloud --quiet beta dns --project="${GKE_PROJECT}" record-sets transaction execute \
        --zone="${GKE_DNS_ZONE}"
 
