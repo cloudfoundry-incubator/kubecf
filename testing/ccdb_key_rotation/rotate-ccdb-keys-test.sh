@@ -86,7 +86,7 @@ wait_for_rotate_pod_to_end() {
             echo " $(blue "Completed")"
 
 	    # shellcheck disable=SC2005
-	    echo "$(green "OK")"
+	    echo "$(green "OK [${exit_code}]")"
             exit "${exit_code}"
 	fi
 	sleep 1
