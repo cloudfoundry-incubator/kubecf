@@ -9,8 +9,8 @@ discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/1433
 In the KubeCF repository, there's a new project named *Roadmap* where we track the features that we
 are working, which phase they are and when they may come available.
 
-This way, we can give the community a quick way to access to our main features, the
-problem that they solve, how they will solve it and when.
+This way, we can give the community a glimpse to our main features, the problem that they solve and how
+they will solve it.
 
 Questions and/or comments on any of the features can be added directly to the feature GitHub issue
 itself.
