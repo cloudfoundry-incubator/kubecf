@@ -6,16 +6,22 @@ discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/1433
 
 # RFD 0008 Public Roadmap
 
-In the KubeCF repository, there's a new project named *Roadmap* where we track the features that we
-are working, which phase they are and when they may come available.
+## Motivation
 
-This way, we can give the community a glimpse to our main features, the problem that they solve and how
-they will solve it.
+The *Roadmap* project can be used used to track the features that the team decided to engage to,
+which phase they are and when they may come available.
 
-Questions and/or comments on any of the features can be added directly to the feature GitHub issue
-itself.
+The goal is to provide to the community a glimpse to our main features, the problem that they're
+solving and how the team is planning to solve.
 
 ## Guideline
+
+## Submit the features
+
+New features aren't added directly to the *Roadmap* project but instead added as an issue into the
+*KubeCF* default project with the label *Type: Enhancement*.
+
+Note: when opening a new issue do not forget please use the right template.
 
 ## Phases
 
@@ -24,11 +30,14 @@ Every project feature has it's own lifecycle.
 * Beta: public available but for testing and gather feedback.
 * GA: public available.
 
-Some features may be allocated to a desired timeframe, but still in exploratory phases, which can
+Some features may be allocated to a desired timeframe but still in exploratory phases, which can
 lead to potential delays, since their main purpose is to gather community feedback.
 
 * in design: we have decided to build but still figuring out how.
 * exploring: we are considering building, but we need more feedback to make a final decision.
+
+Any feature can be abandoned by team decision, independently of it state and the reason well
+explained/documented.
 
 ## Stages
 
