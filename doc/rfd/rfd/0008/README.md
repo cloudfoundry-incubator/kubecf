@@ -1,7 +1,7 @@
 ---
 authors: Jaime Gomes <jaime.gomes@suse.com>
 state: draft
-discussion: 
+discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/1433
 ---
 
 # RFD 0008 Public Roadmap
