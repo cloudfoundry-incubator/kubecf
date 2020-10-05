@@ -112,8 +112,8 @@ and push it remotely.
 # git push origin rfd-0010
 ```
 
-Do not forget to open a pull request (maybe later we will have a bot for this) with the title
-_feat: RDF num title_ .
+Do not forget to open a pull request and a GitHub issue where the discussion will happen with the
+title _feat: RDF num title_ .
 
 With the pull request open anyone subscribed to the repository will be notified about the new RFD
 and it can gather feedback through pull request comments.
@@ -127,4 +127,5 @@ master branch, but before that it must the state to ```published```. At this mom
 ready for implementation.
 
 If an RFD state is switched to ```abandoned``` the pull request must be merged into the master
-branch. If the RFD is in a ```draft``` state then a pull request must be opened and merged for future reference.
+branch. If the RFD is in a ```draft``` state then a pull request must be opened and merged for
+future reference.
