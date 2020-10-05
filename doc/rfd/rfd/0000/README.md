@@ -113,7 +113,7 @@ and push it remotely.
 ```
 
 Do not forget to open a pull request (maybe later we will have a bot for this) with the title
-_RDF:num_ .
+_feat: RDF num title_ .
 
 With the pull request open anyone subscribed to the repository will be notified about the new RFD
 and it can gather feedback through pull request comments.
