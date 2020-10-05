@@ -16,6 +16,8 @@ document known by RFD.
 1. authors: owners of the RFD must be listed with their name and email address
 (John Doe <john.doe@wonder.land>).
 2. state: one of the states discussed below.
+3. discussion: GitHub filter link that list both the pull request and the issue related with the RFD
+(i.e. https://github.com/cloudfoundry-incubator/kubecf/issues?q=%22RFD+8%22+)
 
 ## State
 
