@@ -20,7 +20,7 @@ releases:
       tag: 0.1.0
   brain-tests:
     condition: testing.brain_tests.enabled
-    version: v0.0.14
+    version: v0.0.15
   bosh-dns-aliases:
     # not needed for kubecf; functionality provided by quarks-operator
     condition: false

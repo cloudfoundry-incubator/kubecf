@@ -40,10 +40,20 @@
         tests:
           autoscaler:
             enabled: {{ .Values.features.autoscaler.enabled }}
+{{/* DROP when eirini has proper tcp routing support
+**** See https://github.com/cloudfoundry-incubator/kubecf/issues/1371#issuecomment-702883321
+*/}}
+{{- if .Values.features.eirini.enabled }}
+          tcprouting:
+            enabled: false
+          insecure_registry:
+            enabled: false
+{{- else }}
           tcprouting:
             enabled: {{ .Values.features.routing_api.enabled }}
           insecure_registry:
             enabled: {{ .Values.features.routing_api.enabled }}
+{{- end }}
           credhub:
             enabled: {{ .Values.features.credhub.enabled }}
       release: brain-tests
