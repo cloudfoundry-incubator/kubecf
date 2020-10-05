@@ -69,7 +69,8 @@ Some of these steps may have some script support in the future to make everyone'
 
 ### Find Next RFD Number
 
-Check for the next RFD number by going through the RFDs table.
+Check for the next RFD number by going through the RFDs table and on
+[GitHub](is:pr "feat: RFD" in:title) 
 
 ### Create a Branch & Placeholder
 
