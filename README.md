@@ -17,11 +17,11 @@ It works with the [cf-operator] from [Project Quarks] to deploy and manage relea
 [cf-operator]:   https://github.com/cloudfoundry-incubator/cf-operator/
 [Project Quarks]:           https://www.cloudfoundry.org/project-quarks/
 [cf-deployment]: https://github.com/cloudfoundry/cf-deployment/
-[Docs]:                     https://kubecf.suse.dev/
+[Docs]:                     https://kubecf.io/
 
 ## Documentation
 
-The Community documentation website is [available here](https://kubecf.suse.dev/).
+The Community documentation website is [available here](https://kubecf.io/).
 
 ## Contributing to KubeCF development
 
