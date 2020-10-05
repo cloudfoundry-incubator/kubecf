@@ -1,6 +1,6 @@
 ---
 authors: Jaime Gomes <jaime.gomes@suse.com>
-state: draft
+state: discussion
 discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/1433
 ---
 
