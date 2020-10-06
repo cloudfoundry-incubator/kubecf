@@ -16,7 +16,7 @@ stacks:
         version: "10.93"
         url: docker.io/cfcontainerization
       suse-staticfile-buildpack:
-        version: "1.5.11.1"
+        version: "1.5.12.1"
       suse-java-buildpack:
         version: "4.32.1.1"
       suse-ruby-buildpack:
