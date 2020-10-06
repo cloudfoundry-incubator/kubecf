@@ -34,4 +34,4 @@
     {{- end }}
 
     The online documentation (release notes, deployment guide) can be found at
-        [1;36mhttps://kubecf.suse.dev/docs[0m
+        [1;36mhttps://kubecf.io/docs[0m
