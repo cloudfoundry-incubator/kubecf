@@ -70,7 +70,7 @@ Some of these steps may have some script support in the future to make everyone'
 ### Find Next RFD Number
 
 Check for the next RFD number by going through the RFDs table and on
-[GitHub](is:pr "feat: RFD" in:title) 
+[GitHub](https://github.com/cloudfoundry-incubator/kubecf/pulls?q=is%3Apr+%22feat%3A+RFD%22+in%3Atitle) 
 
 ### Create a Branch & Placeholder
 
