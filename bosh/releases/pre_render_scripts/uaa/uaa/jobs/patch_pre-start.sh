@@ -37,7 +37,7 @@ patch --verbose "${target}" <<'EOT'
 +      ;;
 +
 +      *rhel|centos*)
-+        timeout --signal=KILL 180s /usr/bin/update-ca-trust -f -v
++        timeout --signal=KILL 180s /usr/bin/update-ca-trust
 +        cp /etc/ssl/certs/ca-bundle.crt ${OS_CERTS_FILE}
 +      ;;
 +
