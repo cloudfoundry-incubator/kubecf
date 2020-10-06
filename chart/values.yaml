@@ -44,6 +44,9 @@ kube:
   # prevent KubeCF from creating a new one, set the kube.psp.default with the PSP name.
   psp:
     default: ~
+  # The global list of image pull secret names. The secrets themselves will have to be created by
+  # the user before installing kubecf.
+  image_pull_secrets: []
 
 # Set to true to enable support for multiple availability zones.
 multi_az: false
