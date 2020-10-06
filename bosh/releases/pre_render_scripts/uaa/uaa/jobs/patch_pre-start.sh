@@ -36,7 +36,7 @@ patch --verbose "${target}" <<'EOT'
 +        mv /var/lib/ca-certificates/ca-bundle.pem /etc/ssl/certs/"$(basename "${OS_CERTS_FILE}")"
 +      ;;
 +
-+      *rhel|centos*)
++      *rhel|centos|fedora*)
 +        timeout --signal=KILL 180s /usr/bin/update-ca-trust
 +        cp /etc/ssl/certs/ca-bundle.crt ${OS_CERTS_FILE}
 +      ;;
