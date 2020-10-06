@@ -45,6 +45,10 @@
 - type: replace
   path: /instance_groups/name=diego-cell/persistent_disk_type?
   value: {{ .Values.sizing.diego_cell.ephemeral_disk.storage_class | quote }}
+- type: replace
+  path: /instance_groups/name=diego-cell/vm_resources?/ephemeral_disk_size
+  # This needs to contain the grootfs + other stuff, so it's slightly larger
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk.size | add 5120 }}
 {{- end }}
 
 # The loggr UDP forwarder needs some env vars specific to the container they're running in
