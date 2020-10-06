@@ -332,6 +332,11 @@ properties:
           default: {"$ref": "#/definitions/string_or_null"}
         additionalProperties: false
       storage_class: {"$ref": "#/definitions/string_or_null"}
+      image_pull_secrets:
+        type: array
+        items: {type: string}
+        minItems: 0
+        uniqueItems: true
     # XXX Catapult sets additional (unused) properties; allow them for now to pass CI
     additionalProperties: true
 
