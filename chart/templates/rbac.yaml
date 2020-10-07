@@ -10,7 +10,9 @@ metadata:
 spec:
   allowPrivilegeEscalation: true
   allowedCapabilities:
+  - NET_ADMIN
   - NET_BIND_SERVICE
+  - NET_RAW
   - SYS_ADMIN
   - SYS_RESOURCE
   defaultAllowPrivilegeEscalation: true
