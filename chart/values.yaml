@@ -102,7 +102,6 @@ sizing:
   credhub:
     instances: ~
   database:
-    instances: ~
     persistence:
       size: 20Gi
   diego_api:
