@@ -38,7 +38,7 @@ spec:
       replicas: {{ $replicas }}
       selector:
         matchLabels:
-          {{- list . "database" | include "component.labels" | nindent 10 }}
+          {{- list . "database" | include "component.selector" | nindent 10 }}
       serviceName: database
       template:
         metadata:
