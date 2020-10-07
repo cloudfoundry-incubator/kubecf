@@ -26,3 +26,10 @@ unsupported:
     You are reusing an old and incompatible configuration, either via a values.yaml file from an
     older release, or by using the --reuse-values option. Please start with a fresh configuration,
     only changing settings relative to the defaults in the current release.
+
+  sizing.database.instances: |
+    Database replicas are not allowed.
+    High-availability is not currently feasible to support in k8s.
+    Galera replication on rolling updates of the statefulset is hard to get
+    right and to maintain as part of KubeCF. For an HA database, prefer
+    using a specialized external one.
