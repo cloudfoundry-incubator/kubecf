@@ -332,8 +332,7 @@ properties:
           default: {"$ref": "#/definitions/string_or_null"}
         additionalProperties: false
       storage_class: {"$ref": "#/definitions/string_or_null"}
-    # XXX Catapult sets additional (unused) properties; allow them for now to pass CI
-    additionalProperties: true
+    additionalProperties: false
 
   move_jobs:
     type: object
