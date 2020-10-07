@@ -371,7 +371,7 @@ features:
       resource_directory_key: ~
 
   # Configuration for the external database; see also features.embedded_database.  Please refer to
-  # https://kubecf.suse.dev/docs/getting-started/kubernetes-deploy/#external-database for details.
+  # https://kubecf.io/docs/deployment/kubernetes-deploy/#external-database for details.
   external_database:
     enabled: false
     require_ssl: false
@@ -447,7 +447,7 @@ testing:
 ccdb:
   encryption:
     # Configure CCDB key rotation.  Please see
-    # https://kubecf.suse.dev/docs/tasks/secrets/#rotating-the-ccdb-encryption-keys for details.
+    # https://kubecf.io/docs/tasks/secrets/#rotating-the-ccdb-encryption-keys for details.
     rotation:
       # Key labels must be <= 240 characters long.
       key_labels:

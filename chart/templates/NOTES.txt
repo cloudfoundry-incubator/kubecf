@@ -19,6 +19,10 @@
     {{- if not .Values.features.eirini.enabled }}
     {{- $cell_count := .Values.sizing.diego_cell.instances | default 1 }}
     {{- $disk_size := .Values.sizing.diego_cell.ephemeral_disk.size }}
+    {{- if .Values.sizing.diego_cell.storage_class }}
+        {{- /* when using a storage class, we will reserve space for other uses. */}}
+        {{- $disk_size = sub $disk_size 2048 }}
+    {{- end }}
     {{- $app_disk_quota := 1024 }}
 
     {{- include "_config.lookup" (list $ "properties.api.cloud_controller_ng.cc.default_app_disk_in_mb") }}
@@ -34,4 +38,4 @@
     {{- end }}
 
     The online documentation (release notes, deployment guide) can be found at
-        [1;36mhttps://kubecf.suse.dev/docs[0m
+        [1;36mhttps://kubecf.io/docs[0m

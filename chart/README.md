@@ -49,5 +49,5 @@ instructions.
 [3]: https://github.com/cloudfoundry-incubator/kubecf/blob/master/doc/Contribute.md#customization
 [4]: https://quarks.suse.dev/docs/quarks-operator/concepts/variables/#explicit-variables
 [5]: https://quarks.suse.dev/docs/quarks-operator/concepts/variables/#implicit-variables
-[6]: https://kubecf.suse.dev/docs/getting-started/kubernetes-deploy/
-[7]: https://kubecf.suse.dev/docs/
+[6]: https://kubecf.io/docs/deployment/kubernetes-deploy/
+[7]: https://kubecf.io/docs/
