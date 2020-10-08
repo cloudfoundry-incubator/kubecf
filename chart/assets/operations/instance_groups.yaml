@@ -1,0 +1,18 @@
+{{/*
+ This sets labels on the generated StatefulSets to include the information about
+ the helm chart.
+*/}}
+{{- include "_config.load" $ }}
+{{- range $ig_name, $ig := .Values.jobs }}
+  {{- $included := false }}
+  {{- range $job := $ig }}
+    {{- $included = list $ $job.condition | include "_config.condition" | eq "true" | or $included }}
+  {{- end }}
+  {{- if $included }}
+    {{- range $key, $value := list $ $ig_name | include "component.labels" | fromYaml }}
+- type: replace
+  path: /instance_groups/name={{ $ig_name }}/env?/bosh/agent/settings/labels/{{ $key | replace "/" "~1" }}
+  value: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}
