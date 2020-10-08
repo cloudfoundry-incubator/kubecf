@@ -91,7 +91,9 @@ class HelmRenderer
     # Provide required value to avoid schema validation failure
     values['system_domain'] = 'example.com'
     # Eirini will throw an error unless a compatible stack is selected
-    values['install_stacks'] = ['sle15']
+    if values['features']['eirini']['enabled']
+      values['install_stacks'] = ['sle15']
+    end
     Tempfile.open(['values-', '.yaml']) do |values_file|
       values_file.write values.to_yaml
       values_file.close
