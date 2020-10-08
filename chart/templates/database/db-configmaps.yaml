@@ -24,10 +24,7 @@ data:
     innodb_file_per_table           = 1
     innodb_autoinc_lock_mode=2
     bind_address = 0.0.0.0
-    wsrep_slave_threads=2
-    wsrep_cluster_address=gcomm://
-    wsrep_provider=/usr/lib/galera3/libgalera_smm.so
-    wsrep_sst_method=xtrabackup-v2
+    wsrep_on = off
   charset.cnf: |-
     [client]
     default_character_set           = utf8

@@ -26,3 +26,10 @@ unsupported:
     You are reusing an old and incompatible configuration, either via a values.yaml file from an
     older release, or by using the --reuse-values option. Please start with a fresh configuration,
     only changing settings relative to the defaults in the current release.
+
+  # Do not allow replicas for the database; doing this well in Kubernetes is
+  # more effort than we can expend, and is better handled by external databases.
+  sizing.database.instances: >
+    Database replicas are not supported.
+    KubeCF does not support highly available database configurations;
+    please use an external database instead.
