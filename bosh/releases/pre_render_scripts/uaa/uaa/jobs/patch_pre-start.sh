@@ -16,7 +16,7 @@ fi
 patch --verbose "${target}" <<'EOT'
 --- pre-start.erb  2019-12-04 08:37:51.046503943 +0100
 +++ - 2019-12-04 08:41:36.055142488 +0100
-@@ -32,9 +32,34 @@
+@@ -32,9 +32,29 @@
      <% end %>
 
      log "Trying to run update-ca-certificates..."
