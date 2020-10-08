@@ -306,6 +306,15 @@ properties:
                   password: {type: string}
                 additionalProperties: false
           additionalProperties: false
+
+      routing_api:
+        type: object
+        properties:
+          enabled:
+            oneOf:
+            - type: boolean
+            - type: 'null'
+
     additionalProperties:
       type: object
       properties:

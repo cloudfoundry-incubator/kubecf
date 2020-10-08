@@ -93,6 +93,9 @@ class HelmRenderer
     # Eirini will throw an error unless a compatible stack is selected
     if values['features']['eirini']['enabled']
       values['install_stacks'] = ['sle15']
+      # Chart will throw an error when trying to use both eirini and
+      # routing_api. Avoid.
+      values['features']['routing_api']['enabled'] = false
     end
     Tempfile.open(['values-', '.yaml']) do |values_file|
       values_file.write values.to_yaml
