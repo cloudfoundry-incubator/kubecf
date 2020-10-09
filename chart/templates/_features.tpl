@@ -13,4 +13,8 @@
   {{- else }}
     {{- $_ := merge $.Values (dict "features" (dict "external_blobstore" (dict "enabled" false))) }}
   {{- end}}
+  {{- /* Fix routing_api to proper (per-scheduler) default when not overriden by user */}}
+  {{- if kindIs "invalid" $.Values.features.routing_api.enabled }}
+    {{- $_ := set $.Values.features.routing_api "enabled" (not $.Values.features.eirini.enabled) }}
+  {{- end }}
 {{- end }}
