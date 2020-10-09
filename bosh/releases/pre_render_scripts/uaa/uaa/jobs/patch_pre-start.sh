@@ -16,7 +16,7 @@ fi
 patch --verbose "${target}" <<'EOT'
 --- pre-start.erb  2019-12-04 08:37:51.046503943 +0100
 +++ - 2019-12-04 08:41:36.055142488 +0100
-@@ -32,9 +32,24 @@
+@@ -32,9 +32,29 @@
      <% end %>
 
      log "Trying to run update-ca-certificates..."
@@ -34,6 +34,11 @@ patch --verbose "${target}" <<'EOT'
 +      *suse|sles*)
 +        timeout --signal=KILL 180s /usr/sbin/update-ca-certificates -f -v
 +        mv /var/lib/ca-certificates/ca-bundle.pem /etc/ssl/certs/"$(basename "${OS_CERTS_FILE}")"
++      ;;
++
++      *rhel|centos|fedora*)
++        timeout --signal=KILL 180s /usr/bin/update-ca-trust
++        cp /etc/ssl/certs/ca-bundle.crt ${OS_CERTS_FILE}
 +      ;;
 +
 +      *)

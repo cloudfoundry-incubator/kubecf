@@ -348,7 +348,8 @@ features:
   routing_api:
     # Enable the routing API.  Disabling this will also disable TCP routing, which is used for TCP
     # port forwarding.
-    enabled: true
+    # Enabled by default, except under Eirini, where the routing-api is not (yet) supported.
+    enabled: ~
   embedded_database:
     # Enable the embedded database.  If this is disabled, then features.external_database should be
     # configured to use an external database.
