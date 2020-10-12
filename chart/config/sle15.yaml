@@ -14,7 +14,6 @@ stacks:
           version: 27.7-7.0.0_374.gb8e8e6af
       sle15:
         version: "24.72"
-        url: docker.io/cfcontainerization
       suse-staticfile-buildpack:
         version: "1.5.12.1"
       suse-java-buildpack:
