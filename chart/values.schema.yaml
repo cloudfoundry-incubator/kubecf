@@ -222,6 +222,15 @@ definitions:
   image_pull_policy:
     enum: [ Always, Never, IfNotPresent, ~ ]
 
+  availability_zones:
+    type: object
+    properties:
+      azs:
+        type: array
+        items:
+          type: string
+      additionalProperties: false
+
 properties:
 
   addon_jobs: {"$ref": "#/definitions/jobs"}
@@ -409,6 +418,14 @@ properties:
 
   # Does not really work because the zone names cannot be configured
   multi_az: {type: boolean}
+
+  availability_zones:
+    type: object
+    additionalProperties:
+      allOf:
+      - "$ref": "#/definitions/availability_zones"
+      - properties:
+          azs: {}
 
   operations:
     type: object

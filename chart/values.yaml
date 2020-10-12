@@ -51,6 +51,17 @@ kube:
 # Set to true to enable support for multiple availability zones.
 multi_az: false
 
+# Set the availability zones when multi_az is set to true.
+#
+# The default rules look like this:
+#
+# availability_zones:
+#   sample_group:
+#     azs:
+#     - us-south-1
+#     - us-south-2
+availability_zones: {}
+
 # Set to true to enable high availability mode, where pods are replicated in
 # order to prevent downtime when a node is temporarily unavailable.
 high_availability: false

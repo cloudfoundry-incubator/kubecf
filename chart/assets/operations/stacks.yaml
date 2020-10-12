@@ -21,6 +21,7 @@
 {{- end }}
 
 {{- if not $.Values.features.eirini.enabled }}
+{{- if not $.Values.features.multiple_cluster_mode.control_plane.enabled }}
   {{- range $stack_name, $stack := $.Values.stacks }}
     {{- if $stack.enabled }}
       {{- /* *** Create "diego-cell" job to setup rootfs for each stack *** */}}
@@ -46,6 +47,7 @@
     {{- end }}
   {{- end }}
 {{- end }}
+{{- end }}
 
 # set default stack
 {{- include "_capi.setProperty" (list "default_stack" (first $.Values.install_stacks)) }}
@@ -67,6 +69,7 @@
 {{- include "_capi.setProperty" (list "diego.lifecycle_bundles" $lifecycle_bundles) }}
 
 {{- if not $.Values.features.eirini.enabled }}
+{{- if not $.Values.features.multiple_cluster_mode.control_plane.enabled }}
 # set list of pre-loaded rootfses
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/preloaded_rootfses
@@ -86,6 +89,7 @@
       job_name: "{{ $stack_name }}-rootfs-setup"
       process_name: "{{ $stack_name }}-rootfs-setup"
   {{- end }}
+{{- end }}
 {{- end }}
 
 # set list of all buildpacks in install order
@@ -107,6 +111,7 @@
 # create pre-rendering scripts
 {{- range $stack_name := $.Values.install_stacks }}
   {{- if not $.Values.features.eirini.enabled }}
+  {{- if not $.Values.features.multiple_cluster_mode.control_plane.enabled }}
 - type: replace
   path: /instance_groups/name=diego-cell/jobs/name={{ $stack_name }}-rootfs-setup/properties/quarks?/pre_render_scripts/jobs/-
   value: |
@@ -127,6 +132,7 @@
     perl -p -i -e 's#\$ROOTFS_PACKAGE/rootfs#/var/vcap/data/rep/{{ $stack_name }}/rootfs#' "${target}"
 
     sha256sum "${target}" > "${sentinel}"
+  {{- end }}
   {{- end }}
 
   {{- $_ := include "_config.lookup" (list $ "stacks" $stack_name) }}

@@ -31,9 +31,13 @@
 {{- if .Values.features.routing_api.enabled }}
 - type: remove
   path: /instance_groups/name=tcp-router/azs?
+- type: remove
+  path: /instance_groups/name=routing-api/azs?
 {{- end }}
 
 {{- if not .Values.features.eirini.enabled }}
+- type: remove
+  path: /instance_groups/name=auctioneer/azs?
 {{- if not .Values.features.multiple_cluster_mode.control_plane.enabled }}
 - type: remove
   path: /instance_groups/name=diego-cell/azs?
@@ -54,4 +58,143 @@
 - type: remove
   path: /instance_groups/name=asnozzle/azs?
 {{- end }}
+
+- type: remove
+  path: /instance_groups/name=log-cache/azs?
+
+{{- else }}
+
+{{- if not .Values.features.multiple_cluster_mode.cell_segment.enabled }}
+{{- if gt (len .Values.availability_zones.nats.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=nats/azs?
+  value: {{ .Values.availability_zones.nats.azs | toJson }}
+{{- end }}
+
+{{- if .Values.features.credhub.enabled }}
+{{- if gt (len .Values.availability_zones.credhub.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=credhub/azs?
+  value: {{ .Values.availability_zones.credhub.azs | toJson }}
+{{- end }}
+{{- end }}
+
+{{- if gt (len .Values.availability_zones.diego_api.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=diego-api/azs?
+  value: {{ .Values.availability_zones.diego_api.azs | toJson }}
+{{- end }}
+
+{{- if gt (len .Values.availability_zones.uaa.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=uaa/azs?
+  value: {{ .Values.availability_zones.uaa.azs | toJson }}
+{{- end }}
+
+{{- if eq .Values.features.blobstore.provider "singleton" }}
+- type: remove
+  path: /instance_groups/name=singleton-blobstore/azs?
+{{- end }}
+
+{{- if gt (len .Values.availability_zones.api.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=api/azs?
+  value: {{ .Values.availability_zones.api.azs | toJson }}
+{{- end }}
+
+{{- if gt (len .Values.availability_zones.cc_worker.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=cc-worker/azs?
+  value: {{ .Values.availability_zones.cc_worker.azs | toJson }}
+{{- end }}
+
+{{- if gt (len .Values.availability_zones.scheduler.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=scheduler/azs?
+  value: {{ .Values.availability_zones.scheduler.azs | toJson }}
+{{- end }}
+
+{{- if gt (len .Values.availability_zones.router.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=router/azs?
+  value: {{ .Values.availability_zones.router.azs | toJson }}
+{{- end }}
+
+{{- if gt (len .Values.availability_zones.doppler.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=doppler/azs?
+  value: {{ .Values.availability_zones.doppler.azs | toJson }}
+{{- end }}
+
+{{- if gt (len .Values.availability_zones.log_api.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=log-api/azs?
+  value: {{ .Values.availability_zones.log_api.azs | toJson }}
+{{- end }}
+
+{{- if .Values.features.routing_api.enabled }}
+{{- if gt (len .Values.availability_zones.tcp_router.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=tcp-router/azs?
+  value: {{ .Values.availability_zones.tcp_router.azs | toJson }}
+{{- end }}
+{{- if gt (len .Values.availability_zones.routing_api.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=routing-api/azs?
+  value: {{ .Values.availability_zones.routing_api.azs | toJson }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.features.autoscaler.enabled }}
+{{- if not .Values.features.autoscaler.mysql.enabled }}
+- type: remove
+  path: /instance_groups/name=asdatabase/azs?
+{{- end }}
+{{- if gt (len .Values.availability_zones.asactors.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=asactors/azs?
+  value: {{ .Values.availability_zones.asactors.azs | toJson }}
+{{- end }}
+{{- if gt (len .Values.availability_zones.asmetrics.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=asmetrics/azs?
+  value: {{ .Values.availability_zones.asmetrics.azs | toJson }}
+{{- end }}
+{{- if gt (len .Values.availability_zones.asapi.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=asapi/azs?
+  value: {{ .Values.availability_zones.asapi.azs | toJson }}
+{{- end }}
+{{- if gt (len .Values.availability_zones.asnozzle.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=asnozzle/azs?
+  value: {{ .Values.availability_zones.asnozzle.azs | toJson }}
+{{- end }}
+{{- end }}
+
+{{- if gt (len .Values.availability_zones.log_cache.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=log-cache/azs?
+  value: {{ .Values.availability_zones.log_cache.azs | toJson }}
+{{- end }}
+{{- if not .Values.features.eirini.enabled }}
+{{- if gt (len .Values.availability_zones.auctioneer.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=auctioneer/azs?
+  value: {{ .Values.availability_zones.auctioneer.azs | toJson }}
+{{- end }}
+{{- end }}
+
+{{- end }}
+
+{{- if not .Values.features.eirini.enabled }}
+{{- if not .Values.features.multiple_cluster_mode.control_plane.enabled }}
+{{- if gt (len .Values.availability_zones.diego_cell.azs) 0 }}
+- type: replace
+  path: /instance_groups/name=diego-cell/azs?
+  value: {{ .Values.availability_zones.diego_cell.azs | toJson }}
+{{- end }}
+{{- end }}
+{{- end }}
+
 {{- end }}

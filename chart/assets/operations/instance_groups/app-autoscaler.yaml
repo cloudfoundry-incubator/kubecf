@@ -713,6 +713,15 @@
       {{- range $index := until (int .Values.sizing.asmetrics.instances | default 1) }}
       - {{ printf "asmetrics-%d" $index | quote }}
       {{- end }}
+      {{- if .Values.multi_az }}
+      {{- if gt (len .Values.availability_zones.asmetrics.azs) 0 }}
+      {{- range $az_index := until (len .Values.availability_zones.asmetrics.azs | int ) }}
+      {{- range $index := until (int $.Values.sizing.asmetrics.instances | default 1 ) }}
+      - {{ printf "asmetrics-z%d-%d" $az_index $index | quote }}
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- end }}
       ca: autoscaler_metricsserver_ca
       common_name: metricsserver.service.cf.internal
       extended_key_usage:

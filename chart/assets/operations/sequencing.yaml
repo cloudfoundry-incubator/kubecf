@@ -50,9 +50,10 @@
 
 {{- if not .Values.features.eirini.enabled }}
   {{- template "wait-for" list "auctioneer" "diego-api" }}
-  {{- template "wait-for" list "diego-cell" "uaa" }}
+  {{- if not .Values.features.multiple_cluster_mode.control_plane.enabled }}
+    {{- template "wait-for" list "diego-cell" "uaa" }}
+  {{- end }}
 {{- end }}
-
 {{- if eq .Values.features.blobstore.provider "singleton" }}
   {{- template "wait-for" list "singleton-blobstore" "nats" }}
 {{- end }}
