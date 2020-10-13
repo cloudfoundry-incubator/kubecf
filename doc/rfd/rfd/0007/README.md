@@ -1,7 +1,7 @@
 ---
 authors: Jaime Gomes <jaime.gomes@suse.com>
-state: discussion
-discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/1399
+state: draft
+discussion: 
 ---
 
 # RFD 7 Deployment and Upgrade Benchmark
