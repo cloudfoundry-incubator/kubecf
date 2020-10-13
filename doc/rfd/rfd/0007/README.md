@@ -23,6 +23,14 @@ With the time data collected, both upstream projects and downstream product team
 if there're optimizations that can lead to a better and more fasten deployments that will support a
 better user experience in future releases.
 
+### Type of Deployments
+
+1. Eirini enabled:
+1.1 High availability
+2. Diego enabled:
+2.1 High availability
+
+
 ## Possible solution(s)
 
 ### Solution A
