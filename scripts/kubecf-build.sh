@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source scripts/include/setup.sh
 
-require_tools bosh cf_operator_url git helm jq j2y ruby y2j
+require_tools bosh cf_operator_url git helm jq ruby y2j
 
 if [[ ! "$(git submodule status -- src/cf-deployment)" =~ ^[[:space:]] ]]; then
     die "git submodule for cf-deployment is uninitialized or not up-to-date"
@@ -28,24 +28,6 @@ for MIXIN in bits eirini eirinix; do
             cp -a "mixins/${MIXIN}/${DIR}/"* "${HELM_DIR}/${DIR}"
         fi
     done
-done
-
-mkdir -p "${HELM_DIR}/assets/jobs"
-
-function extract_job {
-    local output=$2
-    if [ "$1" = "doppler" ]; then
-        output="log-cache-${output}"
-    fi
-    y2j < src/cf-deployment/cf-deployment.yml |
-        jq ".instance_groups[] | select(.name == \"$1\") | .jobs[] | select(.name == \"$2\")" |
-        j2y > "${HELM_DIR}/assets/jobs/${output//-/_}_job.yaml"
-}
-
-extract_job scheduler auctioneer
-extract_job api routing-api
-for LOG_CACHE_JOB in log-cache log-cache-gateway log-cache-nozzle log-cache-cf-auth-proxy route_registrar; do
-    extract_job doppler "${LOG_CACHE_JOB}"
 done
 
 mkdir -p "${HELM_DIR}/assets/operations/pre_render_scripts"

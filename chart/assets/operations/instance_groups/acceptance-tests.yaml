@@ -36,8 +36,6 @@
     networks:
     - name: default
     stemcell: default
-    update:
-      serial: true
     vm_type: minimal
 
 

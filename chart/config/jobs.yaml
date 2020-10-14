@@ -109,7 +109,8 @@ jobs:
       # Number of local worker processes is:
       # properties.api.cloud_controller_ng.cc.jobs.local.number_of_workers
       processes: [cloud_controller_ng, nginx, ccng_monit_http_healthcheck]
-    routing-api: 'features.routing_api.enabled'
+  auctioneer:
+    '$default': '!features.eirini.enabled'
   cc-worker:
     cloud_controller_worker:
       # "worker_N" processes will be appended by _jobs.update.
@@ -137,8 +138,9 @@ jobs:
       processes: []
     silk-cni:
       processes: []
+  routing-api:
+    '$default': 'features.routing_api.enabled'
   scheduler:
-    auctioneer: '!features.eirini.enabled'
     cfdot:
       processes: []
     ssh_proxy: '!features.eirini.enabled'

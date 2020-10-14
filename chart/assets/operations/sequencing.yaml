@@ -71,32 +71,8 @@
 # irrelevant, and therefore ignored, and not changed.
 #
 
-{{- /*
-     * remove-serialization <group>
-     * Remove the upstream pod startup serialization hint for the given group.
-     */}}
-{{- define "remove-serialization" }}
-- type: remove
-  path: /instance_groups/name={{ . }}/update/serial
-{{- end }}
-
-{{- template "remove-serialization" "router" }}
-
-{{- if .Values.features.routing_api.enabled }}
-  {{- template "remove-serialization" "routing-api" }}
-{{- end }}
-
-{{- if not .Values.features.eirini.enabled }}
-  {{- template "remove-serialization" "auctioneer" }}
-{{- end }}
-
-{{- if eq .Values.features.blobstore.provider "singleton" }}
-  {{- template "remove-serialization" "singleton-blobstore" }}
-{{- end }}
-
-{{- if .Values.features.autoscaler.enabled }}
-  {{- template "remove-serialization" "asactors" }}
-  {{- template "remove-serialization" "asapi" }}
-  {{- template "remove-serialization" "asmetrics" }}
-  {{- template "remove-serialization" "asnozzle" }}
+{{- range $ig := $.kubecf.manifest.instance_groups }}
+  {{- if index $ig "update" }}
+    {{- $_ := unset $ig.update "serial" }}
+  {{- end }}
 {{- end }}

@@ -32,12 +32,6 @@ spec:
 {{- end }}
   ops:
 
-# Job moving operations
-{{- range $path, $_ := .Files.Glob "assets/operations/job_moving/*" }}
-  - name: {{ include "kubecf.ops-name" (dict "ReleaseName" $root.Release.Name "Path" $path) }}
-    type: configmap
-{{- end }}
-
 {{- if eq .Values.features.blobstore.provider "s3" }}
 # S3 blobstore operations
   - name: {{ include "kubecf.ops-name" (dict "Path" "assets/use-external-blobstore.yml") }}

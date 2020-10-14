@@ -52,8 +52,6 @@
     networks:
     - name: default
     stemcell: default
-    update:
-      serial: true
     vm_type: minimal
 
 {{- if .Values.testing.brain_tests.delete_pod }}
