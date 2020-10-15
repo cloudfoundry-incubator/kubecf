@@ -32,7 +32,10 @@ promoting it to ```discussion```.
 Documents under active discussion within the team must be in ```discussion``` state. When reaching
 this state the scope of the RFD must be clear and well defined.
 
-Once the discussion converges to a clear understanding of what needs to be done, then the state must
+Once the discussion converges to a clear understanding of what needs to be done, and either:
+- a reasonable time paasses without raised concerns (1-2 sprints)
+- and explicit agreement of more than half of usual contributors
+then RFD is considered adopted. The content of it becomes in effect and the state must
 be set to ```published```.
 
 Any comment in the ```published``` state must be raised as issues or if the comment brings
