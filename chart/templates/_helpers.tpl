@@ -85,6 +85,20 @@ helm.sh/chart: {{ include "kubecf.chart" $root }}
 {{- end }}
 
 {{- /*
+==========================================================================================
+| kubecf.imagePullSecrets (list $ $component)
++-----------------------------------------------------------------------------------------
+| Add imagePullSecrets to service accounts.
+==========================================================================================
+*/ -}}
+{{- define "kubecf.imagePullSecrets" }}
+{{- $root := first . }}
+{{- range $secret_name := $root.Values.kube.image_pull_secrets }}
+- name: {{ $secret_name | quote }}
+{{- end }}
+{{- end }}
+
+{{- /*
   Template "kubecf.dig" takes a dict and a list; it indexes the dict with each
   successive element of the list.
 
