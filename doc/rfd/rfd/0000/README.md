@@ -33,8 +33,8 @@ Documents under active discussion within the team must be in ```discussion``` st
 this state the scope of the RFD must be clear and well defined.
 
 Once the discussion converges to a clear understanding of what needs to be done, and either:
-- a reasonable time paasses without raised concerns (1-2 sprints)
-- and explicit agreement of more than half of usual contributors
+- a reasonable time passes without raised concerns (1-2 sprints)
+- or there's explicit agreement of more than half of usual contributors
 then RFD is considered adopted. The content of it becomes in effect and the state must
 be set to ```published```.
 
