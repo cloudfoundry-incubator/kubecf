@@ -18,6 +18,8 @@ releases:
     image:
       repository: ghcr.io/cfcontainerizationbot/kubecf-apps-dns
       tag: 0.1.0
+  # Can also use image `google/cloud-sdk` as an alternative image to provide
+  # kubectl capability
   kubecf_kubectl:
     image:
       repository: ghcr.io/cfcontainerizationbot/kubecf-kubectl

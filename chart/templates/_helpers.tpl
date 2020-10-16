@@ -86,16 +86,13 @@ helm.sh/chart: {{ include "kubecf.chart" $root }}
 
 {{- /*
 ==========================================================================================
-| kubecf.imagePullSecrets (list $ $component)
-+-----------------------------------------------------------------------------------------
 | Add imagePullSecrets to service accounts.
 ==========================================================================================
 */ -}}
 {{- define "kubecf.imagePullSecrets" }}
-{{- $root := first . }}
-{{- range $secret_name := $root.Values.kube.image_pull_secrets }}
-- name: {{ $secret_name | quote }}
-{{- end }}
+  {{- range $secret_name := .Values.kube.image_pull_secrets }}
+    - name: {{ $secret_name | quote }}
+  {{- end }}
 {{- end }}
 
 {{- /*
