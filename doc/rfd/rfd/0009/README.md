@@ -1,6 +1,6 @@
 ---
 authors: Victor Cuadrado <vcuadradojuan@suse.com>, Ettore Di Giacinto <edigiacinto@suse.de>
-state: draft
+state: published
 discussion: N/A
 ---
 
