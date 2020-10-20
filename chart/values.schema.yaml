@@ -335,6 +335,11 @@ properties:
   kube:
     type: object
     properties:
+      image_pull_secrets:
+        type: array
+        items: {type: string}
+        minItems: 0
+        uniqueItems: true
       psp:
         type: object
         properties:
