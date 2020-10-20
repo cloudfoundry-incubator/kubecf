@@ -79,9 +79,9 @@ Deployment and automation scripts will expose the following targets:
 
 - `wait`: Will wait until deployment of the chart is up and running.
 
-- `upgrade`: Takes a `$(pwd)/values.yaml` and a chart contained in
-  `$(pwd)/chart/` and upgrades the Helm Chart at hand. The upgrade must work for
-  both same version and different versions.
+- `upgrade`: Takes a `$pwd/values.yaml` and a chart contained in
+  `$pwd/$our-chart/chart/` and upgrades the Helm Chart at hand. The upgrade must
+  work for both same version and different versions.
 
 - `clean`: Removes all possible objects created by any target from the cluster.
    Deletes `$pwd/$chart-name` at the end.
@@ -168,4 +168,4 @@ Resulting "Build" folder of the targets after installing the kubecf chart:
 ## Consequences
 
 Existing scripts should be compliant with this spec. Repos, such as kubecf, don't
-need to change their own Makefiles target changes.
+need to change their own Makefiles targets.
