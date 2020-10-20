@@ -1,7 +1,7 @@
 ---
 authors: Victor Cuadrado <vcuadradojuan@suse.com>, Ettore Di Giacinto <edigiacinto@suse.de>
-state: published
-discussion: N/A
+state: discussion
+discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/1495
 ---
 
 # RFD 9: Specification for deployment and automation scripts
