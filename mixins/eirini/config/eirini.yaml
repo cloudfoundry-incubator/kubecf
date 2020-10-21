@@ -89,6 +89,8 @@ eirini:
 
     staging:
       enable: true
+      application_service_account: "eirini"
+      staging_service_account: "eirini"
       downloader_image: registry.suse.com/cap-staging/recipe-downloader
       downloader_image_tag: "1.8.0-24.56"
       executor_image: registry.suse.com/cap-staging/recipe-executor
