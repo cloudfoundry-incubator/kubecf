@@ -1,0 +1,21 @@
+{{- include "_config.load" $ }}
+{{- if .Values.features.eirini_ingress.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eirini-ingress-configurations
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: operations
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+data:
+  ops: |-
+
+    - type: remove
+      path: /instance_groups/name=router
+{{- end }}

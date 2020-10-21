@@ -84,6 +84,12 @@ spec:
     type: configmap
 {{- end }}
 
+# To support eirini-ingress and disable router
+{{- if and .Values.features.eirini.enabled .Values.features.eirini_ingress.enabled }}
+  - name: eirini-ingress-configurations
+    type: configmap
+{{- end }}
+
 # Custom operations
 {{- range $_, $ops := .Values.operations.custom }}
   - name: {{ $ops | quote }}

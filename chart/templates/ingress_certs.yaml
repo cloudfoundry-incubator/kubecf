@@ -5,7 +5,7 @@
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksSecret
 metadata:
-  name: {{ .Release.Name }}-ingress-tls
+  name: {{ .Release.Name }}-ingress-tls-ca
   namespace: {{ .Release.Namespace | quote }}
 spec:
   request:
@@ -20,7 +20,7 @@ spec:
 apiVersion: quarks.cloudfoundry.org/v1alpha1
 kind: QuarksSecret
 metadata:
-  name: nip.quarks.tls
+  name: {{ .Release.Name }}-ingress-tls
   namespace: kubecf
 spec:
   request:
