@@ -22,15 +22,18 @@
 - type: remove
   path: /instance_groups/name=scheduler/azs?
 - type: remove
-  path: /instance_groups/name=router/azs?
+  path: /instance_groups/name=router?/azs?
+
 - type: remove
   path: /instance_groups/name=doppler/azs?
 - type: remove
   path: /instance_groups/name=log-api/azs?
 
 {{- if .Values.features.routing_api.enabled }}
+
 - type: remove
-  path: /instance_groups/name=tcp-router/azs?
+  path: /instance_groups/name=tcp-router?/azs?
+
 {{- end }}
 
 {{- if not .Values.features.eirini.enabled }}

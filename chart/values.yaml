@@ -199,6 +199,8 @@ settings:
 
 
 features:
+  eirini_ingress:
+    enabled: false
   # Set default memory limits and requests for all containers
   memory_limits:
     enabled: true

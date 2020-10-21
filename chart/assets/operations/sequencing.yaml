@@ -39,9 +39,11 @@
 {{- template "wait-for" list "log-cache" "uaa" }}
 
 {{- if .Values.features.routing_api.enabled }}
+{{- if not (.Values.features.eirini_ingress.enabled ) }}
   {{- template "wait-for" list "router"      "routing-api" }}
   {{- template "wait-for" list "routing-api" "uaa" }}
   {{- template "wait-for" list "tcp-router"  "uaa" }}
+{{- end }}
 {{- end }}
 
 {{- if .Values.features.credhub.enabled }}

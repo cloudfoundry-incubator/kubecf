@@ -7,7 +7,11 @@
 {{- $instance_groups = append $instance_groups "doppler" }}
 {{- $instance_groups = append $instance_groups "log-api" }}
 {{- $instance_groups = append $instance_groups "nats" }}
+
+{{- if not (.Values.features.eirini_ingress.enabled ) }}
 {{- $instance_groups = append $instance_groups "router" }}
+{{- end }}{{/* if eirini_ingress */}}
+
 {{- $instance_groups = append $instance_groups "scheduler" }}
 {{- $instance_groups = append $instance_groups "uaa" }}
 
@@ -26,8 +30,10 @@
 
 {{- /* Routing-api and tcp-router instance groups */}}
 {{- if .Values.features.routing_api.enabled }}
+{{- if not (.Values.features.eirini_ingress.enabled ) }}
 {{- $instance_groups = append $instance_groups "routing-api" }}
 {{- $instance_groups = append $instance_groups "tcp-router" }}
+{{- end }}{{/* if eirini_ingress */}}
 {{- end }}{{/* if routing_api */}}
 
 {{- /* Instances groups where existence depends on whether Eirini is enabled */}}

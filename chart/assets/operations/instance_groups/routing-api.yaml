@@ -1,5 +1,4 @@
 {{- if .Values.features.routing_api.enabled }}
-
 # Add quarks properties for routing-api.
 - type: replace
   path: /instance_groups/name=routing-api/jobs/name=routing-api/properties/quarks?

@@ -1,4 +1,15 @@
 eirinix:
+  eirini-ingress:
+    replicaCount: 1
+
+    image:
+      repository: quay.io/mudler/eirinix-ingress
+      tag: latest
+      pullPolicy: Always
+    resources: {}
+    nodeSelector: {}
+    affinity: {}
+    tolerations: []
   dns-aliases:
     image: ghcr.io/cfcontainerizationbot/eirini-dns-aliases
     image_tag: 0.0.0-32.g585bc34d

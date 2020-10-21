@@ -1,0 +1,44 @@
+{{- include "_config.load" $ }}
+{{- if and .Values.features.eirini.enabled .Values.features.eirini_ingress.enabled }}
+{{- $component := "eirini-ingress" }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ mustMerge (dict "name" $component) . | include "eirinix.component-name" }}
+  labels:
+    app.kubernetes.io/component: {{ $component }}
+{{ include "eirinix.labels" . | indent 4 }}
+spec:
+  replicas: {{ index .Values.eirinix $component "replicaCount" }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "eirinix.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: {{ $component }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "eirinix.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: {{ $component }}
+      annotations:
+        quarks.cloudfoundry.org/restart-on-update: "true"
+    spec:
+    {{- with .Values.eirinix.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ .Values.eirinix.service_account.name | quote }}
+      containers:
+      - name: {{ $component }} 
+        {{- with index .Values.eirinix $component "image" }}
+        image: {{ printf "%s:%s" .repository .tag | quote }}
+        imagePullPolicy: {{ .pullPolicy }}
+        {{- end }}
+        env:
+          - name: NAMESPACE
+            value: {{ .Values.eirini.opi.namespace | quote }}
+          - name: LABELS
+            value: '{{ index .Values.eirinix $component "labels" | toJson }}'
+{{- end }}

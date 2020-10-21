@@ -25,6 +25,142 @@ data:
   tls.crt: {{ .Values.features.ingress.tls.crt | b64enc | quote }}
   tls.key: {{ .Values.features.ingress.tls.key | b64enc | quote }}
 {{- end }}
+
+{{- if and .Values.features.eirini.enabled .Values.features.eirini_ingress.enabled }}
+
+---
+# This ingress specifies routing and access for the cloud controller public Kubecf service, e.g.
+# "api.<domain>" and other services in that domain hierarchy.
+#
+# Note that the two other services (TCP routing and app SSH access) are not suitable to routing via
+# HTTP, and not specified. I.e. they are TCP, which is not supported by the current ingress
+# specification. Although specific controllers may do so in a custom manner.
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  name: {{ .Release.Name | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    # Inject some annotations if they don't exist in the annotations provided during deployment.
+    {{- if not (hasKey .Values.features.ingress.annotations "kubernetes.io/ingress.class") }}
+      {{ $_ := set .Values.features.ingress.annotations "kubernetes.io/ingress.class" "nginx" }}
+    {{- end }}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends") }}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends" "true" }}
+    {{- end }}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol") }}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol" "HTTPS" }}
+    {{- end }}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect") }}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" "false" }}
+    {{- end }}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size") }}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" "64m" }}
+    {{- end }}
+    {{ $_ := set .Values.features.ingress.annotations "nginx.org/websocket-services" "router" }}
+{{ toYaml .Values.features.ingress.annotations | indent 4 }}
+  labels:
+    {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/component") }}
+    app.kubernetes.io/component: "ingress"
+    {{- end }}
+    {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/instance") }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    {{- end }}
+    {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/managed-by") }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    {{- end }}
+    {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/name") }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    {{- end }}
+    {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/version") }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    {{- end }}
+    {{ if not (hasKey .Values.features.ingress.labels "helm.sh/chart") }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+    {{- end }}
+{{ if .Values.features.ingress.labels }}
+{{ toYaml .Values.features.ingress.labels | indent 4 }}
+{{ end }}
+spec:
+  tls:
+  - secretName: {{ .Release.Name }}-ingress-tls
+    hosts:
+    - "api.{{ .Values.system_domain }}"
+  rules:
+    - host: "api.{{ .Values.system_domain }}"
+      http:
+        paths:
+          - path: "/"
+            backend:
+              serviceName: api
+              servicePort: 443
+---
+# This ingress specifies routing and access for the cloud controller public Kubecf service, e.g.
+# "api.<domain>" and other services in that domain hierarchy.
+#
+# Note that the two other services (TCP routing and app SSH access) are not suitable to routing via
+# HTTP, and not specified. I.e. they are TCP, which is not supported by the current ingress
+# specification. Although specific controllers may do so in a custom manner.
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata:
+  name: {{ .Release.Name | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    # Inject some annotations if they don't exist in the annotations provided during deployment.
+    {{- if not (hasKey .Values.features.ingress.annotations "kubernetes.io/ingress.class") }}
+      {{ $_ := set .Values.features.ingress.annotations "kubernetes.io/ingress.class" "nginx" }}
+    {{- end }}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends") }}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/secure-backends" "true" }}
+    {{- end }}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol") }}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/backend-protocol" "HTTPS" }}
+    {{- end }}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect") }}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/ssl-redirect" "false" }}
+    {{- end }}
+    {{- if not (hasKey .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size") }}
+      {{ $_ := set .Values.features.ingress.annotations "nginx.ingress.kubernetes.io/proxy-body-size" "64m" }}
+    {{- end }}
+    {{ $_ := set .Values.features.ingress.annotations "nginx.org/websocket-services" "router" }}
+{{ toYaml .Values.features.ingress.annotations | indent 4 }}
+  labels:
+    {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/component") }}
+    app.kubernetes.io/component: "ingress"
+    {{- end }}
+    {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/instance") }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    {{- end }}
+    {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/managed-by") }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    {{- end }}
+    {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/name") }}
+    app.kubernetes.io/name: {{ default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
+    {{- end }}
+    {{ if not (hasKey .Values.features.ingress.labels "app.kubernetes.io/version") }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    {{- end }}
+    {{ if not (hasKey .Values.features.ingress.labels "helm.sh/chart") }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") | quote }}
+    {{- end }}
+{{ if .Values.features.ingress.labels }}
+{{ toYaml .Values.features.ingress.labels | indent 4 }}
+{{ end }}
+spec:
+  tls:
+  - secretName: {{ .Release.Name }}-ingress-tls
+    hosts:
+    - "uaa.{{ .Values.system_domain }}"
+  rules:
+    - host: "uaa.{{ .Values.system_domain }}"
+      http:
+        paths:
+          - path: "/"
+            backend:
+              serviceName: uaa
+              servicePort: 8443
+{{- else }}
 ---
 # This ingress specifies routing and access for the cloud controller public Kubecf service, e.g.
 # "api.<domain>" and other services in that domain hierarchy.
@@ -91,7 +227,7 @@ spec:
             backend:
               serviceName: router
               servicePort: 443
-
+{{- end }}
 {{- else }}
 # If the ingress feature (ingress-controller) is not enabled, create public services to allow
 # public ingress to the cluster.
