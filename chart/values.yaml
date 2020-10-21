@@ -330,6 +330,7 @@ features:
         #   subnet_prefix_length: 24
         link: ~
   ingress:
+    self_signed: false
     enabled: false
     tls:
       # TLS certificate for the ingress controller.  This should be a wildcard certificate for the

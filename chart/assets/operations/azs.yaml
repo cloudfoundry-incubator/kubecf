@@ -22,7 +22,7 @@
 - type: remove
   path: /instance_groups/name=scheduler/azs?
 - type: remove
-  path: /instance_groups/name=router?/azs?
+  path: /instance_groups/name=router/azs?
 
 - type: remove
   path: /instance_groups/name=doppler/azs?
@@ -32,7 +32,7 @@
 {{- if .Values.features.routing_api.enabled }}
 
 - type: remove
-  path: /instance_groups/name=tcp-router?/azs?
+  path: /instance_groups/name=tcp-router/azs?
 
 {{- end }}
 
