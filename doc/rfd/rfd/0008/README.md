@@ -36,8 +36,8 @@ lead to potential delays, since their main purpose is to gather community feedba
 * in design: we have decided to build but still figuring out how.
 * exploring: we are considering building, but we need more feedback to make a final decision.
 
-Any feature can be abandoned by team decision, independently of it state and the reason well
-explained/documented.
+Any feature can be abandoned by team decision independently of its state, followed by a
+well-documented reason.
 
 ## Stages
 
