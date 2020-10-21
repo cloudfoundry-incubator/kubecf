@@ -40,7 +40,7 @@ git checkout -b "${GIT_BRANCH_NAME}"
 
 perl -i -0pe "s/        stemcell:\n          version: \d+\.\d+/        stemcell:\n          version: ${stemcell_version}/" "${KUBECF_VALUES}"
 
-git commit "${KUBECF_VALUES}" -m "${COMMIT_TITLE}"
+git commit "${KUBECF_VALUES}" -m "${COMMIT_TITLE}" || exit 0
 
 # Open a Pull Request
 PR_MESSAGE=$(echo -e "${COMMIT_TITLE}")
