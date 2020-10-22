@@ -5,6 +5,10 @@ on:
       - opened
       - edited
       - synchronize
+
+env:
+  GIT_PAGER: cat
+
 jobs:
   main:
     runs-on: ubuntu-latest
@@ -12,4 +16,3 @@ jobs:
       - uses: amannn/action-semantic-pull-request@v1.2.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GIT_PAGER: cat

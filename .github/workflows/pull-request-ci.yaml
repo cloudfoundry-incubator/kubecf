@@ -4,6 +4,10 @@ on:
   pull_request_target:
     branches: [master]
     types: [labeled]
+
+env:
+  GIT_PAGER: cat
+
 jobs:
 
   # The first thing we do is to check that the PR has the pr-test-queue label
@@ -12,8 +16,6 @@ jobs:
     name: dequeue
     if: contains(github.event.pull_request.labels.*.name, 'pr-test-queue')
     runs-on: ubuntu-20.04
-    env:
-      GIT_PAGER: cat
     steps:
       - uses: actions-ecosystem/action-remove-labels@556e306
         with:
@@ -27,7 +29,6 @@ jobs:
     env:
       PINNED_TOOLS: true
       TOOLS_DIR: ${{ github.workspace }}/tools
-      GIT_PAGER: cat
     defaults:
       run:
         working-directory: kubecf
@@ -66,7 +67,6 @@ jobs:
     env:
       PINNED_TOOLS: true
       TOOLS_DIR: ${{ github.workspace }}/tools
-      GIT_PAGER: cat
     defaults:
       run:
         working-directory: kubecf
@@ -127,7 +127,6 @@ jobs:
       # Note that credentials-related parts are in the individual steps
       BACKEND: gke
       DOWNLOAD_CATAPULT_DEPS: "false"
-      GIT_PAGER: cat
     defaults:
       run:
         working-directory: kubecf

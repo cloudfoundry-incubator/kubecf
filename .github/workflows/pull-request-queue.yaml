@@ -5,13 +5,14 @@ on:
   #  types: [submitted]
   workflow_dispatch: {}
 
+env:
+  GIT_PAGER: cat
+
 jobs:
   enqueue:
     if: github.event.pull_request.base.ref == 'master' && github.event.review.state == 'approved'
     name: enqueue
     runs-on: ubuntu-20.04
-    env:
-      GIT_PAGER: cat
     steps:
       - uses: actions-ecosystem/action-add-labels@9141732
         with:
