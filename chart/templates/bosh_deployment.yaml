@@ -85,7 +85,7 @@ spec:
 {{- end }}
 
 # Remove capi release when on Eirini. We deploy with the docker image then.
-{{- if and .Values.features.eirini.enabled }}
+{{- if .Values.features.eirini.enabled }}
   - name: disable-cc-bosh-release
     type: configmap
 {{- end }}

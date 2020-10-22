@@ -1,4 +1,4 @@
-{{- if  .Values.features.eirini.enabled }}
+{{- if  $.Values.features.eirini.enabled }}
 
   {{- /* *** Make sure the eirini stack has been selected *** */}}
   {{- $eirini_stack := $.Values.features.eirini.stack }}
@@ -8,7 +8,7 @@
     {{- include "_config.fail" (printf "Eirini can only be enabled with \"install_stacks=[%s]\"" $eirini_stack) }}
   {{- end }}
 
-{{- if not .Values.features.eirini.enabled }}
+{{- if not $.Values.features.eirini.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/enabled?
   value: true
@@ -36,7 +36,7 @@
     namespace: {{ .Values.eirini.opi.namespace }}
     name: var-cc-bridge-cc-uploader
 
-{{- if not .Values.features.eirini.enabled }}
+{{- if not $.Values.features.eirini.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cc_uploader/properties/internal_hostname?
   value: "api.{{ .Release.Namespace }}.svc"
@@ -51,7 +51,7 @@
   value: "api.{{ .Release.Namespace }}.svc"
 {{- end }}
 
-{{- if not .Values.features.eirini.enabled }}
+{{- if not $.Values.features.eirini.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/opi?/opi_staging?
   value: true
