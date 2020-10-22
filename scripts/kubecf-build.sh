@@ -22,7 +22,7 @@ cp src/cf-deployment/cf-deployment.yml "${HELM_DIR}/assets"
 cp src/cf-deployment/operations/use-external-blobstore.yml "${HELM_DIR}/assets"
 cp src/cf-deployment/operations/use-s3-blobstore.yml "${HELM_DIR}/assets"
 
-for MIXIN in bits eirini eirinix; do
+for MIXIN in bits eirini eirinix kpack; do
     for DIR in assets config templates; do
         if [ -d "mixins/${MIXIN}/${DIR}" ]; then
             cp -a "mixins/${MIXIN}/${DIR}/"* "${HELM_DIR}/${DIR}"

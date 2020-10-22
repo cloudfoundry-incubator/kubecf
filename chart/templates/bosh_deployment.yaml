@@ -78,6 +78,12 @@ spec:
     type: configmap
 {{- end }}
 
+# Remove capi release when on Eirini. We deploy with the docker image then.
+{{- if and .Values.features.eirini.enabled }}
+  - name: disable-cc-bosh-release
+    type: configmap
+{{- end }}
+
 # To support multi-clusters
 {{- if or .Values.features.multiple_cluster_mode.control_plane.enabled .Values.features.multiple_cluster_mode.cell_segment.enabled }}
   - name: multiple-cluster-mode-operations

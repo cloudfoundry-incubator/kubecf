@@ -1,0 +1,71 @@
+{{- include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kpack-docker-registry
+  namespace: {{ .Release.Namespace | quote}}
+type: Opaque
+stringData:
+  docker-username: = {{ .Values.kpack.registry_username }}
+  docker-password: {{ .Values.kpack.registry_password }}
+  docker-server: {{ .Values.kpack.registry_server }}
+{{ end }}
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kpack-service-account
+  namespace: {{ .Release.Namespace | quote}}
+secrets:
+- name: kpack-docker-registry
+imagePullSecrets:
+- name: kpack-docker-registry
+
+---
+apiVersion: kpack.io/v1alpha1
+kind: ClusterStore
+metadata:
+  name: kpack
+spec:
+  sources:
+  - image: gcr.io/paketo-buildpacks/java
+  - image: gcr.io/paketo-buildpacks/nodejs
+  - image: gcr.io/paketo-buildpacks/ruby
+
+
+---
+apiVersion: kpack.io/v1alpha1
+kind: ClusterStack
+metadata:
+  name: base
+spec:
+  id: "io.buildpacks.stacks.bionic"
+  buildImage:
+    image: "paketobuildpacks/build:base-cnb"
+  runImage:
+    image: "paketobuildpacks/run:base-cnb"
+
+---
+apiVersion: kpack.io/v1alpha1
+kind: Builder
+metadata:
+  name: kpack-builder
+  namespace: {{ .Release.Namespace | quote}}
+spec:
+  serviceAccount: kpack-service-account
+  tag: jimmykarily/cf-default-builder
+  stack:
+    name: base
+    kind: ClusterStack
+  store:
+    name: default
+    kind: ClusterStore
+  order:
+  - group:
+    - id: paketo-buildpacks/java
+  - group:
+    - id: paketo-buildpacks/nodejs
+  - group:
+    - id: paketo-buildpacks/ruby

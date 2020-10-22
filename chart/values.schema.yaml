@@ -513,6 +513,7 @@ properties:
   # mixin configs
   bits: {type: object}
   eirini: {type: object}
+  kpack: {type: object}
   eirinix:
     type: object
     additionalProperties: true
