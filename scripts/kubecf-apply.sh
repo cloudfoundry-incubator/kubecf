@@ -5,6 +5,12 @@ require_tools helm kubectl
 
 : "${MAGIC_DNS_SERVICE:=xip.io}"
 
+set +u
+if [ -z $1 ] && [ "$1" != "upgrade" ]; then
+  INSTALL="--install"
+fi
+set -u
+
 HELM_ARGS=()
 for TEST in brain cf_acceptance smoke; do
     HELM_ARGS+=(--set "testing.${TEST}_tests.enabled=true")
@@ -69,6 +75,12 @@ if [ -n "${RENDER_LOCAL:-}" ]; then
     helm template kubecf "${CHART}" \
          --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
 else
-    helm upgrade kubecf "${CHART}" \
-         --install --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
+    set +u
+    if [ -z "${INSTALL}" ]; then
+      helm upgrade kubecf "${CHART}" --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}"
+    else
+      helm upgrade kubecf "${CHART}" \
+          --install --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
+    fi
+    set -u
 fi

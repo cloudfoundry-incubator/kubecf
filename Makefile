@@ -80,6 +80,9 @@ cf-operator-wait:
 kubecf-apply:
 	@./scripts/kubecf-apply.sh
 
+kubecf-upgrade:
+	@./scripts/kubecf-apply.sh upgrade
+
 kubecf-render-local:
 	@RENDER_LOCAL=1 ./scripts/kubecf-apply.sh
 
