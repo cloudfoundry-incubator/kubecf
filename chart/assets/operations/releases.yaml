@@ -7,13 +7,13 @@
   {{- if $release.version }}
     {{- if eq "true" (include "_config.condition" (list $ (index $release "condition"))) }}
 - type: replace
-  path: /releases?/name={{ $release_name }}/url
+  path: /releases?/name={{ $release_name }}?/url
   value: {{ $release.url }}
 - type: replace
-  path: /releases/name={{ $release_name }}/stemcell?
+  path: /releases/name={{ $release_name }}?/stemcell?
   value: {{ $release.stemcell | toJson }}
 - type: replace
-  path: /releases/name={{ $release_name }}/version?
+  path: /releases/name={{ $release_name }}?/version?
   value: {{ $release.version | quote }}
     {{- end }}
   {{- end }}

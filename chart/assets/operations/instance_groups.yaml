@@ -11,7 +11,7 @@
   {{- if $included }}
     {{- range $key, $value := list $ $ig_name | include "component.labels" | fromYaml }}
 - type: replace
-  path: /instance_groups/name={{ $ig_name }}/env?/bosh/agent/settings/labels/{{ $key | replace "/" "~1" }}
+  path: /instance_groups/name={{ $ig_name }}?/env?/bosh/agent/settings/labels/{{ $key | replace "/" "~1" }}
   value: {{ $value | quote }}
     {{- end }}
   {{- end }}

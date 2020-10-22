@@ -25,7 +25,7 @@
 
   {{- range $job, $instance_group := $ig }}
 - type: replace
-  path: /instance_groups/name={{ $instance_group }}/jobs/name={{ $job }}?/properties/cc/{{ $property | replace "." "/" }}
+  path: /instance_groups/name={{ $instance_group }}?/jobs/name={{ $job }}?/properties/cc/{{ $property | replace "." "/" }}
   value: {{ $value | toJson }}
   {{- end }}
 {{- end }}

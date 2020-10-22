@@ -15,14 +15,17 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 data:
   ops: |-
+    {{ $topLevel := . }}
     {{- range $instanceGroupName, $instanceGroup := .Values.properties }}
       {{- range $jobName, $properties := $instanceGroup }}
         {{- $flattened := dict }}
         {{- include "kubecf.flatten" (dict "flattened" $flattened "toFlatten" $properties) }}
         {{- range $propertyPath, $value := $flattened }}
+          {{- if and (not (eq $instanceGroupName "api")) $topLevel.Values.features.eirini.enabled }}
     - type: replace
-      path: /instance_groups/name={{ $instanceGroupName }}/jobs/name={{ $jobName }}/properties?{{ $propertyPath }}
+      path: /instance_groups/name={{ $instanceGroupName }}?/jobs/name={{ $jobName }}/properties?{{ $propertyPath }}
       value: {{ $value | toJson }}
+          {{- end }}
         {{- end }}
       {{- end }}
     {{- end }}

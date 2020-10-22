@@ -12,13 +12,13 @@
         {{- if $root.Values.features.cpu_limits.enabled }}
           {{- with $resource.cpu.limit }}
 - type: replace
-  path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/cpu
+  path: /{{ $bosh_name }}/name={{ $ig_name }}?/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/cpu
   value: {{ . }}m
           {{- end }}
 
           {{- with $resource.cpu.request }}
 - type: replace
-  path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/cpu
+  path: /{{ $bosh_name }}/name={{ $ig_name }}?/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/cpu
   value: {{ . }}m
           {{- end }}
         {{- end }}
@@ -26,13 +26,13 @@
         {{- if $root.Values.features.memory_limits.enabled }}
           {{- with $resource.memory.limit }}
 - type: replace
-  path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/memory
+  path: /{{ $bosh_name }}/name={{ $ig_name }}?/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/limits/memory
   value: {{ . }}Mi
           {{- end }}
 
           {{- with $resource.memory.request }}
 - type: replace
-  path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/memory
+  path: /{{ $bosh_name }}/name={{ $ig_name }}?/jobs/name={{ $job_name }}/properties?/quarks/bpm/processes/name={{ $process_name }}/requests/memory
   value: {{ . }}Mi
           {{- end }}
         {{- end }}
@@ -40,7 +40,7 @@
 
       {{- if not $job }}
 - type: replace
-  path: /{{ $bosh_name }}/name={{ $ig_name }}/jobs/name={{ $job_name }}?/properties/quarks/bpm/processes
+  path: /{{ $bosh_name }}/name={{ $ig_name }}?/jobs/name={{ $job_name }}?/properties/quarks/bpm/processes
   value: []
       {{- end }}
     {{- end }}

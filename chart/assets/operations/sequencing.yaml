@@ -10,7 +10,7 @@
      */}}
 {{- define "wait-for" }}
 - type: replace
-  path: /instance_groups/name={{ first . }}/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
+  path: /instance_groups/name={{ first . }}?/env?/bosh/agent/settings/annotations/quarks.cloudfoundry.org~1wait-for
   # ATTENTION: Annotations are strings. While the cf-operator's
   # controller will unmarshall the value as a json array later on,
   # specification must be done as a string using json syntax inside.
@@ -77,7 +77,7 @@
      */}}
 {{- define "remove-serialization" }}
 - type: remove
-  path: /instance_groups/name={{ . }}/update/serial
+  path: /instance_groups/name={{ . }}?/update/serial
 {{- end }}
 
 {{- template "remove-serialization" "router" }}

@@ -42,21 +42,21 @@
   {{- $sizing := snakecase $instance_group | index $.Values.sizing }}
   {{- if $sizing.instances | kindIs "invalid" | not }}
 - type: replace
-  path: /instance_groups/name={{ $instance_group }}/instances
+  path: /instance_groups/name={{ $instance_group }}?/instances
   value: {{ $sizing.instances }}
   {{- else if not $.Values.high_availability }}
 - type: replace
-  path: /instance_groups/name={{ $instance_group }}/instances
+  path: /instance_groups/name={{ $instance_group }}?/instances
   value: 1
   {{- end }}{{/* with $instances */}}
 
   {{- with $affinity := $sizing.affinity }}
 - type: replace
-  path: /instance_groups/name={{ $instance_group }}/env?/bosh/agent/settings/affinity
+  path: /instance_groups/name={{ $instance_group }}?/env?/bosh/agent/settings/affinity
   value: {{ toJson $affinity }}
   {{- else }}
 - type: replace
-  path: /instance_groups/name={{ $instance_group }}/env?/bosh/agent/settings/affinity
+  path: /instance_groups/name={{ $instance_group }}?/env?/bosh/agent/settings/affinity
   value:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -82,7 +82,7 @@
 
   {{- with $tolerations := $sizing.tolerations }}
 - type: replace
-  path: /instance_groups/name={{ $instance_group }}/env?/bosh/agent/settings/tolerations
+  path: /instance_groups/name={{ $instance_group }}?/env?/bosh/agent/settings/tolerations
   value: {{- $tolerations | toYaml | nindent 2 }}
   {{- end }}
 
