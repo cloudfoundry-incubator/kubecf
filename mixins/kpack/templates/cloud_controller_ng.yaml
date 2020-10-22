@@ -18,7 +18,6 @@ data:
     - type: remove
       path: /instance_groups/name=api
 
-
 ---
 apiVersion: v1
 kind: ConfigMap

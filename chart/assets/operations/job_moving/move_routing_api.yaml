@@ -1,4 +1,5 @@
 {{- if .Values.features.routing_api.enabled }}
+{{- if not .Values.features.eirini.enabled }}
 - type: remove
   path: /instance_groups/name=api/jobs/name=routing-api
 - type: replace
@@ -11,4 +12,5 @@
       serial: true
     jobs:
     - {{- $.Files.Get "assets/jobs/routing_api_job.yaml" | nindent 6 }}
+{{- end }}
 {{- end }}

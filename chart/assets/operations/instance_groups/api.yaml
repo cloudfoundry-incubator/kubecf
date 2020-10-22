@@ -1,3 +1,4 @@
+{{- if not .Values.features.eirini.enabled }}
 {{- if .Values.testing.brain_tests.enabled}}
 # For brain tests, allow CC access to the insecure registry they will create.
 - type: replace
@@ -248,4 +249,5 @@
 
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/api_*" }}
 {{ $bytes | toString }}
+{{- end }}
 {{- end }}

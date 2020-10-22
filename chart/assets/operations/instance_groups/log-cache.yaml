@@ -128,6 +128,9 @@
       network: default
       query: '*'
 
+
+{{- if not .Values.features.eirini.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties?/cc/logcache/host
   value: log-cache.service.cf.internal
+{{- end }}

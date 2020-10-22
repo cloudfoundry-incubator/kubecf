@@ -116,7 +116,7 @@
   type: remove
 - path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/credhub_admin_client?
   type: remove
-- path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/credhub_api?
+- path: /instance_groups/name=api?/jobs/name=cloud_controller_ng/properties/credhub_api?
   type: remove
 {{- /* Don't remove credhub CA from cflinuxfs3-rootfs-set job; it is already handled by operations/stacks.yaml */}}
 

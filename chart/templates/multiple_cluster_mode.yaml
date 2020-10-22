@@ -23,7 +23,7 @@ data:
 {{- if .Values.features.multiple_cluster_mode.cell_segment.enabled }}
     # To deploy a cell
     - type: remove
-      path: /instance_groups/name=api
+      path: /instance_groups/name=api?
     - type: remove
       path: /instance_groups/name=auctioneer
     - type: remove

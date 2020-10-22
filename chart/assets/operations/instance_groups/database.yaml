@@ -57,12 +57,14 @@
   value:
   - *pxc-cluster-ca
 
+{{- if not .Values.features.eirini.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/address?
   value: *pxc-cluster-address
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ca_cert?
   value: *pxc-cluster-ca
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/address?
@@ -103,12 +105,15 @@
   value: *pxc-cluster-ca
 {{- end }}
 
+
+{{- if not .Values.features.eirini.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/host
   value: *pxc-cluster-address
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/ca_cert?
   value: *pxc-cluster-ca
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/host
@@ -257,6 +262,8 @@
   path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaadb/tls?
   value: {{ if .Values.features.external_database.require_ssl }}enabled{{ else }}disabled{{ end }}
 
+
+{{- if not .Values.features.eirini.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/db_scheme
   value: &external_cc_database_scheme {{ .Values.features.external_database.type | quote }}
@@ -288,6 +295,7 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/ccdb/ssl_verify_hostname?
   value: {{ .Values.features.external_database.require_ssl }}
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=cc-worker/jobs/name=cloud_controller_worker/properties/ccdb/db_scheme
@@ -451,6 +459,8 @@
   value: {{ if .Values.features.external_database.require_ssl }}false{{ else }}true{{ end }}
 {{- end }}
 
+
+{{- if not .Values.features.eirini.enabled }}
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/type
   value: {{ .Values.features.external_database.type | quote }}
@@ -482,6 +492,7 @@
 - type: replace
   path: /instance_groups/name=api/jobs/name=policy-server/properties/database/require_ssl?
   value: {{ .Values.features.external_database.require_ssl }}
+{{- end }}
 
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=silk-controller/properties/database/type
