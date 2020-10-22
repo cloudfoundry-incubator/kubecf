@@ -42,7 +42,9 @@ together with their expected use:
 ├── one-offs/*
 │
 ├── include/*
-└── example-values/*
+├── example-values/*
+│
+└── spec_ver
 ```
 
 This structure as a whole is encouraged to be published together with the Helm
@@ -113,6 +115,9 @@ Apart from the targets, the following folders may be provided:
   `example-values/eirini-autoscaler-config.yaml`.
 
 - `include/`: Contains possible reusable scripts to be used by 1 or more targets.
+
+- `spec_ver`: file containing a string with the version of the spec that is being
+  satisfied.
 
 
 #### Example 1: KubeCF
