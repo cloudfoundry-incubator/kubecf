@@ -151,7 +151,7 @@ metadata:
     {{- toYaml $service.annotations | nindent 4 }}
   {{- end }}
   labels:
-    app.kubernetes.io/component: ssh-proxy
+    app.kubernetes.io/component: scheduler
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ $root.Release.Service | quote }}
     app.kubernetes.io/name: {{ default $root.Chart.Name $root.Values.nameOverride | trunc 63 | trimSuffix "-" | quote }}
@@ -159,7 +159,7 @@ metadata:
     helm.sh/chart: {{ printf "%s-%s" $root.Chart.Name ($root.Chart.Version | replace "+" "_") | quote }}
 spec:
   selector:
-    app.kubernetes.io/component: ssh-proxy
+    app.kubernetes.io/component: scheduler
     app.kubernetes.io/instance: {{ $root.Release.Name | quote }}
   ports:
   - name: ssh
