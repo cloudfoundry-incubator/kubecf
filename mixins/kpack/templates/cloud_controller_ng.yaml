@@ -25,6 +25,27 @@ metadata:
   name: "cloud-controller-config"
   namespace: {{ .Release.Namespace }}
 data:
+  secrets.yml: |
+    db:
+      database:
+        password: /config/cc_database_password
+    cloud_controller_username_lookup_client_secret: /config/cc_username_lookup_secret
+    db_encryption_key: /config/ccdb_encryption_key
+    database_encryption:
+      keys:
+        encryption_key_0: /config/ccdb_encryption_key
+    resource_pool:
+      fog_connection:
+        aws_secret_access_key: /config/blobstore_access_key
+    packages:
+      fog_connection:
+        aws_secret_access_key: /config/blobstore_access_key
+    droplets:
+      fog_connection:
+        aws_secret_access_key: /config/blobstore_access_key
+    buildpacks:
+      fog_connection:
+        aws_secret_access_key: /config/blobstore_access_key
   cloud_controller_ng.yml: |
     local_route: 0.0.0.0
 
@@ -35,9 +56,10 @@ data:
       deployment_updater: 4445
       clock: 4446
 
-    fluent:
-      host: "fluentd-forwarder-ingress"
-      port: 24224
+    # TODO: Remove? We don't seem to get logs when this is in place
+    #fluent:
+    #  host: "fluentd-forwarder-ingress"
+    #  port: 24224
 
     internal_service_hostname: cloud_controller_ng.{{ .Release.Namespace }}.svc.cluster.local
     internal_service_port: 9023
@@ -47,14 +69,15 @@ data:
     development_mode: false
 
     external_protocol: https
-    external_domain: ((system_domain))
+    external_domain: {{ .Values.system_domain }}
     temporary_disable_deployments: false
     temporary_use_logcache: true
     temporary_disable_v2_staging: true
 
     system_domain_organization: system
-    system_domain: ((system_domain))
-    #app_domains: {{ .Values.app_domains }}
+    system_domain: {{ .Values.system_domain }}
+    app_domains:
+      - {{ .Values.system_domain }}
 
     reserved_private_domains: "/dev/null"
     disable_private_domain_cross_space_context_path_route_sharing: false
@@ -111,7 +134,7 @@ data:
 
     log_stream:
       # TODO: What should this be?
-      url: https://log-stream.((system_domain))
+      url: https://log-stream.{{ .Values.system_domain }}
 
     doppler:
       url: wss://doppler.{{ .Release.Namespace }}.svc.cluster.local:8082
@@ -150,35 +173,34 @@ data:
     default_quota_definition: default
 
     resource_pool:
-      resource_directory_key: #@ data.values.blobstore.resource_directory_key
+      resource_directory_key: cc-resources
       blobstore_type: fog
       fog_connection:
         provider: AWS
-        endpoint: #@ data.values.blobstore.endpoint
-        aws_access_key_id: #@ data.values.blobstore.access_key_id
-        aws_signature_version: #@ data.values.blobstore.aws_signature_version
-        region: #@ data.values.blobstore.region
+        endpoint: http://minio.minio.svc.cluster.local:9000
+        aws_access_key_id: admin
+        #aws_signature_version: "2"
+        region: ''
         path_style: true
       minimum_size: 65536
       maximum_size: 536870912
-
       fog_aws_storage_options: {}
 
     packages:
-      app_package_directory_key: #@ data.values.blobstore.package_directory_key
+      app_package_directory_key: cc-packages
       blobstore_type: fog
       fog_connection:
         provider: AWS
-        endpoint: #@ data.values.blobstore.endpoint
-        aws_access_key_id: #@ data.values.blobstore.access_key_id
-        aws_signature_version: #@ data.values.blobstore.aws_signature_version
-        region: #@ data.values.blobstore.region
+        endpoint: http://minio.minio.svc.cluster.local:9000
+        aws_access_key_id: admin
+        #aws_signature_version: "2"
+        region: ''
         path_style: true
       max_valid_packages_stored: 5
       max_package_size: 1073741824
       fog_aws_storage_options: {}
       image_registry: {
-        base_path: #@ data.values.kpack.registry.repository_prefix
+        base_path: {{ .Values.kpack.registry_tag_base }}
       }
 
     registry_buddy:
@@ -186,28 +208,28 @@ data:
       port: 8080
 
     droplets:
-      droplet_directory_key: #@ data.values.blobstore.droplet_directory_key
+      droplet_directory_key: cc-droplets
       blobstore_type: fog
       fog_connection:
         provider: AWS
-        endpoint: #@ data.values.blobstore.endpoint
-        aws_access_key_id: #@ data.values.blobstore.access_key_id
-        aws_signature_version: #@ data.values.blobstore.aws_signature_version
-        region: #@ data.values.blobstore.region
+        endpoint: http://minio.minio.svc.cluster.local:9000
+        aws_access_key_id: admin
+        #aws_signature_version: "2"
+        region: ''
         path_style: true
 
       fog_aws_storage_options: {}
       max_staged_droplets_stored: 5
 
     buildpacks:
-      buildpack_directory_key: #@ data.values.blobstore.buildpack_directory_key
+      buildpack_directory_key: cc-buildpacks
       blobstore_type: fog
       fog_connection:
         provider: AWS
-        endpoint: #@ data.values.blobstore.endpoint
-        aws_access_key_id: #@ data.values.blobstore.access_key_id
-        aws_signature_version: #@ data.values.blobstore.aws_signature_version
-        region: #@ data.values.blobstore.region
+        endpoint: http://minio.minio.svc.cluster.local:9000
+        aws_access_key_id: admin
+        #aws_signature_version: "2"
+        region: ''
         path_style: true
 
       fog_aws_storage_options: {}
@@ -314,6 +336,39 @@ data:
     deployment_updater:
       update_frequency_in_seconds: 1
 
+    db:
+      database:
+        adapter: mysql2
+        host: database.{{ .Release.Namespace }}.svc.cluster.local
+        port: 3306
+        user: cloud_controller
+        database: cloud_controller
+
+      max_connections: 25
+      pool_timeout: 10
+      log_level: "debug2"
+      log_db_queries: false
+      read_timeout: 3600
+      connection_validation_timeout: 3600
+      #@ if data.values.ccdb.ca_cert:
+      # TODO: needed?
+      #ca_cert_path: "/config/database/certs/ca.crt"
+      #ssl_verify_hostname: true
+      #@ else:
+      ssl_verify_hostname: false
+      #@ end
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-secret
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+stringData:
+  # TODO: Don't hardcode. Use a quarks secret to generate this
+  secretkey: "{{ .Values.kpack.minio.secretkey }}"
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -335,26 +390,52 @@ spec:
         projected:
           sources:
           - secret:
-              name: cloud-controller-secrets
+              name: var-cc-database-password
               items:
-                - key: secrets.yml
-                  path: secrets.yml
+                - key: password
+                  path: cc_database_password
+          - secret:
+              name: var-uaa-clients-cloud-controller-username-lookup-secret
+              items:
+                - key: password
+                  path: cc_username_lookup_secret
+          - secret:
+              name: var-cc-db-encryption-key
+              items:
+                - key: password
+                  path: ccdb_encryption_key
+          - secret:
+              name: minio-secret
+              items:
+                - key: secretkey
+                  path: blobstore_access_key
           - configMap:
               name: cloud-controller-config
               items:
                 - key: cloud_controller_ng.yml
                   path: cloud_controller_ng.yml
-
+          - configMap:
+              name: cloud-controller-config
+              items:
+                - key: secrets.yml
+                  path: secrets.yml
       securityContext:
         runAsNonRoot: true
       containers:
       - name: cloud-controller-ng
         # TODO: Make this image configurable
         image: cloudfoundry/cloud-controller-ng:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: cloud-controller-config
           mountPath: "/config"
+        command:
+        - /cnb/process/web
+        env:
+        - name: CLOUD_CONTROLLER_NG_CONFIG
+          value: /config/cloud_controller_ng.yml
+        - name: CLOUD_CONTROLLER_NG_SECRETS
+          value: /config/secrets.yml
         ports:
         - containerPort: 8085
           name: https
@@ -363,45 +444,160 @@ spec:
 #            cpu: 20m
 #            memory: 20Mi
 
+      - name: cloud-controller-ng-local-worker
+        # TODO: Make this image configurable
+        image: cloudfoundry/cloud-controller-ng:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: cloud-controller-config
+          mountPath: "/config"
+        command:
+        - /cnb/process/local-worker
+        env:
+        - name: CLOUD_CONTROLLER_NG_CONFIG
+          value: /config/cloud_controller_ng.yml
+        - name: CLOUD_CONTROLLER_NG_SECRETS
+          value: /config/secrets.yml
+
 ---
-apiVersion: quarks.cloudfoundry.org/v1alpha1
-kind: QuarksSecret
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: cc-secrets
+  name: "cloud-controller-ng-worker"
   namespace: {{ .Release.Namespace }}
 spec:
-  # Define the QuarksSecret type
-  type: templatedconfig
-  # The new secret name which will have the templated config
-  secretName: cloud-controller-secrets
-  request:
-    templatedConfig:
-      type: helm
-      values:
-        cc_db_password:
-          name: "var-cc-database-password"
-          key: "password"
-      templates:
-        secrets.yml: |
-          db: &db
-            database:
-              adapter: mysql
-              host: database.{{ .Release.Namespace }}.svc.cluster.local
-              port: 3306
-              user: {{ printf "{{ .Values.cc_db_password }}" }}
-              password: {{ printf "{{ .Values.cc_db_password }}" }}
-              database: {{ printf "{{ .Values.cc_db_password }}" }}
+  selector:
+    matchLabels:
+      name: "cloud-controller-ng-worker"
+  template:
+    metadata:
+      labels:
+        name: cloud-controller-ng-worker
+    spec:
+      dnsPolicy: "ClusterFirst"
+      volumes:
+      - name: cloud-controller-config
+        projected:
+          sources:
+          - secret:
+              name: var-cc-database-password
+              items:
+                - key: password
+                  path: cc_database_password
+          - secret:
+              name: var-uaa-clients-cloud-controller-username-lookup-secret
+              items:
+                - key: password
+                  path: cc_username_lookup_secret
+          - secret:
+              name: var-cc-db-encryption-key
+              items:
+                - key: password
+                  path: ccdb_encryption_key
+          - secret:
+              name: minio-secret
+              items:
+                - key: secretkey
+                  path: blobstore_access_key
+          - configMap:
+              name: cloud-controller-config
+              items:
+                - key: cloud_controller_ng.yml
+                  path: cloud_controller_ng.yml
+          - configMap:
+              name: cloud-controller-config
+              items:
+                - key: secrets.yml
+                  path: secrets.yml
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - name: cloud-controller-ng-worker
+        command:
+        - /cnb/process/api-worker
+        env:
+        - name: CLOUD_CONTROLLER_NG_CONFIG
+          value: /config/cloud_controller_ng.yml
+        - name: CLOUD_CONTROLLER_NG_SECRETS
+          value: /config/secrets.yml
+        # TODO: Make this image configurable
+        image: cloudfoundry/cloud-controller-ng:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: cloud-controller-config
+          mountPath: "/config"
+        ports:
+        - containerPort: 8085
+          name: https
 
-            max_connections: 25
-            pool_timeout: 10
-            log_level: "debug2"
-            log_db_queries: false
-            read_timeout: 3600
-            connection_validation_timeout: 3600
-            #@ if data.values.ccdb.ca_cert:
-            ca_cert_path: "/config/database/certs/ca.crt"
-            ssl_verify_hostname: true
-            #@ else:
-            ssl_verify_hostname: false
-            #@ end
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "cc-db-migrate"
+  namespace: {{ .Release.Namespace }}
+spec:
+  template:
+    metadata:
+      annotations:
+        quarks.cloudfoundry.org/wait-for: '[ "database" ]'
+    spec:
+      dnsPolicy: "ClusterFirst"
+      restartPolicy: OnFailure
+      volumes:
+      - name: cloud-controller-config
+        projected:
+          sources:
+          - secret:
+              name: var-cc-database-password
+              items:
+                - key: password
+                  path: cc_database_password
+          - secret:
+              name: var-uaa-clients-cloud-controller-username-lookup-secret
+              items:
+                - key: password
+                  path: cc_username_lookup_secret
+          - secret:
+              name: var-cc-db-encryption-key
+              items:
+                - key: password
+                  path: ccdb_encryption_key
+          - secret:
+              name: minio-secret
+              items:
+                - key: secretkey
+                  path: blobstore_access_key
+          - configMap:
+              name: cloud-controller-config
+              items:
+                - key: cloud_controller_ng.yml
+                  path: cloud_controller_ng.yml
+          - configMap:
+              name: cloud-controller-config
+              items:
+                - key: secrets.yml
+                  path: secrets.yml
+
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - name: cloud-controller-ng-worker
+        command:
+        - /cnb/lifecycle/launcher
+        args: ["/bin/bash", "-c","bundle exec rake db:setup_database"]
+        env:
+        - name: CLOUD_CONTROLLER_NG_CONFIG
+          value: /config/cloud_controller_ng.yml
+        - name: CLOUD_CONTROLLER_NG_SECRETS
+          value: /config/secrets.yml
+        # TODO: Make this image configurable
+        image: cloudfoundry/cloud-controller-ng:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: cloud-controller-config
+          mountPath: "/config"
+        ports:
+        - containerPort: 8085
+          name: https
 {{- end }}
