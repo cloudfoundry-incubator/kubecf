@@ -1,0 +1,60 @@
+- Install kpack: https://github.com/pivotal/kpack/blob/master/docs/tutorial.md
+
+```
+kubectl apply -f release-0.1.2.yaml
+```
+
+- Create values.yaml
+
+```
+
+$ cat > values.yml <<EOF
+
+system_domain: mydomain.example.com
+services:
+  router:
+    type: LoadBalancer
+  tcp-router:
+    type: LoadBalancer
+  ssh-proxy:
+    type: LoadBalancer
+
+kpack:
+  registry_username: dockerhub_username
+  registry_password: dockerhub_password
+  registry_server: https://index.docker.io/v1/
+  workloads_namespace: eirini
+  builder_namespace: eirini-staging
+  registry_service_account_name: kpack-service-account
+  registry_tag_base: dockerhub_username
+
+features:
+  eirini:
+    enabled: true
+
+install_stacks:
+  - sle15
+EOF
+
+$ expose VALUES=$PWD/values.yml
+```
+
+- Install minio (for blobstore)
+
+https://github.com/minio/charts
+
+```
+$ kubectl create ns minio
+$ helm repo add minio https://helm.min.io/
+$ # TODO: don't hardcode access key and secret. Use quarkssecret to generate one.
+$ # https://github.com/minio/charts#existing-secret
+$ # This secret should also be created in the opi namespace (so it can be mounted in the cc pod)
+$ kubectl create secret generic -n minio minio-secret --from-literal=accesskey=admin --from-literal=secretkey=12345678
+$ helm install minio --namespace minio minio/minio --set existingSecret=minio-secret
+```
+
+- Install kubecf:
+
+```
+make all
+```
