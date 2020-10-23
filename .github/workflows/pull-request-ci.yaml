@@ -4,6 +4,10 @@ on:
   pull_request_target:
     branches: [master]
     types: [labeled]
+
+env:
+  GIT_PAGER: cat
+
 jobs:
 
   # The first thing we do is to check that the PR has the pr-test-queue label

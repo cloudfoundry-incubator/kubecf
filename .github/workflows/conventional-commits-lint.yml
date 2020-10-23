@@ -5,6 +5,10 @@ on:
       - opened
       - edited
       - synchronize
+
+env:
+  GIT_PAGER: cat
+
 jobs:
   main:
     runs-on: ubuntu-latest
