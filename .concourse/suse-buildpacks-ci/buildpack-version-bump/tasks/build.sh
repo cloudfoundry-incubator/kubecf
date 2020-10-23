@@ -24,8 +24,9 @@ echo "${REGISTRY_PASS}" | docker login "${REGISTRY_NAME}" --username "${REGISTRY
 # Extract the fissile binary.
 tar xvf s3.fissile-linux/fissile-*.tgz --directory "/usr/local/bin/"
 
-# Pull the stemcell image.
-stemcell_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}")"
+# Pull the stemcell image referenced in the KUBECF_VALUES
+sle_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}" | cut -d- -f1)"
+stemcell_version=${sle_version}-$(perl -0ne '/stemcell:\n\s+version: (\d+\.\d+)/g&&print "$1"' "kubecf/${KUBECF_VALUES}")
 stemcell_image="${STEMCELL_REPOSITORY}:${stemcell_version}"
 docker pull "${stemcell_image}"
 

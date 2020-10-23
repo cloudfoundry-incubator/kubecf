@@ -77,6 +77,7 @@ jobs:
       params:
         STEMCELL_REPOSITORY: {{ $root.stemcell_repository }}
         STEMCELL_VERSIONED_FILE: {{ $root.stemcell_version_file }}
+        KUBECF_VALUES: {{ $root.kubecf_values }}
         REGISTRY_NAME: ((suse-public-staging.registry))
         REGISTRY_ORG: ((suse-public-staging.org))
         REGISTRY_USER: ((suse-public-staging.username))
