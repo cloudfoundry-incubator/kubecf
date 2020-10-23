@@ -85,7 +85,6 @@ jobs:
       file: ci/.concourse/suse-buildpacks-ci/buildpack-version-bump/tasks/build.yaml
 
     - task: create-pr
-      privileged: true
       input_mapping:
         suse_final_release: suse-final-release-{{ $release.name }}
         built_image: built_image
