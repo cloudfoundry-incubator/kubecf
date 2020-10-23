@@ -440,8 +440,8 @@ spec:
               items:
                 - key: secrets.yml
                   path: secrets.yml
-      securityContext:
-        runAsNonRoot: true
+      #securityContext:
+      #  runAsNonRoot: true
       containers:
       - name: cloud-controller-ng
         # TODO: Make this image configurable
@@ -479,6 +479,20 @@ spec:
           value: /config/cloud_controller_ng.yml
         - name: CLOUD_CONTROLLER_NG_SECRETS
           value: /config/secrets.yml
+
+      - name: statsd-exporter
+        image: oratos/statsd_exporter:v0.15.0@sha256:10a64dc4ad0a3e3fe88372f0481dea5c02595c38d168617836a99a649d3ac407
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9102
+          protocol: TCP
+        #resources:
+        #  limits:
+        #    cpu: 500m
+        #    memory: 500Mi
+        #  requests:
+        #    cpu: 100m
+        #    memory: 300Mi
 
 ---
 apiVersion: apps/v1
