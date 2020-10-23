@@ -371,24 +371,46 @@ stringData:
 
 
 # The api service
-#---
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: api
-#  namespace: {{ .Release.Namespace }}
-#spec:
-#  ports:
-#  - name: https
-#    port: 8085
-#    protocol: TCP
-#    targetPort: 8085
-#  selector:
-#    name: eirini
-#  sessionAffinity: None
-#  type: ClusterIP
-#status:
-#  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    name: api
+  ports:
+  - name: file-server
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  - name: policy-server
+    port: 4002
+    protocol: TCP
+    targetPort: 4002
+  - name: http
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
+  - name: https
+    port: 9091
+    protocol: TCP
+    targetPort: 9091
+  - name: api
+    port: 9022
+    protocol: TCP
+    targetPort: 9022
+  - name: api-tls
+    port: 9023
+    protocol: TCP
+    targetPort: 9023
+  - name: api-mutual-tls
+    port: 9024
+    protocol: TCP
+    targetPort: 9024
+  sessionAffinity: None
+  type: LoadBalancer # TODO: Make this configurable
 
 ---
 apiVersion: apps/v1
@@ -396,6 +418,8 @@ kind: Deployment
 metadata:
   name: "cloud-controller-ng"
   namespace: {{ .Release.Namespace }}
+  labels:
+    name: api
 spec:
   selector:
     matchLabels:
