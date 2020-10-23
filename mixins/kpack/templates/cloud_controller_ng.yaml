@@ -179,8 +179,8 @@ data:
         provider: AWS
         endpoint: http://minio.minio.svc.cluster.local:9000
         aws_access_key_id: admin
-        #aws_signature_version: "2"
-        region: ''
+        aws_signature_version: "2"
+        region: ''''''
         path_style: true
       minimum_size: 65536
       maximum_size: 536870912
@@ -193,8 +193,8 @@ data:
         provider: AWS
         endpoint: http://minio.minio.svc.cluster.local:9000
         aws_access_key_id: admin
-        #aws_signature_version: "2"
-        region: ''
+        aws_signature_version: "2"
+        region: ''''''
         path_style: true
       max_valid_packages_stored: 5
       max_package_size: 1073741824
@@ -214,8 +214,8 @@ data:
         provider: AWS
         endpoint: http://minio.minio.svc.cluster.local:9000
         aws_access_key_id: admin
-        #aws_signature_version: "2"
-        region: ''
+        aws_signature_version: "2"
+        region: ''''''
         path_style: true
 
       fog_aws_storage_options: {}
@@ -228,8 +228,8 @@ data:
         provider: AWS
         endpoint: http://minio.minio.svc.cluster.local:9000
         aws_access_key_id: admin
-        #aws_signature_version: "2"
-        region: ''
+        aws_signature_version: "2"
+        region: ''''''
         path_style: true
 
       fog_aws_storage_options: {}

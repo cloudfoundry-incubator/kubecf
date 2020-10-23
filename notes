@@ -27,6 +27,9 @@ kpack:
   builder_namespace: eirini-staging
   registry_service_account_name: kpack-service-account
   registry_tag_base: dockerhub_username
+  minio:
+    secretkey: "this_is_the_key"
+
 
 features:
   eirini:
@@ -49,7 +52,7 @@ $ helm repo add minio https://helm.min.io/
 $ # TODO: don't hardcode access key and secret. Use quarkssecret to generate one.
 $ # https://github.com/minio/charts#existing-secret
 $ # This secret should also be created in the opi namespace (so it can be mounted in the cc pod)
-$ kubectl create secret generic -n minio minio-secret --from-literal=accesskey=admin --from-literal=secretkey=12345678
+$ kubectl create secret generic -n minio minio-secret --from-literal=accesskey=admin --from-literal=secretkey=this_is_the_key
 $ helm install minio --namespace minio minio/minio --set existingSecret=minio-secret
 ```
 
