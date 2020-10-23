@@ -369,6 +369,27 @@ stringData:
   # TODO: Don't hardcode. Use a quarks secret to generate this
   secretkey: "{{ .Values.kpack.minio.secretkey }}"
 
+
+# The api service
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: api
+#  namespace: {{ .Release.Namespace }}
+#spec:
+#  ports:
+#  - name: https
+#    port: 8085
+#    protocol: TCP
+#    targetPort: 8085
+#  selector:
+#    name: eirini
+#  sessionAffinity: None
+#  type: ClusterIP
+#status:
+#  loadBalancer: {}
+
 ---
 apiVersion: apps/v1
 kind: Deployment
