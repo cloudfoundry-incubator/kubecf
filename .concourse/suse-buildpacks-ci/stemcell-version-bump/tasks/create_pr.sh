@@ -40,6 +40,12 @@ git checkout -b "${GIT_BRANCH_NAME}"
 
 perl -i -0pe "s/        stemcell:\n          version: \d+\.\d+/        stemcell:\n          version: ${stemcell_version}/" "${KUBECF_VALUES}"
 
+
+if [ -z "$(git status --porcelain)" ]; then
+  echo "Nothing to commit, no pr needed. Exiting gracefully ..."
+  exit 0
+fi
+
 git commit "${KUBECF_VALUES}" -m "${COMMIT_TITLE}"
 
 # Open a Pull Request

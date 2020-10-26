@@ -40,6 +40,11 @@ git checkout -b "${GIT_BRANCH_NAME}"
 
 perl -i -0pe "s/      ${BUILDPACK_NAME}:\n        version: \"[\d.]+\"/      ${BUILDPACK_NAME}:\n        version: \"${RELEASE_VERSION}\"/" "${KUBECF_VALUES}"
 
+if [ -z "$(git status --porcelain)" ]; then
+  echo "Nothing to commit, no pr needed. Exiting gracefully ..."
+  exit 0
+fi
+
 git commit "${KUBECF_VALUES}" -m "${COMMIT_TITLE}"
 
 # Open a Pull Request

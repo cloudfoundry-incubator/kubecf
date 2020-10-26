@@ -77,6 +77,7 @@ jobs:
       params:
         STEMCELL_REPOSITORY: {{ $root.stemcell_repository }}
         STEMCELL_VERSIONED_FILE: {{ $root.stemcell_version_file }}
+        KUBECF_VALUES: {{ $root.kubecf_values }}
         REGISTRY_NAME: ((suse-public-staging.registry))
         REGISTRY_ORG: ((suse-public-staging.org))
         REGISTRY_USER: ((suse-public-staging.username))
@@ -85,7 +86,6 @@ jobs:
       file: ci/.concourse/suse-buildpacks-ci/buildpack-version-bump/tasks/build.yaml
 
     - task: create-pr
-      privileged: true
       input_mapping:
         suse_final_release: suse-final-release-{{ $release.name }}
         built_image: built_image
