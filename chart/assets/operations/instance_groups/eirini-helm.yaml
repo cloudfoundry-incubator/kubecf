@@ -17,15 +17,6 @@
   value: "https://eirini-opi.{{ .Release.Namespace }}.svc:8085"
 
 - type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/packages?/webdav_config?/private_endpoint?
-  value: "https://singleton-blobstore.{{ .Release.Namespace }}.svc:4443"
-- type: replace
-  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/buildpacks?/webdav_config?/private_endpoint?
-  value: "https://singleton-blobstore.{{ .Release.Namespace }}.svc:4443"
-- type: replace
-  path: /variables/name=blobstore_tls/options/alternative_names?/-
-  value: "singleton-blobstore.{{ .Release.Namespace }}.svc"
-- type: replace
   path: /variables/name=cc_bridge_cc_uploader_server/options/alternative_names?/-
   value: "api.{{ .Release.Namespace }}.svc"
 - type: replace
