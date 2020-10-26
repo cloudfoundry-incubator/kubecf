@@ -28,7 +28,7 @@ tar xvf s3.fissile-linux/fissile-*.tgz --directory "/usr/local/bin/"
 # sle_version: e.g. SLE_15_SP1
 sle_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}" | cut -d- -f1)"
 # stemcell_version without the fissile version part, e.g. 27.8
-stemcell_version=$(perl -0ne '/stemcell:\n\s+version: (\d+\.\d+)/g&&print "$1"' "kubecf/${KUBECF_VALUES}")
+stemcell_version=$(yq -r '.stacks.sle15.releases["$defaults"].stemcell.version' "kubecf/${KUBECF_VALUES}" | cut -d- -f1)
 stemcell_image="${STEMCELL_REPOSITORY}:${sle_version}-${stemcell_version}"
 docker pull "${stemcell_image}"
 
