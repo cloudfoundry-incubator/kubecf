@@ -158,7 +158,9 @@ jobs:
       # Python setup
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          # Force 3.8 because google-cloud-sdk is incompatible with 3.9
+          # https://issuetracker.google.com/issues/170125513
+          python-version: '3.8'
 
       # Caching tools like helm, jq, git, y2j, yamllint etc
       - name: cache.tools
