@@ -91,8 +91,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats.secret_name }} 
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/provides: '{"name":"nats","type":"nats"}'
 stringData:
   link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.nats.link | nindent 4 }}
@@ -101,8 +102,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats_tls.secret_name }} 
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/provides: '{"name":"nats-tls","type":"nats-tls"}'
 stringData:
   link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.nats_tls.link | nindent 4 }} 
@@ -112,8 +114,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.routing_api.secret_name }} 
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/provides: '{"name":"routing_api","type":"routing_api"}'
 stringData:
   link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.routing_api.link | nindent 4 }} 
@@ -123,8 +126,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.doppler.secret_name }} 
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/provides: '{"name":"doppler","type":"doppler"}'
 stringData:
   link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.doppler.link | nindent 4 }} 
@@ -133,8 +137,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.loggregator.secret_name }} 
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/provides: '{"name":"loggregator","type":"loggregator"}'
 stringData:
   link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.loggregator.link | nindent 4 }} 
@@ -143,8 +148,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.secret_name }}
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/provides: '{"name":"cloud_controller","type":"cloud_controller"}'
 stringData:
   link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.link | nindent 4 }} 
@@ -153,8 +159,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cf_network.secret_name }} 
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/provides: '{"name":"cf_network","type":"cf_network"}'
 stringData:
   link:  {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.cf_network.link | nindent 4 }}
@@ -163,8 +170,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller_container_networking_info.secret_name }} 
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/provides: '{"name":"cloud_controller_container_networking_info","type":"cloud_controller_container_networking_info"}'
 stringData:
   link: {{- toYaml .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller_container_networking_info.link | nindent 4 }}
@@ -172,8 +180,9 @@ stringData:
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/link-provider-name: nats
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats.service_name }} 
 spec:
@@ -183,8 +192,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/link-provider-name: nats-tls
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.nats_tls.service_name }}
 spec:
@@ -195,8 +205,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/link-provider-name: routing_api
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.routing_api.service_name }}
 spec:
@@ -207,8 +218,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/link-provider-name: doppler
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.doppler.service_name }}
 spec:
@@ -218,8 +230,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/link-provider-name: loggregator
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.loggregator.service_name }}
 spec:
@@ -229,8 +242,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/link-provider-name: cloud_controller
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller.service_name }}
 spec:
@@ -240,8 +254,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/link-provider-name: cloud_controller_container_networking_info
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cloud_controller_container_networking_info.service_name }} 
 spec:
@@ -251,8 +266,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}" 
   annotations:
-    quarks.cloudfoundry.org/deployment-name: "{{ include "kubecf.deployment-name" . }}"
     quarks.cloudfoundry.org/link-provider-name: cf_network
   name: {{ .Values.features.multiple_cluster_mode.provider_link_service.cf_network.service_name }} 
 spec:
