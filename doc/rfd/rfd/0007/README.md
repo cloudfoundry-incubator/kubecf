@@ -37,7 +37,7 @@ better user experience in future releases.
 
 A k8s native component like [kube-state-metrics[(https://github.com/kubernetes/kube-state-metrics)]
 that is deployable on a pod, monitors the k8s API server, and generates metrics. It is
-important that it can be configurable regarding the namespace or namespaces that can collect from
+important that it can be configured regarding the namespace(s) it collects from
 and acceptable from a security perspective.
 
 ### Metrics collector
