@@ -45,7 +45,7 @@ The roadmap is arranged in quarters columns to give an idea when is our intentio
 particular feature.
 
 We also have two labels: *in design* or *exploring* which in conjunction with the timeframe column
-can indicate how far are we with that particular feature and it may give a better sense if it can be
+can indicate how far are we with that particular feature. This may provide a better sense if
 released within the initial timeframe.
 
 ## Disclaimer
