@@ -42,6 +42,6 @@ and acceptable from a security perspective.
 
 ### Metrics collector
 
-Promotheus?
+Prometheus?
 
 ## Proposed Solution
