@@ -1,0 +1,38 @@
+name: Pull Request Linting
+on:
+  # Trigger the workflow when PRs pushed; we still run the workflow files from
+  # the master branch, to ensure that malicious actors cannot exfiltrate any
+  # secrets.
+  pull_request_target:
+    branches: [master]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-20.04
+    env:
+      PINNED_TOOLS: true
+      TOOLS_DIR: ${{ github.workspace }}/tools
+    defaults:
+      run:
+        working-directory: kubecf
+
+    steps:
+      # Python setup
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      # Checkout kubecf
+      - name: Checkout KubeCF
+        uses: actions/checkout@v2
+        with:
+          path: kubecf
+          fetch-depth: 0
+          submodules: recursive
+
+      # Install tools
+      - run: make tools-install
+
+      # Check lint
+      - run: make lint

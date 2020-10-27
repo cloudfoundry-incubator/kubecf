@@ -1,4 +1,4 @@
-name: CI
+name: Pull Request Tests
 on:
   # Trigger the workflow when PRs are labeled
   pull_request_target:
@@ -10,11 +10,11 @@ env:
 
 jobs:
 
-  # The first thing we do is to check that the PR has the pr-test-queue label
+  # The first thing we do is to check that the PR has the pr-test-trigger label
   # If it doesn't have it, the flow stops. If it does, we remove it (approval is good for one run only).
   dequeue:
-    name: dequeue
-    if: contains(github.event.pull_request.labels.*.name, 'pr-test-queue')
+    name: Dequeue
+    if: contains(github.event.pull_request.labels.*.name, 'pr-test-trigger')
     runs-on: ubuntu-20.04
     steps:
       - uses: actions-ecosystem/action-remove-labels@556e306
@@ -22,48 +22,9 @@ jobs:
           github_token: ${{ secrets.github_token }}
           labels: pr-test-queue
 
-  lint:
-    name: lint
-    needs: [dequeue]
-    runs-on: ubuntu-20.04
-    env:
-      PINNED_TOOLS: true
-      TOOLS_DIR: ${{ github.workspace }}/tools
-    defaults:
-      run:
-        working-directory: kubecf
-
-    steps:
-      # Checkout kubecf
-      - name: Checkout KubeCF
-        uses: actions/checkout@v2
-        with:
-          path: kubecf
-          fetch-depth: 0
-          submodules: recursive
-
-      # Python setup
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-
-      # Caching tools like helm, jq, git, y2j, yamllint etc
-      - name: cache.tools
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/tools
-          key: ${{ runner.os }}-tools
-
-      # Install tools
-      - run: make tools-install
-
-      # Check lint
-      - run: make lint
-
   build:
-    name: build
+    name: Build
     runs-on: ubuntu-20.04
-    needs: lint
     env:
       PINNED_TOOLS: true
       TOOLS_DIR: ${{ github.workspace }}/tools
@@ -114,7 +75,7 @@ jobs:
           path: ${{ github.workspace }}/bundle
 
   tests:
-    name: tests
+    name: Tests
     runs-on: ubuntu-20.04
     continue-on-error: ${{ matrix.experimental }}
     needs: build
@@ -281,7 +242,6 @@ jobs:
           {{- $ | toYAML }}
           EOF
         env:
-          BACKEND: gke
           AUTOSCALER: "true"
 
       # Helm install cf-operator
