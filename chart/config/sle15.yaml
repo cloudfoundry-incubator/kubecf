@@ -17,7 +17,7 @@ stacks:
       suse-staticfile-buildpack:
         version: "1.5.12.1"
       suse-java-buildpack:
-        version: "4.32.1.1"
+        version: "4.33.0.1"
       suse-ruby-buildpack:
         version: "1.8.26.1"
       suse-dotnet-core-buildpack:
