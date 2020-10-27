@@ -51,5 +51,5 @@ released within the initial timeframe.
 ## Disclaimer
 
 This roadmap does not represent any commitment, promise or obligation to deliver any feature or any
-feature on a particular date. The main goal is to give the community the team high level development
+feature on a particular date. The main goal is to show the community the team's high level development
 plan, so please do not rely on this roadmap to make any internal decision.
