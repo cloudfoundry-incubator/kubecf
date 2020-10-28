@@ -30,6 +30,7 @@ jobs:
           path: kubecf
           fetch-depth: 0
           submodules: recursive
+          persist-credentials: false
 
       # Install tools
       - run: make tools-install
