@@ -46,6 +46,7 @@ together with their expected use:
 
 ```
 ├── clean/*
+├── clobber/*
 ├── chart/*
 ├── configure/*
 │   └── patches/*
@@ -105,6 +106,10 @@ defined behaviour:
 - `clean`: Removes all possible objects created by any target from the cluster.
    Deletes `$pwd/$chart-name` at the end.
 
+- `clobber`: Removes all possible objects created by any target from the cluster.
+  (crds, webhooks…) leaving the cluster as it were before installation.
+  Deletes `$pwd/$chart-name` at the end.
+
 - `one-offs/*`: Helper targets. Follow the same rules as the rest of targets,
   except they may not be idempotent. E.g: `klog`, `login`, `smokes`, `cats`…
   
@@ -148,6 +153,8 @@ Targets' file structure:
 └── kubecf/
     ├── clean/
     │   └── 10_clean.sh
+    ├── clobber/
+    │   └── 10_clobber.sh
     ├── chart/
     │   └── 10_chart.sh
     ├── configure/
