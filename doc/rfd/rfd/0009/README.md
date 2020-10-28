@@ -97,9 +97,6 @@ can be for example as artifacts of a chart release, or present in the chart
 repository, but it is recommended that these files are bundled inside of the chart:
 this simplifies consumption downstream.
 
-It is not recommended for targets to take arguments and options on execution besides the
-expected default behaviour defined here.
-
 Each target is required to be a folder (E.g: `install/`) containing executable
 files starting with digits (E.g: `10_do-foo.sh`, `20_do-bar.rb`), with the
 exception of the single targets in `one-offs/`, which must be a single
@@ -161,6 +158,9 @@ Each of these targets:
 - Chart values must be only consumed from a yaml file, and not using `--set`.
 - When useful, should save resulting artifacts of execution into
   `$pwd/artifacts`. E.g: `$pwd/artifacts/cats-run.log`
+
+It is not recommended for targets to take arguments and options on execution
+besides the expected default behaviour defined here.
 
 
 Apart from the targets, the following folders and files may be provided:
