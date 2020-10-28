@@ -143,6 +143,9 @@ Apart from the targets, the following folders and files may be provided:
     don't pass a schema check. E.g: `private-registry.yaml`,
     `tests-config.yaml`, `ha.yaml`, `ingress.yaml`.
 
+- `imagelist.txt`: Lists all needed container images, fully qualified with
+    repository, org, name and tag. Useful for airgap and private registry
+    installations.
 
 - `include/`: Contains possible reusable scripts to be used by 1 or more targets.
 
@@ -179,9 +182,13 @@ Targets' file structure:
     │   ├── foo.rb
     │   ├── func.sh
     │   └── readme.md
-    └── one-offs/
-        ├── klog.sh
-        └── upgrade.sh
+    ├── one-offs/
+    │   ├── klog.sh
+    │   ├── upgrade.sh
+    │   ├── login
+    │   ├── smokes.rb
+    │   ├── cats.sh
+    │   └── readme.md
     └── example-values/
         ├── minimal/
         │   ├── diego-sa.yaml
