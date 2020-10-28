@@ -163,7 +163,7 @@ It is not recommended for targets to take arguments and options on execution
 besides the expected default behaviour defined here.
 
 
-Apart from the targets, the following folders and files may be provided:
+Apart from the targets, the following folders and files must be provided:
 
 - `example-values/`: Divided into 2 folders:
   * `example-values/minimal/`: examples of minimal values.yaml that pass a
