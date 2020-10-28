@@ -29,6 +29,11 @@ automation scripts of Helm charts and utility applications.
 Definitions of *must*, *should*, *required*, etc, are as explained in
 [rfc2119](https://tools.ietf.org/html/rfc2119).
 
+Some behaviour has been purposedly left vague. When something is not concretely
+specified, those implementing it have the freedom to implement it as they desire
+(e.g: as of v0.1 path of the folder structure is not defined, so it can be
+anywhere in the repo or resulting artifacts).
+
 The interface consists in the following structure of folders and executables,
 together with their expected use:
 
