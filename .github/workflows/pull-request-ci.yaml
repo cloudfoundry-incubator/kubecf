@@ -148,6 +148,7 @@ jobs:
 
       # Start SSH agent for catapult
       - name: Start SSH agent
+        if: env.BACKEND == 'aks'
         run: |
           set -o errexit -o pipefail -o nounset
           eval "$(ssh-agent -s)"
@@ -160,6 +161,7 @@ jobs:
 
       # set GKE secret. TBD: use vault instead
       - name: set GKE_CRED_JSON
+        if: env.BACKEND == 'gke'
         run: |
           json_file="$(mktemp)"
           echo "$GKE_CRED_JSON" > "${json_file}"
