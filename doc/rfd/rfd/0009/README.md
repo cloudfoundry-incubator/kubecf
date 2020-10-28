@@ -103,8 +103,7 @@ defined behaviour:
   `$pwd/$our-chart/chart/` and upgrades the Helm Chart at hand. The upgrade must
   work for both same version and different versions.
 
-- `clean`: Removes all possible objects created by any target from the cluster.
-   Deletes `$pwd/$chart-name` at the end.
+- `clean`: Performs a helm uninstall.
 
 - `clobber`: Removes all possible objects created by any target from the cluster.
   (crds, webhooks…) leaving the cluster as it were before installation.
