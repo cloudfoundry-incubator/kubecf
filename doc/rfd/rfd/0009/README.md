@@ -64,13 +64,15 @@ or other means of deployment.
 Definitions of *must*, *should*, *required*, etc, are as explained in
 [rfc2119](https://tools.ietf.org/html/rfc2119).
 
-Some behaviour has been purposedly left vague. When something is not concretely
+Some behaviour has been purposely left vague. When something is not concretely
 specified, those implementing it have the freedom to implement it as they desire
 (e.g: as of v0.1 path of the folder structure is not defined, so it can be
 anywhere in the repo or resulting artifacts).
 
-The interface consists in the following structure of folders and executables,
-together with their expected use:
+The interface consists in targets that can be called and perform their defined
+action, together with helper files and examples of configuration for the charts.
+
+Those targets and files must be in the following structure of folders and executables:
 
 ```
 ├── clean/*
@@ -146,7 +148,7 @@ Each of these targets:
 
 - Must assume that the deployment/testing env is already loaded, with access to
   kube, cf, helm operations.
-- Must returns retcode `0` on success, `!= 0` if otherwise.
+- Must return retcode `0` on success, `!= 0` if otherwise.
 - Must consume and create files on `pwd` only.
 - Must be idempotent: running it will give you the same result. E.g: calling
   `configure` several times with the same outputs gives you the same
