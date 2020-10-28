@@ -203,8 +203,8 @@ spec:
   ports:
   - name: healthcheck
     protocol: TCP
-    port: 88
-    targetPort: 88
+    port: 8787
+    targetPort: 8787
   {{- range $port := until (int (add 1 (sub $service.port_range.end $service.port_range.start))) }}
   {{- $port = add $port $service.port_range.start }}
   - name: "tcp-route-{{ $port }}"
