@@ -21,6 +21,34 @@ charts, and between upstream and downstream.
 The following spec is an interface specification for sharing deployment and
 automation scripts of Helm charts and utility applications.
 
+### User stories
+
+#### Direct downstream developer
+
+As a downstream developer of a project that directly depends on kubecf helm
+chart, I need to have an up-to-date way of deploying, testing, and automating my
+modifications, without needing to pursue upstream and keep daily track of
+changes in upstream automation.
+
+If kubcf chart implements this spec, I will have those tagged together with their
+release.
+I will reuse automation scripts such as test runs, airgap configurations,
+private registry settings, etc.
+Also it will be possible for me to inject workarounds that I may
+upstream later.
+
+My project also depends on minibroker chart, quarks chart, and in the future on helm
+caps-registry chart. I, as downstream, need to come with a way for to test and
+automate them together. The more charts that implement the spec, the more I can
+rely on their example-values and automation.
+
+
+#### Parallel upstream developer
+
+I am a developer of kubecf chart. My chart doesn't directly depend on stratos
+chart or caps-registry chart. But sometimes they develop automation that I could reuse.
+If they implement this spec, I will have access to their automation in simple,
+pull-way manner.
 
 ## Specification
 
