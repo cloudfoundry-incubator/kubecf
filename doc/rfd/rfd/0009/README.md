@@ -9,7 +9,7 @@ discussion: https://github.com/cloudfoundry-incubator/kubecf/pull/1495
 ## Context
 
 
-Dealing with a handful of loosely dependent Helm charts and building a Helm
+Developing a handful of loosely dependent Helm charts and building a Helm
 distribution from them without creating an all-or-nothing "super-chart" is
 difficult. One needs to make sure that deployment and automation scripts are
 interoperable between charts, repos, repos' histories, and that they can be
@@ -25,6 +25,13 @@ automation scripts of Helm charts and utility applications.
 ## Specification
 
 ### Version `0.1`.
+
+This spec defines an interface for Helm-based projects that allows them to share
+and reuse deployment and automation scripts.
+
+This spec does not focus on end-user usage, but strives to solve developer
+problems. The projects implementing this spec are free to use Helm, Helmfiles,
+or other means of deployment.
 
 Definitions of *must*, *should*, *required*, etc, are as explained in
 [rfc2119](https://tools.ietf.org/html/rfc2119).
