@@ -88,11 +88,13 @@ defined behaviour:
   already decompressed in `$pwd/$our-chart/chart/`. `$our-chart` being the name
   of the chart at hand (e.g: kubecf).
 
-- `configure`: Outcome is a valid `$pwd/$our-chart/values.yaml` file for the
-  chart at hand. This target accepts a list of alphanumerically ordered subsets
-  of `values.yaml`, inside the folder `configure/patches/`, which get merged to
-  output the final values.yaml. This allows for reuse of existing example
-  values, and for downstream tools to inject their own yaml subsets as needed.
+- `configure`: Accepts a list of alphanumerically ordered subsets of
+  `values.yaml`, inside the folder `configure/patches/`, which together with the
+  examples provided in `example-values/`, get merged to output the final
+  values.yaml.
+  Outcome is a valid `$pwd/$our-chart/values.yaml` file for the chart at hand.
+  This allows for reuse of existing example values, and for downstream tools to
+  inject their own yaml subsets as needed.
 
 - `install`: Takes a `$pwd/$our-chart/values.yaml` and the chart contained in
   `$pwd/$our-chart/chart/` and installs the Helm Chart at hand. 
@@ -133,10 +135,14 @@ Each of these targets:
 
 Apart from the targets, the following folders and files may be provided:
 
+- `example-values/`: Divided into 2 folders:
+  * `example-values/minimal/`: examples of minimal values.yaml that pass a
+    schema check. One can always be sure to have a working deployment with one
+    of them. E.g: `diego-sa-config.yaml`, `eirini-sa-config.yaml`.
+  * `example-values/subset/`: examples of subsets of values.yaml, which alone
+    don't pass a schema check. E.g: `private-registry.yaml`,
+    `tests-config.yaml`, `ha.yaml`, `ingress.yaml`.
 
-- `example-values/`: Contains a collection of examples of subsets of values
-  yamls. E.g: `example-values/diego-ha-config.yaml`,
-  `example-values/eirini-autoscaler-config.yaml`.
 
 - `include/`: Contains possible reusable scripts to be used by 1 or more targets.
 
@@ -176,6 +182,15 @@ Targets' file structure:
     └── one-offs/
         ├── klog.sh
         └── upgrade.sh
+    └── example-values/
+        ├── minimal/
+        │   ├── diego-sa.yaml
+        │   └── eirini-sa.yaml
+        └── subset/
+            ├── ha.yaml
+            ├── autoscaler.yaml
+            ├── ingress.yaml
+            └── private-registry.yaml
 ```
 
 
