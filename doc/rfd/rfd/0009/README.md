@@ -99,7 +99,7 @@ defined behaviour:
 - `install`: Takes a `$pwd/$our-chart/values.yaml` and the chart contained in
   `$pwd/$our-chart/chart/` and installs the Helm Chart at hand. 
 
-- `wait`: Will wait until deployment of the chart is up and running.
+- `wait`: Waits until deployment of the chart is up and ready.
 
 - `upgrade`: Takes a `$pwd/values.yaml` and a chart contained in
   `$pwd/$our-chart/chart/` and upgrades the Helm Chart at hand. The upgrade must
