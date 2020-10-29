@@ -9,7 +9,7 @@ discussion: https://github.com/cloudfoundry-incubator/kubecf/issues?q=%22RFD+8%2
 ## Motivation
 
 The *Roadmap* project can be used used to track the features that the team decided to engage with,
-which phase they are and when they may come available.
+which phase they are in and when they may come available.
 
 The goal is to provide the community with a glimpse of our main features to come, the problem(s)
 that they are solving and how the team is planning to implement them.
