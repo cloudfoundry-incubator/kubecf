@@ -108,6 +108,7 @@ jobs:
         with:
           path: kubecf
           submodules: recursive
+        timeout-minutes: 1
 
       # We need catapult to create Kubernetes clusters
       - name: Checkout catapult
@@ -115,6 +116,7 @@ jobs:
         with:
           repository: SUSE/catapult
           path: catapult
+        timeout-minutes: 1
 
       # Python setup
       - uses: actions/setup-python@v2
@@ -122,6 +124,7 @@ jobs:
           # Force 3.8 because google-cloud-sdk is incompatible with 3.9
           # https://issuetracker.google.com/issues/170125513
           python-version: '3.8'
+        timeout-minutes: 1
 
       # Caching tools like helm, jq, git, y2j, yamllint etc
       - name: cache.tools
@@ -129,13 +132,16 @@ jobs:
         with:
           path: ${{ github.workspace }}/tools
           key: ${{ runner.os }}-tools
+        timeout-minutes: 5
 
       # Install tools
       - run: make tools-install
+        timeout-minutes: 1 # this should take ~ 20 seconds
 
       # Add tools to path
       - name: Add tools to path
         run: echo "${{ github.workspace }}/kubecf/output/bin" >> "${GITHUB_PATH}"
+        timeout-minutes: 1
 
       # Download chart bundle
       - id: download-bundle
@@ -145,6 +151,7 @@ jobs:
           name: kubecf-bundle.tgz
           # The artifact upload/download creates an extra directory
           path: ${{ github.workspace }}/kubecf-bundle
+        timeout-minutes: 1
 
       # Start SSH agent for catapult
       - name: Start SSH agent
@@ -158,6 +165,7 @@ jobs:
           rm -f ssh-key ssh-key.pub
           echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "${GITHUB_ENV}"
           echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "${GITHUB_ENV}"
+        timeout-minutes: 1
 
       # set GKE secret. TBD: use vault instead
       - name: set GKE_CRED_JSON
@@ -168,6 +176,7 @@ jobs:
           echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
         env:
           GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
+        timeout-minutes: 1
 
       # Cache catapult's common tools
       - name: cache.catapult-common-tools
@@ -175,6 +184,7 @@ jobs:
         with:
           path: ${{ github.workspace }}/catapult/modules/common/bin
           key: ${{ runner.os }}-catapult-common-tools
+        timeout-minutes: 1
 
       # Deploy k8s cluster
       - run: make k8s
@@ -187,6 +197,7 @@ jobs:
           GKE_PREEMPTIBLE: false
           GKE_INSTANCE_TYPE: n2d-highcpu-16
           EXTRA_LABELS: '{"ci": "${{ github.run_id }}"}'
+        timeout-minutes: 20 # This should take ~10 minutes.
 
       # Providing kubeconfig for debugging
       - name: export KUBECONFIG
@@ -199,20 +210,24 @@ jobs:
           # at the end of the run.
           cat "${KUBECONFIG}" | gzip | base64 --wrap=0
         working-directory: catapult
+        timeout-minutes: 1
 
       # TBD: Don't generate values.yaml
       - name: Generate KubeCF Configuration
         run: exec "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/kubecf-gen-config.sh"
         env:
           AUTOSCALER: "true"
+        timeout-minutes: 1
 
       # Helm install cf-operator
       - run: make cf-operator-apply
         env:
           CF_OPERATOR_URL: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
+        timeout-minutes: 1 # This should take ~10 seconds.
 
       # Wait for cf-operator pods to be ready
       - run: make cf-operator-wait
+        timeout-minutes: 1 # This should take ~30 seconds.
 
       # Helm install kubecf
       - run: make kubecf-apply
@@ -220,18 +235,22 @@ jobs:
           CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
           FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
           VALUES: dev/kubecf/kubecf-values.yaml
+        timeout-minutes: 1 # This should take ~30 seconds.
 
       # Wait for kubecf pods to be ready
       - run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
 
       # Run smoke tests
       - run: make smoke-tests
+        timeout-minutes: 10
 
       # Run brain tests
       # - run: make brain-tests
 
       # Run sits tests
       - run: make sync-integration-tests
+        if: matrix.backend == 'diego'
 
       # Run CATs
       - run: make acceptance-tests
