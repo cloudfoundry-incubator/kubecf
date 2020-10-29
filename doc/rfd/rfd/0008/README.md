@@ -1,6 +1,6 @@
 ---
 authors: Jaime Gomes <jaime.gomes@suse.com>
-state: discussion
+state: publish
 discussion: https://github.com/cloudfoundry-incubator/kubecf/issues?q=%22RFD+8%22+
 ---
 
@@ -41,7 +41,7 @@ well-documented reason.
 
 ## Stages
 
-The roadmap is arranged in columns, each representing a quarter year, and it indicates when are we
+The roadmap is arranged in columns, each representing a quarter year, and it indicates when we
 intent to release a feature.
 
 We also have two labels: *in design* or *exploring* which in conjunction with the timeframe column

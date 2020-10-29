@@ -8,3 +8,4 @@
 | publish   | [RFD 3 Deprecate Bazel](./rfd/0003/README.md) |
 | publish   | [RFD 4 Upgrade Testing Methodology When Releasing](./rfd/0004/README.md) |
 | publish   | [RFD 5 Limit the Languages, Data Formats, and Tools Used by KubeCF](./rfd/0005/README.md) |
+| publish   | [RFD 8 Public Roadmap](./rfd/0008/README.md) |
