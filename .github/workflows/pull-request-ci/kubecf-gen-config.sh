@@ -6,7 +6,7 @@ set -o errexit -o nounset -o pipefail
 
 make -C "${GITHUB_WORKSPACE}/catapult" kubecf-gen-config
 
-cd "${GITHUB_WORKSPACE}/catapult/build${BACKEND}"
+cd "${GITHUB_WORKSPACE}/catapult/build${CLUSTER_NAME:-${BACKEND}}"
 
 gomplate --context .=scf-config-values.yaml <<"EOF" \
 > "${GITHUB_WORKSPACE}/kubecf/dev/kubecf/kubecf-values.yaml"
@@ -44,4 +44,4 @@ EOF
 
 echo "::group::scf-config-values.yaml"
 cat "${GITHUB_WORKSPACE}/kubecf/dev/kubecf/kubecf-values.yaml"
-echo "::endgroup"
+echo "::endgroup::"

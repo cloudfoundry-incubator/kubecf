@@ -88,6 +88,7 @@ jobs:
       # Note that credentials-related parts are in the individual steps
       BACKEND: gke
       DOWNLOAD_CATAPULT_DEPS: "false"
+      CLUSTER_NAME: ci-${{ github.run_id }}-${{ matrix.backend }}
     defaults:
       run:
         working-directory: kubecf
@@ -199,17 +200,24 @@ jobs:
           EXTRA_LABELS: '{"ci": "${{ github.run_id }}"}'
         timeout-minutes: 20 # This should take ~10 minutes.
 
+      - name: Set Up GKE Configuration Directory
+        if: env.BACKEND == 'gke'
+        working-directory: catapult/build${{ env.CLUSTER_NAME }}
+        run: |
+          . .envrc
+          echo "CLOUDSDK_CONFIG=${CLOUDSDK_CONFIG}" >> "${GITHUB_ENV}"
+        timeout-minutes: 1
+
       # Providing kubeconfig for debugging
       - name: export KUBECONFIG
         run: |
           set -o errexit -o nounset -o pipefail
-          cd "build${BACKEND}"
           source .envrc
           echo "KUBECONFIG=${KUBECONFIG}" >> "${GITHUB_ENV}"
           # Debugging aid; should be safe as the cluster will be torn down
           # at the end of the run.
-          cat "${KUBECONFIG}" | gzip | base64 --wrap=0
-        working-directory: catapult
+          kubectl config view --minify --flatten | gzip | base64 --wrap=0
+        working-directory: catapult/build${{ env.CLUSTER_NAME }}
         timeout-minutes: 1
 
       # TBD: Don't generate values.yaml
@@ -319,7 +327,7 @@ jobs:
           set +o errexit
           # Remove any terraform locks, because we don't care if the previous run
           # has finished successfully (e.g. on cancel).
-          find "build${BACKEND}" -name '.terraform.*.lock*' -delete
+          find "build${CLUSTER_NAME}" -name '.terraform.*.lock*' -delete
           make clean
         working-directory: catapult
         env:
