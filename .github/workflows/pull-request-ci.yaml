@@ -230,7 +230,13 @@ jobs:
         timeout-minutes: 1 # This should take ~30 seconds.
 
       # Helm install kubecf
-      - run: make kubecf-apply
+      - name: Install KubeCF
+        run: |
+          if [[ "${FEATURE_EIRINI}" != "true" ]]; then
+            # `make kubecf-apply` gets confused if the values is `false`.
+            unset FEATURE_EIRINI
+          fi
+          make kubecf-apply
         env:
           CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
           FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
