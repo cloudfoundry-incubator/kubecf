@@ -41,7 +41,7 @@ jobs:
         GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
 
     - name: Find Clusters
-      run: make find-resources
+      run: make buildir find-resources
       working-directory: catapult
       env:
         GKE_LOCATION: ${{ secrets.GKE_LOCATION }}
@@ -59,7 +59,7 @@ jobs:
           return await script({github, context});
 
     - name: Clean Up Unused Clusters
-      run: make force-clean-cluster
+      run: make buildir force-clean-cluster
       working-directory: catapult
       env:
         GKE_LOCATION: ${{ secrets.GKE_LOCATION }}
