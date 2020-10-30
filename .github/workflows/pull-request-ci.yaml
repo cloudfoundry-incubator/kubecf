@@ -185,7 +185,7 @@ jobs:
           DEBUG_MODE: true
           GKE_NODE_COUNT: 1
           GKE_PREEMPTIBLE: false
-          GKE_INSTANCE_TYPE: n1-highcpu-16
+          GKE_INSTANCE_TYPE: n2d-highcpu-16
           EXTRA_LABELS: '{"ci": "${{ github.run_id }}"}'
 
       # Providing kubeconfig for debugging
