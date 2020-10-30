@@ -8,6 +8,7 @@ This directory contains the definitions for [GitHub Actions workflows].
 ## Table of Contents
 - [Building & Testing](#building--testing)
 - [Pull Request Summary Linting](#pull-request-summary-linting)
+- [Pull Request Linting](#pull-request-linting)
 
 ## Building & Testing
 
@@ -44,3 +45,11 @@ follows [Conventional Commits], as specified in [RFD 002].
 [`conventional-commits-lint.yml`]: conventional-commits-lint.yml
 [Conventional Commits]: https://www.conventionalcommits.org/en/v1.0.0/
 [RFD 002]: /doc/rfd/rfd/0002/README.md
+
+## Pull Request Linting
+
+[`pull-request-lint.yaml`] checks that pull requests pass the basic linting
+target in KubeCF.  This is run for every PR targeting `master`, before they have
+been reviewed.
+
+[`pull-request-lint.yaml`]: pull-request-lint.yaml
