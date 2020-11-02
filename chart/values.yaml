@@ -374,7 +374,7 @@ features:
       resource_directory_key: ~
 
   # Configuration for the external database; see also features.embedded_database.  Please refer to
-  # https://kubecf.io/docs/deployment/kubernetes-deploy/#external-database for details.
+  # https://kubecf.io/docs/deployment/advanced-topics/#external-database for details.
   external_database:
     enabled: false
     require_ssl: false
