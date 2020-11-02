@@ -48,7 +48,6 @@ jobs:
     - get: kubecf
   - do:
     - task: prep
-      privileged: true
       params:
         RELEASES_YAML: ci/.concourse/suse-buildpacks-ci/releases.yaml
         KUBECF_VALUES_YAML: kubecf/chart/config/sle15.yaml
@@ -70,7 +69,6 @@ jobs:
       file: ci/.concourse/suse-buildpacks-ci/stemcell-version-bump/tasks/build.yaml
 
     - task: create-pr
-      privileged: true
       input_mapping:
         s3.stemcell-version: s3.fissile-stemcell-version
       params:

@@ -10,15 +10,6 @@ metadata:
     {{- list . "database" | include "component.labels" | nindent 4 }}
 spec:
   updateOnConfigChange: true
-  activePassiveProbes:
-    database:
-      periodSeconds: 5
-      exec:
-        command:
-          - /bin/bash
-          - -c
-          - |
-            {{- .Files.Get "assets/scripts/jobs/pxc/active_passive_probe.sh" | nindent 12 }}
   template:
     metadata:
       name: database
@@ -26,19 +17,15 @@ spec:
       labels:
         {{- list . "database" | include "component.labels" | nindent 8 }}
     spec:
-      {{- $replicas := 1 }}
-      {{- if $.Values.sizing.database.instances }}
-        {{- $replicas = $.Values.sizing.database.instances }}
-      {{- else if $.Values.high_availability }}
-        {{- $replicas = 3 }}
-      {{- end }}
-      {{- if eq (mod $replicas 2) 0 }}
-        {{- include "_config.fail" "The number of database instances must be odd to avoid split-brain" }}
-      {{- end }}
-      replicas: {{ $replicas }}
+      # Database replicas are not allowed.
+      # High-availability is not currently feasible to support in k8s.
+      # Galera replication on rolling updates of the statefulset is hard to get
+      # right and to maintain as part of KubeCF. For an HA database, prefer
+      # using a specialized external one.
+      replicas: 1
       selector:
         matchLabels:
-          {{- list . "database" | include "component.labels" | nindent 10 }}
+          {{- list . "database" | include "component.selector" | nindent 10 }}
       serviceName: database
       template:
         metadata:
@@ -47,19 +34,6 @@ spec:
         spec:
           {{- if $.Values.sizing.database.affinity }}
           affinity: {{ $.Values.sizing.database.affinity | toJson }}
-          {{- else }}
-          affinity:
-            podAntiAffinity:
-              preferredDuringSchedulingIgnoredDuringExecution:
-              - weight: 100
-                podAffinityTerm:
-                  labelSelector:
-                    matchExpressions:
-                    - key: quarks.cloudfoundry.org/quarks-statefulset-name
-                      operator: In
-                      values:
-                      - database
-                  topologyKey: kubernetes.io/hostname
           {{- end }}
           initContainers:
           - name: remove-lost-found
@@ -89,30 +63,13 @@ spec:
                 secretKeyRef:
                   name: var-pxc-password
                   key: password
-            - name: XTRABACKUP_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: var-xtrabackup-password
-                  key: password
             - name: ALLOW_ROOT_FROM
               value: "%"
-            - name: CLUSTER_NAME
-              value: {{ .Release.Name }}-database
-            - name: SHORT_CLUSTER_NAME
-              value: {{ .Release.Name }}-database
-            - name: K8S_SERVICE_NAME
-              value: database-repl
             - name: PXC_STRICT_MODE
               value: ENFORCING
             ports:
             - name: mysql
               containerPort: 3306
-            - name: galera-repl
-              containerPort: 4567
-            - name: state-transfer
-              containerPort: 4568
-            - name: state-snapshot
-              containerPort: 4444
             livenessProbe:
               exec:
                 command:

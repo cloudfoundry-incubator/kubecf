@@ -1,8 +1,12 @@
 name: enqueue-pr-test
 on:
   # When a PR is approved, add the queue label
-  pull_request_review:
-    types: [submitted]
+  #pull_request_review:
+  #  types: [submitted]
+  workflow_dispatch: {}
+
+env:
+  GIT_PAGER: cat
 
 jobs:
   enqueue:

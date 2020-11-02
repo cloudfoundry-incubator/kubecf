@@ -18,9 +18,15 @@ releases:
     image:
       repository: ghcr.io/cfcontainerizationbot/kubecf-apps-dns
       tag: 0.1.0
+  # Can also use image `google/cloud-sdk` as an alternative image to provide
+  # kubectl capability
+  kubecf_kubectl:
+    image:
+      repository: ghcr.io/cfcontainerizationbot/kubecf-kubectl
+      tag: v1.19.2
   brain-tests:
     condition: testing.brain_tests.enabled
-    version: v0.0.14
+    version: v0.0.15
   bosh-dns-aliases:
     # not needed for kubecf; functionality provided by quarks-operator
     condition: false

@@ -11,11 +11,13 @@ inputs:
 - name: s3.stemcell-version
 - name: s3.fissile-linux
 - name: suse_final_release
+- name: kubecf
 outputs:
 - name: built_image
 params:
   STEMCELL_REPOSITORY: ~
   STEMCELL_VERSIONED_FILE: ~
+  KUBECF_VALUES: ~
   REGISTRY_NAME: ~
   REGISTRY_ORG: ~
   REGISTRY_USER: ~

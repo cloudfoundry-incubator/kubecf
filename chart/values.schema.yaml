@@ -306,6 +306,15 @@ properties:
                   password: {type: string}
                 additionalProperties: false
           additionalProperties: false
+
+      routing_api:
+        type: object
+        properties:
+          enabled:
+            oneOf:
+            - type: boolean
+            - type: 'null'
+
     additionalProperties:
       type: object
       properties:
@@ -326,14 +335,18 @@ properties:
   kube:
     type: object
     properties:
+      image_pull_secrets:
+        type: array
+        items: {type: string}
+        minItems: 0
+        uniqueItems: true
       psp:
         type: object
         properties:
           default: {"$ref": "#/definitions/string_or_null"}
         additionalProperties: false
       storage_class: {"$ref": "#/definitions/string_or_null"}
-    # XXX Catapult sets additional (unused) properties; allow them for now to pass CI
-    additionalProperties: true
+    additionalProperties: false
 
   move_jobs:
     type: object

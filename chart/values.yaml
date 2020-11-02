@@ -44,6 +44,9 @@ kube:
   # prevent KubeCF from creating a new one, set the kube.psp.default with the PSP name.
   psp:
     default: ~
+  # The global list of image pull secret names. The secrets themselves will have to be created by
+  # the user before installing kubecf.
+  image_pull_secrets: []
 
 # Set to true to enable support for multiple availability zones.
 multi_az: false
@@ -102,7 +105,6 @@ sizing:
   credhub:
     instances: ~
   database:
-    instances: ~
     persistence:
       size: 20Gi
   diego_api:
@@ -349,7 +351,8 @@ features:
   routing_api:
     # Enable the routing API.  Disabling this will also disable TCP routing, which is used for TCP
     # port forwarding.
-    enabled: true
+    # Enabled by default, except under Eirini, where the routing-api is not (yet) supported.
+    enabled: ~
   embedded_database:
     # Enable the embedded database.  If this is disabled, then features.external_database should be
     # configured to use an external database.
@@ -371,7 +374,7 @@ features:
       resource_directory_key: ~
 
   # Configuration for the external database; see also features.embedded_database.  Please refer to
-  # https://kubecf.suse.dev/docs/getting-started/kubernetes-deploy/#external-database for details.
+  # https://kubecf.io/docs/deployment/kubernetes-deploy/#external-database for details.
   external_database:
     enabled: false
     require_ssl: false
@@ -447,7 +450,7 @@ testing:
 ccdb:
   encryption:
     # Configure CCDB key rotation.  Please see
-    # https://kubecf.suse.dev/docs/tasks/secrets/#rotating-the-ccdb-encryption-keys for details.
+    # https://kubecf.io/docs/tasks/secrets/#rotating-the-ccdb-encryption-keys for details.
     rotation:
       # Key labels must be <= 240 characters long.
       key_labels:

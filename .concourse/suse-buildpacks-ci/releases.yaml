@@ -48,3 +48,8 @@ releases:
   uri: "git@github.com:SUSE/cf-binary-buildpack-release.git"
   repo: "cf-binary-buildpack-release"
   name_in_values_yaml: "suse-binary-buildpack"
+
+- name: "sle15"
+  uri: "git@github.com:SUSE/cf-sle15-release.git"
+  repo: "cf-sle15-release"
+  name_in_values_yaml: "sle15"

@@ -10,6 +10,9 @@ unsupported:
     Don't use properties.diego-cell.garden.grootfs.reserved_space_for_other_jobs_in_mb.
     Use sizing.diego_cell.ephemeral_disk.size to set the amount of disk available to the cell.
 
+  features.routing_api.enabled && features.eirini.enabled: |
+    Cannot activate routing-api for eirini. It is not yet supported by this scheduler.
+
   features.embedded_database.enabled && features.external_database.enabled: |
     Cannot simultaneously activate both features.embedded_database and features.external_database.
 
@@ -26,3 +29,10 @@ unsupported:
     You are reusing an old and incompatible configuration, either via a values.yaml file from an
     older release, or by using the --reuse-values option. Please start with a fresh configuration,
     only changing settings relative to the defaults in the current release.
+
+  # Do not allow replicas for the database; doing this well in Kubernetes is
+  # more effort than we can expend, and is better handled by external databases.
+  sizing.database.instances: >
+    Database replicas are not supported.
+    KubeCF does not support highly available database configurations;
+    please use an external database instead.

@@ -28,15 +28,7 @@
   value: true
 
 # Configure the size of the diego cell grootfs store
-# We are repurposing reserved_space_for_other_jobs_in_mb as the size of the grootfs store 
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/grootfs?/reserved_space_for_other_jobs_in_mb
-  value: {{ .Values.sizing.diego_cell.ephemeral_disk.size }}
-
-- type: replace
-  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego?/executor/disk_capacity_mb
-  value: {{ .Values.sizing.diego_cell.ephemeral_disk.size }}
-
+{{- $ephemeral_disk_size := .Values.sizing.diego_cell.ephemeral_disk.size }}
 {{- if .Values.sizing.diego_cell.ephemeral_disk.storage_class }}
 # Use a PVC for garden data
 - type: replace
@@ -45,7 +37,21 @@
 - type: replace
   path: /instance_groups/name=diego-cell/persistent_disk_type?
   value: {{ .Values.sizing.diego_cell.ephemeral_disk.storage_class | quote }}
+- type: replace
+  path: /instance_groups/name=diego-cell/vm_resources?/ephemeral_disk_size
+  value: {{ .Values.sizing.diego_cell.ephemeral_disk.size }}
+{{- /* When using a storage class / PVC, reserve some room for other uses */}}
+{{- $ephemeral_disk_size = sub $ephemeral_disk_size 2048 }}
 {{- end }}
+
+# We are repurposing reserved_space_for_other_jobs_in_mb as the size of the grootfs store
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden/properties/grootfs?/reserved_space_for_other_jobs_in_mb
+  value: {{ $ephemeral_disk_size }}
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego?/executor/disk_capacity_mb
+  value: {{ $ephemeral_disk_size }}
 
 # The loggr UDP forwarder needs some env vars specific to the container they're running in
 # The INDEX env var cannot be rendered properly as part of BPM rendering, it can only be set

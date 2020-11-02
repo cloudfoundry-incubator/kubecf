@@ -78,6 +78,14 @@
         {{- include "_config.fail" $message }}
       {{- end }}
     {{- end }}
+
+    {{- if and $.Release.IsUpgrade $.Values.features.embedded_database.enabled }}
+      {{- $database := lookup "apps/v1" "StatefulSet" $.Release.Namespace "database" }}
+      {{- if gt $database.spec.replicas 1 }}
+        {{- include "_config.fail" "Cannot upgrade until database has been scaled down to single instance" }}
+      {{- end }}
+    {{- end }}
+
   {{- end }}
 {{- end }}
 

@@ -55,6 +55,7 @@
 
   {{- /* *** Create "$stack.install_buildpacks" and "$stack.releases" from the "api" buildpack jobs *** */}}
   {{- $_ := set $stack "install_buildpacks" list }}
+  {{- $condition := printf "stacks.%s.enabled" $cc_stack.name }}
 
   {{- $_ := include "_config.lookupManifest" (list $ "instance_groups/name=api/jobs") }}
   {{- range $job := $.kubecf.retval }}
@@ -66,9 +67,16 @@
         {{- $_ := set $stack.releases $job.release dict }}
       {{- end }}
       {{- /* Set job condition so no spurious references are generated when the stack is disabled  */}}
-      {{- $_ := set $.Values.jobs.api $job.name (dict "condition" (printf "stacks.%s.enabled" $cc_stack.name) "processes" list) }}
+      {{- $_ := set $.Values.jobs.api $job.name (dict "condition" $condition "processes" list) }}
     {{- end }}
   {{- end }}
+
+  {{- /* Make sure the rootfs-setup job is not referenced when the stack is disabled */}}
+  {{- $diego_cell := index $.Values.jobs "diego-cell" }}
+  {{- /* Both stack condition and diego-cell condition must be true to enable rootfs-setup job */}}
+  {{- $condition = printf "(%s) && (%s)" $condition (index $diego_cell "$default") }}
+  {{- $job_name := printf "%s-rootfs-setup" $cc_stack.name }}
+  {{- $_ := set $diego_cell $job_name (dict "condition" $condition "processes" list) }}
 
   {{- /* +----------------------------------------------------------------------------------------------+ */}}
   {{- /* | Setup the additional stacks in .config.stacks and merge their releases into .config.releases | */}}
