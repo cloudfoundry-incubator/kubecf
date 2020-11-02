@@ -28,13 +28,13 @@ Note: when opening a new issue please do not forget to use the correct template.
 Every project feature has it's own lifecycle.
 
 * Beta: publicly available but only for testing and to gather feedback.
-* GA: public available.
+* GA: Publicly available.
 
 Some features may be allocated to a timeframe (Q1, Q2,...) but with an exploratory label.
 The purpose is to gather community feedback and it can lead to potential delays.
 
-* in design: we have decided to build but still figuring out how.
-* exploring: we are considering building, but we need more feedback to make a final decision.
+* In design: While we have decided to build this, we are still figuring out how to implement it.
+* Exploring: While we are considering to build this, we need more feedback before making the final decision.
 
 Any feature can be abandoned by team decision independently of its state, followed by a
 well-documented reason.
