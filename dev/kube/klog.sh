@@ -130,12 +130,12 @@ function get_pod_description() {
 
 function get_all_resources() {
   printf '  Resources ...\n'
-  kubectl get all --export=true --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/resources.yaml"
+  kubectl get all --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/resources.yaml"
 }
 
 function get_all_events() {
   printf '  Events ...\n'
-  kubectl get events --export=true --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/events.yaml"
+  kubectl get events --namespace "${NS}" --output=yaml > "${KLOG}/${NS}/events.yaml"
 }
 
 rm -rf "${KLOG:?}/${NS:?}"
