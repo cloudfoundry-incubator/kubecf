@@ -13,7 +13,7 @@ stacks:
         stemcell:
           version: 27.10-7.0.0_374.gb8e8e6af
       sle15:
-        version: "24.81"
+        version: "24.79"
       suse-staticfile-buildpack:
         version: "1.5.12.1"
       suse-java-buildpack:
