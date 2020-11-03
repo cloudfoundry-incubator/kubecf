@@ -29,8 +29,8 @@ tar xvf s3.fissile-linux/fissile-*.tgz --directory "/usr/local/bin/"
 sle_version="$(cut -d- -f1 "s3.stemcell-version/${STEMCELL_VERSIONED_FILE##*/}")"
 # stemcell_version without the fissile version part, e.g. 27.8
 # shellcheck disable=SC2016
-stemcell_master_version=$(yq -r '.stacks.sle15.releases["$defaults"].stemcell.version' "kubecf/${KUBECF_VALUES}" | cut -d- -f1)
-stemcell_master_image="${STEMCELL_REPOSITORY}:${sle_version}-${stemcell_master_version}"
+stemcell_master_version=${sle_version}-$(yq -r '.stacks.sle15.releases["$defaults"].stemcell.version' "kubecf/${KUBECF_VALUES}" | cut -d- -f1)
+stemcell_master_image="${STEMCELL_REPOSITORY}:${stemcell_master_version}"
 stemcell_s3_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}")"
 stemcell_s3_image="${STEMCELL_REPOSITORY}:${stemcell_s3_version}"
 
