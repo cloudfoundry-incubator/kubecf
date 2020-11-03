@@ -265,6 +265,7 @@ jobs:
       # Run sits tests
       - run: make sync-integration-tests
         if: matrix.backend == 'diego'
+        timeout-minutes: 5
 
       # Run CATs
       - run: make acceptance-tests
@@ -294,6 +295,7 @@ jobs:
               kubectl get "${resource}" --namespace="${namespace}" --output=wide
             done
           done
+        timeout-minutes: 5
 
       # Upload kubecf's values.yaml for debugging
       - name: Upload config
@@ -302,6 +304,7 @@ jobs:
         with:
           name: ${{ matrix.backend }}-values.yaml
           path: ${{ github.workspace }}/kubecf/dev/kubecf/kubecf-values.yaml
+        timeout-minutes: 5
 
       # Fetch logs for debugging
       - name: Fetch logs
@@ -311,6 +314,7 @@ jobs:
           # Running klog.sh twice will grab logs from both namespaces
           dev/kube/klog.sh -f -r cf-operator
           dev/kube/klog.sh -f -r
+        timeout-minutes: 60
 
       # Upload logs for debugging
       - name: Upload logs
@@ -319,6 +323,7 @@ jobs:
         with:
           name: ${{ matrix.backend }}-klog.tgz
           path: ${{ github.workspace }}/kubecf/klog.tar.gz
+        timeout-minutes: 5
 
       # Teardown created k8s cluster
       - name: kubernetes:teardown
@@ -332,3 +337,4 @@ jobs:
         working-directory: catapult
         env:
           GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
+        timeout-minutes: 20
