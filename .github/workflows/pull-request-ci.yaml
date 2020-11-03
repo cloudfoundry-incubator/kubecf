@@ -225,6 +225,7 @@ jobs:
         run: exec "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/kubecf-gen-config.sh"
         env:
           AUTOSCALER: "true"
+          ENABLE_EIRINI: ${{ matrix.backend == 'eirini' }}
         timeout-minutes: 1
 
       # Helm install cf-operator
@@ -248,7 +249,7 @@ jobs:
         env:
           CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
           FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
-          VALUES: dev/kubecf/kubecf-values.yaml
+          VALUES: ${{ github.workspace }}/kubecf-values.yaml
         timeout-minutes: 1 # This should take ~30 seconds.
 
       # Wait for kubecf pods to be ready
@@ -303,7 +304,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.backend }}-values.yaml
-          path: ${{ github.workspace }}/kubecf/dev/kubecf/kubecf-values.yaml
+          path: ${{ github.workspace }}/kubecf-values.yaml
         timeout-minutes: 5
 
       # Fetch logs for debugging
