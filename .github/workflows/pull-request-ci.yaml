@@ -184,7 +184,7 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           DEBUG_MODE: true
           GKE_NODE_COUNT: 1
-          GKE_PREEMPTIBLE: true
+          GKE_PREEMPTIBLE: false
           GKE_INSTANCE_TYPE: n1-highcpu-16
           EXTRA_LABELS: '{"ci": "${{ github.run_id }}"}'
 
