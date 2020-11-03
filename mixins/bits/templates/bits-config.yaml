@@ -28,12 +28,7 @@ stringData:
     app_stash_config:
       maximum_size: 512M
       minimum_size: 64K
-    {{- if index (default (dict) .Values.bits) "blobstore_config" }}
-    buildpacks: {{ .Values.bits.blobstore_config.buildpacks | toJson }}
-    droplets: {{ .Values.bits.blobstore_config.droplets | toJson }}
-    packages: {{ .Values.bits.blobstore_config.packages | toJson }}
-    app_stash: {{ .Values.bits.blobstore_config.app_stash | toJson }}
-    {{- else }}
+    {{- if eq $.Values.features.blobstore.provider "singleton" }}
     buildpacks:
       blobstore_type: webdav
       webdav_config: &webdav_config
@@ -65,6 +60,85 @@ stringData:
       webdav_config:
         <<: *webdav_config
         directory_key: cc-resources
+    {{- else if eq $.Values.features.blobstore.fog.connection.provider "AWS" }}
+    buildpacks:
+      blobstore_type: aws
+      s3_config: &s3_config
+        bucket: {{ $.Values.features.blobstore.fog.buildpack_directory_key }}
+        access_key_id: {{ $.Values.features.blobstore.fog.connection.aws_access_key_id }}
+        secret_access_key: {{ $.Values.features.blobstore.fog.connection.aws_secret_access_key }}
+        region: {{ $.Values.features.blobstore.fog.connection.region }}
+        {{- with $.Values.features.blobstore.fog.connection.endpoint }}
+        host: {{ . }}
+        {{- end }}
+        {{- with $.Values.features.blobstore.fog.connection.aws_signature_version }}
+        signature_version: {{ . }}
+        {{- end }}
+        {{- with $.Values.features.blobstore.fog.connection.path_style }}
+          {{- include "_config.fail" "path_style bucket addresses are not supported by bits-service" }}
+        {{- end }}
+    droplets:
+      blobstore_type: aws
+      s3_config:
+        <<: *s3_config
+        bucket: {{ $.Values.features.blobstore.fog.droplet_directory_key }}
+    packages:
+      blobstore_type: aws
+      s3_config:
+        <<: *s3_config
+        bucket: {{ $.Values.features.blobstore.fog.app_package_directory_key }}
+    app_stash:
+      blobstore_type: aws
+      s3_config:
+        <<: *s3_config
+        bucket: {{ $.Values.features.blobstore.fog.resource_directory_key }}
+    {{- else if eq $.Values.features.blobstore.fog.connection.provider "Google" }}
+    buildpacks:
+      blobstore_type: google
+      gcp_config: &gcp_config
+        bucket: {{ $.Values.features.blobstore.fog.buildpack_directory_key }}
+        private_key_id: {{ $.Values.features.blobstore.fog.google_storage_access_key_id }}
+        private_key: {{ $.Values.features.blobstore.fog.google_storage_secret_access_key }}
+    droplets:
+      blobstore_type: google
+      gcp_config:
+        <<: *gcp_config
+        bucket: {{ $.Values.features.blobstore.fog.droplet_directory_key }}
+    packages:
+      blobstore_type: google
+      gcp_config:
+        <<: *gcp_config
+        bucket: {{ $.Values.features.blobstore.fog.app_package_directory_key }}
+    app_stash:
+      blobstore_type: google
+      gcp_config:
+        <<: *gcp_config
+        bucket: {{ $.Values.features.blobstore.fog.resource_directory_key }}
+    {{- else if eq $.Values.features.blobstore.fog.connection.provider "AzureRM" }}
+    buildpacks:
+      blobstore_type: azure
+      azure_config: &azure_config
+        container_name: {{ $.Values.features.blobstore.fog.buildpack_directory_key }}
+        account_name: {{ $.Values.features.blobstore.fog.azure_storage_account_name }}
+        account_key: {{ $.Values.features.blobstore.fog.azure_storage_access_key }}
+        environment: {{ $.Values.features.blobstore.fog.environment }}
+    droplets:
+      blobstore_type: azure
+      azure_config: &azure_config
+        <<: *azure_config
+        container_name: {{ $.Values.features.blobstore.fog.droplet_directory_key }}
+    packages:
+      blobstore_type: azure
+      azure_config: &azure_config
+        <<: *azure_config
+        container_name: {{ $.Values.features.blobstore.fog.app_package_directory_key }}
+    app_stash:
+      blobstore_type: azure
+      azure_config: &azure_config
+        <<: *azure_config
+        container_name: {{ $.Values.features.blobstore.fog.resource_directory_key }}
+    {{- else }}
+      {{- include "_config.fail" (printf "Blobstore provider %q is not supported by bits-service" $.Values.features.blobstore.fog.provider) }}
     {{- end }}
     enable_registry: true
 {{- end }}

@@ -19,8 +19,6 @@ y2j < "${HELM_DIR}/values.schema.yaml" > "${HELM_DIR}/values.schema.json"
 rm "${HELM_DIR}/values.schema.yaml"
 
 cp src/cf-deployment/cf-deployment.yml "${HELM_DIR}/assets"
-cp src/cf-deployment/operations/use-external-blobstore.yml "${HELM_DIR}/assets"
-cp src/cf-deployment/operations/use-s3-blobstore.yml "${HELM_DIR}/assets"
 
 for MIXIN in bits eirini eirinix; do
     for DIR in assets config templates; do

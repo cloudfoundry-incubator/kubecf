@@ -1,0 +1,20 @@
+{{- include "_config.load" $ }}
+
+{{- if eq .Values.features.blobstore.provider "fog" }}
+apiVersion: "v1"
+kind: "Secret"
+type: Opaque
+metadata:
+  name: var-fog-connection
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
+    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
+    helm.sh/chart: {{ include "kubecf.chart" . }}
+  annotations:
+    quarks.cloudfoundry.org/json-value: "true"
+stringData:
+  value: {{ .Values.features.blobstore.fog.connection | toJson | quote }}
+{{- end }}

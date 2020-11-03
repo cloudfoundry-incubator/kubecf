@@ -292,6 +292,7 @@ permutations.each do |permutation|
   # image than external_database.
   values.features['embedded_database']['enabled'] = true
   values.features['external_database']['enabled'] = false
+  values.features['blobstore'].delete('enabled')
   deep_populate_nil_values(values.features)
 
   # Render the Helm chart.

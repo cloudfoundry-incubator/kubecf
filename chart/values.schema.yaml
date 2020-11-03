@@ -251,8 +251,59 @@ properties:
   features:
     type: object
     properties:
-      # "blobstore" doesn't have an "enabled" property
-      blobstore: {}
+      # Note: "blobstore" doesn't have an "enabled" property
+      blobstore:
+        type: object
+        oneOf:
+        - properties:
+            provider: {enum: [singleton]}
+          required: [provider]
+          additionalProperties: false
+        - properties:
+            provider: {enum: [fog]}
+            fog:
+              type: object
+              properties:
+                app_package_directory_key: {type: string}
+                buildpack_directory_key: {type: string}
+                droplet_directory_key: {type: string}
+                resource_directory_key: {type: string}
+                connection:
+                  type: object
+                  oneOf:
+                  - properties:
+                      provider: {enum: [AWS]}
+                      aws_access_key_id: {type: string}
+                      aws_secret_access_key: {type: string}
+                      aws_signature_version: {type: string}
+                      endpoint: {type: string}
+                      # path_style is not supported by bits_service
+                      path_style: {type: boolean}
+                      region: {type: string}
+                    required: [provider, aws_access_key_id, aws_secret_access_key]
+                    additionalProperties: false
+                  - properties:
+                      provider: {enum: [Google]}
+                      google_storage_access_key_id: {type: string}
+                      google_storage_secret_access_key: {type: string}
+                    required: [provider, google_storage_access_key_id, google_storage_secret_access_key]
+                    additionalProperties: false
+                  - properties:
+                      provider: {enum: [AzureRM]}
+                      azure_storage_access_key: {type: string}
+                      azure_storage_account_name: {type: string}
+                      environment: {type: string}
+                    required: [provider, environment, azure_storage_account_name, azure_storage_access_key]
+                    additionalProperties: false
+              required:
+              - app_package_directory_key
+              - buildpack_directory_key
+              - droplet_directory_key
+              - resource_directory_key
+              - connection
+              additionalProperties: false
+          required: [provider, fog]
+          additionalProperties: false
 
       memory_limits:
         # should "null" be allowed too?

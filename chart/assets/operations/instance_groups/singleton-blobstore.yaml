@@ -13,7 +13,7 @@
 
 - type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/blobstore/internal_access_rules?
-  value: [ "allow 10.0.0.0/8;","allow 172.16.0.0/12;", "allow 192.168.0.0/16;" , "allow 100.64.0.0/10;"]
+  value: [ "allow 10.0.0.0/8;","allow 172.16.0.0/12;", "allow 192.168.0.0/16;", "allow 100.64.0.0/10;"]
 - type: replace
   path: /instance_groups/name=singleton-blobstore/jobs/name=blobstore/properties/quarks?
   value:
@@ -50,4 +50,36 @@
 {{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/singleton-blobstore_*" }}
 {{ $bytes | toString }}
 {{- end }}
+
+{{- else }}
+- type: remove
+  path: /instance_groups/name=singleton-blobstore
+
+# remove unnecessary variables for internal blobstore
+- type: remove
+  path: /variables/name=blobstore_admin_users_password
+
+- type: remove
+  path: /variables/name=blobstore_secure_link_secret
+
+- type: remove
+  path: /variables/name=blobstore_tls
+
+{{- $buckets := dict }}
+{{- $_ := set $buckets "buildpacks" "buildpack" }}
+{{- $_ := set $buckets "droplets" "droplet" }}
+{{- $_ := set $buckets "packages" "app_package" }}
+{{- $_ := set $buckets "resource_pool" "resource" }}
+
+{{- range $bucket, $index := $buckets }}
+{{- include "_capi.setProperty" (list $bucket) }}
+
+{{- $path := printf "%s.fog_connection" $bucket }}
+{{- include "_capi.setProperty" (list $path "((fog_connection))") }}
+
+{{- $key := printf "%s_directory_key" $index }}
+{{- $path = printf "%s.%s" $bucket $key }}
+{{- include "_capi.setProperty" (list $path (index $.Values.features.blobstore.fog $key)) }}
+{{- end }}
+
 {{- end }}
