@@ -23,7 +23,7 @@ stacks:
       suse-dotnet-core-buildpack:
         version: "2.3.17.1"
       suse-nodejs-buildpack:
-        version: "1.7.33.1"
+        version: "1.7.34.1"
       suse-go-buildpack:
         version: "1.9.21.1"
       suse-python-buildpack:
