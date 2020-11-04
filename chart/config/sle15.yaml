@@ -15,7 +15,7 @@ stacks:
       sle15:
         version: "24.81"
       suse-staticfile-buildpack:
-        version: "1.5.12.1"
+        version: "1.5.13.1"
       suse-java-buildpack:
         version: "4.33.0.1"
       suse-ruby-buildpack:
