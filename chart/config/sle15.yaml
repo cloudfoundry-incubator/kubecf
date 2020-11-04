@@ -21,7 +21,7 @@ stacks:
       suse-ruby-buildpack:
         version: "1.8.26.1"
       suse-dotnet-core-buildpack:
-        version: "2.3.17.1"
+        version: "2.3.18.1"
       suse-nodejs-buildpack:
         version: "1.7.33.1"
       suse-go-buildpack:
