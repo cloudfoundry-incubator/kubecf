@@ -19,7 +19,7 @@ Be able to measure and collect time metrics during a fresh deployment and betwee
 component (pod) present on KubeCF.
 
 With the time data collected, both upstream projects and downstream product teams can investigate
-if there are optimizations that can lead to a better and more faster deployments that will support a
+if there are optimizations that can lead to better and faster deployments that will support a
 better user experience in future releases.
 
 ### Metric(s) to collect
