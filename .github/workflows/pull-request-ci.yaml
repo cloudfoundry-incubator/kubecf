@@ -342,15 +342,19 @@ jobs:
           dev/kube/klog.sh -f -r cf-operator
           dev/kube/klog.sh -f -r
         timeout-minutes: 60
+        continue-on-error: true
 
       # Upload logs for debugging
       - name: Upload logs
+        # Even if the fetch logs step failed, we may have _some_ logs from the
+        # operator part; try to upload anyway.
         if: always()
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.backend }}-klog.tgz
           path: ${{ github.workspace }}/kubecf/klog.tar.gz
         timeout-minutes: 5
+        continue-on-error: true
 
       # Teardown created k8s cluster
       - name: kubernetes:teardown
