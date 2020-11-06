@@ -105,6 +105,27 @@ executed in alphanumeric order.
 It is optional for the folder to contain other files/folders besides those
 starting with digits. Those would not be automatically executed upon target
 call (e.g: readme files, local include folders, etc).
+
+Each of these targets:
+
+- Must assume that the deployment/testing env is already loaded, with access to
+  kube, cf, helm operations.
+- Must return retcode `0` on success, `!= 0` if otherwise.
+- Must consume and create files on `pwd` only.
+- Must be idempotent: running it will give you the same result. E.g: calling
+  `configure` several times with the same outputs gives you the same
+  `values.yaml` as result. Calling `install` with the same `values.yaml` gives
+  you the same deployment (that means that `install` must clean on its own).
+- Must be isolated: E.g; implementation of `install` does not call on `configure`
+  itself.
+  They may, though, call shared implementation code in the `include` folder of
+  their shared root path.
+- Chart values must be only consumed from yaml files, and not using `--set`.
+- When useful, should save resulting artifacts of execution into
+  `$pwd/artifacts`. E.g: `$pwd/artifacts/cats-run.log`
+
+It is not recommended for targets to take arguments and options on execution
+besides the expected default behaviour defined here.
   
 Deployment and automation scripts must expose the following targets, with the
 defined behaviour:
@@ -143,28 +164,6 @@ defined behaviour:
 - `one-offs/*`: Helper targets. Follow the same rules as the rest of targets,
   except they may not be idempotent. E.g: `klog`, `login`, `smokes`, `cats`…
   
-Each of these targets:
-
-- Must assume that the deployment/testing env is already loaded, with access to
-  kube, cf, helm operations.
-- Must return retcode `0` on success, `!= 0` if otherwise.
-- Must consume and create files on `pwd` only.
-- Must be idempotent: running it will give you the same result. E.g: calling
-  `configure` several times with the same outputs gives you the same
-  `values.yaml` as result. Calling `install` with the same `values.yaml` gives
-  you the same deployment (that means that `install` must clean on its own).
-- Must be isolated: E.g; implementation of `install` does not call on `configure`
-  itself.
-  They may, though, call shared implementation code in the `include` folder of
-  their shared root path.
-- Chart values must be only consumed from yaml files, and not using `--set`.
-- When useful, should save resulting artifacts of execution into
-  `$pwd/artifacts`. E.g: `$pwd/artifacts/cats-run.log`
-
-It is not recommended for targets to take arguments and options on execution
-besides the expected default behaviour defined here.
-
-
 Apart from the targets, the following folders and files must be provided:
 
 - `example-values/`: Contains examples of possible config values. Separated into
