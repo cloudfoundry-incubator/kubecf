@@ -75,7 +75,7 @@ action, together with helper files and examples of configuration for the charts.
 Those targets and files must be in the following structure of folders and executables:
 
 ```
-├── clean/*
+├── uninstall/*
 ├── clobber/*
 ├── chart/*
 ├── configure/*
@@ -155,7 +155,7 @@ defined behaviour:
   hand. The implementation must work for both same-version upgrades and
   different-version upgrades.
 
-- `clean`: Performs a helm uninstall.
+- `uninstall`: Performs a helm uninstall.
 
 - `clobber`: Removes all possible objects created by any target from the cluster.
   (crds, webhooks…) leaving the cluster as it were before installation.
@@ -190,8 +190,8 @@ Targets' file structure:
 ```
 ├── README.md
 └── kubecf/
-    ├── clean/
-    │   └── 10_clean.sh
+    ├── uninstall/
+    │   └── 10_uninstall.sh
     ├── clobber/
     │   └── 10_clobber.sh
     ├── chart/
