@@ -923,9 +923,10 @@
     bpm:
       processes:
       - name: golangapiserver
-        executable: /var/vcap/jobs/golangapiserver/bin/apiserver_ctl
+        executable: /var/vcap/packages/golangapiserver/api
         args:
-        - start
+        - -c
+        - /var/vcap/jobs/golangapiserver/config/apiserver.yml
     run:
       healthcheck:
         golangapiserver:
