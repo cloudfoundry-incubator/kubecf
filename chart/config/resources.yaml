@@ -118,7 +118,7 @@ resources:
   api:
     cloud_controller_ng:
       cloud_controller_ng: {memory: {limit: 2048, request: 1024}}
-      nginx: 192
+      nginx: 512
       # Template for all `local_worker_N` processes. Will be applied by _jobs.update.
       '$local_worker': {memory: {limit: 800, request: 400}}
     file_server: 96
