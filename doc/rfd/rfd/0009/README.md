@@ -115,7 +115,7 @@ Each of these targets:
 - Must be idempotent: running it will give you the same result. E.g: calling
   `configure` several times with the same outputs gives you the same
   `values.yaml` as result. Calling `install` with the same `values.yaml` gives
-  you the same deployment (that means that `install` must clean on its own).
+  you the same deployment.
 - Must be isolated: E.g; implementation of `install` does not call on `configure`
   itself.
   They may, though, call shared implementation code in the `include` folder of
