@@ -79,7 +79,6 @@ Those targets and files must be in the following structure of folders and execut
 ├── clobber/*
 ├── chart/*
 ├── configure/*
-│   └── patches/*
 ├── install/*
 ├── wait/*
 ├── include/*
@@ -114,22 +113,24 @@ defined behaviour:
   already decompressed in `$pwd/$our-chart/chart/`. `$our-chart` being the name
   of the chart at hand (e.g: kubecf).
 
-- `configure`: Accepts a list of alphanumerically ordered subsets of
-  `values.yaml`, inside the folder `configure/patches/`, which together with the
-  examples provided in `example-values/`, get merged to output the final
-  values.yaml.
-  Outcome is a valid `$pwd/$our-chart/values.yaml` file for the chart at hand.
+- `configure`: Generates any config values that cannot be taken from the
+  `example-values/` folder as they aren't there. Normally, this will be
+  cluster-dependent configs. E.g: values for the system_domain, ingress certs,
+  loadBalancer annotations for externalDNS, etc.
+  Outcome is a valid set of yaml files in `$pwd/$our-chart/values/` folder.
   This allows for reuse of existing example values, and for downstream tools to
   inject their own yaml subsets as needed.
 
-- `install`: Takes a `$pwd/$our-chart/values.yaml` and the chart contained in
-  `$pwd/$our-chart/chart/` and installs the Helm Chart at hand. 
+- `install`: Takes the config values in the `$pwd/$our-chart/values/` folder and
+  the chart contained in `$pwd/$our-chart/chart/` and installs the Helm Chart at
+  hand.
 
 - `wait`: Waits until deployment of the chart is up and ready.
 
-- `upgrade`: Takes a `$pwd/values.yaml` and a chart contained in
-  `$pwd/$our-chart/chart/` and upgrades the Helm Chart at hand. The upgrade must
-  work for both same version and different versions.
+- `upgrade`: Takes the config values in `$pwd/$our-chart/values/` folder and a
+  chart contained in `$pwd/$our-chart/chart/` and upgrades the Helm Chart at
+  hand. The implementation must work for both same-version upgrades and
+  different-version upgrades.
 
 - `clean`: Performs a helm uninstall.
 
@@ -150,11 +151,11 @@ Each of these targets:
   `configure` several times with the same outputs gives you the same
   `values.yaml` as result. Calling `install` with the same `values.yaml` gives
   you the same deployment (that means that `install` must clean on its own).
-- Must be isolated: implementation of `install` does not call on `configure`
+- Must be isolated: E.g; implementation of `install` does not call on `configure`
   itself.
   They may, though, call shared implementation code in the `include` folder of
   their shared root path.
-- Chart values must be only consumed from a yaml file, and not using `--set`.
+- Chart values must be only consumed from yaml files, and not using `--set`.
 - When useful, should save resulting artifacts of execution into
   `$pwd/artifacts`. E.g: `$pwd/artifacts/cats-run.log`
 
@@ -164,13 +165,13 @@ besides the expected default behaviour defined here.
 
 Apart from the targets, the following folders and files must be provided:
 
-- `example-values/`: Divided into 2 folders:
-  * `example-values/minimal/`: examples of minimal values.yaml that pass a
-    schema check. One can always be sure to have a working deployment with one
-    of them. E.g: `diego-sa-config.yaml`, `eirini-sa-config.yaml`.
-  * `example-values/subset/`: examples of subsets of values.yaml, which alone
-    don't pass a schema check. E.g: `private-registry.yaml`,
-    `tests-config.yaml`, `ha.yaml`, `ingress.yaml`.
+- `example-values/`: Contains examples of possible config values. Separated into
+  2 folders:
+  * `example-values/overlapped/`: examples which cannot be used at the same
+  time. E.g: `diego.yaml`, `eirini.yaml`.
+  * `example-values/subset/`: examples of subsets of configuration, which can be
+    used together. E.g: `private-registry.yaml`, `testsuites-config.yaml`, `ha.yaml`,
+    `ingress.yaml`.
 
 - `imagelist.txt`: Lists all needed container images, fully qualified with
     repository, org, name and tag. Useful for airgap and private registry
@@ -196,10 +197,8 @@ Targets' file structure:
     │   └── 10_chart.sh
     ├── configure/
     │   ├── patches/
-    │   │   ├── 01_kubecf_develop.yaml
-    │   │   ├── 02_kubecf_loadbalancer_svc.yaml
-    │   │   ├── 99_kubecf_config_override.yaml.disabled (made non exec)
-    │   └── 10_merge.sh
+    │   │   └── 02_kubecf_loadbalancer_svc.yaml
+    │   └── 10_create_cluster-dependent_values.sh
     ├── install/
     │   ├── 10_install_quarks.sh
     │   ├── 20_install.kubecf.sh
@@ -224,13 +223,14 @@ Targets' file structure:
     │   │   └── 01_cats.sh
     │   └── readme.md
     └── example-values/
-        ├── minimal/
-        │   ├── diego-sa.yaml
-        │   └── eirini-sa.yaml
+        ├── overlapped/
+        │   ├── diego.yaml
+        │   └── eirini.yaml
         └── subset/
             ├── ha.yaml
             ├── autoscaler.yaml
             ├── ingress.yaml
+            ├── testsuites-config.yaml
             └── private-registry.yaml
 ```
 
