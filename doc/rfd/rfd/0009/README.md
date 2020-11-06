@@ -98,9 +98,8 @@ repository, but it is recommended that these files are bundled inside of the cha
 this simplifies consumption downstream.
 
 Each target is required to be a folder (E.g: `install/`) containing executable
-files starting with digits (E.g: `10_do-foo.sh`, `20_do-bar.rb`), with the
-exception of the single targets in `one-offs/`, which must be a single
-executable each.
+files starting with digits (E.g: `10_do-foo.sh`, `20_do-bar.rb`). Targets
+defined in the `one-offs/` folder also follow this structure.
 
 Upon target call, all the executable files starting with digits will get
 executed in alphanumeric order.
@@ -213,11 +212,16 @@ Targets' file structure:
     │   ├── func.sh
     │   └── readme.md
     ├── one-offs/
-    │   ├── klog.sh
-    │   ├── upgrade.sh
-    │   ├── login
-    │   ├── smokes.rb
-    │   ├── cats.sh
+    │   ├── klog/
+    │   │   └── 01_klog.sh
+    │   ├── upgrade/
+    │   │   └── 01_upgrade.sh
+    │   ├── login/
+    │   │   └── 01_login.sh
+    │   ├── smokes/
+    │   │   └── 01_smokes.rb
+    │   ├── cats/
+    │   │   └── 01_cats.sh
     │   └── readme.md
     └── example-values/
         ├── minimal/
