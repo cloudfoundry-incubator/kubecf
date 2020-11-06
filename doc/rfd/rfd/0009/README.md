@@ -111,7 +111,9 @@ defined behaviour:
 
 - `chart`: Obtains the latest public release of the chart at hand, and puts it
   already decompressed in `$pwd/$our-chart/chart/`. `$our-chart` being the name
-  of the chart at hand (e.g: kubecf).
+  of the chart at hand (e.g: kubecf). While this target is required to be
+  implemented, the intent is that test runners may decide to not call it and
+  drop themselves the chart under test in `$pwd/$our-chart/chart/`.
 
 - `configure`: Generates any config values that cannot be taken from the
   `example-values/` folder as they aren't there. Normally, this will be
