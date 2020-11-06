@@ -14,9 +14,19 @@ jobs:
     name: enqueue
     runs-on: ubuntu-20.04
     steps:
+      - name: Query vault
+        id: vault
+        uses: hashicorp/vault-action@v2.0.1
+        with:
+          exportEnv: false
+          url: https://volt.cap.explore.suse.dev/
+          token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            secret/data/kubecf "github.cfcontainerizationbot-labeler-personal-access-token" | GH_BOT_TOKEN
+
       - uses: actions-ecosystem/action-add-labels@9141732
         with:
           # We need a bot token because the regular GH Actions token is not allowed to trigger
           # secondary GH Actions events.
-          github_token: ${{ secrets.GH_BOT_TOKEN }}
+          github_token: ${{ steps.vault.outputs.GH_BOT_TOKEN }}
           labels: pr-test-queue
