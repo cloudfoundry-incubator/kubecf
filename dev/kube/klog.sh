@@ -75,9 +75,10 @@ function get_init_containers_of_pod() {
 # Get the CF logs inside the pod.
 function retrieve_container_cf_logs() {
   printf " CF"
+  mkdir -p "${POD_DIR}/logs/"
   kubectl cp --namespace "${NS}" --container "${CONTAINER}" \
     "${POD}":/var/vcap/sys/log/ \
-    "${CONTAINER_DIR}/" \
+    "${POD_DIR}/logs/" \
     2> /dev/null > /dev/null
 }
 
@@ -85,9 +86,10 @@ function retrieve_container_cf_logs() {
 function retrieve_container_jobs() {
   if [ "${RENDERED}" == "0" ] ; then return ; fi
   printf " Jobs"
+  mkdir -p "${POD_DIR}/jobs/"
   kubectl cp --namespace "${NS}" --container "${CONTAINER}" \
     "${POD}":/var/vcap/jobs/ \
-    "${CONTAINER_DIR}-jobs/" \
+    "${POD_DIR}/jobs/" \
     2> /dev/null > /dev/null
 }
 
@@ -110,13 +112,14 @@ function handle_container() {
     mkdir -p "${CONTAINER_DIR}"
 
     # Get the CF logs only if there are any.
-    if [ "${PHASE}" != 'Succeeded' ] && check_for_log_dir; then
-	# `logs` is a special container which does not support copying
-	# of logs (It has no `tar` executable (in the path).
-	if [ "${CONTAINER}" != "logs" ] ; then
-	    retrieve_container_cf_logs
-	    retrieve_container_jobs
-	fi
+    if [ "${PHASE}" != 'Succeeded' ] && [ -z "${GOT_CF_LOGS:-}" ] && check_for_log_dir; then
+        # `logs` is a special container which does not support copying
+        # of logs (It has no `tar` executable (in the path).
+        if [ "${CONTAINER}" != "logs" ] ; then
+            retrieve_container_cf_logs
+            retrieve_container_jobs
+            GOT_CF_LOGS=true
+        fi
     fi
 
     retrieve_container_kube_logs 2> /dev/null || true
@@ -146,6 +149,7 @@ mkdir -p "${NAMESPACE_DIR}"
 for POD in $(get_all_the_pods); do
   POD_DIR="${NAMESPACE_DIR}/${POD}"
   PHASE="$(get_pod_phase)"
+  GOT_CF_LOGS=''
 
   printf 'Pod %s = %s\n' "$(green "${POD}")" "${PHASE}"
 
