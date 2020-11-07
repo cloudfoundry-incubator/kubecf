@@ -2,7 +2,9 @@ name: Pull Request Linting
 on:
   # Trigger the workflow when PRs pushed; we still run the workflow files from
   # the master branch, to ensure that malicious actors cannot exfiltrate any
-  # secrets.
+  # secrets.  It is important that we don't expose any secrets to the checked-
+  # out code, both in the environment as well as on disk (i.e. we must run
+  # actions/checkout with persist-credentials: false).
   pull_request_target:
     branches: [master]
 
