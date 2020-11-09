@@ -138,8 +138,13 @@ defined behaviour:
 
 - `configure`: Generates any config values that cannot be taken from the
   `example-values/` folder as they aren't there. Normally, this will be
-  cluster-dependent configs. E.g: values for the system_domain, ingress certs,
-  loadBalancer annotations for externalDNS, etc.
+  cluster-dependent configs. For that, it can read the following keys from a
+  configmap in namespace kube-system:
+  * `domain`: Either a subdomain or a root domain, to be used on the deployment.
+  * `services`: Either `ingress`, `lb`, `hardcoded`.
+  * `public-ip`: Public ip of the cluster, in case `services == hardcoded`.
+    Normally used with a magic DNS service.
+  * `ingress-cert` and `ingress-key`: TLS cert and key for ingress.
   Outcome is a valid set of yaml files in `$pwd/$our-chart/values/` folder.
   This allows for reuse of existing example values, and for downstream tools to
   inject their own yaml subsets as needed.
