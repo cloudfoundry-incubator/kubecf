@@ -139,7 +139,7 @@ defined behaviour:
 - `configure`: Generates any config values that cannot be taken from the
   `example-values/` folder as they aren't there. Normally, this will be
   cluster-dependent configs. For that, it can read the following keys from a
-  configmap in namespace kube-system:
+  configmap named `cap-values` in namespace kube-system:
   * `domain`: Either a subdomain or a root domain, to be used on the deployment.
   * `services`: Either `ingress`, `lb`, `hardcoded`.
   * `public-ip`: Public ip of the cluster, in case `services == hardcoded`.
