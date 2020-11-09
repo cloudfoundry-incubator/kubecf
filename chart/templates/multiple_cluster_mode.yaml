@@ -430,5 +430,102 @@ subsets:
   {{- range .Values.features.multiple_cluster_mode.control_plane_workers.singleton_blobstore.addresses }}
     - ip: {{ .ip }}
   {{- end }}
+# control plane CA certs
+{{- if and .Values.features.multiple_cluster_mode.control_plane_ca.service_cf_internal_ca.certificate  .Values.features.multiple_cluster_mode.control_plane_ca.service_cf_internal_ca.private_key }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: var-{{ .Values.features.multiple_cluster_mode.control_plane_ca.service_cf_internal_ca.name}}
+type: Opaque
+stringData:
+  certificate:  {{- toYaml .Values.features.multiple_cluster_mode.control_plane_ca.service_cf_internal_ca.certificate | nindent 4}}
+  private_key:  {{- toYaml .Values.features.multiple_cluster_mode.control_plane_ca.service_cf_internal_ca.private_key | nindent 4}}
+  is_ca: "true"
+{{- end }}
+{{- if and .Values.features.multiple_cluster_mode.control_plane_ca.application_ca.certificate  .Values.features.multiple_cluster_mode.control_plane_ca.application_ca.private_key }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: var-{{ .Values.features.multiple_cluster_mode.control_plane_ca.application_ca.name}}
+type: Opaque
+stringData:
+  certificate: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.application_ca.certificate | nindent 4}}
+  private_key: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.application_ca.private_key | nindent 4}}
+  is_ca: "true"
+{{- end }}
+{{- if and .Values.features.multiple_cluster_mode.control_plane_ca.loggregator_ca.certificate  .Values.features.multiple_cluster_mode.control_plane_ca.loggregator_ca.private_key }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: var-{{ .Values.features.multiple_cluster_mode.control_plane_ca.loggregator_ca.name}}
+type: Opaque
+stringData:
+  certificate: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.loggregator_ca.certificate | nindent 4}}
+  private_key: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.loggregator_ca.private_key | nindent 4}}
+  is_ca: "true"
+{{- end }}
+{{- if and .Values.features.multiple_cluster_mode.control_plane_ca.metric_scraper_ca.certificate  .Values.features.multiple_cluster_mode.control_plane_ca.metric_scraper_ca.private_key }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: var-{{ .Values.features.multiple_cluster_mode.control_plane_ca.metric_scraper_ca.name}}
+type: Opaque
+stringData:
+  certificate: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.metric_scraper_ca.certificate | nindent 4}}
+  private_key: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.loggregator_ca.private_key | nindent 4}}
+  is_ca: "true"
+{{- end }}
+{{- if and .Values.features.multiple_cluster_mode.control_plane_ca.silk_ca.certificate  .Values.features.multiple_cluster_mode.control_plane_ca.silk_ca.private_key }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: var-{{ .Values.features.multiple_cluster_mode.control_plane_ca.silk_ca.name}}
+type: Opaque
+stringData:
+  certificate: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.silk_ca.certificate | nindent 4}}
+  private_key: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.silk_ca.private_key | nindent 4}}
+  is_ca: "true"
+{{- end }}
+{{- if and .Values.features.multiple_cluster_mode.control_plane_ca.network_policy_ca.certificate  .Values.features.multiple_cluster_mode.control_plane_ca.network_policy_ca.private_key }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: var-{{ .Values.features.multiple_cluster_mode.control_plane_ca.network_policy_ca.name}}
+type: Opaque
+stringData:
+  certificate: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.network_policy_ca.certificate | nindent 4}}
+  private_key: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.network_policy_ca.private_key | nindent 4}}
+  is_ca: "true"
+{{- end }}
+{{- if and .Values.features.multiple_cluster_mode.control_plane_ca.cf_app_sd_ca.certificate  .Values.features.multiple_cluster_mode.control_plane_ca.cf_app_sd_ca.private_key }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: var-{{ .Values.features.multiple_cluster_mode.control_plane_ca.cf_app_sd_ca.name}}
+type: Opaque
+stringData:
+  certificate: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.cf_app_sd_ca.certificate | nindent 4}}
+  private_key: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.cf_app_sd_ca.private_key | nindent 4}}
+  is_ca: "true"
+{{- end }}
+{{- if and .Values.features.multiple_cluster_mode.control_plane_ca.nats_ca.certificate  .Values.features.multiple_cluster_mode.control_plane_ca.nats_ca.private_key }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: var-{{ .Values.features.multiple_cluster_mode.control_plane_ca.nats_ca.name}}
+type: Opaque
+stringData:
+  certificate: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.nats_ca.certificate | nindent 4}}
+  private_key: {{- toYaml  .Values.features.multiple_cluster_mode.control_plane_ca.nats_ca.private_key | nindent 4}}
+  is_ca: "true"
+{{- end }}
 {{- end }}{{/* if .Values.features.multiple_cluster_mode.cell_segment.enabled */}}
 {{- end }}{{/* if or .Values.features.multiple_cluster_mode.control_plane.enabled .Values.features.multiple_cluster_mode.cell_segment.enabled */}}
