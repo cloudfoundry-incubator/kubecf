@@ -7,8 +7,13 @@ if ! kubectl get ns "${CF_OPERATOR_NS}" &> /dev/null; then
     kubectl create ns "${CF_OPERATOR_NS}" > /dev/null
 fi
 
+if [ -z "${CHART:-}" ]; then
+    CHART="$(cf_operator_url)"
+fi
+
 helm install cf-operator \
-     "$(cf_operator_url)" \
+     "${CHART}" \
      --namespace "${CF_OPERATOR_NS}" \
      --set "global.singleNamespace.name=${KUBECF_NS}" \
-     ${VALUES:+--values "${VALUES}"}
+     ${VALUES:+--values "${VALUES}"} \
+     "$@"

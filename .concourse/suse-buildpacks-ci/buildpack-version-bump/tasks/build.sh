@@ -29,9 +29,13 @@ tar xvf s3.fissile-linux/fissile-*.tgz --directory "/usr/local/bin/"
 sle_version="$(cut -d- -f1 "s3.stemcell-version/${STEMCELL_VERSIONED_FILE##*/}")"
 # stemcell_version without the fissile version part, e.g. 27.8
 # shellcheck disable=SC2016
-stemcell_version=$(yq -r '.stacks.sle15.releases["$defaults"].stemcell.version' "kubecf/${KUBECF_VALUES}" | cut -d- -f1)
-stemcell_image="${STEMCELL_REPOSITORY}:${sle_version}-${stemcell_version}"
-docker pull "${stemcell_image}"
+stemcell_master_version=${sle_version}-$(yq -r '.stacks.sle15.releases["$defaults"].stemcell.version' "kubecf/${KUBECF_VALUES}" | cut -d- -f1)
+stemcell_master_image="${STEMCELL_REPOSITORY}:${stemcell_master_version}"
+stemcell_s3_version="$(cat s3.stemcell-version/"${STEMCELL_VERSIONED_FILE##*/}")"
+stemcell_s3_image="${STEMCELL_REPOSITORY}:${stemcell_s3_version}"
+
+docker pull "${stemcell_master_image}"
+docker pull "${stemcell_s3_image}"
 
 # Get version from the GitHub release that triggered this task
 pushd suse_final_release
@@ -43,4 +47,8 @@ popd
 tasks_dir="$(dirname "$0")"
 # shellcheck source=/dev/null
 source "${tasks_dir}"/build_release.sh
-build_release "${REGISTRY_NAME}" "${REGISTRY_ORG}" "${stemcell_image}" "${RELEASE_NAME}" "${RELEASE_URL}" "${RELEASE_VERSION}" "${RELEASE_SHA}"
+build_release "${REGISTRY_NAME}" "${REGISTRY_ORG}" "${stemcell_master_image}" "${RELEASE_NAME}" "${RELEASE_URL}" "${RELEASE_VERSION}" "${RELEASE_SHA}"
+
+if [ "${stemcell_master_version}" != "${stemcell_s3_version}" ]; then
+  build_release "${REGISTRY_NAME}" "${REGISTRY_ORG}" "${stemcell_s3_image}" "${RELEASE_NAME}" "${RELEASE_URL}" "${RELEASE_VERSION}" "${RELEASE_SHA}"
+fi

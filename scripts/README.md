@@ -150,7 +150,8 @@ and `minikube` setups provided by the scripts above.
 
 Creates the cf-operator namespace and deploys the required version of
 `quarks-operator`. Currently you have to wait manually until the operator pods
-are running before deploying the `kubecf` chart.
+are running before deploying the `kubecf` chart. The operator chart can
+be overridden by the `CHART` variable.
 
 #### ./scripts/kubecf-apply.sh
 
