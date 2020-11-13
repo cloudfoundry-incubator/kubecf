@@ -172,11 +172,9 @@ jobs:
       # Install tools
       - run: make tools-install
 
-      # Add Gomplate to path
-      - name: Add Gomplate to path
-        run: |
-          gomplate_path="${{ github.workspace }}/kubecf/output/bin"
-          echo "::add-path::${gomplate_path}"
+      # Add tools to path
+      - name: Add tools to path
+        run: echo "${{ github.workspace }}/kubecf/output/bin" >> "${GITHUB_PATH}"
 
       # Download chart bundle
       - id: download-bundle
@@ -196,15 +194,15 @@ jobs:
           ssh-add ssh-key
           echo "::add-mask::$(cat ssh-key.pub)"
           rm -f ssh-key ssh-key.pub
-          echo "::set-env name=SSH_AUTH_SOCK::${SSH_AUTH_SOCK}"
-          echo "::set-env name=SSH_AGENT_PID::${SSH_AGENT_PID}"
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "${GITHUB_ENV}"
+          echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "${GITHUB_ENV}"
 
       # set GKE secret. TBD: use vault instead
       - name: set GKE_CRED_JSON
         run: |
           json_file="$(mktemp)"
           echo "$GKE_CRED_JSON" > "${json_file}"
-          echo "::set-env name=GKE_CRED_JSON::${json_file}"
+          echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
         env:
           GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
 
@@ -232,7 +230,7 @@ jobs:
           set -o errexit -o nounset -o pipefail
           cd "build${BACKEND}"
           source .envrc
-          echo "::set-env name=KUBECONFIG::${KUBECONFIG}"
+          echo "KUBECONFIG=${KUBECONFIG}" >> "${GITHUB_ENV}"
           # Debugging aid; should be safe as the cluster will be torn down
           # at the end of the run.
           cat "${KUBECONFIG}" | gzip | base64 --wrap=0
