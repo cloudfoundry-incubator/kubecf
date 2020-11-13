@@ -7,7 +7,7 @@ eirinix:
   loggregator-bridge:
     replicaCount: 1
     image:
-      repository: splatform
+      repository: ghcr.io/cloudfoundry-incubator
       tag: v0.0.0-0.g7da9e04
       pullPolicy: IfNotPresent
     resources: {}
@@ -34,7 +34,7 @@ eirinix:
   persi:
     replicaCount: 1
     image:
-      repository: splatform
+      repository: ghcr.io/cloudfoundry-incubator
       tag: v0.0.0-73.g8201eba
       pullPolicy: IfNotPresent
     resources: {}
@@ -45,11 +45,11 @@ eirinix:
   persi-broker:
     replicaCount: 1
     image:
-      repository: splatform
+      repository: ghcr.io/cloudfoundry-incubator
       tag: v0.0.0-g0c241e7
       pullPolicy: IfNotPresent
     setup-image:
-      repository: splatform
+      repository: ghcr.io/cloudfoundry-incubator
       tag: v0.0.0-g9d08cc7
       pullPolicy: IfNotPresent
     resources: {}
@@ -78,7 +78,7 @@ eirinix:
   ssh:
     replicaCount: 1
     image:
-      repository: splatform
+      repository: ghcr.io/cloudfoundry-incubator
       tag: v0.0.0-0.g09b53c0
       pullPolicy: IfNotPresent
     resources: {}
@@ -92,11 +92,11 @@ eirinix:
   ssh-proxy:
     replicaCount: 1
     image:
-      repository: splatform
+      repository: ghcr.io/cloudfoundry-incubator
       tag: v0.0.0-0.g09b53c0
       pullPolicy: IfNotPresent
     setup-image:
-      repository: splatform
+      repository: ghcr.io/cloudfoundry-incubator
       tag: v0.0.0-g9d08cc7
       pullPolicy: IfNotPresent
     resources: {}

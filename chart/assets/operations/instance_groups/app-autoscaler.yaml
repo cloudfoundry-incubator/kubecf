@@ -975,7 +975,9 @@
           readiness:
             exec:
               command:
-              - /var/vcap/packages/postgres-11.5/bin/pg_isready
+              - /bin/sh
+              - -c
+              - exec /var/vcap/packages/postgres-11.*/bin/pg_isready
     bpm:
       processes:
       - name: postgres

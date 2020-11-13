@@ -12,14 +12,5 @@ stacks:
       # '$defaults' will be applied from config/releases.yaml
       cflinuxfs3:
         stemcell:
-          version: 27.2-7.0.0_374.gb8e8e6af
-        version: 0.203.0
-      # buildpack versions will be set from cf-deployment
-      nginx-buildpack:
-        stemcell:
-          version: 27.2-7.0.0_374.gb8e8e6af
-        version: ~
-      r-buildpack:
-        stemcell:
-          version: 27.2-7.0.0_374.gb8e8e6af
-        version: ~
+          version: 27.11-7.0.0_374.gb8e8e6af
+        version: 0.210.0
