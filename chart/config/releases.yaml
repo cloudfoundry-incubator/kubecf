@@ -42,7 +42,7 @@ releases:
   database:
     # database (previously known as pxc) is not a BOSH release.
     image:
-      repository: docker.io/cfcontainerization/pxc
+      repository: ghcr.io/cloudfoundry-incubator/pxc
       tag: 0.9.11
   metrics-discovery:
     # metrics-agent add-on (new in cf-deployment 13.0) is not used by kubecf
