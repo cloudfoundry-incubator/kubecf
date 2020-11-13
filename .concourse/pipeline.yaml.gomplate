@@ -29,14 +29,14 @@ resource_types:
 - name: pull-request
   type: docker-image
   source:
-    repository: splatform/github-pr-resource
+    repository: ghcr.io/cloudfoundry-incubator/github-pr-resource
     tag: e92ede5
 
 {{- if $config.github_status }}
 - name: github-status
   type: docker-image
   source:
-    repository: resource/github-status
+    repository: ghcr.io/cloudfoundry-incubator/github-status
     tag: release
 {{- end }}
 
