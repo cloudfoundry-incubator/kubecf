@@ -335,7 +335,8 @@ jobs:
 
       # Fetch logs for debugging
       - name: Fetch logs
-        if: always()
+        id: fetch-logs
+        if: failure()
         run: |
           gcloud auth activate-service-account --key-file=${GKE_CRED_JSON}
           # Running klog.sh twice will grab logs from both namespaces
@@ -348,7 +349,7 @@ jobs:
       - name: Upload logs
         # Even if the fetch logs step failed, we may have _some_ logs from the
         # operator part; try to upload anyway.
-        if: always()
+        if: always() && steps.fetch-logs.outcome != 'skipped'
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.backend }}-klog.tgz
