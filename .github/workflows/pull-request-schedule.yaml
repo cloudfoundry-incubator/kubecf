@@ -1,0 +1,103 @@
+name: Pull Request Scheduler
+on:
+  schedule:
+  - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+env:
+  BACKEND: gke
+  CLUSTERS_PER_PR: "2"
+  MAX_CLUSTERS: "5"
+  OWNER: ${{ github.repository_owner }}
+  LABEL_QUEUE: pr-test-queue
+  LABEL_TRIGGER: pr-test-trigger
+
+jobs:
+  determine-capacity:
+    name: Determine Capacity
+    runs-on: ubuntu-latest
+    outputs:
+      # The number of pull requests we can start testing now.
+      capacity: ${{ steps.calculate-capacity.outputs.capacity }}
+    env:
+      GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+    steps:
+    - name: Checkout KubeCF
+      # This is only needed to find the GitHub script in the find-jobs step.
+      uses: actions/checkout@v2
+    - name: Checkout catapult
+      uses: actions/checkout@v2
+      with:
+        repository: SUSE/catapult
+        path: catapult
+
+    # set GKE secret. TBD: use vault instead
+    - name: Setup Cloud Provider Credentials
+      run: |
+        json_file="$(mktemp)"
+        cat > "${json_file}" <<< "${GKE_CRED_JSON}"
+        echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
+      env:
+        GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
+
+    - name: Find Clusters
+      run: make buildir find-resources
+      working-directory: catapult
+      env:
+        GKE_LOCATION: ${{ secrets.GKE_LOCATION }}
+        GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+        OUTPUT_FILE: ${{ github.workspace }}/resources.json
+
+    - name: Find Running Jobs
+      id: find-jobs
+      uses: actions/github-script@v3
+      with:
+        result-encoding: string
+        script: |
+          const script_path = ".github/workflows/pull-request-schedule/find-jobs.js";
+          const script = require(`${process.env.GITHUB_WORKSPACE}/${script_path}`);
+          return await script({github, context});
+
+    - name: Clean Up Unused Clusters
+      run: make buildir force-clean-cluster
+      working-directory: catapult
+      env:
+        GKE_LOCATION: ${{ secrets.GKE_LOCATION }}
+        GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+        RESOURCE_LIST: ${{ github.workspace }}/resources.json
+        CLUSTER_SELECTOR: ${{ steps.find-jobs.outputs.result }}
+        ACTUALLY_DELETE: "true"
+
+    - name: Calculate Capacity
+      id: calculate-capacity
+      run: |
+        set -o errexit -o pipefail -o nounset
+        in_use="$(jq -r ".clusters | length" "${RESOURCE_LIST}")"
+        capacity="$(( (MAX_CLUSTERS - in_use) / CLUSTERS_PER_PR ))"
+        echo "::set-output name=capacity::${capacity}"
+        if [[ "${capacity}" -gt 0 ]]; then
+          echo "We have capacity for ${capacity} more clusters."
+        else
+          echo "We do not have capacity to create more clusters."
+        fi
+      env:
+        RESOURCE_LIST: ${{ github.workspace }}/resources.json
+
+  trigger-builds:
+    name: Trigger Builds
+    runs-on: ubuntu-latest
+    needs: determine-capacity
+    if: needs.determine-capacity.outputs.capacity > 0
+    steps:
+    - name: Checkout KubeCF
+      # This is only needed to find the GitHub script in the next step.
+      uses: actions/checkout@v2
+    - name: Trigger Builds
+      uses: actions/github-script@v3
+      with:
+        script: |
+          const script_path = ".github/workflows/pull-request-schedule/trigger-builds.js";
+          const script = require(`${process.env.GITHUB_WORKSPACE}/${script_path}`);
+          await script({github, context});
+      env:
+        CAPACITY: ${{ needs.determine-capacity.outputs.capacity }}
