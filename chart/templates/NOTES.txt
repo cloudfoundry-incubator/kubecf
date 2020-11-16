@@ -17,7 +17,8 @@
     to monitor continuously.
 
     {{- if not .Values.features.eirini.enabled }}
-    {{- $cell_count := .Values.sizing.diego_cell.instances | default (ternary 3 1 .Values.high_availability) }}
+    {{- $_ := include "_config.lookupManifest" (list $ "instance_groups/name=diego-cell/instances") }}
+    {{- $cell_count := .Values.sizing.diego_cell.instances | default (ternary $.kubecf.retval 1 .Values.high_availability) }}
     {{- $disk_size := .Values.sizing.diego_cell.ephemeral_disk.size }}
     {{- if .Values.sizing.diego_cell.storage_class }}
         {{- /* when using a storage class, we will reserve space for other uses. */}}
