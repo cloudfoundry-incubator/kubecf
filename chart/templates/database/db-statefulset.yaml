@@ -31,6 +31,8 @@ spec:
         metadata:
           labels:
             {{- list . "database" | include "component.labels" | nindent 12 }}
+          annotations:
+            quarks.cloudfoundry.org/restart-on-update: "true"
         spec:
           {{- if $.Values.sizing.database.affinity }}
           affinity: {{ $.Values.sizing.database.affinity | toJson }}
