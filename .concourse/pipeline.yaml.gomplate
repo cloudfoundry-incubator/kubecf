@@ -228,6 +228,8 @@ deploy_args: &deploy_args
 
   # Setup dns
   tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+  # tcp-router svc may not exist, if so, use an rfc5737 example IP address
+  tcp_router_ip="${tcp_router_ip:-"192.0.2.0"}"
   public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
   # ssh-proxy service is named differently in diego and eirini
   ssh_proxy_svc=$(kubectl get svc -n scf | grep ssh-proxy | awk '{print $1}' | head -n 1)

@@ -178,6 +178,7 @@ spec:
   {{- end }}
 {{- end }}
 {{- end }} {{/* not .features.eirini.enabled */}}
+{{- if .Values.features.routing_api.enabled }}
 ---
 {{- with $service := index .Values.services "tcp-router" }}
 apiVersion: v1
@@ -223,4 +224,5 @@ spec:
   loadBalancerIP: {{ $service.loadBalancerIP | quote }}
   {{- end }}
 {{- end }}
+{{- end }} {{/* .Values.features.routing_api.enabled  */}}
 {{- end }}
