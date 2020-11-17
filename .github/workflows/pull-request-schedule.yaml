@@ -1,7 +1,7 @@
 name: Pull Request Scheduler
 on:
-  #schedule:
-  #- cron: '*/10 * * * *'
+  schedule:
+  - cron: '*/10 * * * *'
   workflow_dispatch: {}
 
 env:
@@ -25,27 +25,43 @@ jobs:
     - name: Checkout KubeCF
       # This is only needed to find the GitHub script in the find-jobs step.
       uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+
     - name: Checkout catapult
       uses: actions/checkout@v2
       with:
         repository: SUSE/catapult
         path: catapult
+        persist-credentials: false
 
-    # set GKE secret. TBD: use vault instead
+    - name: Get Cloud Provider Credentials
+      id: vault-cloud-provider
+      uses: hashicorp/vault-action@v2.0.1
+      with:
+        url: https://volt.cap.explore.suse.dev/
+        exportEnv: false
+        token: ${{ secrets.VAULT_TOKEN_CLOUD_PROVIDERS }}
+        secrets: |
+          secret/data/cloud-providers gke.GKE_CRED_JSON            | GKE_CRED_JSON ;
+          secret/data/cloud-providers gke.GKE_CRED_JSON.project_id | GKE_PROJECT_ID ;
+          secret/data/cloud-providers gke.`ci-location`            | GKE_LOCATION ;
+
     - name: Setup Cloud Provider Credentials
       run: |
+        set -o errexit -o pipefail -o nounset
         json_file="$(mktemp)"
         cat > "${json_file}" <<< "${GKE_CRED_JSON}"
         echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
       env:
-        GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
+        GKE_CRED_JSON: ${{ steps.vault-cloud-provider.outputs.GKE_CRED_JSON }}
 
     - name: Find Clusters
       run: make buildir find-resources
       working-directory: catapult
       env:
-        GKE_LOCATION: ${{ secrets.GKE_LOCATION }}
-        GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+        GKE_LOCATION: ${{ steps.vault-cloud-provider.outputs.GKE_LOCATION }}
+        GKE_PROJECT: ${{ steps.vault-cloud-provider.outputs.GKE_PROJECT_ID }}
         OUTPUT_FILE: ${{ github.workspace }}/resources.json
 
     - name: Find Running Jobs
@@ -62,8 +78,8 @@ jobs:
       run: make buildir force-clean-cluster
       working-directory: catapult
       env:
-        GKE_LOCATION: ${{ secrets.GKE_LOCATION }}
-        GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+        GKE_LOCATION: ${{ steps.vault-cloud-provider.outputs.GKE_LOCATION }}
+        GKE_PROJECT: ${{ steps.vault-cloud-provider.outputs.GKE_PROJECT_ID }}
         RESOURCE_LIST: ${{ github.workspace }}/resources.json
         CLUSTER_SELECTOR: ${{ steps.find-jobs.outputs.result }}
         ACTUALLY_DELETE: "true"
@@ -92,6 +108,9 @@ jobs:
     - name: Checkout KubeCF
       # This is only needed to find the GitHub script in the next step.
       uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+
     - name: Trigger Builds
       uses: actions/github-script@v3
       with:
