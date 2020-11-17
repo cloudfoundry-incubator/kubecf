@@ -27,11 +27,41 @@ EOF
     fi
 }
 
+# Wait for the MySQL instance meant for initialization only.
+# Exepcts `mysql()` to be set.
+wait_for_init_daemon() {
+    for i in {30..0}; do
+        if echo 'SELECT 1' | "${mysql[@]}" &> /dev/null; then
+            break
+        fi
+        echo 'MySQL init process in progress...'
+        sleep 1
+    done
+
+    if [ "$i" = 0 ]; then
+        echo >&2 'MySQL init process failed.'
+        exit 1
+    fi
+}
+
+reset_root_password_statement() {
+    if [ "$PERCONA_MAJOR" = "5.6" ]; then
+        echo "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${MYSQL_ROOT_PASSWORD}');"
+        echo "SET PASSWORD FOR 'root'@'${ALLOW_ROOT_FROM}' = PASSWORD('${MYSQL_ROOT_PASSWORD}');"
+    else
+        echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
+        echo "ALTER USER 'root'@'${ALLOW_ROOT_FROM}' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
+    fi
+}
+
 init_mysql() {
     SENTINEL=INIT_MYSQL_DONE
     DATADIR=/var/lib/mysql
-    # if we have CLUSTER_JOIN - then we do not need to perform datadir initialize
-    # the data will be copied from another node
+
+    if [ -n "$MYSQL_ROOT_PASSWORD_FILE" ] && [ -z "$MYSQL_ROOT_PASSWORD" ]; then
+        MYSQL_ROOT_PASSWORD=$(cat "$MYSQL_ROOT_PASSWORD_FILE")
+    fi
+
     if [ ! -e "$DATADIR/$SENTINEL" ]; then
         echo "Removing pending files in $DATADIR, because sentinel was not reached"
         rm -rf "${DATADIR:?}"/*
@@ -41,9 +71,6 @@ init_mysql() {
             exit 1
         fi
 
-        if [ -n "$MYSQL_ROOT_PASSWORD_FILE" ] && [ -z "$MYSQL_ROOT_PASSWORD" ]; then
-            MYSQL_ROOT_PASSWORD=$(cat "$MYSQL_ROOT_PASSWORD_FILE")
-        fi
         mkdir -p "$DATADIR"
 
         echo "Running --initialize-insecure on $DATADIR"
@@ -64,18 +91,8 @@ init_mysql() {
 
         mysql=( mysql "--protocol=socket" -uroot )
 
-        for i in {30..0}; do
-            if echo 'SELECT 1' | "${mysql[@]}" &> /dev/null; then
-                break
-            fi
-            echo 'MySQL init process in progress...'
-            sleep 1
-        done
+        wait_for_init_daemon
 
-        if [ "$i" = 0 ]; then
-            echo >&2 'MySQL init process failed.'
-            exit 1
-        fi
 
         # sed is for https://bugs.mysql.com/bug.php?id=20545
         mysql_tzinfo_to_sql /usr/share/zoneinfo | sed 's/Local time zone must be set--see zic manual page/FCTY/' | "${mysql[@]}" mysql
@@ -93,13 +110,9 @@ init_mysql() {
         CREATE USER 'mysql'@'localhost' IDENTIFIED BY '' ;
         DROP DATABASE IF EXISTS test ;
         FLUSH PRIVILEGES ;
+        $(reset_root_password_statement) ;
+        FLUSH PRIVILEGES ;
 EOSQL
-
-        if [ "$PERCONA_MAJOR" = "5.6" ]; then
-            echo "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${MYSQL_ROOT_PASSWORD}'); FLUSH PRIVILEGES;" | "${mysql[@]}"
-        else
-            echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}'; FLUSH PRIVILEGES;" | "${mysql[@]}"
-        fi
 
         if [ -n "$MYSQL_ROOT_PASSWORD" ]; then
             mysql+=( -p"${MYSQL_ROOT_PASSWORD}" )
@@ -134,5 +147,26 @@ EOSQL
         echo 'MySQL init process done. Ready for start up.'
         echo
         touch "$DATADIR/$SENTINEL"
+    elif [[ -n "$MYSQL_ROOT_PASSWORD" ]]; then
+        echo 'Resetting MySQL root password.'
+        mysqld --user=mysql --datadir="$DATADIR" --skip-networking --skip-grant-tables &
+        pid="$!"
+
+        mysql=( mysql "--protocol=socket" -uroot )
+        wait_for_init_daemon
+
+        "${mysql[@]}" <<-EOSQL
+            FLUSH PRIVILEGES ;
+            $(reset_root_password_statement) ;
+            FLUSH PRIVILEGES ;
+EOSQL
+        if ! kill -s TERM "$pid" || ! wait "$pid"; then
+            echo >&2 'MySQL init process failed.'
+            exit 1
+        fi
+
+        echo
+        echo 'MySQL init process done. Ready for start up.'
+        echo
     fi
 }
