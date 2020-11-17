@@ -74,6 +74,7 @@ definitions:
         properties:
           repository: {type: string}
           tag: {type: string}
+          pullPolicy: {type: string}
         required: [repository]
         additionalProperties: false
       stemcell:
