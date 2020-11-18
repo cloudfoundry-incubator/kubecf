@@ -291,7 +291,8 @@ jobs:
         timeout-minutes: 10
 
       # Run brain tests
-      # - run: make brain-tests
+      - run: make brain-tests
+        timeout-minutes: 25
 
       # Run sits tests
       - run: make sync-integration-tests
