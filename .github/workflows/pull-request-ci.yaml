@@ -1,7 +1,7 @@
 name: Pull Request Tests
 on:
   # Trigger the workflow when PRs are labeled
-  pull_request_target:
+  pull_request:
     branches: [master]
     types: [labeled]
 
@@ -40,6 +40,7 @@ jobs:
           path: kubecf
           fetch-depth: 0
           submodules: recursive
+          persist-credentials: false
 
       # Python setup
       - uses: actions/setup-python@v2
@@ -109,6 +110,7 @@ jobs:
         with:
           path: kubecf
           submodules: recursive
+          persist-credentials: false
         timeout-minutes: 1
 
       # We need catapult to create Kubernetes clusters
@@ -117,6 +119,7 @@ jobs:
         with:
           repository: SUSE/catapult
           path: catapult
+          persist-credentials: false
         timeout-minutes: 1
 
       # Python setup
