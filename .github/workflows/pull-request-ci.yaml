@@ -1,7 +1,7 @@
 name: Pull Request Tests
 on:
   # Trigger the workflow when PRs are labeled
-  pull_request_target:
+  pull_request:
     branches: [master]
     types: [labeled]
 
@@ -40,6 +40,7 @@ jobs:
           path: kubecf
           fetch-depth: 0
           submodules: recursive
+          persist-credentials: false
 
       # Python setup
       - uses: actions/setup-python@v2
@@ -88,6 +89,7 @@ jobs:
       # Note that credentials-related parts are in the individual steps
       BACKEND: gke
       DOWNLOAD_CATAPULT_DEPS: "false"
+      CLUSTER_NAME: ci-${{ github.run_id }}-${{ matrix.backend }}
     defaults:
       run:
         working-directory: kubecf
@@ -108,6 +110,8 @@ jobs:
         with:
           path: kubecf
           submodules: recursive
+          persist-credentials: false
+        timeout-minutes: 1
 
       # We need catapult to create Kubernetes clusters
       - name: Checkout catapult
@@ -115,6 +119,8 @@ jobs:
         with:
           repository: SUSE/catapult
           path: catapult
+          persist-credentials: false
+        timeout-minutes: 1
 
       # Python setup
       - uses: actions/setup-python@v2
@@ -122,6 +128,7 @@ jobs:
           # Force 3.8 because google-cloud-sdk is incompatible with 3.9
           # https://issuetracker.google.com/issues/170125513
           python-version: '3.8'
+        timeout-minutes: 1
 
       # Caching tools like helm, jq, git, y2j, yamllint etc
       - name: cache.tools
@@ -129,13 +136,16 @@ jobs:
         with:
           path: ${{ github.workspace }}/tools
           key: ${{ runner.os }}-tools
+        timeout-minutes: 5
 
       # Install tools
       - run: make tools-install
+        timeout-minutes: 1 # this should take ~ 20 seconds
 
       # Add tools to path
       - name: Add tools to path
         run: echo "${{ github.workspace }}/kubecf/output/bin" >> "${GITHUB_PATH}"
+        timeout-minutes: 1
 
       # Download chart bundle
       - id: download-bundle
@@ -145,9 +155,11 @@ jobs:
           name: kubecf-bundle.tgz
           # The artifact upload/download creates an extra directory
           path: ${{ github.workspace }}/kubecf-bundle
+        timeout-minutes: 1
 
       # Start SSH agent for catapult
       - name: Start SSH agent
+        if: env.BACKEND == 'aks'
         run: |
           set -o errexit -o pipefail -o nounset
           eval "$(ssh-agent -s)"
@@ -157,15 +169,18 @@ jobs:
           rm -f ssh-key ssh-key.pub
           echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "${GITHUB_ENV}"
           echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "${GITHUB_ENV}"
+        timeout-minutes: 1
 
       # set GKE secret. TBD: use vault instead
       - name: set GKE_CRED_JSON
+        if: env.BACKEND == 'gke'
         run: |
           json_file="$(mktemp)"
           echo "$GKE_CRED_JSON" > "${json_file}"
           echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
         env:
           GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
+        timeout-minutes: 1
 
       # Cache catapult's common tools
       - name: cache.catapult-common-tools
@@ -173,6 +188,7 @@ jobs:
         with:
           path: ${{ github.workspace }}/catapult/modules/common/bin
           key: ${{ runner.os }}-catapult-common-tools
+        timeout-minutes: 1
 
       # Deploy k8s cluster
       - run: make k8s
@@ -182,93 +198,104 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           DEBUG_MODE: true
           GKE_NODE_COUNT: 1
-          GKE_PREEMPTIBLE: true
-          GKE_INSTANCE_TYPE: n1-highcpu-16
+          GKE_PREEMPTIBLE: false
+          GKE_INSTANCE_TYPE: n2d-highcpu-16
           EXTRA_LABELS: '{"ci": "${{ github.run_id }}"}'
+        timeout-minutes: 20 # This should take ~10 minutes.
+
+      - name: Set Up GKE Configuration Directory
+        if: env.BACKEND == 'gke'
+        working-directory: catapult/build${{ env.CLUSTER_NAME }}
+        run: |
+          . .envrc
+          echo "CLOUDSDK_CONFIG=${CLOUDSDK_CONFIG}" >> "${GITHUB_ENV}"
+        timeout-minutes: 1
 
       # Providing kubeconfig for debugging
       - name: export KUBECONFIG
         run: |
           set -o errexit -o nounset -o pipefail
-          cd "build${BACKEND}"
           source .envrc
           echo "KUBECONFIG=${KUBECONFIG}" >> "${GITHUB_ENV}"
           # Debugging aid; should be safe as the cluster will be torn down
           # at the end of the run.
-          cat "${KUBECONFIG}" | gzip | base64 --wrap=0
-        working-directory: catapult
+          kubectl config view --minify --flatten | gzip | base64 --wrap=0
+        working-directory: catapult/build${{ env.CLUSTER_NAME }}
+        timeout-minutes: 1
 
       # TBD: Don't generate values.yaml
       - name: Generate KubeCF Configuration
-        run: |
-          set -o errexit -o nounset -o pipefail
-
-          make -C ${{ github.workspace }}/catapult kubecf-gen-config
-
-          cd ${{ github.workspace }}/catapult/build${BACKEND}
-
-          gomplate --context .=scf-config-values.yaml <<"EOF" \
-            > ${{ github.workspace }}/kubecf/dev/kubecf/kubecf-values.yaml
-          {{- /* Disable brain minibroker tests */}}
-          {{- define "minibroker-tests" }}
-          properties:
-            brain-tests:
-              acceptance-tests-brain:
-                tests:
-                  minibroker:
-                    {{- range slice "mariadb" "mongodb" "postgres" "redis" }}
-                    {{ . }}:
-                      enabled: false
-                    {{- end }}
-          {{- end }}
-          {{- $ = tmpl.Exec "minibroker-tests" | yaml | merge $ }}
-
-          {{- /* Disable registry overrides */}}
-          {{- $ = coll.Omit "kube" $ }}
-
-          {{- /* Set DNS annotations */}}
-          {{- define "svc_annotation" }}
-          services:
-            {{ index . 0 }}:
-              annotations:
-                "external-dns.alpha.kubernetes.io/hostname": {{ index . 1 }}
-          {{- end }}
-          {{- $d := .system_domain }}
-          {{- $ = printf "%s, *.%s" $d $d | slice "router" | tmpl.Exec "svc_annotation" | yaml | merge $ }}
-          {{- $ = printf "ssh.%s" $d | slice "ssh-proxy" | tmpl.Exec "svc_annotation" | yaml | merge $ }}
-          {{- $ = printf "tcp.%s, *.tcp.%s" $d $d | slice "tcp-router" | tmpl.Exec "svc_annotation" | yaml | merge $ }}
-
-          {{- $ | toYAML }}
-          EOF
+        run: exec "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/kubecf-gen-config.sh"
         env:
           AUTOSCALER: "true"
+          ENABLE_EIRINI: ${{ matrix.backend == 'eirini' }}
+        timeout-minutes: 1
 
       # Helm install cf-operator
       - run: make cf-operator-apply
         env:
           CF_OPERATOR_URL: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
+        timeout-minutes: 1 # This should take ~10 seconds.
 
       # Wait for cf-operator pods to be ready
       - run: make cf-operator-wait
+        timeout-minutes: 1 # This should take ~30 seconds.
 
       # Helm install kubecf
-      - run: make kubecf-apply
+      - name: Install KubeCF
+        run: |
+          if [[ "${FEATURE_EIRINI}" != "true" ]]; then
+            # `make kubecf-apply` gets confused if the values is `false`.
+            unset FEATURE_EIRINI
+          fi
+          make kubecf-apply
         env:
           CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
           FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
-          VALUES: dev/kubecf/kubecf-values.yaml
+          VALUES: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 1 # This should take ~30 seconds.
 
       # Wait for kubecf pods to be ready
       - run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      - name: Wait for DNS
+        run: |
+          set -o errexit -o nounset
+          selector=(
+            'app.kubernetes.io/component=router'
+            '!quarks.cloudfoundry.org/instance-group-name'
+          )
+          jsonpath='{.items[].status.loadBalancer.ingress[].ip}'
+          filter=(
+            --namespace=kubecf
+            --selector="$(IFS=, ; echo "${selector[*]}")"
+          )
+          ip="$(kubectl get service "${filter[@]}" --output="jsonpath=${jsonpath}")"
+          system_domain="$(gomplate --context ".=${GITHUB_WORKSPACE}/kubecf-values.yaml" --in '{{ .system_domain }}')"
+          for host in api login; do
+            fqdn="${host}.${system_domain}"
+            printf "Waiting for %s to have IP address %s..." "${fqdn}" "${ip}"
+            while [[ "$(dig +short "${fqdn}")" != "${ip}" ]]; do
+              printf "."
+              sleep 10
+            done
+            printf "Done.\n"
+          done
+        timeout-minutes: 10
+        continue-on-error: true
 
       # Run smoke tests
       - run: make smoke-tests
+        timeout-minutes: 10
 
       # Run brain tests
       # - run: make brain-tests
 
       # Run sits tests
       - run: make sync-integration-tests
+        if: matrix.backend == 'diego'
+        timeout-minutes: 5
 
       # Run CATs
       - run: make acceptance-tests
@@ -298,6 +325,7 @@ jobs:
               kubectl get "${resource}" --namespace="${namespace}" --output=wide
             done
           done
+        timeout-minutes: 5
 
       # Upload kubecf's values.yaml for debugging
       - name: Upload config
@@ -305,24 +333,32 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.backend }}-values.yaml
-          path: ${{ github.workspace }}/kubecf/dev/kubecf/kubecf-values.yaml
+          path: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 5
 
       # Fetch logs for debugging
       - name: Fetch logs
-        if: always()
+        id: fetch-logs
+        if: failure()
         run: |
           gcloud auth activate-service-account --key-file=${GKE_CRED_JSON}
           # Running klog.sh twice will grab logs from both namespaces
           dev/kube/klog.sh -f -r cf-operator
           dev/kube/klog.sh -f -r
+        timeout-minutes: 60
+        continue-on-error: true
 
       # Upload logs for debugging
       - name: Upload logs
-        if: always()
+        # Even if the fetch logs step failed, we may have _some_ logs from the
+        # operator part; try to upload anyway.
+        if: always() && steps.fetch-logs.outcome != 'skipped'
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.backend }}-klog.tgz
           path: ${{ github.workspace }}/kubecf/klog.tar.gz
+        timeout-minutes: 5
+        continue-on-error: true
 
       # Teardown created k8s cluster
       - name: kubernetes:teardown
@@ -331,8 +367,9 @@ jobs:
           set +o errexit
           # Remove any terraform locks, because we don't care if the previous run
           # has finished successfully (e.g. on cancel).
-          find "build${BACKEND}" -name '.terraform.*.lock*' -delete
+          find "build${CLUSTER_NAME}" -name '.terraform.*.lock*' -delete
           make clean
         working-directory: catapult
         env:
           GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
+        timeout-minutes: 20
