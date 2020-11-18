@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [master]
     types: [labeled]
+  workflow_dispatch: {}
 
 env:
   GIT_PAGER: cat
@@ -14,13 +15,16 @@ jobs:
   # If it doesn't have it, the flow stops. If it does, we remove it (approval is good for one run only).
   dequeue:
     name: Dequeue
-    if: contains(github.event.pull_request.labels.*.name, 'pr-test-trigger')
+    if: >
+      github.event_name == 'workflow_dispatch'
+      || contains(github.event.pull_request.labels.*.name, 'pr-test-trigger')
     runs-on: ubuntu-20.04
     steps:
       - uses: actions-ecosystem/action-remove-labels@556e306
         with:
           github_token: ${{ secrets.github_token }}
           labels: pr-test-trigger
+        if: github.event_name == 'pull_request'
 
   build:
     name: Build
