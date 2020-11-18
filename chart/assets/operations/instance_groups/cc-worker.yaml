@@ -10,7 +10,6 @@
   {{- end }}
 {{- end }}
 
-
 {{- range $path, $bytes := .Files.Glob "assets/operations/pre_render_scripts/cc-worker_*" }}
 {{ $bytes | toString }}
 {{- end }}
