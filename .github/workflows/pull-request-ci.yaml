@@ -83,7 +83,6 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-20.04
-    continue-on-error: ${{ matrix.experimental }}
     needs: build
     env:
       # For KubeCF
@@ -104,9 +103,10 @@ jobs:
       matrix:
         include:
           - backend: diego
-            experimental: false
+            ccdb-rotate: true
           - backend: eirini
-            experimental: false
+            ccdb-rotate: false
+      fail-fast: false
 
     steps:
       # Checkout kubecf
@@ -306,6 +306,27 @@ jobs:
       # Run CATs
       - run: make acceptance-tests
         timeout-minutes: 180
+
+      # Rotate CLoud Controller Database
+      - name: Rotate CCDB
+        id: ccdb-rotate
+        run: |
+          source ${GITHUB_WORKSPACE}/catapult/build${CLUSTER_NAME}/.envrc
+          testing/ccdb_key_rotation/rotate-ccdb-keys-test.sh
+
+          echo "::group::Wait for KubeCF to be ready again"
+          make kubecf-wait
+          echo "::endgroup::"
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
+        continue-on-error: ${{ !matrix.ccdb-rotate }}
+        timeout-minutes: 20
+
+      - name: Post-rotation Smoke Tests
+        run: make smoke-tests
+        if: ${{ steps.ccdb-rotate.outcome == 'success' }}
+        continue-on-error: ${{ !matrix.ccdb-rotate }}
+        timeout-minutes: 10
 
       # Get resource info for debugging
       - name: Get Resource Info
