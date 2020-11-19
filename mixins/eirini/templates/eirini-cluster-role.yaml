@@ -1,10 +1,12 @@
+{{- include "_config.load" $ }}
+{{- if .Values.features.eirini.enabled }}
 ---
 # This cluster role should not be required
 # https://github.com/cloudfoundry-incubator/eirini/issues/110
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: eirini-cluster-role
+  name: "{{ .Release.Namespace }}-eirini-cluster-role"
 rules:
 - apiGroups:
   - batch
@@ -55,12 +57,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: eirini-cluster-rolebinding
+  name: "{{ .Release.Namespace }}-eirini-cluster-rolebinding"
 roleRef:
   kind: ClusterRole
-  name: eirini-cluster-role
+  name: "{{ .Release.Namespace }}-eirini-cluster-role"
   apiGroup: rbac.authorization.k8s.io
 subjects:
 - kind: ServiceAccount
   name: opi
   namespace: {{ .Release.Namespace }}
+{{- end }}
