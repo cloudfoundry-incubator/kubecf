@@ -65,13 +65,15 @@ each one.
 
 [todo] more about the labels grouping in future versions of the document.
 
-### Creating New Issues
+### New Issues Flow
 
 The issue created on Github will be automatically assigned to the product owner, who will then evaluate it.
 
-If the issue does not contain sufficient information the author will be requested to provide additional details.
+Suppose the issue does not contain sufficient information. In that case, the product owner will label the issue with the **Need More Information** label, and it will invite the author to provide additional details.
 
-When an issue goes "Stale" (more than 60 days without any activity), the product owner will:
+The product owner will add the **Validation** label if an issue requires a more in-depth investigation, and it may add other maintainers that can collaborate.
+
+When an issue is labeled **Stale** (more than 60 days without any activity), the product owner will:
 
 1. close the issue in case of lack of information.
 2. close the issue if it's no longer relevant.
