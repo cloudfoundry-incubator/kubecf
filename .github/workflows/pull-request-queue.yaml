@@ -22,7 +22,7 @@ jobs:
           url: https://volt.cap.explore.suse.dev/
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
-            secret/data/kubecf "github.cfcontainerizationbot-labeler-personal-access-token" | GH_BOT_TOKEN
+            secret/data/kubecf "github-access-token" | GH_BOT_TOKEN
 
       - uses: actions-ecosystem/action-add-labels@9141732
         with:

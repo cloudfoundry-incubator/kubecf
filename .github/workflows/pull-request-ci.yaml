@@ -177,7 +177,7 @@ jobs:
         with:
           exportEnv: false
           url: https://volt.cap.explore.suse.dev/
-          token: ${{ secrets.VAULT_TOKEN }}
+          token: ${{ secrets.VAULT_TOKEN_CLOUD_PROVIDERS }}
           secrets: |
             secret/data/cloud-providers gke.GKE_CRED_JSON | GKE_CRED_JSON
 
