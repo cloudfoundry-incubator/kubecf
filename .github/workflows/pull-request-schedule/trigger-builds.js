@@ -57,9 +57,15 @@ module.exports = async ({ github, context }) => {
 
     console.log(`Found ${pulls.length} PRs.`);
 
+    // Create an alternative Octokit client instance that can be used to set
+    // labels on the PR, using a different GitHub token.  This is required as
+    // the tokens passed in by GitHub Actions will not trigger further actions.
+    const Octokit = github.constructor;
+    const triggeringClient = new Octokit({ auth: process.env.GITHUB_TOKEN });
+
     for (let pr of pulls.slice(0, process.env.CAPACITY)) {
         console.log(`Queuing PR#${pr.number}`);
-        github.issues.addLabels({
+        triggeringClient.issues.addLabels({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: pr.number,
