@@ -621,6 +621,49 @@ jobs:
           ENABLE_EIRINI: ${{ matrix.backend == 'eirini' }}
         timeout-minutes: 1
 
+      # Helm install GA cf-operator
+      - name: GA install - Install cf-operator
+        run: make cf-operator-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle-ga/cf-operator.tgz
+        timeout-minutes: 1 # This should take ~10 seconds.
+
+      # Wait for cf-operator pods to be ready
+      - name: GA install - Wait for cf-operator
+        run: make cf-operator-wait
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Helm install GA kubecf
+      - name: GA install - Install KubeCF
+        run: |
+          if [[ "${FEATURE_EIRINI}" != "true" ]]; then
+            # `make kubecf-apply` gets confused if the values is `false`.
+            unset FEATURE_EIRINI
+          fi
+          make kubecf-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle-ga/kubecf_release.tgz
+          FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
+          # TODO this is a guess. For kubecf GA, we don't have examples of
+          # values, or logic to calculate them:
+          VALUES: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: GA install - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # List releases after GA install
+      - name: GA install - List releases
+        run: helm ls -A
+        timeout-minutes: 1 # this should take ~ 20 seconds
+
+      # Validate GA KubeCF install with smoke tests
+      - name: GA install - Smoke tests
+        run: make smoke-tests
+        timeout-minutes: 10
+
       # Get resource info for debugging
       - name: Get Resource Info
         if: always()
