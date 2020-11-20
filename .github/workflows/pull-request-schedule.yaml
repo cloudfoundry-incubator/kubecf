@@ -111,6 +111,16 @@ jobs:
       with:
         persist-credentials: false
 
+    - name: Fetch Credentials
+      id: vault-kubecf
+      uses: hashicorp/vault-action@v2.0.1
+      with:
+        url: https://volt.cap.explore.suse.dev/
+        exportEnv: false
+        token: ${{ secrets.VAULT_TOKEN }}
+        secrets: |
+          secret/data/kubecf `github-access-token` | GITHUB_TOKEN ;
+
     - name: Trigger Builds
       uses: actions/github-script@v3
       with:
@@ -120,3 +130,4 @@ jobs:
           await script({github, context});
       env:
         CAPACITY: ${{ needs.determine-capacity.outputs.capacity }}
+        GITHUB_TOKEN: ${{ steps.vault-kubecf.outputs.GITHUB_TOKEN }}

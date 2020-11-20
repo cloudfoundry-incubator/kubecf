@@ -20,11 +20,12 @@ jobs:
       - uses: actions-ecosystem/action-remove-labels@556e306
         with:
           github_token: ${{ secrets.github_token }}
-          labels: pr-test-queue
+          labels: pr-test-trigger
 
   build:
     name: Build
     runs-on: ubuntu-20.04
+    needs: dequeue
     env:
       PINNED_TOOLS: true
       TOOLS_DIR: ${{ github.workspace }}/tools
