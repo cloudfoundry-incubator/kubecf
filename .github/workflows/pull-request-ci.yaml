@@ -373,3 +373,232 @@ jobs:
         env:
           GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
         timeout-minutes: 20
+
+  upgrade-tests:
+    name: Upgrade-tests
+    runs-on: ubuntu-20.04
+    continue-on-error: ${{ matrix.experimental }}
+    needs: build
+    env:
+      # For KubeCF
+      PINNED_TOOLS: true
+      TOOLS_DIR: ${{ github.workspace }}/tools
+      FEATURE_AUTOSCALER: "true"
+      # For catapult
+      # Note that credentials-related parts are in the individual steps
+      BACKEND: gke
+      DOWNLOAD_CATAPULT_DEPS: "false"
+      CLUSTER_NAME: ci-${{ github.run_id }}-${{ matrix.backend }}
+    defaults:
+      run:
+        working-directory: kubecf
+
+    # Matrix to test diego and eirini
+    strategy:
+      matrix:
+        include:
+          - backend: diego
+            experimental: false
+          - backend: eirini
+            experimental: false
+
+    steps:
+      # Checkout kubecf
+      - name: Checkout KubeCF
+        uses: actions/checkout@v2
+        with:
+          path: kubecf
+          submodules: recursive
+          persist-credentials: false
+        timeout-minutes: 1
+
+      # We need catapult to create Kubernetes clusters
+      - name: Checkout catapult
+        uses: actions/checkout@v2
+        with:
+          repository: SUSE/catapult
+          path: catapult
+          persist-credentials: false
+        timeout-minutes: 1
+
+      # Python setup
+      - uses: actions/setup-python@v2
+        with:
+          # Force 3.8 because google-cloud-sdk is incompatible with 3.9
+          # https://issuetracker.google.com/issues/170125513
+          python-version: '3.8'
+        timeout-minutes: 1
+
+      # Caching tools like helm, jq, git, y2j, yamllint etc
+      - name: cache.tools
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/tools
+          key: ${{ runner.os }}-tools
+        timeout-minutes: 5
+
+      # Install tools
+      - run: make tools-install
+        timeout-minutes: 1 # this should take ~ 20 seconds
+
+      # Add tools to path
+      - name: Add tools to path
+        run: echo "${{ github.workspace }}/kubecf/output/bin" >> "${GITHUB_PATH}"
+        timeout-minutes: 1
+
+      # Download chart bundle
+      - id: download-bundle
+        name: Download chart bundle
+        uses: actions/download-artifact@v2
+        with:
+          name: kubecf-bundle.tgz
+          # The artifact upload/download creates an extra directory
+          path: ${{ github.workspace }}/kubecf-bundle
+        timeout-minutes: 1
+
+      # Start SSH agent for catapult
+      - name: Start SSH agent
+        if: env.BACKEND == 'aks'
+        run: |
+          set -o errexit -o pipefail -o nounset
+          eval "$(ssh-agent -s)"
+          ssh-keygen -t rsa -b 4096 -N '' -C "KubeCF CI #${{ github.run_id }}" -f ssh-key
+          ssh-add ssh-key
+          echo "::add-mask::$(cat ssh-key.pub)"
+          rm -f ssh-key ssh-key.pub
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "${GITHUB_ENV}"
+          echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "${GITHUB_ENV}"
+        timeout-minutes: 1
+
+      # set GKE secret. TBD: use vault instead
+      - name: set GKE_CRED_JSON
+        if: env.BACKEND == 'gke'
+        run: |
+          json_file="$(mktemp)"
+          echo "$GKE_CRED_JSON" > "${json_file}"
+          echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
+        env:
+          GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
+        timeout-minutes: 1
+
+      # Cache catapult's common tools
+      - name: cache.catapult-common-tools
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/catapult/modules/common/bin
+          key: ${{ runner.os }}-catapult-common-tools
+        timeout-minutes: 1
+
+      # Deploy k8s cluster
+      - run: make k8s
+        working-directory: catapult
+        env:
+          GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
+          OWNER: ${{ github.repository_owner }}
+          DEBUG_MODE: true
+          GKE_NODE_COUNT: 1
+          GKE_PREEMPTIBLE: false
+          GKE_INSTANCE_TYPE: n2d-highcpu-16
+          EXTRA_LABELS: '{"ci": "${{ github.run_id }}"}'
+        timeout-minutes: 20 # This should take ~10 minutes.
+
+      - name: Set Up GKE Configuration Directory
+        if: env.BACKEND == 'gke'
+        working-directory: catapult/build${{ env.CLUSTER_NAME }}
+        run: |
+          . .envrc
+          echo "CLOUDSDK_CONFIG=${CLOUDSDK_CONFIG}" >> "${GITHUB_ENV}"
+        timeout-minutes: 1
+
+      # Providing kubeconfig for debugging
+      - name: export KUBECONFIG
+        run: |
+          set -o errexit -o nounset -o pipefail
+          source .envrc
+          echo "KUBECONFIG=${KUBECONFIG}" >> "${GITHUB_ENV}"
+          # Debugging aid; should be safe as the cluster will be torn down
+          # at the end of the run.
+          kubectl config view --minify --flatten | gzip | base64 --wrap=0
+        working-directory: catapult/build${{ env.CLUSTER_NAME }}
+        timeout-minutes: 1
+
+      # TBD: Don't generate values.yaml
+      - name: Generate KubeCF Configuration
+        run: exec "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/kubecf-gen-config.sh"
+        env:
+          AUTOSCALER: "true"
+          ENABLE_EIRINI: ${{ matrix.backend == 'eirini' }}
+        timeout-minutes: 1
+
+      # Get resource info for debugging
+      - name: Get Resource Info
+        if: always()
+        run: |
+          set +o errexit
+          gcloud auth activate-service-account --key-file=${GKE_CRED_JSON}
+          resources=(
+            BOSHDeployment
+            QuarksJob
+            QuarksStatefulSet
+            Job
+            StatefulSet
+            Endpoints
+            pods
+          )
+
+          echo "Getting namespaces..."
+          kubectl get namespaces --output=wide
+          for namespace in cf-operator kubecf ; do
+            for resource in "${resources[@]}" ; do
+              printf "%bGetting %s:%s...%b\n" "\e[0;1;33m" "${namespace}" "${resource}" "\e[0m"
+              kubectl get "${resource}" --namespace="${namespace}" --output=wide
+            done
+          done
+        timeout-minutes: 5
+
+      # Upload kubecf's values.yaml for debugging
+      - name: Upload config
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.backend }}-values.yaml
+          path: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 5
+
+      # Fetch logs for debugging
+      - name: Fetch logs
+        id: fetch-logs
+        if: failure()
+        run: |
+          gcloud auth activate-service-account --key-file=${GKE_CRED_JSON}
+          # Running klog.sh twice will grab logs from both namespaces
+          dev/kube/klog.sh -f -r cf-operator
+          dev/kube/klog.sh -f -r
+        timeout-minutes: 60
+        continue-on-error: true
+
+      # Upload logs for debugging
+      - name: Upload logs
+        # Even if the fetch logs step failed, we may have _some_ logs from the
+        # operator part; try to upload anyway.
+        if: always() && steps.fetch-logs.outcome != 'skipped'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.backend }}-klog.tgz
+          path: ${{ github.workspace }}/kubecf/klog.tar.gz
+        timeout-minutes: 5
+        continue-on-error: true
+
+      # Teardown created k8s cluster
+      - name: kubernetes:teardown
+        if: always()
+        run: |
+          set +o errexit
+          # Remove any terraform locks, because we don't care if the previous run
+          # has finished successfully (e.g. on cancel).
+          find "build${CLUSTER_NAME}" -name '.terraform.*.lock*' -delete
+          make clean
+        working-directory: catapult
+        env:
+          GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
+        timeout-minutes: 20
