@@ -4,9 +4,7 @@
 # each other, and jobs with more than one process.
 
 # Some cf-deployment jobs are moved to different instance groups;
-# the job name remains unchanged. Currently jobs are moved during
-# build time; in the future this data could be used to move jobs
-# at deploy time using the "qmove" ops.
+# the job name remains unchanged.
 
 move_jobs:
   api:

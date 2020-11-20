@@ -153,7 +153,7 @@
   {{- $_ := include "_config.lookupManifest" (list $root "instance_groups" $from_ig_name) }}
   {{- $from_ig := $root.kubecf.retval }}
   {{- if not $from_ig }}
-    {{- include "_config.fail" (printf "Instance group %q does not exist" $from_ig_name) }}
+    {{- include "_config.fail" (printf "Could not find instance group %q while moving job %q" $from_ig_name $job_name) }}
   {{- end }}
 
   {{- /* Find (and remove) the job from the $from_ig jobs list */}}
