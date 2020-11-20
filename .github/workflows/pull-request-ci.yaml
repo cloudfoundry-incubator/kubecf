@@ -456,6 +456,54 @@ jobs:
           path: ${{ github.workspace }}/kubecf-bundle
         timeout-minutes: 1
 
+      # TODO Download latest General Availability chart bundle
+      - id: download-bundle-ga
+        name: Download GA chart bundle
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: "cloudfoundry-incubator/kubecf"
+          version: "latest"
+          file: "kubecf-bundle-*.tgz"
+          token: ${{ secrets.github_token }}
+        run: mv kubecf-bundle-*.tgz "${{ github.workspace }}/kubecf-bundle-ga.tgz"
+        timeout-minutes: 2
+
+      # Extract tgz of kubecf GA bundle
+      - run: |
+          mkdir bundle-ga
+          tar xf kubecf-bundle-ga.tgz -C bundle-ga
+        working-directory: ${{ github.workspace }}
+
+      # Upload GA bundle
+      - name: Upload GA bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: kubecf-bundle-ga.tgz
+          path: ${{ github.workspace }}/bundle-ga
+
+      # TODO Generate future chart bundle
+      # For now, this only creates a kubecf-bundle-future.tgz with a bumped
+      # kubecf version. We should bump quarks, and make sure that all k8s
+      # objects need to be redeployed, plus some db schema changes, etc. This
+      # could go into a make {kubecf,cf-operator}-build flag.
+      - run: make kubecf-bundle
+        env:
+          VERSION: 99.0.0
+          TARGET_FILE: ${{ github.workspace }}/kubecf-bundle-future.tgz
+
+      # Extract tgz of kubecf future bundle
+      - run: |
+          mkdir bundle-future
+          tar xf kubecf-bundle-future.tgz -C bundle-future
+        working-directory: ${{ github.workspace }}
+
+      # Upload generated future bundle folder
+      - name: Upload future bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: kubecf-bundle-future.tgz
+          path: ${{ github.workspace }}/bundle-future
+
       # Start SSH agent for catapult
       - name: Start SSH agent
         if: env.BACKEND == 'aks'
