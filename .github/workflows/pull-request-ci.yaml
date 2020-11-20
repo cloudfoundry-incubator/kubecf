@@ -746,6 +746,47 @@ jobs:
         run: make smoke-tests
         timeout-minutes: 10
 
+      # Helm upgrade cf-operator to bundle-next
+      - name: Chart-under-test ⮕  vNext - Upgrade cf-operator
+        run: make cf-operator-upgrade
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle-next/cf-operator.tgz
+        timeout-minutes: 1 # This should take ~10 seconds.
+
+      # Wait for cf-operator pods to be ready
+      - name: Chart-under-test ⮕  vNext - Wait for cf-operator
+        run: make cf-operator-wait
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: Chart-under-test ⮕  vNext - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # Helm upgrade kubecf to bundle-next
+      - name: Chart-under-test ⮕  vNext - Upgrade KubeCF
+        run: make kubecf-upgrade
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle-next/kubecf_release.tgz
+          FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
+          VALUES: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: Chart-under-test ⮕  vNext - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # List releases after Next upgrade
+      - name: Chart-under-test ⮕  vNext - List releases
+        run: helm ls -A
+        timeout-minutes: 1 # this should take ~ 20 seconds
+
+      # Validate KubeCF upgrade to chart under test with smoke tests
+      - name: Chart-under-test ⮕  vNext - Smoke tests
+        run: make smoke-tests
+        timeout-minutes: 10
+
       # Get resource info for debugging
       - name: Get Resource Info
         if: always()
