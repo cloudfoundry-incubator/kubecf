@@ -71,6 +71,9 @@ cf-login:
 cf-operator-apply:
 	@./scripts/cf-operator-apply.sh
 
+cf-operator-upgrade:
+	@./scripts/cf-operator-upgrade.sh
+
 cf-operator-delete:
 	@./scripts/cf-operator-delete.sh
 
@@ -79,6 +82,9 @@ cf-operator-wait:
 
 kubecf-apply:
 	@./scripts/kubecf-apply.sh
+
+kubecf-upgrade:
+	@./scripts/kubecf-upgrade.sh
 
 kubecf-render-local:
 	@RENDER_LOCAL=1 ./scripts/kubecf-apply.sh
