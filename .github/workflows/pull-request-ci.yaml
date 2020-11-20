@@ -103,8 +103,10 @@ jobs:
       matrix:
         include:
           - backend: diego
+            internetless: true
             ccdb-rotate: true
           - backend: eirini
+            internetless: false
             ccdb-rotate: false
       fail-fast: false
 
@@ -306,6 +308,43 @@ jobs:
       # Run CATs
       - run: make acceptance-tests
         timeout-minutes: 180
+
+      - name: Set Up Network Isolation
+        id: internetless-cats-isolate
+        run: >
+          exec
+          "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/isolate-network.sh"
+          --enable
+        continue-on-error: ${{ !matrix.internetless }}
+        timeout-minutes: 1
+
+      - name: Override CATS Configuration
+        id: internetless-cats-config
+        if: steps.internetless-cats-isolate.outcome == 'success'
+        run: >
+          exec
+          "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/override-cats-properties.sh"
+          <<< '
+            { acceptance_tests:
+              { include: "=internetless", credhub_mode: skip-tests }
+            }'
+        continue-on-error: ${{ !matrix.internetless }}
+        timeout-minutes: 1
+
+      - name: Internetless Acceptance Tests
+        run: make acceptance-tests
+        if: steps.internetless-cats-config.outcome == 'success'
+        continue-on-error: ${{ !matrix.internetless }}
+        timeout-minutes: 10
+
+      - name: Tear Down Network Isolation
+        if: always() && steps.internetless-cats-isolate.outcome != 'skipped'
+        run: >
+          exec
+          "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/isolate-network.sh"
+          --disable
+        continue-on-error: ${{ !matrix.internetless }}
+        timeout-minutes: 1
 
       # Rotate CLoud Controller Database
       - name: Rotate CCDB
