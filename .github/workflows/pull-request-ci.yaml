@@ -664,6 +664,47 @@ jobs:
         run: make smoke-tests
         timeout-minutes: 10
 
+      # Helm upgrade cf-operator of chart under test
+      - name: GA ⮕ Chart-under-test - Upgrade cf-operator
+        run: make cf-operator-upgrade
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
+        timeout-minutes: 1 # This should take ~10 seconds.
+
+      # Wait for cf-operator pods to be ready
+      - name: GA ⮕ Chart-under-test - Wait for cf-operator
+        run: make cf-operator-wait
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: GA ⮕ Chart-under-test - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # Helm upgrade kubecf to chart under test
+      - name: GA ⮕ Chart-under-test - Upgrade KubeCF
+        run: make kubecf-upgrade
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
+          FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
+          VALUES: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: GA ⮕ Chart-under-test - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # List releases after Chart-Under-Test install
+      - name: GA ⮕ Chart-under-test - List releases
+        run: helm ls -A
+        timeout-minutes: 1 # this should take ~ 20 seconds
+
+      # Validate KubeCF upgrade to chart under test with smoke tests
+      - name: GA ⮕ Chart-under-test - Smoke tests
+        run: make smoke-tests
+        timeout-minutes: 10
+
       # Get resource info for debugging
       - name: Get Resource Info
         if: always()
