@@ -21,10 +21,6 @@ data:
 
 {{- $root := . }}
 
-{{- range $path, $_ := .Files.Glob "assets/operations/job_moving/*" }}
-{{ include "kubecf.ops" (dict "Root" $root "Path" $path) }}
-{{- end }}
-
 {{- if eq .Values.features.blobstore.provider "s3" }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/use-external-blobstore.yml") }}
 {{ include "kubecf.ops" (dict "Root" $root "Path" "assets/use-s3-blobstore.yml") }}

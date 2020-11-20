@@ -33,7 +33,7 @@
 {{- else }}
 # Disable routing-api.
 - type: remove
-  path: /instance_groups/name=api/jobs/name=routing-api
+  path: /instance_groups/name=routing-api/jobs/name=routing-api
 
 - type: remove
   path: /instance_groups/name=database?/jobs/name=pxc-mysql/properties/seeded_databases/name=routing-api

@@ -12,4 +12,4 @@ metadata:
     helm.sh/chart: {{ include "kubecf.chart" . }}
 data:
   manifest: |-
-    {{- .Files.Get "assets/cf-deployment.yml" | nindent 4 }}
+    {{- toYaml $.kubecf.manifest | nindent 4 }}

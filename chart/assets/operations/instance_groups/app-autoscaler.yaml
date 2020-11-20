@@ -136,7 +136,6 @@
     stemcell: default
     update:
       max_in_flight: 1
-      serial: true
     jobs:
     - name: scalingengine
       release: app-autoscaler
@@ -250,7 +249,6 @@
     stemcell: default
     update:
       max_in_flight: 1
-      serial: true
     jobs:
     - name: metricsserver
       release: app-autoscaler
@@ -342,7 +340,6 @@
     stemcell: default
     update:
       max_in_flight: 1
-      serial: true
     jobs:
     - name: metricsgateway
       release: app-autoscaler
@@ -389,7 +386,6 @@
     stemcell: default
     update:
       max_in_flight: 1
-      serial: true
     jobs:
     - name: golangapiserver
       release: app-autoscaler

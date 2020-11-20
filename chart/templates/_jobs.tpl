@@ -2,12 +2,19 @@
 ==========================================================================================
 | _jobs.update $
 +-----------------------------------------------------------------------------------------
+| * Move some jobs from their manifest locations to other instance groups.
 | * Create $.Values.jobs and $.Values.addon_jobs from the deployment manifest.
 | * Define CC workers based on their property settings in both "jobs" and "resources" trees.
-| * Move some jobs from their manifest locations to other instance groups.
 ==========================================================================================
 */}}
 {{- define "_jobs.update" }}
+  {{- /* *** Move some jobs to new instance groups *** */}}
+  {{- range $from_ig, $ig := $.Values.move_jobs }}
+    {{- range $job, $to_ig := $ig }}
+      {{- include "_jobs.move" (list $ $from_ig $to_ig $job) }}
+    {{- end }}
+  {{- end }}
+
   {{- /* *** Fill in $.Values.jobs and $.Values.addon_jobs from cf-manifest *** */}}
   {{- include "_jobs.fromManifest" (list $ $.Values.jobs "instance_groups") }}
   {{- include "_jobs.fromManifest" (list $ $.Values.addon_jobs "addons") }}
@@ -15,13 +22,6 @@
   {{- /* *** Define CC workers based on their property settings *** */}}
   {{- include "_jobs.defineWorkers" (list $ "api" "cloud_controller_ng" "local_worker" "local") }}
   {{- include "_jobs.defineWorkers" (list $ "cc-worker" "cloud_controller_worker" "worker" "generic") }}
-
-  {{- /* *** Move some jobs to new instance groups *** */}}
-  {{- range $from_ig, $ig := $.Values.move_jobs }}
-    {{- range $job, $to_ig := $ig }}
-      {{- include "_jobs.move" (list $.Values.jobs $from_ig $to_ig $job) }}
-    {{- end }}
-  {{- end }}
 {{- end }}
 
 {{- /*
@@ -137,31 +137,49 @@
 
 {{- /*
 ==========================================================================================
-| _jobs.move $.Values.jobs $from_ig $to_ig $job
+| _jobs.move $ $from_ig_name $to_ig_name $job_name
 +-----------------------------------------------------------------------------------------
 | Move a job from one instance group to another, creating the destination instance
-| group if it doesn't exist yet. The new instance group will *not* inherit the default
-| condition from the old instance group.
+| group if it doesn't exist yet.
 ==========================================================================================
 */}}
 {{- define "_jobs.move" }}
-  {{- $jobs := index . 0 }}
-  {{- $from_ig := index . 1 }}
-  {{- $to_ig := index . 2 }}
-  {{- $job := $to_ig }}
-  {{- if gt (len .) 3 }}
-    {{- $job = index . 3 }}
+  {{- $root := index . 0 }}
+  {{- $from_ig_name := index . 1 }}
+  {{- $to_ig_name := index . 2 }}
+  {{- $job_name := index . 3 }}
+
+  {{- /* Locate $from_ig in the manifest */}}
+  {{- $_ := include "_config.lookupManifest" (list $root "instance_groups" $from_ig_name) }}
+  {{- $from_ig := $root.kubecf.retval }}
+  {{- if not $from_ig }}
+    {{- include "_config.fail" (printf "Could not find instance group %q while moving job %q" $from_ig_name $job_name) }}
   {{- end }}
 
-  {{- $ig := index $jobs $from_ig }}
-  {{- if kindIs "invalid" (index $ig $job) }}
-    {{- include "_config.fail" (printf "Job %q in instance group %q does not exist" $job $from_ig) }}
+  {{- /* Find (and remove) the job from the $from_ig jobs list */}}
+  {{- $from_job := "" }}{{/* cannot use untyped nil when assigning to variable */}}
+  {{- $from_jobs := list }}
+  {{- range $job := $from_ig.jobs }}
+    {{- if eq $job.name $job_name }}
+      {{- $from_job = $job }}
+    {{- else }}
+      {{- $from_jobs = append $from_jobs $job }}
+    {{- end }}
+  {{- end }}
+  {{- $_ := set $from_ig "jobs" $from_jobs }}
+  {{- if not $from_job }}
+    {{- include "_config.fail" (printf "Instance group %q doesn't include job %q" $from_ig_name $job_name) }}
   {{- end }}
 
-  {{- if not (hasKey $jobs $to_ig) }}
-    {{- $_ := set $jobs $to_ig dict }}
+  {{- /* Find (or create) $to_ig in the manifest */}}
+  {{- $_ := include "_config.lookupManifest" (list $root "instance_groups" $to_ig_name) }}
+  {{- $to_ig := $root.kubecf.retval }}
+  {{- if not $to_ig }}
+    {{- $to_ig = dict "name" $to_ig_name "stemcell" "default" "instances" $from_ig.instances "jobs" list }}
+    {{- $manifest := $root.kubecf.manifest }}
+    {{- $_ := set $manifest "instance_groups" (append $manifest.instance_groups $to_ig) }}
   {{- end }}
 
-  {{- $_ := set (index $jobs $to_ig) $job (index $ig $job) }}
-  {{- $_ := unset $ig $job }}
+  {{- /* Move the job to $to_ig jobs list */}}
+  {{- $_ := set $to_ig "jobs" (append $to_ig.jobs $from_job) }}
 {{- end }}

@@ -1,3 +1,8 @@
+# Set instance count to 1; the default inherited from doppler is 4
+- type: replace
+  path: /instance_groups/name=log-cache/instances
+  value: 1
+
 # Change the log_cache_ca CN to avoid clashing with the other log-cache certificate CNs.
 - type: replace
   path: /variables/name=log_cache_ca/options/common_name
