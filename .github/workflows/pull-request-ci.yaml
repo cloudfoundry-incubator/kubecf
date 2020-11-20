@@ -67,7 +67,7 @@ jobs:
         env:
           TARGET_FILE: ${{ github.workspace }}/kubecf-bundle.tgz
 
-      # Create tgz of kubecf bundle
+      # Extract tgz of kubecf bundle
       - run: |
           mkdir bundle
           tar xf kubecf-bundle.tgz -C bundle
