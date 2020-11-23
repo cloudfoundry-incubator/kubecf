@@ -3,8 +3,8 @@
 {{- /* Core instance groups that always exist */}}
 {{- $instance_groups = append $instance_groups "api" }}
 {{- $instance_groups = append $instance_groups "cc-worker" }}
-{{- $instance_groups = append $instance_groups "diego-api" }}
 {{- $instance_groups = append $instance_groups "doppler" }}
+{{- $instance_groups = append $instance_groups "locket" }}
 {{- $instance_groups = append $instance_groups "log-api" }}
 {{- $instance_groups = append $instance_groups "nats" }}
 {{- $instance_groups = append $instance_groups "router" }}
@@ -33,6 +33,7 @@
 {{- /* Instances groups where existence depends on whether Eirini is enabled */}}
 {{- if not .Values.features.eirini.enabled }}
 {{- $instance_groups = append $instance_groups "auctioneer" }}
+{{- $instance_groups = append $instance_groups "diego-api" }}
 {{- if not .Values.features.multiple_cluster_mode.control_plane.enabled }}
 {{- $instance_groups = append $instance_groups "diego-cell" }}
 {{- end }}{{/* if control_plane */}}

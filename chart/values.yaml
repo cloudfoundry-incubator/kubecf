@@ -124,6 +124,8 @@ sizing:
     instances: ~
   eirini:
     instances: ~
+  locket:
+    instances: ~
   log_api:
     instances: ~
   nats:
