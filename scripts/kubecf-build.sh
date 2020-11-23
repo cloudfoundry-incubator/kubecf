@@ -56,7 +56,7 @@ if [ -z "${NO_IMAGELIST:-}" ]; then
     ruby scripts/image_list.rb "${HELM_DIR}" | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
 fi
 
-VERSION="$(./scripts/version.sh)"
+VERSION="${VERSION:-$(./scripts/version.sh)}"
 helm package "${HELM_DIR}" --version "${VERSION}" --app-version "${VERSION}" --destination output/
 
 HELM_CHART="output/kubecf-${VERSION}.tgz"
