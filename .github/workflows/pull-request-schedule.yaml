@@ -6,7 +6,7 @@ on:
 
 env:
   BACKEND: gke
-  CLUSTERS_PER_PR: "2"
+  CLUSTERS_PER_PR: "4"
   MAX_CLUSTERS: "5"
   OWNER: ${{ github.repository_owner }}
   LABEL_QUEUE: pr-test-queue
