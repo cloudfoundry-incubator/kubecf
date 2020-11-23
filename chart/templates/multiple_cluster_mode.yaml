@@ -49,6 +49,8 @@ data:
     - type: remove
       path: /instance_groups/name=rotate-cc-database-key
     - type: remove
+      path: /instance_groups/name=brain-tests?
+    - type: remove
       path: /instance_groups/name=smoke-tests?
     - type: remove
       path: /instance_groups/name=acceptance-tests?
