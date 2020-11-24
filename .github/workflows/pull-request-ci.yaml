@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [master]
     types: [labeled]
+  workflow_dispatch: {}
 
 env:
   GIT_PAGER: cat
@@ -14,13 +15,16 @@ jobs:
   # If it doesn't have it, the flow stops. If it does, we remove it (approval is good for one run only).
   dequeue:
     name: Dequeue
-    if: contains(github.event.pull_request.labels.*.name, 'pr-test-trigger')
+    if: >
+      github.event_name == 'workflow_dispatch'
+      || contains(github.event.pull_request.labels.*.name, 'pr-test-trigger')
     runs-on: ubuntu-20.04
     steps:
       - uses: actions-ecosystem/action-remove-labels@556e306
         with:
           github_token: ${{ secrets.github_token }}
           labels: pr-test-trigger
+        if: github.event_name == 'pull_request'
 
   build:
     name: Build
@@ -79,7 +83,6 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-20.04
-    continue-on-error: ${{ matrix.experimental }}
     needs: build
     env:
       # For KubeCF
@@ -100,9 +103,12 @@ jobs:
       matrix:
         include:
           - backend: diego
-            experimental: false
+            internetless: true
+            ccdb-rotate: true
           - backend: eirini
-            experimental: false
+            internetless: false
+            ccdb-rotate: false
+      fail-fast: false
 
     steps:
       # Checkout kubecf
@@ -291,7 +297,8 @@ jobs:
         timeout-minutes: 10
 
       # Run brain tests
-      # - run: make brain-tests
+      - run: make brain-tests
+        timeout-minutes: 25
 
       # Run sits tests
       - run: make sync-integration-tests
@@ -301,6 +308,64 @@ jobs:
       # Run CATs
       - run: make acceptance-tests
         timeout-minutes: 180
+
+      - name: Set Up Network Isolation
+        id: internetless-cats-isolate
+        run: >
+          exec
+          "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/isolate-network.sh"
+          --enable
+        continue-on-error: ${{ !matrix.internetless }}
+        timeout-minutes: 1
+
+      - name: Override CATS Configuration
+        id: internetless-cats-config
+        if: steps.internetless-cats-isolate.outcome == 'success'
+        run: >
+          exec
+          "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/override-cats-properties.sh"
+          <<< '
+            { acceptance_tests:
+              { include: "=internetless", credhub_mode: skip-tests }
+            }'
+        continue-on-error: ${{ !matrix.internetless }}
+        timeout-minutes: 1
+
+      - name: Internetless Acceptance Tests
+        run: make acceptance-tests
+        if: steps.internetless-cats-config.outcome == 'success'
+        continue-on-error: ${{ !matrix.internetless }}
+        timeout-minutes: 10
+
+      - name: Tear Down Network Isolation
+        if: always() && steps.internetless-cats-isolate.outcome != 'skipped'
+        run: >
+          exec
+          "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/isolate-network.sh"
+          --disable
+        continue-on-error: ${{ !matrix.internetless }}
+        timeout-minutes: 1
+
+      # Rotate CLoud Controller Database
+      - name: Rotate CCDB
+        id: ccdb-rotate
+        run: |
+          source ${GITHUB_WORKSPACE}/catapult/build${CLUSTER_NAME}/.envrc
+          testing/ccdb_key_rotation/rotate-ccdb-keys-test.sh
+
+          echo "::group::Wait for KubeCF to be ready again"
+          make kubecf-wait
+          echo "::endgroup::"
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
+        continue-on-error: ${{ !matrix.ccdb-rotate }}
+        timeout-minutes: 20
+
+      - name: Post-rotation Smoke Tests
+        run: make smoke-tests
+        if: ${{ steps.ccdb-rotate.outcome == 'success' }}
+        continue-on-error: ${{ !matrix.ccdb-rotate }}
+        timeout-minutes: 10
 
       # Get resource info for debugging
       - name: Get Resource Info

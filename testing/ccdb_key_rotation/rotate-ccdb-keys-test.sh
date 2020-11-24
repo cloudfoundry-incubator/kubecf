@@ -175,16 +175,18 @@ ccdb:
 EOF
 
 # Get the deployed chart (tarball)
-make kubecf-build
-chart_file="$(find output -name 'kubecf-*.tgz' -type f -printf "%T+ %p\n" \
-                   | sort | tail -1 | tr -s ' ' | cut -d ' ' -f 2)"
+if [[ -z "${CHART:-}" ]]; then
+    make kubecf-build
+    CHART="$(find output -name 'kubecf-*.tgz' -type f -printf "%T+ %p\n" \
+                    | sort | tail -1 | tr -s ' ' | cut -d ' ' -f 2)"
+fi
 
 echo
-echo "Chart file ... $(blue "${chart_file}")"
+echo "Chart file ... $(blue "${CHART}")"
 echo
 
 # Upgrade deployment to the modified key labels.
-helm upgrade "${KUBECF_INSTALL_NAME}" "${chart_file}" \
+helm upgrade "${KUBECF_INSTALL_NAME}" "${CHART}" \
       --namespace "${KUBECF_NAMESPACE}" \
       --reuse-values \
       --values "${VALUES_FILE}"
