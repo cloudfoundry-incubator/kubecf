@@ -136,7 +136,7 @@ spec:
         command: [/resolvwriter]
         args:
         - --upstream-dns-host
-        - {{ printf "bosh-dns.%s.svc" .Release.Namespace | quote }}
+        - {{ printf "coredns-quarks.%s.svc" .Release.Namespace | quote }}
         - --out
         - /config/forward.conf
         volumeMounts:
