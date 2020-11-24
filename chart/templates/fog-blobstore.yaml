@@ -8,11 +8,7 @@ metadata:
   name: var-fog-connection
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-    app.kubernetes.io/name: {{ include "kubecf.fullname" . }}
-    app.kubernetes.io/version: {{ default .Chart.Version .Chart.AppVersion | quote }}
-    helm.sh/chart: {{ include "kubecf.chart" . }}
+    {{- list . "api" | include "component.labels" | nindent 4 }}
   annotations:
     quarks.cloudfoundry.org/json-value: "true"
 stringData:

@@ -379,7 +379,7 @@ features:
     #   Additional settings for e.g. MinIO
     #   ----------------------------------
     #     aws_signature_version: '2'
-    #     endpoint: S3-ENDPOINT
+    #     endpoint: https://custom-s3-endpoint.example.com
     #     # path_style is only supported by Diego, but not by Eirini (bits-service).
     #     # MinIO can be configured to use vhost addressing using MINIO_DOMAIN and a wildcard cert.
     #     path_style: true

@@ -35,11 +35,23 @@
 
   {{- range $job, $instance_group := $ig }}
 - path: /instance_groups/name={{ $instance_group }}/jobs/name={{ $job }}?/properties/cc/{{ $property | replace "." "/" }}
-    {{- if eq (len $params) 1 }}
+    {{- if lt (len $params) 2 }}
   type: remove
     {{- else }}
   type: replace
   value: {{ index $params 1 | toJson }}
     {{- end }}
   {{- end }}
+{{- end }}
+
+{{- /*
+==========================================================================================
+| _capi.removeProperty $property
++-----------------------------------------------------------------------------------------
+| Alias for _capi.setProperty, just to make it clearer at the call site that this
+| is removing a property and not setting a value.
+==========================================================================================
+*/}}
+{{- define "_capi.removeProperty" }}
+  {{- include "_capi.setProperty" (list .) }}
 {{- end }}

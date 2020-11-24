@@ -51,7 +51,8 @@
 {{ $bytes | toString }}
 {{- end }}
 
-{{- else }}
+{{- else }}{{/* .Values.features.blobstore.provider is *not* "singleton" */}}
+
 - type: remove
   path: /instance_groups/name=singleton-blobstore
 
@@ -71,15 +72,15 @@
 {{- $_ := set $buckets "packages" "app_package" }}
 {{- $_ := set $buckets "resource_pool" "resource" }}
 
-{{- range $bucket, $index := $buckets }}
-{{- include "_capi.setProperty" (list $bucket) }}
+{{- range $bucket, $key_name := $buckets }}
+  {{- include "_capi.removeProperty" $bucket }}
 
-{{- $path := printf "%s.fog_connection" $bucket }}
-{{- include "_capi.setProperty" (list $path "((fog_connection))") }}
+  {{- $path := printf "%s.fog_connection" $bucket }}
+  {{- include "_capi.setProperty" (list $path "((fog_connection))") }}
 
-{{- $key := printf "%s_directory_key" $index }}
-{{- $path = printf "%s.%s" $bucket $key }}
-{{- include "_capi.setProperty" (list $path (index $.Values.features.blobstore.fog $key)) }}
+  {{- $key := printf "%s_directory_key" $key_name }}
+  {{- $path = printf "%s.%s" $bucket $key }}
+  {{- include "_capi.setProperty" (list $path (index $.Values.features.blobstore.fog $key)) }}
 {{- end }}
 
 {{- end }}
