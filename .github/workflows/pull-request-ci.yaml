@@ -186,7 +186,7 @@ jobs:
         if: env.BACKEND == 'gke'
         run: |
           json_file="$(mktemp)"
-          echo "${{ steps.vault.outputs.GKE_CRED_JSON }}" > "${json_file}"
+          cat > "${json_file}" <<< "${GKE_CRED_JSON}"
           echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
         timeout-minutes: 1
 
