@@ -28,7 +28,7 @@ EOF
 }
 
 # Wait for the MySQL instance meant for initialization only.
-# Exepcts `mysql()` to be set.
+# Expects `mysql()` to be set.
 wait_for_init_daemon() {
     for i in {30..0}; do
         if echo 'SELECT 1' | "${mysql[@]}" &> /dev/null; then
