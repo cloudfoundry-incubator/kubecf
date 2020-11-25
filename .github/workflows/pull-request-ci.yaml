@@ -206,7 +206,7 @@ jobs:
           DEBUG_MODE: true
           GKE_NODE_COUNT: 1
           GKE_PREEMPTIBLE: false
-          GKE_INSTANCE_TYPE: n2d-highcpu-16
+          GKE_INSTANCE_TYPE: n2d-standard-8
           EXTRA_LABELS: '{"ci": "${{ github.run_id }}"}'
         timeout-minutes: 20 # This should take ~10 minutes.
 
