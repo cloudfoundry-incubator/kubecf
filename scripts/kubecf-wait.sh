@@ -63,3 +63,25 @@ mapfile -t endpoints < <(get_resource endpoints)
 for endpoint in "${endpoints[@]}" ; do
     RETRIES=180 DELAY=10 retry wait_for_endpoint "${endpoint}"
 done
+
+green "Waiting for all services to have associated external IPs"
+wait_for_service_external_ips() {
+    selector=(
+        'app.kubernetes.io/component=router'
+        '!quarks.cloudfoundry.org/instance-group-name'
+    )
+    jsonpath='{.items[].status.loadBalancer.ingress[].ip}'
+    filter=(
+        --namespace=kubecf
+        --selector="$(IFS=, ; echo "${selector[*]}")"
+    )
+    ip="$(kubectl get service "${filter[@]}" --output="jsonpath=${jsonpath}")"
+    system_domain="$(helm get values kubecf -n kubecf -o json | jq .system_domain )"
+    fqdn="${host}.${system_domain}"
+    printf "Waiting for %s to have IP address %s…\n" "${fqdn}" "${ip}"
+    [[ "$(dig +short "${fqdn}")" != "${ip}" ]]
+}
+
+for host in api login; do
+    RETRIES=60 DELAY=10 retry wait_for_service_external_ips "${host}"
+done
