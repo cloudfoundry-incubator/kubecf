@@ -287,11 +287,13 @@ permutations.each do |permutation|
   permutation.keys.each do |feature|
     values.features[feature]['enabled'] = permutation[feature]
   end
-  # embedded_database and external_database are mutually exclusive
-  # it is more likely that embedded database will require an additional
-  # image than external_database.
+  # 'embedded_database' and 'external_database' are mutually exclusive.
+  # It is more likely that 'embedded_database' will require an additional
+  # image than 'external_database'.
   values.features['embedded_database']['enabled'] = true
   values.features['external_database']['enabled'] = false
+  # 'blobstore' has no 'enabled' property and the schema complains when it is set.
+  values.features['blobstore'].delete('enabled')
   deep_populate_nil_values(values.features)
 
   # Render the Helm chart.

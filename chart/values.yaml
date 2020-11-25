@@ -360,18 +360,44 @@ features:
     # Number of seconds to wait for the database to be ready, per iteration of the waiter loop
     connect_timeout: 3
   blobstore:
-    # Possible values for provider: singleton and s3.
+    # Possible values for provider: fog or singleton.
     provider: singleton
-    s3:
-      aws_region: ~
-      blobstore_access_key_id: ~
-      blobstore_secret_access_key: ~
-      blobstore_admin_users_password: ~
-      # The following values are used as S3 bucket names.
-      app_package_directory_key: ~
-      buildpack_directory_key: ~
-      droplet_directory_key: ~
-      resource_directory_key: ~
+    # fog:
+    #   app_package_directory_key: YOUR-APP-PACKAGE-BUCKET
+    #   buildpack_directory_key: YOUR-BUILDPACK-BUCKET
+    #   droplet_directory_key: YOUR-DROPLET-BUCKET
+    #   resource_directory_key: YOUR-RESOURCE-BUCKET
+    #
+    #   Example config for S3
+    #   ---------------------
+    #   connection:
+    #     provider: AWS
+    #     aws_access_key_id: S3-ACCESS-KEY
+    #     aws_secret_access_key: S3-SECRET-ACCESS-KEY
+    #     region: ""
+    #
+    #   Additional settings for e.g. MinIO
+    #   ----------------------------------
+    #     aws_signature_version: '2'
+    #     endpoint: https://custom-s3-endpoint.example.com
+    #     # path_style is only supported by Diego, but not by Eirini (bits-service).
+    #     # MinIO can be configured to use vhost addressing using MINIO_DOMAIN and a wildcard cert.
+    #     path_style: true
+    #
+    #   Example config for Google Cloud Storage
+    #   ---------------------------------------
+    #   connection:
+    #     provider: Google
+    #     google_storage_access_key_id: GCS-ACCESS-KEY
+    #     google_storage_secret_access_key: GCS-SECRET-ACCESS-KEY
+    #
+    #   Example config for Azure Cloud Storage
+    #   --------------------------------------
+    #   connection:
+    #     provider: AzureRM
+    #     environment: AzureCloud
+    #     azure_storage_account_name: YOUR-AZURE-STORAGE-ACCOUNT-NAME
+    #     azure_storage_access_key: YOUR-AZURE-STORAGE-ACCESS-KEY
 
   # Configuration for the external database; see also features.embedded_database.  Please refer to
   # https://kubecf.io/docs/deployment/advanced-topics/#external-database for details.

@@ -1,0 +1,16 @@
+{{- include "_config.load" $ }}
+
+{{- if eq .Values.features.blobstore.provider "fog" }}
+apiVersion: "v1"
+kind: "Secret"
+type: Opaque
+metadata:
+  name: var-fog-connection
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- list . "api" | include "component.labels" | nindent 4 }}
+  annotations:
+    quarks.cloudfoundry.org/json-value: "true"
+stringData:
+  value: {{ .Values.features.blobstore.fog.connection | toJson | quote }}
+{{- end }}

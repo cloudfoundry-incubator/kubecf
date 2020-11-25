@@ -32,18 +32,6 @@ spec:
 {{- end }}
   ops:
 
-{{- if eq .Values.features.blobstore.provider "s3" }}
-# S3 blobstore operations
-  - name: {{ include "kubecf.ops-name" (dict "Path" "assets/use-external-blobstore.yml") }}
-    type: configmap
-  - name: {{ include "kubecf.ops-name" (dict "Path" "assets/use-s3-blobstore.yml") }}
-    type: configmap
-{{- if .Values.features.eirini.enabled }}
-  - name: {{ include "kubecf.ops-name" (dict "Path" "assets/configure-bits-service-s3.yml") }}
-    type: configmap
-{{- end }}
-{{- end }}
-
 # Instance group operations
 {{- range $path, $bytes := .Files.Glob "assets/operations/instance_groups/*" }}
   - name: {{ include "kubecf.ops-name" (dict "Path" $path) }}
