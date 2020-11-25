@@ -189,6 +189,8 @@ jobs:
           cat > "${json_file}" <<< "${GKE_CRED_JSON}"
           echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
         timeout-minutes: 1
+        env:
+          GKE_CRED_JSON: ${{ steps.vault.outputs.GKE_CRED_JSON }}
 
       # Cache catapult's common tools
       - name: cache.catapult-common-tools
