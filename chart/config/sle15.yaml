@@ -11,7 +11,7 @@ stacks:
       '$defaults':
         url: registry.suse.com/cap-staging
         stemcell:
-          version: 27.11-7.0.0_374.gb8e8e6af
+          version: 29.1-7.0.0_374.gb8e8e6af
       sle15:
         version: "24.94"
       suse-staticfile-buildpack:
