@@ -403,12 +403,7 @@ jobs:
       # Teardown created k8s cluster
       - name: kubernetes:teardown
         if: always()
-        run: |
-          set +o errexit
-          # Remove any terraform locks, because we don't care if the previous run
-          # has finished successfully (e.g. on cancel).
-          find "build${CLUSTER_NAME}" -name '.terraform.*.lock*' -delete
-          make clean
+        run: make clean
         working-directory: catapult
         env:
           GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
