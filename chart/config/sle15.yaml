@@ -4,7 +4,7 @@ unsupported:
 
 stacks:
   sle15:
-    description: "SUSE Linux Enterprise-based filesystem (SLE 15 SP1)"
+    description: "SUSE Linux Enterprise-based filesystem (SLE 15 SP2)"
     install_buildpacks: [staticfile, java, ruby, dotnet-core, nodejs, go, python, php, nginx, binary]
     release_prefix: suse
     releases:
