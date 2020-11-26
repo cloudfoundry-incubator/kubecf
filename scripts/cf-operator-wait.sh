@@ -19,13 +19,11 @@ for crd in "${crds[@]}" ; do
 done
 
 # Wait for the operator deployments to be ready
-deployments=(
-    cf-operator-quarks
-    cf-operator-quarks-job
-    cf-operator-quarks-secret
-    cf-operator-quarks-statefulset
-)
-for deployment in "${deployments[@]}" ; do
+deployments=$(kubectl get deployments --namespace cf-operator \
+                       --no-headers -o custom-columns=":metadata.name" \
+                  | tr '\r\n' ' ');
+
+for deployment in ${deployments} ; do
     RETRIES=60 DELAY=5 retry kubectl wait --for=condition=Available \
         --namespace=cf-operator --timeout=600s "deployment/${deployment}"
 done
