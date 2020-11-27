@@ -9,8 +9,8 @@ releases:
   '$defaults':
     url: ghcr.io/cloudfoundry-incubator
     stemcell:
-      os: SLE_15_SP1
-      version: 27.11-7.0.0_374.gb8e8e6af
+      os: SLE_15_SP2
+      version: 29.1-7.0.0_374.gb8e8e6af
   app-autoscaler:
     condition: features.autoscaler.enabled
     version: 3.0.1

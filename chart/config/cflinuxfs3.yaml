@@ -12,5 +12,5 @@ stacks:
       # '$defaults' will be applied from config/releases.yaml
       cflinuxfs3:
         stemcell:
-          version: 27.11-7.0.0_374.gb8e8e6af
+          version: 29.1-7.0.0_374.gb8e8e6af
         version: 0.210.0
