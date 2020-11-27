@@ -14,51 +14,6 @@ metadata:
     "helm.sh/hook-weight": "-2"
     "helm.sh/hook-delete-policy": before-hook-creation
 ---
-{{- if $.Values.global.rbac.create }}
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  annotations:
-    "helm.sh/hook": {{$hook}}
-    "helm.sh/hook-weight": "-2"
-    "helm.sh/hook-delete-policy": before-hook-creation
-  name: kubecf-{{$hook}}-helm-hook
-rules:
-- apiGroups:
-  - admissionregistration.k8s.io
-  resources:
-  - mutatingwebhookconfigurations
-  verbs:
-  - delete
----
-apiVersion: v1
-kind: List
-metadata:
-  annotations:
-    rbac.authorization.kubernetes.io/autoupdate: "true"
-    "helm.sh/hook": {{$hook}}
-    "helm.sh/hook-weight": "-2"
-    "helm.sh/hook-delete-policy": before-hook-creation
-items:
-  - apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRoleBinding
-    metadata:
-      name: {{$hook}}-helm-hook
-      annotations:
-        rbac.authorization.kubernetes.io/autoupdate: "true"
-        "helm.sh/hook": {{$hook}}
-        "helm.sh/hook-weight": "-2"
-        "helm.sh/hook-delete-policy": before-hook-creation
-    subjects:
-    - kind: ServiceAccount
-      name: {{$hook}}-helm-hook
-      namespace: {{ $.Release.Namespace }}
-    roleRef:
-      kind: ClusterRole
-      name: kubecf-{{$hook}}-helm-hook
-      apiGroup: rbac.authorization.k8s.io
-{{- end }}
----
 apiVersion: batch/v1
 kind: Job
 metadata:
