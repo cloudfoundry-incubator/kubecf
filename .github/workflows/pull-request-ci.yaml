@@ -241,7 +241,7 @@ jobs:
       # Helm install cf-operator
       - run: make cf-operator-apply
         env:
-          CF_OPERATOR_URL: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
+          CHART: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
         timeout-minutes: 1 # This should take ~10 seconds.
 
       # Wait for cf-operator pods to be ready
