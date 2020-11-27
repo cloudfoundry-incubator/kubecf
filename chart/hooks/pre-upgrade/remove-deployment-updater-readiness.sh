@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-patch="
+patch='
 ---
 spec:
   template:
@@ -10,6 +10,6 @@ spec:
       - name: cc-deployment-updater-cc-deployment-updater
         readinessProbe:
           $patch: delete
-"
+'
 
 kubectl patch statefulset --namespace "$NAMESPACE" scheduler --patch "$patch"
