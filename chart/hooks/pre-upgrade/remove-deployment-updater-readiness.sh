@@ -1,6 +1,7 @@
 #!/bin/bash
 set -ex
 
+# shellcheck disable=SC2016
 patch='
 ---
 spec:
