@@ -12,4 +12,4 @@ spec:
           $patch: delete
 "
 
-kubectl patch statefulset --namespace $NAMESPACE scheduler --patch "$patch"
+kubectl patch statefulset --namespace "$NAMESPACE" scheduler --patch "$patch"
