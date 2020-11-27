@@ -565,6 +565,7 @@ properties:
     type: object
     properties:
       image: { type: string }
+    additionalProperties: false
 
   # mixin configs
   bits: {type: object}
