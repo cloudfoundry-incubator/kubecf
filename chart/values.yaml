@@ -496,6 +496,9 @@ operations:
   #       type: password
   inline: []
 
+hooks:
+  image: ghcr.io/cfcontainerizationbot/kubecf-kubectl:v1.19.2
+
 eirinix:
   persi-broker:
     # Service plans for Eirini persistant storage support
