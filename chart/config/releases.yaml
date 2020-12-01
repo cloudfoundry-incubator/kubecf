@@ -53,7 +53,7 @@ releases:
     condition: false
   postgres:
     condition: features.autoscaler.enabled
-    version: "42"
+    version: "43"
   sync-integration-tests:
     # XXX SITS only makes sense when using Diego; add error check somewhere?
     condition: testing.sync_integration_tests.enabled
