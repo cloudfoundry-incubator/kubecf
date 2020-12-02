@@ -46,9 +46,10 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         command: ["/bin/bash","-cex"]
-        args: 
+        args:
         - |
-           for f in /hooks/*.sh; do 
+           shopt -s nullglob
+           for f in /hooks/*.sh; do
             bash "$f" || exit 1
            done
         volumeMounts:
