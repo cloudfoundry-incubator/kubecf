@@ -504,7 +504,7 @@ jobs:
       # Note that credentials-related parts are in the individual steps
       BACKEND: gke
       DOWNLOAD_CATAPULT_DEPS: "false"
-      CLUSTER_NAME: kubecf-ci-${{ needs.build-info.outputs.owner}}-${{ github.run_id }}-${{ matrix.backend }}-upgrades
+      CLUSTER_NAME: kubecf-ci-${{ needs.build-info.outputs.owner}}-${{ github.run_id }}-${{ matrix.backend }}-up
     defaults:
       run:
         working-directory: kubecf
