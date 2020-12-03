@@ -11,8 +11,9 @@ if [ -z "${CHART:-}" ]; then
     CHART="$(cf_operator_url)"
 fi
 
-helm install cf-operator \
+helm upgrade cf-operator \
      "${CHART}" \
+     --install \
      --namespace "${CF_OPERATOR_NS}" \
      --set "global.singleNamespace.name=${KUBECF_NS}" \
      ${VALUES:+--values "${VALUES}"} \
