@@ -7,23 +7,6 @@
         command: ["pgrep", "--full", "clock:start"]
 
 - type: replace
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/quarks?/run/healthcheck/cc_deployment_updater
-  value:
-    readiness:
-      exec:
-        command:
-        # We should sleep about once every 5 seconds; check that the last entry was no more than 2 cycles ago
-        - /bin/sh
-        - -c
-        - >
-          tac /var/vcap/sys/log/cc_deployment_updater/cc_deployment_updater.log
-          | grep --max-count=1 Sleeping
-          | jq -e '.timestamp | gsub(".[0-9]+Z$"; "Z") | fromdate | now - . | . < 10'
-    liveness:
-      exec:
-        command: ["pgrep", "--full", "deployment_updater:start"]
-
-- type: replace
   path: /instance_groups/name=scheduler/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
   value: ["/bin/sh", "-c", "ss -nlu src localhost:8125 | grep :8125"]
 
@@ -101,6 +84,9 @@
     - name: binding-cache
       protocol: TCP
       internal: 9000
+
+- type: remove
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater
 
 {{- if not .Values.features.eirini.enabled }}
 

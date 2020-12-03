@@ -139,6 +139,7 @@ jobs:
   routing-api:
     '$default': 'features.routing_api.enabled'
   scheduler:
+    cc_deployment_updater: false
     cfdot:
       processes: []
     ssh_proxy: '!features.eirini.enabled'

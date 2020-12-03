@@ -80,10 +80,24 @@ jobs:
           name: kubecf-bundle.tgz
           path: ${{ github.workspace }}/bundle
 
+  build-info:
+    name: Get Build Information
+    runs-on: ubuntu-latest
+    outputs:
+      owner: ${{ steps.get-owner-name.outputs.owner }}
+    steps:
+      - name: Get Owner Name
+        id: get-owner-name
+        run: |
+          OWNER="$(tr --delete --complement A-Za-z0-9 <<< "${OWNER}")"
+          printf "::set-output name=owner::%s\n" "${OWNER}"
+        env:
+          OWNER: ${{ github.repository_owner }}
+
   tests:
     name: Tests
     runs-on: ubuntu-20.04
-    needs: build
+    needs: [build, build-info]
     env:
       # For KubeCF
       PINNED_TOOLS: true
@@ -93,7 +107,7 @@ jobs:
       # Note that credentials-related parts are in the individual steps
       BACKEND: gke
       DOWNLOAD_CATAPULT_DEPS: "false"
-      CLUSTER_NAME: ci-${{ github.run_id }}-${{ matrix.backend }}-upgrades
+      CLUSTER_NAME: kubecf-ci-${{ needs.build-info.outputs.owner}}-${{ github.run_id }}-${{ matrix.backend }}
     defaults:
       run:
         working-directory: kubecf
@@ -178,16 +192,26 @@ jobs:
           echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "${GITHUB_ENV}"
         timeout-minutes: 1
 
-      # set GKE secret. TBD: use vault instead
+      - name: Query vault for GKE secrets
+        id: vault
+        uses: hashicorp/vault-action@v2.0.1
+        with:
+          exportEnv: false
+          url: https://volt.cap.explore.suse.dev/
+          token: ${{ secrets.VAULT_TOKEN_CLOUD_PROVIDERS }}
+          secrets: |
+            secret/data/cloud-providers gke.GKE_CRED_JSON | GKE_CRED_JSON
+
+      # set GKE secret.
       - name: set GKE_CRED_JSON
         if: env.BACKEND == 'gke'
         run: |
           json_file="$(mktemp)"
-          echo "$GKE_CRED_JSON" > "${json_file}"
+          cat > "${json_file}" <<< "${GKE_CRED_JSON}"
           echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
-        env:
-          GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
         timeout-minutes: 1
+        env:
+          GKE_CRED_JSON: ${{ steps.vault.outputs.GKE_CRED_JSON }}
 
       # Cache catapult's common tools
       - name: cache.catapult-common-tools
@@ -201,12 +225,12 @@ jobs:
       - run: make k8s
         working-directory: catapult
         env:
-          GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
+          GKE_CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
           OWNER: ${{ github.repository_owner }}
           DEBUG_MODE: true
           GKE_NODE_COUNT: 1
           GKE_PREEMPTIBLE: false
-          GKE_INSTANCE_TYPE: n2d-highcpu-16
+          GKE_INSTANCE_TYPE: n2d-standard-8
           EXTRA_LABELS: '{"ci": "${{ github.run_id }}"}'
         timeout-minutes: 20 # This should take ~10 minutes.
 
@@ -406,14 +430,14 @@ jobs:
         run: make clean
         working-directory: catapult
         env:
-          GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
+          GKE_CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
         timeout-minutes: 20
 
   upgrade-tests:
     name: Upgrade-tests
     runs-on: ubuntu-20.04
     continue-on-error: ${{ matrix.experimental }}
-    needs: build
+    needs: [build, build-info]
     env:
       # For KubeCF
       PINNED_TOOLS: true
@@ -423,7 +447,7 @@ jobs:
       # Note that credentials-related parts are in the individual steps
       BACKEND: gke
       DOWNLOAD_CATAPULT_DEPS: "false"
-      CLUSTER_NAME: ci-${{ github.run_id }}-${{ matrix.backend }}
+      CLUSTER_NAME: kubecf-ci-${{ needs.build-info.outputs.owner}}-${{ github.run_id }}-${{ matrix.backend }}-upgrades
     defaults:
       run:
         working-directory: kubecf
@@ -584,7 +608,7 @@ jobs:
       - run: make k8s
         working-directory: catapult
         env:
-          GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}-upgrades
+          GKE_CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
           OWNER: ${{ github.repository_owner }}
           DEBUG_MODE: true
           GKE_NODE_COUNT: 1
@@ -852,5 +876,5 @@ jobs:
         run: make clean
         working-directory: catapult
         env:
-          GKE_CLUSTER_NAME: kubecf-ci-${{ github.run_id }}-${{ matrix.backend }}
+          GKE_CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
         timeout-minutes: 20

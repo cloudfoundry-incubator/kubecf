@@ -4,14 +4,14 @@ unsupported:
 
 stacks:
   sle15:
-    description: "SUSE Linux Enterprise-based filesystem (SLE 15 SP1)"
+    description: "SUSE Linux Enterprise-based filesystem (SLE 15 SP2)"
     install_buildpacks: [staticfile, java, ruby, dotnet-core, nodejs, go, python, php, nginx, binary]
     release_prefix: suse
     releases:
       '$defaults':
         url: registry.suse.com/cap-staging
         stemcell:
-          version: 27.11-7.0.0_374.gb8e8e6af
+          version: 29.1-7.0.0_374.gb8e8e6af
       sle15:
         version: "24.94"
       suse-staticfile-buildpack:

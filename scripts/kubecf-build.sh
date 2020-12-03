@@ -49,8 +49,7 @@ done
 
 echo "operatorChartUrl: \"$(cf_operator_url)\"" > "${HELM_DIR}/Metadata.yaml"
 
-ruby scripts/create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
-MODE=check ruby scripts//create_sample_values.rb "${HELM_DIR}/values.yaml" "${HELM_DIR}/sample-values.yaml"
+MODE=check ruby scripts/create_sample_values.rb "${HELM_DIR}/values.yaml"
 
 if [ -z "${NO_IMAGELIST:-}" ]; then
     ruby scripts/image_list.rb "${HELM_DIR}" | jq -r .images[] > "${HELM_DIR}/imagelist.txt"
