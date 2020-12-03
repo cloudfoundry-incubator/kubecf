@@ -15,14 +15,14 @@ fi
 patch --verbose "${target}" <<'EOT'
 --- jobs/garden/templates/bin/pre-start
 +++ jobs/garden/templates/bin/pre-start
-@@ -1,7 +1,3 @@
- #!/bin/bash
+@@ -4,7 +4,5 @@ set -e
 
- set -e
--
+ source /var/vcap/jobs/garden/bin/envs
+ source /var/vcap/jobs/garden/bin/grootfs-utils
 -source /var/vcap/packages/greenskeeper/bin/system-preparation
--
+
 -permit_device_control
+ invoke_thresholder
 EOT
 
 sha256sum "${target}" > "${sentinel}"

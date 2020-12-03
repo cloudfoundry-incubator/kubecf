@@ -44,6 +44,8 @@ releases:
     image:
       repository: ghcr.io/cloudfoundry-incubator/pxc
       tag: 0.9.11
+  garden-runc:
+    version: 1.19.17
   metrics-discovery:
     # metrics-agent add-on (new in cf-deployment 13.0) is not used by kubecf
     condition: false
