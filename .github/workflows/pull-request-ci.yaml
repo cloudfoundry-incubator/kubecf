@@ -618,16 +618,26 @@ jobs:
           echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "${GITHUB_ENV}"
         timeout-minutes: 1
 
-      # set GKE secret. TBD: use vault instead
+      - name: Query vault for GKE secrets
+        id: vault
+        uses: hashicorp/vault-action@v2.0.1
+        with:
+          exportEnv: false
+          url: https://volt.cap.explore.suse.dev/
+          token: ${{ secrets.VAULT_TOKEN_CLOUD_PROVIDERS }}
+          secrets: |
+            secret/data/cloud-providers gke.GKE_CRED_JSON | GKE_CRED_JSON
+
+      # set GKE secret.
       - name: set GKE_CRED_JSON
         if: env.BACKEND == 'gke'
         run: |
           json_file="$(mktemp)"
-          echo "$GKE_CRED_JSON" > "${json_file}"
+          cat > "${json_file}" <<< "${GKE_CRED_JSON}"
           echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
-        env:
-          GKE_CRED_JSON: ${{ secrets.GKE_CRED_JSON }}
         timeout-minutes: 1
+        env:
+          GKE_CRED_JSON: ${{ steps.vault.outputs.GKE_CRED_JSON }}
 
       # Cache catapult's common tools
       - name: cache.catapult-common-tools
