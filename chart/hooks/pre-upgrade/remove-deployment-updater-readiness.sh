@@ -9,7 +9,6 @@ set -o errexit -o nounset -o pipefail -o xtrace
 # Patch the StatefulSet so that any new instances we create will not have the
 # probe.
 
-# shellcheck disable=SC2016
 patch='
 ---
 spec:
@@ -17,8 +16,7 @@ spec:
     spec:
       containers:
       - name: cc-deployment-updater-cc-deployment-updater
-        readinessProbe:
-          $patch: delete
+        readinessProbe: ~
 '
 
 kubectl patch statefulset --namespace "$NAMESPACE" scheduler --patch "$patch"
@@ -26,5 +24,14 @@ kubectl patch statefulset --namespace "$NAMESPACE" scheduler --patch "$patch"
 # Delete all existing scheduler pods; we can't just patch them as changing
 # existing readiness probes is not allowed.
 
-kubectl delete pods --namespace="${NAMESPACE}" \
-  --selector "quarks.cloudfoundry.org/instance-group-name=scheduler"
+mapfile -t pods < <(kubectl get pods --namespace="${NAMESPACE}" --output=name \
+    --selector "quarks.cloudfoundry.org/instance-group-name=scheduler")
+
+query='{.spec.containers[?(.name == "cc-deployment-updater-cc-deployment-updater")].readinessProbe.exec.command}'
+
+for pod in "${pods[@]}"; do
+    probe="$(kubectl get --namespace="${NAMESPACE}" "${pod}" --output=jsonpath="${query}")"
+    if [[ -n "${probe}" ]]; then
+        kubectl delete --namespace="${NAMESPACE}" "${pod}"
+    fi
+done
