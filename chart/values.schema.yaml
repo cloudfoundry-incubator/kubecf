@@ -561,6 +561,12 @@ properties:
       - type: string
       - type: object
 
+  hooks:
+    type: object
+    properties:
+      image: { type: string }
+    additionalProperties: false
+
   # mixin configs
   bits: {type: object}
   eirini: {type: object}

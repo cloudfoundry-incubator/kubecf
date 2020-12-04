@@ -496,6 +496,10 @@ operations:
   #       type: password
   inline: []
 
+hooks:
+  # Image that contains kubectl to be used in helm upgrade and delete hook scripts
+  image: ghcr.io/cfcontainerizationbot/kubecf-kubectl:v1.19.2
+
 eirinix:
   persi-broker:
     # Service plans for Eirini persistant storage support
