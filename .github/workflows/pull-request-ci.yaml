@@ -350,6 +350,11 @@ jobs:
       - run: make kubecf-wait
         timeout-minutes: 30 # This should take ~15 minutes.
 
+      - name: Wait for DNS
+        run: exec "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/wait-for-ip.sh"
+        timeout-minutes: 10
+        continue-on-error: true
+
       # Run smoke tests
       - run: make smoke-tests
         timeout-minutes: 10
@@ -725,6 +730,11 @@ jobs:
       - name: GA install - List releases
         run: helm ls -A
         timeout-minutes: 1 # this should take ~ 20 seconds
+
+      - name: GA install - Wait for DNS
+        run: exec "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/wait-for-ip.sh"
+        timeout-minutes: 10
+        continue-on-error: true
 
       # Validate GA KubeCF install with smoke tests
       - name: GA install - Smoke tests
