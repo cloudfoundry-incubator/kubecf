@@ -17,11 +17,12 @@ fi
 #   - We don't enable New Relic.
 #   - NGINX maintenance shouldn't run.
 patch --verbose "${target}" <<'EOT'
-@@ -20,7 +20,6 @@
+@@ -20,7 +20,7 @@
      "BUNDLE_GEMFILE" => "/var/vcap/packages/cloud_controller_ng/cloud_controller_ng/Gemfile",
      "CLOUD_CONTROLLER_NG_CONFIG" => "/var/vcap/jobs/cloud_controller_ng/config/cloud_controller_ng.yml",
      "C_INCLUDE_PATH" => "/var/vcap/packages/libpq/include",
 -    "DYNO" => "#{spec.job.name}-#{spec.index}",
++    "GRPC_DNS_RESOLVER" => "native",
      "HOME" => "/home/vcap",
      "LANG" => "en_US.UTF-8",
      "LIBRARY_PATH" => "/var/vcap/packages/libpq/lib",
