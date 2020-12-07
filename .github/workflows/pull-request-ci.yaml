@@ -50,6 +50,7 @@ jobs:
       - name: Checkout KubeCF
         uses: actions/checkout@v2
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           path: kubecf
           fetch-depth: 0
           submodules: recursive
