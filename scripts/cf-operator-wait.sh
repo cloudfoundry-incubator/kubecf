@@ -19,13 +19,10 @@ for crd in "${crds[@]}" ; do
 done
 
 # Wait for the operator deployments to be ready
-deployments=(
-    cf-operator-quarks
-    cf-operator-quarks-job
-    cf-operator-quarks-secret
-    cf-operator-quarks-statefulset
-)
-for deployment in "${deployments[@]}" ; do
+mapfile -t deployments < <(kubectl get deployments --namespace cf-operator \
+                                   --output=name)
+
+for deployment in "${deployments[@]}"; do
     RETRIES=60 DELAY=5 retry kubectl wait --for=condition=Available \
-        --namespace=cf-operator --timeout=600s "deployment/${deployment}"
+        --namespace=cf-operator --timeout=600s "${deployment}"
 done

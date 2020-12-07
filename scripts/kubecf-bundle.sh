@@ -5,7 +5,7 @@ require_tools cf_operator_url cf_operator_sha256 curl sha256sum
 
 # Set default target file
 if [ -z "${TARGET_FILE:-}" ]; then
-    VERSION="$(./scripts/version.sh)"
+    VERSION="${VERSION:-$(./scripts/version.sh)}"
     TARGET_FILE="${OUTPUT_DIR}/kubecf-bundle-${VERSION}.tgz"
 fi
 

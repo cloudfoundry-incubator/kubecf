@@ -67,7 +67,7 @@ jobs:
         env:
           TARGET_FILE: ${{ github.workspace }}/kubecf-bundle.tgz
 
-      # Create tgz of kubecf bundle
+      # Extract tgz of kubecf bundle
       - run: |
           mkdir bundle
           tar xf kubecf-bundle.tgz -C bundle
@@ -79,6 +79,66 @@ jobs:
         with:
           name: kubecf-bundle.tgz
           path: ${{ github.workspace }}/bundle
+
+  build-next:
+    name: Build vNext
+    runs-on: ubuntu-20.04
+    needs: dequeue
+    env:
+      PINNED_TOOLS: true
+      TOOLS_DIR: ${{ github.workspace }}/tools
+    defaults:
+      run:
+        working-directory: kubecf-next
+
+    steps:
+      # Checkout kubecf
+      - name: Checkout KubeCF
+        uses: actions/checkout@v2
+        with:
+          path: kubecf-next
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: false
+
+      # Python setup
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      # Caching tools like helm, jq, git, y2j, yamllint etc
+      - name: cache.tools
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/tools
+          key: ${{ runner.os }}-tools
+
+      # Install tools
+      - run: make tools-install
+
+      # TODO Generate next chart bundle
+      # For now, this only creates a kubecf-bundle-next.tgz with a bumped
+      # kubecf version. We should bump quarks, and make sure that all k8s
+      # objects need to be redeployed, plus some db schema changes, etc. This
+      # could go into a make {kubecf,cf-operator}-build flag, for example.
+      - name: Build bundle-next
+        run: make kubecf-bundle
+        env:
+          VERSION: 99.0.0
+          TARGET_FILE: ${{ github.workspace }}/kubecf-bundle-next.tgz
+
+      # Extract tgz of kubecf bundle-next
+      - run: |
+          mkdir kubecf-bundle-next
+          tar xf kubecf-bundle-next.tgz -C kubecf-bundle-next
+        working-directory: ${{ github.workspace }}
+
+      # Upload generated bundle-next folder
+      - name: Upload bundle-next
+        uses: actions/upload-artifact@v2
+        with:
+          name: kubecf-bundle-next.tgz
+          path: ${{ github.workspace }}/kubecf-bundle-next/
 
   build-info:
     name: Get Build Information
@@ -265,7 +325,7 @@ jobs:
       # Helm install cf-operator
       - run: make cf-operator-apply
         env:
-          CF_OPERATOR_URL: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
+          CHART: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
         timeout-minutes: 1 # This should take ~10 seconds.
 
       # Wait for cf-operator pods to be ready
@@ -291,28 +351,7 @@ jobs:
         timeout-minutes: 30 # This should take ~15 minutes.
 
       - name: Wait for DNS
-        run: |
-          set -o errexit -o nounset
-          selector=(
-            'app.kubernetes.io/component=router'
-            '!quarks.cloudfoundry.org/instance-group-name'
-          )
-          jsonpath='{.items[].status.loadBalancer.ingress[].ip}'
-          filter=(
-            --namespace=kubecf
-            --selector="$(IFS=, ; echo "${selector[*]}")"
-          )
-          ip="$(kubectl get service "${filter[@]}" --output="jsonpath=${jsonpath}")"
-          system_domain="$(gomplate --context ".=${GITHUB_WORKSPACE}/kubecf-values.yaml" --in '{{ .system_domain }}')"
-          for host in api login; do
-            fqdn="${host}.${system_domain}"
-            printf "Waiting for %s to have IP address %s..." "${fqdn}" "${ip}"
-            while [[ "$(dig +short "${fqdn}")" != "${ip}" ]]; do
-              printf "."
-              sleep 10
-            done
-            printf "Done.\n"
-          done
+        run: exec "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/wait-for-ip.sh"
         timeout-minutes: 10
         continue-on-error: true
 
@@ -395,8 +434,6 @@ jobs:
       - name: Get Resource Info
         if: always()
         run: |
-          set +o errexit
-          gcloud auth activate-service-account --key-file=${GKE_CRED_JSON}
           resources=(
             BOSHDeployment
             QuarksJob
@@ -431,7 +468,6 @@ jobs:
         id: fetch-logs
         if: failure()
         run: |
-          gcloud auth activate-service-account --key-file=${GKE_CRED_JSON}
           # Running klog.sh twice will grab logs from both namespaces
           dev/kube/klog.sh -f -r cf-operator
           dev/kube/klog.sh -f -r
@@ -453,12 +489,441 @@ jobs:
       # Teardown created k8s cluster
       - name: kubernetes:teardown
         if: always()
+        run: make clean
+        working-directory: catapult
+        env:
+          GKE_CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
+        timeout-minutes: 20
+
+  upgrade-tests:
+    name: Upgrade-tests
+    runs-on: ubuntu-20.04
+    continue-on-error: ${{ matrix.experimental }}
+    needs: [build, build-next, build-info]
+    env:
+      # For KubeCF
+      PINNED_TOOLS: true
+      TOOLS_DIR: ${{ github.workspace }}/tools
+      # FEATURE_AUTOSCALER: "true" # FIXME
+      # For catapult
+      # Note that credentials-related parts are in the individual steps
+      BACKEND: gke
+      DOWNLOAD_CATAPULT_DEPS: "false"
+      CLUSTER_NAME: kubecf-ci-${{ needs.build-info.outputs.owner}}-${{ github.run_id }}-${{ matrix.backend }}-up
+    defaults:
+      run:
+        working-directory: kubecf
+
+    # Matrix to test diego and eirini
+    strategy:
+      matrix:
+        include:
+          - backend: diego
+            experimental: false
+          - backend: eirini
+            experimental: false
+
+    steps:
+      # Checkout kubecf
+      - name: Checkout KubeCF
+        uses: actions/checkout@v2
+        with:
+          path: kubecf
+          submodules: recursive
+          persist-credentials: false
+        timeout-minutes: 1
+
+      # We need catapult to create Kubernetes clusters
+      - name: Checkout catapult
+        uses: actions/checkout@v2
+        with:
+          repository: SUSE/catapult
+          path: catapult
+          persist-credentials: false
+        timeout-minutes: 1
+
+      # Python setup
+      - uses: actions/setup-python@v2
+        with:
+          # Force 3.8 because google-cloud-sdk is incompatible with 3.9
+          # https://issuetracker.google.com/issues/170125513
+          python-version: '3.8'
+        timeout-minutes: 1
+
+      # Caching tools like helm, jq, git, y2j, yamllint etc
+      - name: cache.tools
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/tools
+          key: ${{ runner.os }}-tools
+        timeout-minutes: 5
+
+      # Install tools
+      - run: make tools-install
+        timeout-minutes: 1 # this should take ~ 20 seconds
+
+      # Add tools to path
+      - name: Add tools to path
+        run: echo "${{ github.workspace }}/kubecf/output/bin" >> "${GITHUB_PATH}"
+        timeout-minutes: 1
+
+      # Download chart bundle
+      - id: download-bundle
+        name: Download bundle under test
+        uses: actions/download-artifact@v2
+        with:
+          name: kubecf-bundle.tgz
+          # The artifact upload/download creates an extra directory
+          path: ${{ github.workspace }}/kubecf-bundle
+        timeout-minutes: 1
+
+      - name: Get latest release version
+        id: latest_version
+        uses: abatilo/release-info-action@v1.3.0
+        with:
+          owner: cloudfoundry-incubator
+          repo: kubecf
+
+      # Download latest General Availability chart bundle
+      - id: download-bundle-ga
+        name: Download bundle-ga
+        uses: dsaltares/fetch-gh-release-asset@aa37ae5c44d3c9820bc12fe675e8670ecd93bd1c
+        with:
+          repo: "cloudfoundry-incubator/kubecf"
+          version: "latest"
+          file: "kubecf-bundle-${{ steps.latest_version.outputs.latest_tag }}.tgz"
+          token: ${{ secrets.github_token }}
+        timeout-minutes: 2
+
+      # Extract tgz of kubecf GA bundle
+      - run: |
+          mv kubecf-bundle-*.tgz kubecf-bundle-ga.tgz
+          mkdir kubecf-bundle-ga
+          tar xf kubecf-bundle-ga.tgz -C kubecf-bundle-ga
+        working-directory: ${{ github.workspace }}
+
+      # Upload bundle-ga
+      - name: Upload bundle-ga
+        uses: actions/upload-artifact@v2
+        with:
+          name: kubecf-bundle-ga.tgz
+          path: ${{ github.workspace }}/kubecf-bundle-ga/
+
+      # Start SSH agent for catapult
+      - name: Start SSH agent
+        if: env.BACKEND == 'aks'
         run: |
-          set +o errexit
-          # Remove any terraform locks, because we don't care if the previous run
-          # has finished successfully (e.g. on cancel).
-          find "build${CLUSTER_NAME}" -name '.terraform.*.lock*' -delete
-          make clean
+          set -o errexit -o pipefail -o nounset
+          eval "$(ssh-agent -s)"
+          ssh-keygen -t rsa -b 4096 -N '' -C "KubeCF CI #${{ github.run_id }}" -f ssh-key
+          ssh-add ssh-key
+          echo "::add-mask::$(cat ssh-key.pub)"
+          rm -f ssh-key ssh-key.pub
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "${GITHUB_ENV}"
+          echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "${GITHUB_ENV}"
+        timeout-minutes: 1
+
+      - name: Query vault for GKE secrets
+        id: vault
+        uses: hashicorp/vault-action@v2.0.1
+        with:
+          exportEnv: false
+          url: https://volt.cap.explore.suse.dev/
+          token: ${{ secrets.VAULT_TOKEN_CLOUD_PROVIDERS }}
+          secrets: |
+            secret/data/cloud-providers gke.GKE_CRED_JSON | GKE_CRED_JSON
+
+      # set GKE secret.
+      - name: set GKE_CRED_JSON
+        if: env.BACKEND == 'gke'
+        run: |
+          json_file="$(mktemp)"
+          cat > "${json_file}" <<< "${GKE_CRED_JSON}"
+          echo "GKE_CRED_JSON=${json_file}" >> "${GITHUB_ENV}"
+        timeout-minutes: 1
+        env:
+          GKE_CRED_JSON: ${{ steps.vault.outputs.GKE_CRED_JSON }}
+
+      # Cache catapult's common tools
+      - name: cache.catapult-common-tools
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/catapult/modules/common/bin
+          key: ${{ runner.os }}-catapult-common-tools
+        timeout-minutes: 1
+
+      # Deploy k8s cluster
+      - run: make k8s
+        working-directory: catapult
+        env:
+          GKE_CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
+          OWNER: ${{ github.repository_owner }}
+          DEBUG_MODE: true
+          GKE_NODE_COUNT: 1
+          GKE_PREEMPTIBLE: false
+          GKE_INSTANCE_TYPE: n2d-standard-8
+          EXTRA_LABELS: '{"ci": "${{ github.run_id }}"}'
+        timeout-minutes: 20 # This should take ~10 minutes.
+
+      - name: Set Up GKE Configuration Directory
+        if: env.BACKEND == 'gke'
+        working-directory: catapult/build${{ env.CLUSTER_NAME }}
+        run: |
+          . .envrc
+          echo "CLOUDSDK_CONFIG=${CLOUDSDK_CONFIG}" >> "${GITHUB_ENV}"
+        timeout-minutes: 1
+
+      # Providing kubeconfig for debugging
+      - name: export KUBECONFIG
+        run: |
+          set -o errexit -o nounset -o pipefail
+          source .envrc
+          echo "KUBECONFIG=${KUBECONFIG}" >> "${GITHUB_ENV}"
+          # Debugging aid; should be safe as the cluster will be torn down
+          # at the end of the run.
+          kubectl config view --minify --flatten | gzip | base64 --wrap=0
+        working-directory: catapult/build${{ env.CLUSTER_NAME }}
+        timeout-minutes: 1
+
+      # TBD: Don't generate values.yaml
+      - name: Generate KubeCF Configuration
+        run: exec "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/kubecf-gen-config.sh"
+        env:
+          # AUTOSCALER: "true" # FIXME
+          ENABLE_EIRINI: ${{ matrix.backend == 'eirini' }}
+        timeout-minutes: 1
+
+      # Helm install GA cf-operator
+      - name: GA install - Install cf-operator
+        run: make cf-operator-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle-ga/cf-operator.tgz
+        timeout-minutes: 1 # This should take ~10 seconds.
+
+      # Wait for cf-operator pods to be ready
+      - name: GA install - Wait for cf-operator
+        run: make cf-operator-wait
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Helm install GA kubecf
+      - name: GA install - Install KubeCF
+        run: |
+          if [[ "${FEATURE_EIRINI}" != "true" ]]; then
+            # `make kubecf-apply` gets confused if the values is `false`.
+            unset FEATURE_EIRINI
+          fi
+          make kubecf-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle-ga/kubecf_release.tgz
+          FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
+          # TODO this is a guess. For kubecf GA, we don't have examples of
+          # values, or logic to calculate them:
+          VALUES: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: GA install - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # List releases after GA install
+      - name: GA install - List releases
+        run: helm ls -A
+        timeout-minutes: 1 # this should take ~ 20 seconds
+
+      - name: GA install - Wait for DNS
+        run: exec "${GITHUB_WORKSPACE}/kubecf/.github/workflows/pull-request-ci/wait-for-ip.sh"
+        timeout-minutes: 10
+        continue-on-error: true
+
+      # Validate GA KubeCF install with smoke tests
+      - name: GA install - Smoke tests
+        run: make smoke-tests
+        timeout-minutes: 10
+
+      # Helm upgrade cf-operator of chart under test
+      - name: GA ⮕ Chart-under-test - Upgrade cf-operator
+        run: make cf-operator-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
+        timeout-minutes: 1 # This should take ~10 seconds.
+
+      # Wait for cf-operator pods to be ready
+      - name: GA ⮕ Chart-under-test - Wait for cf-operator
+        run: make cf-operator-wait
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: GA ⮕ Chart-under-test - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # Helm upgrade kubecf to chart under test
+      - name: GA ⮕ Chart-under-test - Upgrade KubeCF
+        run: make kubecf-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
+          FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
+          VALUES: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: GA ⮕ Chart-under-test - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # List releases after Chart-Under-Test install
+      - name: GA ⮕ Chart-under-test - List releases
+        run: helm ls -A
+        timeout-minutes: 1 # this should take ~ 20 seconds
+
+      # Validate KubeCF upgrade to chart under test with smoke tests
+      - name: GA ⮕ Chart-under-test - Smoke tests
+        run: make smoke-tests
+        timeout-minutes: 10
+
+      # Helm upgrade cf-operator to same version of chart under test
+      - name: Chart-under-test ⮕ Chart-under-test - Upgrade cf-operator
+        run: make cf-operator-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle/cf-operator.tgz
+        timeout-minutes: 1 # This should take ~10 seconds.
+
+      # Wait for cf-operator pods to be ready
+      - name: Chart-under-test ⮕ Chart-under-test - Wait for cf-operator
+        run: make cf-operator-wait
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: Chart-under-test ⮕ Chart-under-test - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # Helm upgrade kubecf to chart under test
+      - name: Chart-under-test ⮕ Chart-under-test - Upgrade KubeCF
+        run: make kubecf-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle/kubecf_release.tgz
+          FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
+          VALUES: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: Chart-under-test ⮕ Chart-under-test - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # List releases after next install
+      - name: Chart-under-test ⮕ Chart-under-test - List releases
+        run: helm ls -A
+        timeout-minutes: 1 # this should take ~ 20 seconds
+
+      # Validate KubeCF upgrade to same version of chart under test with smoke tests
+      - name: Chart-under-test ⮕ Chart-under-test - Smoke tests
+        run: make smoke-tests
+        timeout-minutes: 10
+
+      # Helm upgrade cf-operator to bundle-next
+      - name: Chart-under-test ⮕  vNext - Upgrade cf-operator
+        run: make cf-operator-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle-next/cf-operator.tgz
+        timeout-minutes: 1 # This should take ~10 seconds.
+
+      # Wait for cf-operator pods to be ready
+      - name: Chart-under-test ⮕  vNext - Wait for cf-operator
+        run: make cf-operator-wait
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: Chart-under-test ⮕  vNext - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # Helm upgrade kubecf to bundle-next
+      - name: Chart-under-test ⮕  vNext - Upgrade KubeCF
+        run: make kubecf-apply
+        env:
+          CHART: ${{ github.workspace }}/kubecf-bundle-next/kubecf_release.tgz
+          FEATURE_EIRINI: ${{ matrix.backend == 'eirini' }}
+          VALUES: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 1 # This should take ~30 seconds.
+
+      # Wait for kubecf pods to be ready
+      - name: Chart-under-test ⮕  vNext - Wait for KubeCF
+        run: make kubecf-wait
+        timeout-minutes: 30 # This should take ~15 minutes.
+
+      # List releases after Next upgrade
+      - name: Chart-under-test ⮕  vNext - List releases
+        run: helm ls -A
+        timeout-minutes: 1 # this should take ~ 20 seconds
+
+      # Validate KubeCF upgrade to chart under test with smoke tests
+      - name: Chart-under-test ⮕  vNext - Smoke tests
+        run: make smoke-tests
+        timeout-minutes: 10
+
+      # Get resource info for debugging
+      - name: Get Resource Info
+        if: always()
+        run: |
+          resources=(
+            BOSHDeployment
+            QuarksJob
+            QuarksStatefulSet
+            Job
+            StatefulSet
+            Endpoints
+            pods
+          )
+
+          echo "Getting namespaces..."
+          kubectl get namespaces --output=wide
+          for namespace in cf-operator kubecf ; do
+            for resource in "${resources[@]}" ; do
+              printf "%bGetting %s:%s...%b\n" "\e[0;1;33m" "${namespace}" "${resource}" "\e[0m"
+              kubectl get "${resource}" --namespace="${namespace}" --output=wide
+            done
+          done
+        timeout-minutes: 5
+
+      # Upload kubecf's values.yaml for debugging
+      - name: Upload config
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.backend }}-upgrades-values.yaml
+          path: ${{ github.workspace }}/kubecf-values.yaml
+        timeout-minutes: 5
+
+      # Fetch logs for debugging
+      - name: Fetch logs
+        id: fetch-logs
+        if: failure()
+        run: |
+          # Running klog.sh twice will grab logs from both namespaces
+          dev/kube/klog.sh -f -r cf-operator
+          dev/kube/klog.sh -f -r
+        timeout-minutes: 60
+        continue-on-error: true
+
+      # Upload logs for debugging
+      - name: Upload logs
+        # Even if the fetch logs step failed, we may have _some_ logs from the
+        # operator part; try to upload anyway.
+        if: always() && steps.fetch-logs.outcome != 'skipped'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.backend }}-upgrades-klog.tgz
+          path: ${{ github.workspace }}/kubecf/klog.tar.gz
+        timeout-minutes: 5
+        continue-on-error: true
+
+      # Teardown created k8s cluster
+      - name: kubernetes:teardown
+        if: always()
+        run: make clean
         working-directory: catapult
         env:
           GKE_CLUSTER_NAME: ${{ env.CLUSTER_NAME }}
