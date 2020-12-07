@@ -11,8 +11,8 @@ selector=(
     )
 jsonpath='{.items[].status.loadBalancer.ingress[].ip}'
 filter=(
-      --namespace=kubecf
-      --selector="$(IFS=, ; echo "${selector[*]}")"
+      '--namespace=kubecf'
+      '--selector='"$(IFS=, ; echo "${selector[*]}")"
     )
 ip="$(kubectl get service "${filter[@]}" --output="jsonpath=${jsonpath}")"
 system_domain="$(gomplate --context ".=${GITHUB_WORKSPACE}/kubecf-values.yaml" --in '{{ .system_domain }}')"
