@@ -37,6 +37,14 @@ jobs:
       run:
         working-directory: kubecf
 
+    # Matrix to build chart and chart-next
+    strategy:
+      matrix:
+        include:
+          - dist: current
+          - dist: next
+      fail-fast: true
+
     steps:
       # Checkout kubecf
       - name: Checkout KubeCF
@@ -62,79 +70,49 @@ jobs:
       # Install tools
       - run: make tools-install
 
-      # Generate kubecf bundle
-      - run: make kubecf-bundle
+      - name: Generate kubecf bundle
+        if: matrix.dist == 'current'
+        run: make kubecf-bundle
         env:
           TARGET_FILE: ${{ github.workspace }}/kubecf-bundle.tgz
 
-      # Extract tgz of kubecf bundle
-      - run: |
+      - name: Extract tgz of kubecf bundle
+        if: matrix.dist == 'current'
+        run: |
           mkdir bundle
           tar xf kubecf-bundle.tgz -C bundle
         working-directory: ${{ github.workspace }}
 
       # Upload generated tgz bundle
       - name: Upload bundle
+        if: matrix.dist == 'current'
         uses: actions/upload-artifact@v2
         with:
           name: kubecf-bundle.tgz
           path: ${{ github.workspace }}/bundle
-
-  build-next:
-    name: Build vNext
-    runs-on: ubuntu-20.04
-    needs: dequeue
-    env:
-      PINNED_TOOLS: true
-      TOOLS_DIR: ${{ github.workspace }}/tools
-    defaults:
-      run:
-        working-directory: kubecf-next
-
-    steps:
-      # Checkout kubecf
-      - name: Checkout KubeCF
-        uses: actions/checkout@v2
-        with:
-          path: kubecf-next
-          fetch-depth: 0
-          submodules: recursive
-          persist-credentials: false
-
-      # Python setup
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-
-      # Caching tools like helm, jq, git, y2j, yamllint etc
-      - name: cache.tools
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/tools
-          key: ${{ runner.os }}-tools
-
-      # Install tools
-      - run: make tools-install
 
       # TODO Generate next chart bundle
       # For now, this only creates a kubecf-bundle-next.tgz with a bumped
       # kubecf version. We should bump quarks, and make sure that all k8s
       # objects need to be redeployed, plus some db schema changes, etc. This
       # could go into a make {kubecf,cf-operator}-build flag, for example.
-      - name: Build bundle-next
+      - name: Generate bundle-next
+        if: matrix.dist == 'next'
         run: make kubecf-bundle
         env:
           VERSION: 99.0.0
           TARGET_FILE: ${{ github.workspace }}/kubecf-bundle-next.tgz
 
-      # Extract tgz of kubecf bundle-next
-      - run: |
+      - name: Extract tgz of kubecf bundle-next
+        if: matrix.dist == 'next'
+        run: |
           mkdir kubecf-bundle-next
           tar xf kubecf-bundle-next.tgz -C kubecf-bundle-next
         working-directory: ${{ github.workspace }}
 
       # Upload generated bundle-next folder
       - name: Upload bundle-next
+        if: matrix.dist == 'next'
         uses: actions/upload-artifact@v2
         with:
           name: kubecf-bundle-next.tgz
