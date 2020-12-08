@@ -10,9 +10,6 @@ tools-versions:
 version:
 	@./scripts/version.sh
 
-update-subcharts:
-	@./scripts/update-subcharts.sh
-
 lint: shellcheck yamllint helmlint httplint
 
 helmlint:
