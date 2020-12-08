@@ -11,7 +11,7 @@ if [ -z "${CHART:-}" ]; then
     CHART="$(cf_operator_url)"
 fi
 
-helm upgrade cf-operator \
+helm upgrade "${CF_OPERATOR_RELEASE}" \
      "${CHART}" \
      --install \
      --namespace "${CF_OPERATOR_NS}" \

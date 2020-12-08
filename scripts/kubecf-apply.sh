@@ -66,9 +66,9 @@ if [ -n "${RENDER_LOCAL:-}" ]; then
     if [ -z "${LOCAL_IP:-}" ]; then
         HELM_ARGS+=(--set "system_domain=example.com")
     fi
-    helm template kubecf "${CHART}" \
+    helm template "${KUBECF_RELEASE}" "${CHART}" \
          --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
 else
-    helm upgrade kubecf "${CHART}" \
+    helm upgrade "${KUBECF_RELEASE}" "${CHART}" \
          --install --namespace "${KUBECF_NS}" "${HELM_ARGS[@]}" "$@"
 fi
