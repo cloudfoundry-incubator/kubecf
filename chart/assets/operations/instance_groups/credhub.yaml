@@ -105,6 +105,10 @@
     name: credhub_setup_client_secret
     type: password
 
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/credhub_*" }}
+{{ $bytes | toString }}
+{{- end }}
+
 {{- else }}
 
 # Remove directly from the cf-deployment.yml YAML file.
