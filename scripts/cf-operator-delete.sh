@@ -3,8 +3,8 @@ source scripts/include/setup.sh
 
 require_tools kubectl helm
 
-if helm ls --namespace "${CF_OPERATOR_NS}" 2>/dev/null | grep -qi cf-operator ; then
-    helm delete cf-operator --namespace "${CF_OPERATOR_NS}"
+if helm ls --namespace "${CF_OPERATOR_NS}" 2>/dev/null | grep -qi "${CF_OPERATOR_RELEASE}" ; then
+    helm delete "${CF_OPERATOR_RELEASE}" --namespace "${CF_OPERATOR_NS}"
 fi
 
 kubectl delete --ignore-not-found ns "${CF_OPERATOR_NS}"
