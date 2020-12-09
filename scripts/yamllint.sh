@@ -37,6 +37,7 @@ find_args=(
     \( -name '*.yaml' -or -name '*.yml' \)
 )
 
+export LC_ALL=en_US.UTF-8
 # shellcheck disable=SC2046
 # We want word splitting with find.
 yamllint -d "{extends: relaxed, rules: {line-length: {max: 120}}}" \
