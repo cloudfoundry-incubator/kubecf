@@ -8,10 +8,13 @@ if helm ls --namespace "${CF_OPERATOR_NS}" 2>/dev/null | grep -qi "${CF_OPERATOR
 fi
 
 kubectl delete --ignore-not-found ns "${CF_OPERATOR_NS}"
-kubectl delete --ignore-not-found clusterrole cf-operator-quarks-job-cluster
-kubectl delete --ignore-not-found clusterrole cf-operator-cluster
-kubectl delete --ignore-not-found clusterrolebinding cf-operator-quarks-job-cluster
-kubectl delete --ignore-not-found clusterrolebinding cf-operator-cluster
+for KIND in cluster job secret statefulset; do
+    # The cluster role prefix may change from the release name to the namespace in the future:
+    # https://github.com/cloudfoundry-incubator/quarks-operator/issues/1257
+    kubectl delete --ignore-not-found clusterrole "${CF_OPERATOR_RELEASE}-quarks-${KIND}"
+    kubectl delete --ignore-not-found clusterrolebinding "${CF_OPERATOR_RELEASE}-quarks-${KIND}"
+done
+
 kubectl delete --ignore-not-found crd boshdeployments.quarks.cloudfoundry.org
 kubectl delete --ignore-not-found crd quarksjobs.quarks.cloudfoundry.org
 kubectl delete --ignore-not-found crd quarkssecrets.quarks.cloudfoundry.org
