@@ -19,7 +19,11 @@ spec:
         readinessProbe: ~
 '
 
-kubectl patch statefulset --namespace "$NAMESPACE" scheduler --patch "$patch"
+scheduler_list=$(kubectl get statefulsets --namespace "$NAMESPACE" | grep scheduler | cut -d " " -f 1)
+
+for i in ${scheduler_list}; do
+  kubectl patch statefulset --namespace "$NAMESPACE" $i --patch "$patch"
+done
 
 # Delete all existing scheduler pods; we can't just patch them as changing
 # existing readiness probes is not allowed.
