@@ -18,8 +18,14 @@ spec:
       - name: cc-deployment-updater-cc-deployment-updater
         readinessProbe: ~
 '
-
+set +o pipefail
 scheduler_list=$(kubectl get statefulsets --namespace "$NAMESPACE" | grep scheduler | cut -d " " -f 1)
+set -o pipefail
+
+if [ "${scheduler_list}" == "" ]; then
+  echo "No scheduler statefulset found."
+  exit 0
+fi
 
 for i in ${scheduler_list}; do
   kubectl patch statefulset --namespace "$NAMESPACE" $i --patch "$patch"
