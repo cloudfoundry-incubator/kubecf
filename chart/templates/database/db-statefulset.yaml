@@ -120,7 +120,7 @@ spec:
               name: database-startup-scripts
           - name: pxc-tls
             secret:
-              secretName: var-pxc-tls
+              secretName: {{ include "kubecf.varSecretName" (list $ "pxc_tls") }}
       volumeClaimTemplates:
       - metadata:
           name: pxc-data

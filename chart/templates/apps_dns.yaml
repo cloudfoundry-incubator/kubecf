@@ -119,7 +119,7 @@ spec:
         emptyDir: {}
       - name: client-tls
         secret:
-          secretName: var-cf-app-sd-client-tls
+          secretName: {{ include "kubecf.varSecretName" (list $ "cf_app_sd_client_tls") }}
           items:
           - key: ca
             path: ca.pem
