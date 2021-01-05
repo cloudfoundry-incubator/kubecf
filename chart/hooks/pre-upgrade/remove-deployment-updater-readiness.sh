@@ -18,8 +18,21 @@ spec:
       - name: cc-deployment-updater-cc-deployment-updater
         readinessProbe: ~
 '
+scheduler_list=$(kubectl get statefulsets \
+  --namespace "${NAMESPACE}" \
+  --selector quarks.cloudfoundry.org/instance-group-name=scheduler \
+  --no-headers=true \
+  --output custom-columns=:metadata.name
+)
 
-kubectl patch statefulset --namespace "$NAMESPACE" scheduler --patch "$patch"
+if [ "${scheduler_list}" == "" ]; then
+  echo "No scheduler statefulset found."
+  exit 0
+fi
+
+for scheduler in ${scheduler_list}; do
+  kubectl patch statefulset --namespace "$NAMESPACE" "${scheduler}" --patch "$patch"
+done
 
 # Delete all existing scheduler pods; we can't just patch them as changing
 # existing readiness probes is not allowed.

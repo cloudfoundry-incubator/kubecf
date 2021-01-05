@@ -11,13 +11,13 @@ stacks:
       '$defaults':
         url: registry.suse.com/cap-staging
         stemcell:
-          version: 29.1-7.0.0_374.gb8e8e6af
+          version: 29.6-7.0.0_374.gb8e8e6af
       sle15:
-        version: "24.94"
+        version: "26.8"
       suse-staticfile-buildpack:
         version: "1.5.13.1"
       suse-java-buildpack:
-        version: "4.34.0.1"
+        version: "4.35.0.1"
       suse-ruby-buildpack:
         version: "1.8.27.1"
       suse-dotnet-core-buildpack:
@@ -25,7 +25,7 @@ stacks:
       suse-nodejs-buildpack:
         version: "1.7.35.1"
       suse-go-buildpack:
-        version: "1.9.23.1"
+        version: "1.9.24.1"
       suse-python-buildpack:
         version: "1.7.26.1"
       suse-php-buildpack:
