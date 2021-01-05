@@ -31,7 +31,7 @@ if [ "${scheduler_list}" == "" ]; then
 fi
 
 for scheduler in ${scheduler_list}; do
-  kubectl patch statefulset --namespace "$NAMESPACE" $scheduler --patch "$patch"
+  kubectl patch statefulset --namespace "$NAMESPACE" "${scheduler}" --patch "$patch"
 done
 
 # Delete all existing scheduler pods; we can't just patch them as changing
