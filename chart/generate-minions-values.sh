@@ -333,7 +333,8 @@ function AddCAcertsFun(){
   echo "    control_plane_ca:" >> "${minions_value_file}"
   for (( i = 0 ; i < ${#ca_list[@]} ; i++ )) do
     echo "      ${ca_list[$i]}:" >> "${minions_value_file}"
-    name=$(echo "${ca_list[$i]}" | sed "s/_/-/g" )
+    ca_name=${ca_list[$i]}
+    name="${ca_name//_/-}"
     echo "        name: ${name}" >> "${minions_value_file}"
     for (( k =0; k < ${#types[@]}; k++ )) do
       value=$(kubectl get secret var-"${name}" -n kubecf -o yaml 2> /dev/null | grep "^  ${types[$k]}:" | awk '{print $2}' | base64 --decode)
