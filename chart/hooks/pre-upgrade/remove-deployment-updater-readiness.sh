@@ -30,8 +30,13 @@ if [ "${scheduler_list}" == "" ]; then
   exit 0
 fi
 
+query='{.spec.template.spec.containers[*].name}'
+
 for scheduler in ${scheduler_list}; do
-  kubectl patch statefulset --namespace "$NAMESPACE" "${scheduler}" --patch "$patch"
+  probe="$(kubectl get statefulsets --namespace="${NAMESPACE}" "${scheduler}" --output=jsonpath="${query}")"
+  if [[ "${probe}" =~ "cc-deployment-updater-cc-deployment-updater" ]]; then
+    kubectl patch statefulset --namespace "$NAMESPACE" "${scheduler}" --patch "$patch"
+  fi
 done
 
 # Delete all existing scheduler pods; we can't just patch them as changing
