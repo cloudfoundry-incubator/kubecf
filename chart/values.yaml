@@ -327,6 +327,40 @@ features:
         #   network: "10.255.0.0/16"
         #   subnet_prefix_length: 24
         link: ~
+    # CA certs from control plane to generate certs required by diego cell
+    control_plane_ca:
+      service_cf_internal_ca:
+        name: service-cf-internal-ca
+        certificate: ~
+        private_key: ~
+      application_ca:
+        name: application-ca
+        certificate: ~
+        private_key: ~
+      loggregator_ca:
+        name: loggregator-ca
+        certificate: ~
+        private_key: ~
+      metric_scraper_ca:
+        name: metric-scraper-ca
+        certificate: ~
+        private_key: ~
+      silk_ca:
+        name: silk-ca
+        certificate: ~
+        private_key: ~
+      network_policy_ca:
+        name: network-policy-ca
+        certificate: ~
+        private_key: ~
+      cf_app_sd_ca:
+        name: cf-app-sd-ca
+        certificate: ~
+        private_key: ~
+      nats_ca:
+        name: nats-ca
+        certificate: ~
+        private_key: ~
   ingress:
     enabled: false
     tls:
