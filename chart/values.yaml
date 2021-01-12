@@ -4,7 +4,7 @@
 # List of stacks to install; the first one will be used as the default.
 # A stack is a prebuilt root file system that supports a specific
 # operating system with a corresponding set of buildpacks.
-install_stacks: [sle15, cflinuxfs3]
+install_stacks: [cflinuxfs3, sle15]
 
 # Set or override job properties. The first level of the map is the instance group name. The second
 # level of the map is the job name. E.g.:

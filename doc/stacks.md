@@ -7,7 +7,7 @@ There are 2 stacks built in: The `cflinuxfs3` stack is defined by Cloud Foundry,
 The `install_buildpacks` list in `values.yaml` determines which stacks will be installed when the kubecf helm chart is deployed. The first stack in the list will be the default stack:
 
 ```
-install_buildpacks: [sle15, cflinuxfs3]
+install_buildpacks: [cflinuxfs3, sle15]
 ```
 
 ## Stack definitions
