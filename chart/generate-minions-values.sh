@@ -15,6 +15,8 @@ usage() {
     echo "              The output value file name for minions cluster, default is minions-values.yaml"
     echo "   -n"
     echo "              The namespace of KubeCF control plane, default is kubecf"
+    echo "   -t"
+    echo "              The prefix name for diego cell"
     echo
     echo "   -h --help  Output this help."
 }
@@ -35,6 +37,10 @@ case $key in
     cp_namespace=$1
     shift
     ;;
+    -t)
+    prefix_name=$1
+    shift
+    ;;
     -h|--help)
       usage
       exit 0
@@ -47,60 +53,22 @@ case $key in
 esac
 done
 
-credentials_list=(
-credhub_tls.ca
-diego_bbs_client.ca
-diego_bbs_client.certificate
-diego_bbs_client.private_key
-diego_instance_identity_ca.ca
-diego_instance_identity_ca.certificate
-diego_instance_identity_ca.private_key
-diego_rep_agent_v2.ca
-diego_rep_agent_v2.certificate
-diego_rep_agent_v2.private_key
-diego_rep_client.ca
-diego_rep_client.certificate
-diego_rep_client.private_key
-forwarder_agent_metrics_tls.ca
-forwarder_agent_metrics_tls.certificate
-forwarder_agent_metrics_tls.private_key
-gorouter_backend_tls.ca
-loggr_udp_forwarder_tls.ca
-loggr_udp_forwarder_tls.certificate
-loggr_udp_forwarder_tls.private_key
-loggregator_agent_metrics_tls.ca
-loggregator_agent_metrics_tls.certificate
-loggregator_agent_metrics_tls.private_key
-loggregator_tls_agent.ca
-loggregator_tls_agent.certificate
-loggregator_tls_agent.private_key
-ssh_proxy_backends_tls.ca
-uaa_ssl.ca
-cf_app_sd_client_tls.ca
-cf_app_sd_client_tls.certificate
-cf_app_sd_client_tls.private_key
-nats_client_cert.ca
-nats_client_cert.certificate
-nats_client_cert.private_key
-network_policy_client.ca
-network_policy_client.certificate
-network_policy_client.private_key
-silk_daemon.ca
-silk_daemon.certificate
-silk_daemon.private_key
-)
-
+function AddPropertiesFun(){
+  cat >>"${minions_value_file}" <<EOF
+properties:
+  ${diego_cell_name}:
+    rep:
+      diego:
+        rep:
+          advertise_domain: "${diego_cell_domain}"
+EOF
+}
 
 function AddCredentialsFun(){
-  echo "credentials:" >> "${minions_value_file}"
-  for (( i = 0 ; i < ${#credentials_list[@]} ; i++ )) do
-    credential_type=$(echo "${credentials_list[$i]}" | cut -d "." -f 2)
-    credential_name=$(echo "${credentials_list[$i]}" | cut -d "." -f 1 | sed "s/_/-/g" )
-
-    if [ "X${credential_name}" != "X" ] && [ "X${credential_type}" != "X" ]; then
-      credential_value=$(kubectl get secret var-"${credential_name}" -n "${cp_namespace}" -o yaml 2> /dev/null | grep "^  ${credential_type}:" | awk '{print $2}' | base64 --decode)
-      if [ "X${credential_value}" != "X" ]; then
-        echo "  ${credentials_list[$i]}: |" >> "${minions_value_file}"
+    echo "credentials:" >> "${minions_value_file}"
+    credential_value=$(kubectl get secret var-uaa-ssl -n kubecf -o yaml 2> /dev/null | grep "^  ca:" | awk '{print $2}' | base64 --decode)
+    if [ "X${credential_value}" != "X" ]; then
+        echo "  uaa_ssl.ca: |" >> "${minions_value_file}"
         for j in ${credential_value}; do
           if [[ "$j" =~ "-----"$ ]] || [ "$j" == "RSA" ] || [ "$j" == "PRIVATE" ]; then
             ${sed_cmd} "$ s/$/ $j/" "${minions_value_file}"
@@ -108,18 +76,16 @@ function AddCredentialsFun(){
             echo "    $j" >> "${minions_value_file}"
           fi
         done
-      else
-        echo "Warning: Not find ${credentials_list[$i]}, please manually update it in credentials part in file ${minions_value_file}."
-      fi
+    else
+        echo "Warning: Not find uaa_ssl, please manually update it in credentials part in file ${minions_value_file}."
     fi
-  done
 
-  credential_value=$(kubectl get secret var-uaa-clients-tcp-emitter-secret -n "${cp_namespace}" -o yaml 2> /dev/null | grep "^  password:" | awk '{print $2}' | base64 --decode)
-  if [ "X${credential_value}" != "X" ]; then
-    echo "  uaa_clients_tcp_emitter_secret: ${credential_value}" >> "${minions_value_file}"
-  else
-    echo "Warning: Not find uaa_clients_tcp_emitter_secret, please manually update it in credentials part in file ${minions_value_file}."
-  fi
+    credential_value=$(kubectl get secret var-uaa-clients-tcp-emitter-secret -n kubecf -o yaml 2> /dev/null | grep "^  password:" | awk '{print $2}' | base64 --decode)
+    if [ "X${credential_value}" != "X" ]; then
+      echo "  uaa_clients_tcp_emitter_secret: ${credential_value}" >> "${minions_value_file}"
+    else
+      echo "Warning: Not find uaa_clients_tcp_emitter_secret, please manually update it in credentials part in file ${minions_value_file}."
+    fi
 }
 
 function AddFeaturesFun(){
@@ -179,7 +145,7 @@ EOF
     kubectl get pods -n kubecf -o wide | grep singleton-blobstore|awk '{print$6}' > temp_log
     cat >>"${minions_value_file}" << EOF
       singleton_blobstore:
-        name: singleton_blobstore
+        name: singleton-blobstore
         addresses:
 EOF
     while read -r ip 
@@ -345,7 +311,90 @@ EOF
   } >> "${minions_value_file}"
 }
 
+ca_list=(
+  service_cf_internal_ca
+  application_ca
+  loggregator_ca
+  metric_scraper_ca
+  silk_ca
+  network_policy_ca
+  cf_app_sd_ca
+  nats_ca
+)
 
+types=(
+    certificate
+    private_key
+)
+
+
+
+function AddCAcertsFun(){
+  echo "    control_plane_ca:" >> "${minions_value_file}"
+  for (( i = 0 ; i < ${#ca_list[@]} ; i++ )) do
+    echo "      ${ca_list[$i]}:" >> "${minions_value_file}"
+    ca_name=${ca_list[$i]}
+    name="${ca_name//_/-}"
+    echo "        name: ${name}" >> "${minions_value_file}"
+    for (( k =0; k < ${#types[@]}; k++ )) do
+      value=$(kubectl get secret var-"${name}" -n kubecf -o yaml 2> /dev/null | grep "^  ${types[$k]}:" | awk '{print $2}' | base64 --decode)
+      if [ "X${value}" != "X" ]; then
+        echo "        ${types[$k]}: |" >> "${minions_value_file}"
+        for j in ${value}; do
+          if [[ "$j" =~ "-----"$ ]] || [ "$j" == "RSA" ] || [ "$j" == "PRIVATE" ]; then
+            ${sed_cmd} "$ s/$/ $j/" "${minions_value_file}"
+          else
+            echo "          $j" >> "${minions_value_file}"
+          fi
+        done
+      else
+        echo "Warning: Not find ${ca_list[$i]}, please manually update it in credentials part in file ${minions_value_file}."
+      fi
+    done
+  done
+}
+
+function AddInlinesFun(){
+  cat >>"${minions_value_file}" << EOF
+operations:
+  inline:
+  - type: replace
+    path: /instance_groups/name=diego-cell/name
+    value: ${diego_cell_name}
+  - type: replace
+    path: /instance_groups/name=${diego_cell_name}/env?/bosh/agent/settings/preRenderOps/instanceGroup?
+    value:
+    - type: replace
+      path: /instance_groups/name=${diego_cell_name}/jobs/name=silk-daemon/properties/quarks/consumes/vpa/instances?
+      value:
+      - address: diego-cell-0
+    - type: replace
+      path: /instance_groups/name=${diego_cell_name}/jobs/name=silk-cni/properties/quarks/consumes/vpa/instances?
+      value:
+      - address: diego-cell-0
+  - type: replace
+    path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases
+    value:
+    - domain: '_.${diego_cell_domain}'
+      targets:
+      - query: '_'
+        instance_group: ${diego_cell_name}
+        deployment: cf
+        network: default
+        domain: bosh
+  - type: replace
+    path: /variables/name=diego_rep_agent_v2/options/common_name?
+    value: ${diego_cell_domain}
+  - type: replace
+    path: /variables/name=diego_rep_agent_v2/options/alternative_names?
+    value:
+    - "*.${diego_cell_domain}"
+    - ${diego_cell_domain}
+    - 127.0.0.1
+    - localhost  
+EOF
+
+}
 #Check kubectl command
 if ! hash kubectl 2>/dev/null; then
   echo "Not find command kubectl, please install it and set it connect to control plane."
@@ -360,12 +409,21 @@ if [ "$isConnected" -ne 0 ]; then
   exit 1
 fi
 
+
 #Check operation system 
 os_name=$(uname -a)
 if [[ "${os_name}" =~ "Darwin" ]]; then
   sed_cmd="sed -i ''"
 else
   sed_cmd="sed -i"
+fi
+
+# Check prefix_name
+diego_cell_name="diego-cell"
+diego_cell_domain="cell.service.cf.internal"
+if [[ "X$prefix_name" != "X" ]]; then
+   diego_cell_name="${prefix_name}-diego-cell"
+   diego_cell_domain="${prefix_name}.cell.service.cf.internal"
 fi
 
 echo "Generating value file for minions cluster ..."
@@ -379,10 +437,16 @@ else
 fi
 
 #Add required properties, credentials, inline, features into output value file
+echo "add Properties..."
+AddPropertiesFun
 echo "add Credentials ..."
 AddCredentialsFun
 echo "add Features ..."
 AddFeaturesFun
+echo "add CA certs ..."
+AddCAcertsFun
+echo "add inlines..."
+AddInlinesFun
 
 echo "Complete. Please check output value file ${minions_value_file}."
 
