@@ -103,9 +103,9 @@ binaries:
 # Additional files we need to download; see http_file() invocation in WORKSPACE.
 external_files:
   cf_operator:
-    sha256: 841189cf7c3589ee18fd277abcbc7b593ea024b6d2a8b948b2dab3c5bbe0b254
+    sha256: ef6bd20180371612a0db4bf6df903415435483508daa01dc62d28b27f00094c2
     url: https://cloudfoundry-incubator.github.io/quarks-helm/quarks-{version}.tgz
-    version: 7.1.2%2B0.gd6160f6
+    version: 7.1.3%2B0.g0ce050b
   kube_dashboard:
     sha256: f849252870818a2971dfc3c4f8a8c5f58a57606bc2b5f221d7ab693e1d1190e0
     url: https://raw.githubusercontent.com/kubernetes/dashboard/{version}/aio/deploy/recommended.yaml
