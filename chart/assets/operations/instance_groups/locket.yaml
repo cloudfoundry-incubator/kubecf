@@ -1,0 +1,43 @@
+# Set instance count to 2; the default inherited from diego-api is 2
+- type: replace
+  path: /instance_groups/name=locket/instances
+  value: 2
+
+# Disable tuning /proc/sys kernel parameters as locket is running on containers.
+- type: replace
+  path: /instance_groups/name=locket/jobs/name=locket/properties/set_kernel_parameters?
+  value: false
+
+# Add quarks properties for locket.
+- type: replace
+  path: /instance_groups/name=locket/jobs/name=locket/properties/quarks?
+  value:
+    ports:
+    - name: locket
+      protocol: TCP
+      internal: 8891
+    run:
+      healthcheck:
+        locket:
+          readiness:
+            exec:
+              command:
+                - "/usr/bin/nc"
+                - "-z"
+                - "127.0.0.1"
+                - "8891"
+      #         - /var/vcap/packages/cfdot/bin/cfdot
+      #         - locks
+      #         - --skipCertVerify
+      #         - --locketAPILocation=127.0.0.1:8891
+      #         - --caCertFile=/var/vcap/jobs/cfdot/config/certs/cfdot/ca.crt
+      #         - --clientCertFile=/var/vcap/jobs/cfdot/config/certs/cfdot/client.crt
+      #         - --clientKeyFile=/var/vcap/jobs/cfdot/config/certs/cfdot/client.key
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=locket.service.cf.internal/targets/0/instance_group
+  value: locket
+
+{{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/locket_*" }}
+{{ $bytes | toString }}
+{{- end }}
