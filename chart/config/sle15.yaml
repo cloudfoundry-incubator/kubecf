@@ -13,11 +13,11 @@ stacks:
         stemcell:
           version: 29.6-7.0.0_374.gb8e8e6af
       sle15:
-        version: "26.8"
+        version: "26.14"
       suse-staticfile-buildpack:
         version: "1.5.13.1"
       suse-java-buildpack:
-        version: "4.35.0.1"
+        version: "4.36.0.1"
       suse-ruby-buildpack:
         version: "1.8.27.1"
       suse-dotnet-core-buildpack:
