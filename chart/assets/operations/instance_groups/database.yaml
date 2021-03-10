@@ -78,6 +78,13 @@
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ca_cert?
   value: *pxc-cluster-ca
 
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
+  value: *pxc-cluster-address
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
+  value: *pxc-cluster-ca
+
 {{- if .Values.features.credhub.enabled }}
 - type: replace
   path: /instance_groups/name=credhub/jobs/name=credhub/properties/credhub/data_storage/host?
@@ -344,6 +351,38 @@
 {{- end }}
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=cloud_controller_clock/properties/ccdb/ssl_verify_hostname?
+  value: {{ .Values.features.external_database.require_ssl }}
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/db_scheme
+  value: *external_cc_database_scheme
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/port
+  value: *external_cc_database_port
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/databases/tag=cc/name
+  value: *external_cc_database_name
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/address?
+  value: *external_cc_database_address
+{{- if not .Values.features.external_database.seed }}
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/roles/name=cloud_controller/password
+  value: *external_cc_database_password
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/roles/name=cloud_controller/name
+  value: *external_cc_database_username
+{{- end }}{{/* not .Values.features.external_database.seed */}}
+{{- if .Values.features.external_database.ca_cert }}
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
+  value: {{- toYaml .Values.features.external_database.ca_cert | indent 2 }}
+{{- else }}
+- type: remove
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ca_cert?
+{{- end }}
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/ccdb/ssl_verify_hostname?
   value: {{ .Values.features.external_database.require_ssl }}
 
 - type: replace

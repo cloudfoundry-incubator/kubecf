@@ -28,6 +28,7 @@
 
   {{- /* The buildpacks properties are only defined for the ng/worker/clock jobs */}}
   {{- if not (hasPrefix "buildpacks" $property) }}
+    {{- $_ := set $ig "cc_deployment_updater"   "scheduler" }}
     {{- /* XXX cc_route_syncer is not in cf-deployment; see CF-K8s-Networking */}}
     {{- /* $_ := set $ig "cc_route_syncer" "???" */}}
   {{- end }}

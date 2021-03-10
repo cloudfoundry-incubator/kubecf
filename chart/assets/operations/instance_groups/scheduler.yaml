@@ -6,6 +6,18 @@
       exec:
         command: ["pgrep", "--full", "clock:start"]
 
+# Set readiness port based on port used in cc.readiness_port.deployment_updater property being set in the manifest
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties?/cc/readiness_port/deployment_updater?
+  value: 4445
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater/properties/quarks?/run/healthcheck/cc_deployment_updater
+  value:
+    readiness:
+      tcpSocket:
+        port: 4445
+
 - type: replace
   path: /instance_groups/name=scheduler/jobs/name=statsd_injector/properties/quarks?/run/healthcheck/statsd_injector/readiness/exec/command
   value: ["/bin/sh", "-c", "ss -nlu src localhost:8125 | grep :8125"]
@@ -84,9 +96,6 @@
     - name: binding-cache
       protocol: TCP
       internal: 9000
-
-- type: remove
-  path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater
 
 {{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/scheduler_*" }}
 {{ $bytes | toString }}
