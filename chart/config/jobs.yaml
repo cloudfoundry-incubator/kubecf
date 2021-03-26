@@ -17,6 +17,8 @@ move_jobs:
     log-cache-nozzle: log-cache
     log-cache-cf-auth-proxy: log-cache
     route_registrar: log-cache
+  diego-api:
+    locket: locket
 
 # Include default settings for `number_of_worker` properties because
 # they are not set in cf-deployment, and spec files are not available
@@ -125,6 +127,7 @@ jobs:
     # database instance group is replaced by native release
     '$default': false
   diego-api:
+    '$default': '!features.eirini.enabled && !features.multiple_cluster_mode.control_plane.enabled'
     cfdot:
       processes: []
   diego-cell:

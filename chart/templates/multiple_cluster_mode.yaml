@@ -37,6 +37,8 @@ data:
     - type: remove
       path: /instance_groups/name=log-cache
     - type: remove
+      path: /instance_groups/name=locket
+    - type: remove
       path: /instance_groups/name=nats
     - type: remove
       path: /instance_groups/name=router
