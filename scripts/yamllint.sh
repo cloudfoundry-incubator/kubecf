@@ -13,6 +13,9 @@ find_args=(
     # Don't lint submodules.
     -not \( -path "./src" -prune \)
 
+    # release-drafter contains GFM values that cannot include newlines in paragraphs
+    -not \( -path ./.github/release-drafter.yml \)
+
     # Only lint values.yaml file in the kubecf static files
     # the rest contain template expressions that must be
     # evaluated before the files become valid YAML.
