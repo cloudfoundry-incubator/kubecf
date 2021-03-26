@@ -37,15 +37,6 @@ The pull request & continuous integration workflow is:
 [`pr-test-trigger`]: https://github.com/cloudfoundry-incubator/kubecf/issues?q=label%3Apr-test-trigger
 [`pull-request-ci.yaml`]: pull-request-ci.yaml
 
-## Pull Request Summary Linting
-
-[`conventional-commits-lint.yml`] checks that pull requests have a summary that
-follows [Conventional Commits], as specified in [RFD 002].
-
-[`conventional-commits-lint.yml`]: conventional-commits-lint.yml
-[Conventional Commits]: https://www.conventionalcommits.org/en/v1.0.0/
-[RFD 002]: /doc/rfd/rfd/0002/README.md
-
 ## Pull Request Linting
 
 [`pull-request-lint.yaml`] checks that pull requests pass the basic linting

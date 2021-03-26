@@ -1,0 +1,55 @@
+categories:
+- title: '🚀 Enhancements'
+  labels:
+  - 'Type: Enhancement'
+- title: '🐛 Bug Fixes'
+  labels:
+  - 'Type: Bug'
+- title: '🧰 Maintenance'
+  labels:
+  - 'Type: Maintenance'
+change-template: '- $TITLE (#$NUMBER)'
+change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
+template: |
+
+  $CHANGES
+
+  # Known Issues
+
+  ...
+
+  # Dependencies
+
+  | Name         | Version   | Description                                             |
+  |---           |---        |---                                                      |
+  |cf-operator   | v7.2.1    | Processes BOSH deployments. Maps them to kube objects   |
+
+  # Quick Fresh Installation
+
+  These are the basic guidelines to deploy KubeCF in a development environment. For more detailed information check [here](doc/dev/general.md).
+
+  Before starting the deployment phase, make sure that the **values.yaml** file contains all the needed properties with valid values. For more information about the available properties check [here](https://github.com/cloudfoundry-incubator/kubecf/blob/v$RESOLVED_VERSION/chart/values.yaml).
+
+  Download the release bundle artifact extract the content to a local folder.
+
+  # Installation
+
+  ## cf-operator
+
+  ```
+  helm install cf-operator \
+    --namespace cf-operator \
+    cf-operator.tgz \
+    --wait
+  ```
+
+  ## KubeCF
+
+  Install KubeCF after setting the needed properties in your `values.yaml`.
+
+  ```
+  helm install kubecf \
+    --namespace kubecf \
+    --values values.yaml \
+    kubecf_release.tgz
+  ```
