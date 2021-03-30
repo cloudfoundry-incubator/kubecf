@@ -12,9 +12,8 @@ if [[ -f "${sentinel}" ]]; then
   echo "Sentinel mismatch, re-patching"
 fi
 
-# Advertise our spec address.
 patch --verbose "${target}" <<'EOT'
-@@ -1,5 +1,8 @@
+@@ -1,5 +1,10 @@
  #!/usr/bin/env bash
 
 +# CAPI makes cf4k8s assumptions when running on k8s that are not correct for kubecf
@@ -22,7 +21,36 @@ patch --verbose "${target}" <<'EOT'
 +
  source /var/vcap/jobs/cloud_controller_clock/bin/ruby_version.sh
  cd /var/vcap/packages/cloud_controller_ng/cloud_controller_ng
++patch -p0 < /var/vcap/all-releases/jobs-src/capi/cloud_controller_ng/opi-task.patch
++
  exec bundle exec rake clock:start
 EOT
 
 sha256sum "${target}" > "${sentinel}"
+
+cat <<'EOT' > /var/vcap/all-releases/jobs-src/capi/cloud_controller_ng/opi-task.patch
+diff --git lib/cloud_controller/opi/task_client.rb lib/cloud_controller/opi/task_client.rb
+index 57662b99a..b4f512149 100644
+--- lib/cloud_controller/opi/task_client.rb
++++ lib/cloud_controller/opi/task_client.rb
+@@ -36,18 +36,7 @@ module OPI
+     end
+
+     def fetch_tasks
+-      resp = client.get('/tasks')
+-
+-      if resp.status_code != 200
+-        raise CloudController::Errors::ApiError.new_from_details('TaskError', "response status code: #{resp.status_code}")
+-      end
+-
+-      tasks = JSON.parse(resp.body)
+-      tasks.each do |task|
+-        task['task_guid'] = task.delete('guid')
+-      end
+-
+-      tasks.map { |t| OPI.recursive_ostruct(t) }
++      []
+     end
+
+     def cancel_task(guid)
+EOT
