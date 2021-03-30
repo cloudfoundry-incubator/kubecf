@@ -88,10 +88,6 @@
 - type: remove
   path: /instance_groups/name=scheduler/jobs/name=cc_deployment_updater
 
-{{- if not .Values.features.eirini.enabled }}
-
 {{- range $bytes := .Files.Glob "assets/operations/pre_render_scripts/scheduler_*" }}
 {{ $bytes | toString }}
 {{- end }}
-
-{{- end }}{{/* scheduler scripts, only if not eirini */}}
