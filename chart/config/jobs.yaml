@@ -127,7 +127,6 @@ jobs:
     # database instance group is replaced by native release
     '$default': false
   diego-api:
-    '$default': '!features.eirini.enabled && !features.multiple_cluster_mode.control_plane.enabled'
     cfdot:
       processes: []
   diego-cell:
