@@ -43,10 +43,10 @@
   value: &pxc-cluster-ca ((pxc_tls.ca))
 
 - type: replace
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/db_host?
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host?
   value: *pxc-cluster-address
 - type: replace
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/ca_cert?
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/ca_cert?
   value: *pxc-cluster-ca
 
 - type: replace
@@ -477,35 +477,35 @@
   value: {{ .Values.features.external_database.require_ssl }}
 
 - type: replace
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/db_driver
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_driver
   value: {{ .Values.features.external_database.type | quote }}
 - type: replace
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/db_port
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_port
   value: {{ .Values.features.external_database.port }}
 - type: replace
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/db_schema
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_schema
   value: {{ .Values.features.external_database.databases.locket.name | quote }}
 - type: replace
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/db_host?
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_host?
   value: {{ .Values.features.external_database.host | quote }}
 {{- if not .Values.features.external_database.seed }}
 - type: replace
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/db_password
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_password
   value: {{ .Values.features.external_database.databases.locket.password | quote }}
 - type: replace
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/db_username
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/db_username
   value: {{ .Values.features.external_database.databases.locket.username | quote }}
 {{- end }}{{/* not .Values.features.external_database.seed */}}
 {{- if .Values.features.external_database.ca_cert }}
 - type: replace
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/ca_cert?
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/ca_cert?
   value: {{- toYaml .Values.features.external_database.ca_cert | indent 2 }}
 {{- else }}
 - type: remove
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/ca_cert?
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/ca_cert?
 {{- end}}
 - type: replace
-  path: /instance_groups/name=locket/jobs/name=locket/properties/diego/locket/sql/require_ssl?
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/diego/locket/sql/require_ssl?
   value: {{ .Values.features.external_database.require_ssl }}
 
 {{- if .Values.features.credhub.enabled }}
