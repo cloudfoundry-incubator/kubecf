@@ -143,7 +143,6 @@ resources:
   log-api: 128
   log-cache:
     log-cache: 2048
-  locket: 64
   nats: ~
   rotate-cc-database-key:
     rotate_cc_database_key:

@@ -1,18 +1,51 @@
 # Override the addresses for the jobs under the diego-api instance group.
 - type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/locket?/api_location
+  value: 127.0.0.1:8891
+- type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/health_addr?
   value: 0.0.0.0:8890
 - type: replace
   path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/bbs?/hostname
   value: 127.0.0.1
 - type: replace
+  path: /instance_groups/name=diego-api/jobs/name=cfdot/properties/locket?/hostname
+  value: 127.0.0.1
+- type: replace
   path: /variables/name=diego_bbs_server/options?/alternative_names?/-
+  value: '127.0.0.1'
+- type: replace
+  path: /variables/name=diego_locket_server/options?/alternative_names?/-
   value: '127.0.0.1'
 
 # Disable tuning /proc/sys kernel parameters as locket and bbs are running on containers.
 - type: replace
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/set_kernel_parameters?
+  value: false
+- type: replace
   path: /instance_groups/name=diego-api/jobs/name=bbs/properties/set_kernel_parameters?
   value: false
+
+# Add quarks properties for locket.
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=locket/properties/quarks?
+  value:
+    ports:
+    - name: locket
+      protocol: TCP
+      internal: 8891
+    run:
+      healthcheck:
+        locket:
+          readiness:
+            exec:
+              command:
+              - /var/vcap/packages/cfdot/bin/cfdot
+              - locks
+              - --locketAPILocation=127.0.0.1:8891
+              - --caCertFile=/var/vcap/jobs/cfdot/config/certs/cfdot/ca.crt
+              - --clientCertFile=/var/vcap/jobs/cfdot/config/certs/cfdot/client.crt
+              - --clientKeyFile=/var/vcap/jobs/cfdot/config/certs/cfdot/client.key
 
 # Add quarks properties for bbs.
 - type: replace
