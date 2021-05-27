@@ -104,6 +104,8 @@ make kubeconfig
 # Deploy kubecf from public GH release
 make kubecf
 
+set -x
+
 # Setup dns
 tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
