@@ -229,13 +229,24 @@ deploy_args: &deploy_args
   set -x
 
   # Setup dns
+  while [ -z "$(kubectl get svc -n scf tcp-router-public --output='jsonpath={.status.loadBalancer.ingress}')" ]; do
+    sleep 5
+  done
   tcp_router_ip=$(kubectl get svc -n scf tcp-router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
   # tcp-router svc may not exist, if so, use an rfc5737 example IP address
   tcp_router_ip="${tcp_router_ip:-"192.0.2.0"}"
+
+  while [ -z "$(kubectl get svc -n scf router-public --output='jsonpath={.status.loadBalancer.ingress}')" ]; do
+    sleep 5
+  done
   public_router_ip=$(kubectl get svc -n scf router-public -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+
   # ssh-proxy service is named differently in diego and eirini
   ssh_proxy_svc=$(kubectl get svc -n scf | grep ssh-proxy | awk '{print $1}' | head -n 1)
-  ssh_proxy_ip=$(kubectl get svc -n scf ${ssh_proxy_svc} -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
+  while [ -z "$(kubectl get svc -n scf "${ssh_proxy_svc}" --output='jsonpath={.status.loadBalancer.ingress}')" ]; do
+    sleep 5
+  done
+  ssh_proxy_ip=$(kubectl get svc -n scf "${ssh_proxy_svc}" -o json | jq -r .status.loadBalancer.ingress[].ip | head -n 1)
 
   gcloud --quiet beta dns --project=${GKE_PROJECT} record-sets transaction start \
     --zone=${GKE_DNS_ZONE}
