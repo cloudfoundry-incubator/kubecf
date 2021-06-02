@@ -1,8 +1,3 @@
-# Set instance count to 2; the default inherited from diego-api is 2
-- type: replace
-  path: /instance_groups/name=locket/instances
-  value: 2
-
 # Disable tuning /proc/sys kernel parameters as locket is running on containers.
 - type: replace
   path: /instance_groups/name=locket/jobs/name=locket/properties/set_kernel_parameters?
