@@ -19,6 +19,7 @@
     {{- $_ := unset $.Values.properties "doppler" }}
     {{- $_ := unset $.Values.properties "log-api" }}
     {{- $_ := unset $.Values.properties "log-cache" }}
+    {{- $_ := unset $.Values.properties "locket" }}
     {{- $_ := unset $.Values.properties "nats" }}
     {{- $_ := unset $.Values.properties "rotate-cc-database-key" }}
     {{- $_ := unset $.Values.properties "router" }}
