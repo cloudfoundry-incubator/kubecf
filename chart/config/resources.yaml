@@ -149,6 +149,7 @@ resources:
       rotate: {memory: {limit: 512, request: 192}}
   router: 200
   scheduler:
+    cc_deployment_updater: 320
     cloud_controller_clock: 512
   singleton-blobstore:
     blobstore:
