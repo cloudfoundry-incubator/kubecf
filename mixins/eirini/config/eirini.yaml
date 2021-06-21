@@ -24,6 +24,7 @@ eirini:
     disk_limit_mb: 2048
     namespace: eirini
     version: 0.0.0
+    nodeSelector: {}
 
     cc_api:
       # The service that the CC API listens on; may be a FQDN instead.
