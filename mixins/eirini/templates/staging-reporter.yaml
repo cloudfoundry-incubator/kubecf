@@ -63,5 +63,7 @@ spec:
                 items:
                 - key: "{{ .Values.eirini.opi.events.tls.capi.caPath }}"
                   path: cc.ca
+      nodeSelector:
+        {{- toYaml .Values.eirini.opi.nodeSelector | nindent 8 }}
 {{- end }}
 {{- end }}
