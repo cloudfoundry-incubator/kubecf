@@ -16,3 +16,5 @@ bits:
     BLOBSTORE_PASSWORD: blobstore
 
   tls_secret_name: bits-service-ssl
+
+  nodeSelector: {}

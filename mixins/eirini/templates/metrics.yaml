@@ -60,5 +60,7 @@ spec:
           requests:
             cpu: 15m
             memory: 15Mi
+      nodeSelector:
+        {{- toYaml .Values.eirini.opi.nodeSelector | nindent 8 }}
 {{- end }}
 {{- end }}

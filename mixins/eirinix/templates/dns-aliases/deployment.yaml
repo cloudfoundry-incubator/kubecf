@@ -37,4 +37,6 @@ spec:
           ports:
           - name: webhook
             containerPort: 8443
+      nodeSelector:
+        {{- toYaml .Values.eirini.opi.nodeSelector | nindent 8 }}
 {{- end }}

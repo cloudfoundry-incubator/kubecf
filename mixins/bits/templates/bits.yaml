@@ -48,6 +48,8 @@ spec:
           mountPath: /workspace/jobs/bits-service/config
         - name: bits-cert
           mountPath: /workspace/jobs/bits-service/certs
+      nodeSelector:
+        {{- toYaml .Values.bits.nodeSelector | nindent 8 }}
 # Service
 ---
 apiVersion: v1
