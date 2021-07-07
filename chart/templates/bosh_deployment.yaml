@@ -60,12 +60,6 @@ spec:
     type: configmap
 {{- end }}
 
-# To support multi-clusters
-{{- if or .Values.features.multiple_cluster_mode.control_plane.enabled .Values.features.multiple_cluster_mode.cell_segment.enabled }}
-  - name: multiple-cluster-mode-operations
-    type: configmap
-{{- end }}
-
 # Custom operations
 {{- range $_, $ops := .Values.operations.custom }}
   - name: {{ $ops | quote }}
@@ -77,3 +71,9 @@ spec:
 {{- end }}
   - name: user-provided-properties
     type: configmap
+
+# To support multi-clusters, NOTE: this section must be the bottom of this file
+{{- if or .Values.features.multiple_cluster_mode.control_plane.enabled .Values.features.multiple_cluster_mode.cell_segment.enabled }}
+  - name: multiple-cluster-mode-operations
+    type: configmap
+{{- end }}
